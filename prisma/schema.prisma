@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id              String     @id @default(cuid())
+  supabaseId      String     @unique
+  email           String     @unique
+  name            String?
+  telegramChatId  String?
+  brokerToken     String?
+  brokerAccountId String?
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  strategies      Strategy[]
+  signals         Signal[]
+}
+
+model Strategy {
+  id             String         @id @default(cuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  name           String
+  description    String?
+  status         StrategyStatus @default(DRAFT)
+  instrument     String
+  instrumentType InstrumentType @default(STOCK)
+  timeframe      String
+  config         Json
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([userId])
+}
+
+enum StrategyStatus {
+  DRAFT
+  ACTIVE
+  PAUSED
+  ARCHIVED
+}
+
+enum InstrumentType {
+  STOCK
+  BOND
+  CURRENCY
+  FUTURES
+}
+
+model Signal {
+  id             String         @id @default(cuid())
+  userId         String
+  user           User           @relation(fields: [userId], references: [id])
+  name           String
+  description    String?
+  instrument     String
+  instrumentType InstrumentType @default(STOCK)
+  timeframe      String
+  signalType     SignalType
+  conditions     Json
+  channels       Json
+  isActive       Boolean        @default(true)
+  lastTriggered  DateTime?
+  triggerCount   Int            @default(0)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+enum SignalType {
+  BUY
+  SELL
+}
+
+model SignalLog {
+  id          String   @id @default(cuid())
+  signalId    String
+  instrument  String
+  message     String
+  triggeredAt DateTime @default(now())
+}

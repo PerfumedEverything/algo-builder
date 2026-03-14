@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+
+  # Supabase self-hosted
+  # For full Supabase setup, use the official docker-compose:
+  # https://supabase.com/docs/guides/self-hosting/docker
+  # Clone: git clone --depth 1 https://github.com/supabase/supabase
+  # Then: cd supabase/docker && cp .env.example .env && docker compose up
+
+volumes:
+  redis-data:
