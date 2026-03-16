@@ -1,10 +1,12 @@
 "use client"
 
+import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
 import { Gift, HelpCircle, Crown, Sparkles, User, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { usePlanStore } from "@/hooks/use-plan-store"
+import { getSettingsAction } from "@/server/actions/settings-actions"
 
 type PlanTier = "starter" | "pro" | "expert"
 
@@ -33,6 +35,14 @@ const tierConfig: Record<PlanTier, {
 export const Header = () => {
   const { planName, planTier } = usePlanStore()
   const config = tierConfig[planTier]
+  const [userName, setUserName] = useState<string | null>(null)
+
+  const fetchUser = useCallback(async () => {
+    const res = await getSettingsAction()
+    if (res.success) setUserName(res.data.name || res.data.email?.split("@")[0] || null)
+  }, [])
+
+  useEffect(() => { fetchUser() }, [fetchUser])
 
   return (
     <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-sm">
@@ -80,7 +90,7 @@ export const Header = () => {
           <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20">
             <User className="h-4 w-4 text-primary" />
           </div>
-          <span className="hidden text-sm font-medium md:inline">Даня Шнайдер</span>
+          <span className="hidden text-sm font-medium md:inline">{userName ?? "..."}</span>
         </div>
       </div>
     </header>

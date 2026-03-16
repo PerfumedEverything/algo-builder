@@ -22,6 +22,7 @@ import {
   removeMaxChatIdAction,
   testNotificationAction,
 } from "@/server/actions/settings-actions"
+import { logoutAction } from "@/server/actions/auth"
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
@@ -192,7 +193,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-6">
-        <Button variant="outline" className="text-red-400 hover:text-red-300">
+        <Button variant="outline" className="text-red-400 hover:text-red-300" onClick={() => logoutAction()}>
           <LogOut className="mr-2 h-4 w-4" />
           Выйти из аккаунта
         </Button>

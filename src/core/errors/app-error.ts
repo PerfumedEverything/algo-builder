@@ -12,18 +12,18 @@ export class AppError extends Error {
   }
 
   static unauthorized() {
-    return new AppError("Unauthorized", 401)
+    return new AppError("Необходима авторизация", 401)
   }
 
   static forbidden() {
-    return new AppError("Forbidden", 403)
+    return new AppError("Доступ запрещён", 403)
   }
 
   static notFound(entity: string) {
-    return new AppError(`${entity} not found`, 404)
+    return new AppError(`${entity} не найден`, 404)
   }
 
-  static internal(message = "Internal server error") {
+  static internal(message = "Внутренняя ошибка сервера") {
     return new AppError(message, 500)
   }
 }

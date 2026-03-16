@@ -7,6 +7,16 @@ import { type ApiResponse, errorResponse, successResponse } from "@/core/types/a
 import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 
+const authErrorMap: Record<string, string> = {
+  "Invalid login credentials": "Неверный email или пароль",
+  "Email not confirmed": "Email не подтверждён",
+  "User already registered": "Пользователь с таким email уже зарегистрирован",
+  "Password should be at least 6 characters": "Пароль должен быть не менее 6 символов",
+  "Unable to validate email address: invalid format": "Некорректный формат email",
+}
+
+const translateAuthError = (msg: string): string => authErrorMap[msg] ?? msg
+
 export const loginAction = async (
   formData: FormData,
 ): Promise<ApiResponse<{ email: string }>> => {
@@ -27,7 +37,7 @@ export const loginAction = async (
   })
 
   if (error) {
-    return errorResponse(error.message)
+    return errorResponse(translateAuthError(error.message))
   }
 
   return successResponse({ email: parsed.data.email })
@@ -57,7 +67,7 @@ export const registerAction = async (
   })
 
   if (error) {
-    return errorResponse(error.message)
+    return errorResponse(translateAuthError(error.message))
   }
 
   if (signUpData.user) {
