@@ -47,7 +47,7 @@ export const registerAction = async (
   }
 
   const supabase = await createClient()
-  const { error } = await supabase.auth.signUp({
+  const { data: signUpData, error } = await supabase.auth.signUp({
     email: parsed.data.email,
     password: parsed.data.password,
     options: {
@@ -57,6 +57,20 @@ export const registerAction = async (
 
   if (error) {
     return errorResponse(error.message)
+  }
+
+  if (signUpData.user) {
+    const now = new Date().toISOString()
+    await supabase.from("User").upsert(
+      {
+        supabaseId: signUpData.user.id,
+        email: parsed.data.email,
+        name: parsed.data.name || null,
+        createdAt: now,
+        updatedAt: now,
+      },
+      { onConflict: "supabaseId" },
+    )
   }
 
   return successResponse({ email: parsed.data.email })
