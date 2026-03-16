@@ -21,8 +21,8 @@ export const RegisterForm = () => {
     const result = await registerAction(formData)
 
     if (result.success) {
-      toast.success("Аккаунт создан! Проверьте почту для подтверждения.")
-      router.push("/login")
+      toast.success("Аккаунт создан!")
+      router.push("/dashboard")
     } else {
       toast.error(result.error)
       setLoading(false)
