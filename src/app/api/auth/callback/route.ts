@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 
+import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 
 export const GET = async (request: Request) => {
@@ -14,7 +15,8 @@ export const GET = async (request: Request) => {
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
         const now = new Date().toISOString()
-        await supabase.from("User").upsert(
+        const admin = createAdminClient()
+        await admin.from("User").upsert(
           {
             supabaseId: user.id,
             email: user.email!,

@@ -1,6 +1,7 @@
 "use server"
 
 import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { AppError } from "@/core/errors/app-error"
 
 export const getCurrentUserId = async (): Promise<string> => {
@@ -16,7 +17,8 @@ export const getCurrentUserId = async (): Promise<string> => {
 
   if (data) return data.id
 
-  const { data: created, error } = await supabase
+  const admin = createAdminClient()
+  const { data: created, error } = await admin
     .from("User")
     .insert({
       supabaseId: authData.user.id,

@@ -4,6 +4,7 @@ import { redirect } from "next/navigation"
 
 import { loginSchema, registerSchema } from "@/core/schemas/auth"
 import { type ApiResponse, errorResponse, successResponse } from "@/core/types/api"
+import { createAdminClient } from "@/lib/supabase/admin"
 import { createClient } from "@/lib/supabase/server"
 
 export const loginAction = async (
@@ -61,7 +62,8 @@ export const registerAction = async (
 
   if (signUpData.user) {
     const now = new Date().toISOString()
-    await supabase.from("User").upsert(
+    const admin = createAdminClient()
+    await admin.from("User").upsert(
       {
         supabaseId: signUpData.user.id,
         email: parsed.data.email,
