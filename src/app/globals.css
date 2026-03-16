@@ -1,26 +1,351 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: 0 0% 100%;
+  --foreground: 222 47% 11%;
+  --card: 0 0% 100%;
+  --card-foreground: 222 47% 11%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 222 47% 11%;
+  --primary: 224 100% 58%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 210 40% 96%;
+  --secondary-foreground: 222 47% 11%;
+  --muted: 210 40% 96%;
+  --muted-foreground: 215 16% 47%;
+  --accent: 210 40% 96%;
+  --accent-foreground: 222 47% 11%;
+  --destructive: 354 70% 54%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+  --border: 214 32% 91%;
+  --input: 214 32% 91%;
+  --ring: 224 100% 58%;
+  --radius: 0.5rem;
+  --chart-1: 224 100% 58%;
+  --chart-2: 142 71% 45%;
+  --chart-3: 354 70% 54%;
+  --chart-4: 43 96% 56%;
+  --chart-5: 262 83% 58%;
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 222 47% 11%;
+  --sidebar-primary: 224 100% 58%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 210 40% 96%;
+  --sidebar-accent-foreground: 222 47% 11%;
+  --sidebar-border: 214 32% 91%;
+  --sidebar-ring: 224 100% 58%;
+}
+
+.dark {
+  --background: 222 33% 8%;
+  --foreground: 213 31% 85%;
+  --card: 222 28% 12%;
+  --card-foreground: 213 31% 85%;
+  --popover: 222 28% 12%;
+  --popover-foreground: 213 31% 85%;
+  --primary: 224 100% 58%;
+  --primary-foreground: 0 0% 100%;
+  --secondary: 222 25% 16%;
+  --secondary-foreground: 213 31% 85%;
+  --muted: 222 25% 16%;
+  --muted-foreground: 215 14% 45%;
+  --accent: 222 25% 16%;
+  --accent-foreground: 213 31% 85%;
+  --destructive: 354 70% 54%;
+  --destructive-foreground: 0 0% 100%;
+  --success: 142 71% 45%;
+  --success-foreground: 0 0% 100%;
+  --border: 222 20% 22%;
+  --input: 222 20% 22%;
+  --ring: 224 100% 58%;
+  --chart-1: 224 100% 58%;
+  --chart-2: 142 71% 45%;
+  --chart-3: 354 70% 54%;
+  --chart-4: 43 96% 56%;
+  --chart-5: 262 83% 58%;
+  --sidebar-background: 222 33% 7%;
+  --sidebar-foreground: 213 31% 85%;
+  --sidebar-primary: 224 100% 58%;
+  --sidebar-primary-foreground: 0 0% 100%;
+  --sidebar-accent: 222 25% 14%;
+  --sidebar-accent-foreground: 213 31% 85%;
+  --sidebar-border: 222 20% 22%;
+  --sidebar-ring: 224 100% 58%;
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  --color-background: hsl(var(--background));
+  --color-foreground: hsl(var(--foreground));
+  --color-card: hsl(var(--card));
+  --color-card-foreground: hsl(var(--card-foreground));
+  --color-popover: hsl(var(--popover));
+  --color-popover-foreground: hsl(var(--popover-foreground));
+  --color-primary: hsl(var(--primary));
+  --color-primary-foreground: hsl(var(--primary-foreground));
+  --color-secondary: hsl(var(--secondary));
+  --color-secondary-foreground: hsl(var(--secondary-foreground));
+  --color-muted: hsl(var(--muted));
+  --color-muted-foreground: hsl(var(--muted-foreground));
+  --color-accent: hsl(var(--accent));
+  --color-accent-foreground: hsl(var(--accent-foreground));
+  --color-destructive: hsl(var(--destructive));
+  --color-destructive-foreground: hsl(var(--destructive-foreground));
+  --color-success: hsl(var(--success));
+  --color-success-foreground: hsl(var(--success-foreground));
+  --color-border: hsl(var(--border));
+  --color-input: hsl(var(--input));
+  --color-ring: hsl(var(--ring));
+  --color-chart-1: hsl(var(--chart-1));
+  --color-chart-2: hsl(var(--chart-2));
+  --color-chart-3: hsl(var(--chart-3));
+  --color-chart-4: hsl(var(--chart-4));
+  --color-chart-5: hsl(var(--chart-5));
+  --color-sidebar-background: hsl(var(--sidebar-background));
+  --color-sidebar-foreground: hsl(var(--sidebar-foreground));
+  --color-sidebar-primary: hsl(var(--sidebar-primary));
+  --color-sidebar-primary-foreground: hsl(var(--sidebar-primary-foreground));
+  --color-sidebar-accent: hsl(var(--sidebar-accent));
+  --color-sidebar-accent-foreground: hsl(var(--sidebar-accent-foreground));
+  --color-sidebar-border: hsl(var(--sidebar-border));
+  --color-sidebar-ring: hsl(var(--sidebar-ring));
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --animate-accordion-down: accordion-down 0.2s ease-out;
+  --animate-accordion-up: accordion-up 0.2s ease-out;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@keyframes accordion-down {
+  from { height: 0; }
+  to { height: var(--radix-accordion-content-height); }
+}
+
+@keyframes accordion-up {
+  from { height: var(--radix-accordion-content-height); }
+  to { height: 0; }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button,
+  a,
+  [role="button"] {
+    cursor: pointer;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.auth-container {
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  height: 580px;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+.auth-container::before {
+  content: "";
+  position: absolute;
+  height: 2000px;
+  width: 2000px;
+  top: -10%;
+  right: 48%;
+  transform: translateY(-50%);
+  background: linear-gradient(
+    -45deg,
+    hsl(var(--primary)) 0%,
+    hsl(var(--chart-5)) 100%
+  );
+  transition: 1.8s ease-in-out;
+  border-radius: 50%;
+  z-index: 6;
+}
+
+.auth-container.sign-up-mode::before {
+  transform: translate(100%, -50%);
+  right: 52%;
+}
+
+.auth-forms {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.auth-signin-signup {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  left: 75%;
+  width: 50%;
+  transition: 1s 0.7s ease-in-out;
+  display: grid;
+  grid-template-columns: 1fr;
+  z-index: 5;
+}
+
+.auth-container.sign-up-mode .auth-signin-signup {
+  left: 25%;
+}
+
+.auth-form-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 0 1.5rem;
+  transition: all 0.2s 0.7s;
+  overflow: hidden;
+  grid-column: 1 / 2;
+  grid-row: 1 / 2;
+}
+
+.auth-form-signin {
+  z-index: 2;
+}
+
+.auth-form-signup {
+  opacity: 0;
+  z-index: 1;
+}
+
+.auth-container.sign-up-mode .auth-form-signin {
+  opacity: 0;
+  z-index: 1;
+}
+
+.auth-container.sign-up-mode .auth-form-signup {
+  opacity: 1;
+  z-index: 2;
+}
+
+.auth-panels {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.auth-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: space-around;
+  text-align: center;
+  z-index: 6;
+}
+
+.auth-panel-left {
+  pointer-events: all;
+  padding: 3rem 17% 2rem 12%;
+}
+
+.auth-panel-right {
+  pointer-events: none;
+  padding: 3rem 12% 2rem 17%;
+}
+
+.auth-panel .auth-panel-content {
+  color: #fff;
+  transition: transform 0.9s ease-in-out;
+  transition-delay: 0.6s;
+}
+
+.auth-panel-right .auth-panel-content {
+  transform: translateX(800px);
+}
+
+.auth-container.sign-up-mode .auth-panel-left .auth-panel-content {
+  transform: translateX(-800px);
+}
+
+.auth-container.sign-up-mode .auth-panel-right .auth-panel-content {
+  transform: translateX(0%);
+}
+
+.auth-container.sign-up-mode .auth-panel-left {
+  pointer-events: none;
+}
+
+.auth-container.sign-up-mode .auth-panel-right {
+  pointer-events: all;
+}
+
+@media (max-width: 870px) {
+  .auth-container {
+    min-height: 800px;
+    height: auto;
+  }
+  .auth-signin-signup {
+    width: 100%;
+    top: 95%;
+    transform: translate(-50%, -100%);
+    transition: 1s 0.8s ease-in-out;
+  }
+  .auth-signin-signup,
+  .auth-container.sign-up-mode .auth-signin-signup {
+    left: 50%;
+  }
+  .auth-panels {
+    grid-template-columns: 1fr;
+    grid-template-rows: 1fr 2fr 1fr;
+  }
+  .auth-panel {
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    padding: 2.5rem 8%;
+    grid-column: 1 / 2;
+  }
+  .auth-panel-right {
+    grid-row: 3 / 4;
+  }
+  .auth-panel-left {
+    grid-row: 1 / 2;
+  }
+  .auth-container::before {
+    width: 1500px;
+    height: 1500px;
+    transform: translateX(-50%);
+    left: 30%;
+    bottom: 68%;
+    right: initial;
+    top: initial;
+    transition: 2s ease-in-out;
+  }
+  .auth-container.sign-up-mode::before {
+    transform: translate(-50%, 100%);
+    bottom: 32%;
+    right: initial;
+  }
+  .auth-container.sign-up-mode .auth-panel-left .auth-panel-content {
+    transform: translateY(-300px);
+  }
+  .auth-container.sign-up-mode .auth-panel-right .auth-panel-content {
+    transform: translateY(0px);
+  }
+  .auth-panel-right .auth-panel-content {
+    transform: translateY(300px);
+  }
+  .auth-container.sign-up-mode .auth-signin-signup {
+    top: 5%;
+    transform: translate(-50%, 0);
+  }
 }

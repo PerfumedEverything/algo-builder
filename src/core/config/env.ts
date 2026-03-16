@@ -18,6 +18,7 @@ const envSchema = z.object({
   TINKOFF_SANDBOX: z.string().default("true"),
 
   TELEGRAM_BOT_TOKEN: z.string().optional(),
+  MAX_BOT_TOKEN: z.string().optional(),
 
   NEXT_PUBLIC_APP_URL: z.string().url().default("http://localhost:3000"),
 })

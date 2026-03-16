@@ -7,6 +7,6 @@ export type SignalCondition = {
   value?: number
 }
 
-export type SignalChannel = "telegram"
+export type SignalChannel = "max" | "telegram"
 
 export type SignalChannels = SignalChannel[]

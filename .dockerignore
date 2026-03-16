@@ -1,0 +1,16 @@
+node_modules
+.next
+.git
+.claude
+.playwright-mcp
+.env
+.env.*
+!.env.production.example
+coverage
+*.md
+nginx
+.DS_Store
+.vscode
+.idea
+vitest.config.ts
+src/__tests__

@@ -9,7 +9,7 @@ export const signalConditionSchema = z.object({
   value: z.number().optional(),
 })
 
-export const signalChannelSchema = z.enum(["telegram"])
+export const signalChannelSchema = z.enum(["max", "telegram"])
 
 export const createSignalSchema = z.object({
   name: z.string().min(1).max(100),

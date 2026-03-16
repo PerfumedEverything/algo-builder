@@ -1,0 +1,71 @@
+import type { SignalCondition, SignalChannel } from "@/core/types"
+import { AppError } from "@/core/errors/app-error"
+import { SignalRepository } from "@/server/repositories"
+
+export class SignalService {
+  constructor(private repository = new SignalRepository()) {}
+
+  async getSignals(
+    userId: string,
+    filters?: { signalType?: string; isActive?: boolean; search?: string },
+  ) {
+    return this.repository.findByUserId(userId, filters)
+  }
+
+  async getSignal(id: string, userId: string) {
+    const signal = await this.repository.findById(id)
+    if (!signal || signal.userId !== userId) {
+      throw AppError.notFound("Signal")
+    }
+    return signal
+  }
+
+  async createSignal(
+    userId: string,
+    data: {
+      name: string
+      description?: string
+      instrument: string
+      instrumentType?: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+      timeframe: string
+      signalType: "BUY" | "SELL"
+      conditions: SignalCondition[]
+      channels: SignalChannel[]
+    },
+  ) {
+    return this.repository.create({ ...data, userId })
+  }
+
+  async updateSignal(
+    id: string,
+    userId: string,
+    data: Partial<{
+      name: string
+      description: string
+      instrument: string
+      instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+      timeframe: string
+      signalType: "BUY" | "SELL"
+      conditions: SignalCondition[]
+      channels: SignalChannel[]
+      isActive: boolean
+    }>,
+  ) {
+    await this.getSignal(id, userId)
+    return this.repository.update(id, userId, data)
+  }
+
+  async toggleSignal(id: string, userId: string) {
+    const signal = await this.getSignal(id, userId)
+    return this.repository.update(id, userId, { isActive: !signal.isActive })
+  }
+
+  async deleteSignal(id: string, userId: string) {
+    await this.getSignal(id, userId)
+    return this.repository.delete(id, userId)
+  }
+
+  async getStats(userId: string) {
+    return this.repository.getStats(userId)
+  }
+}
