@@ -33,6 +33,11 @@ RUN adduser --system --uid 1001 nextjs
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/tinkoff-invest-api ./node_modules/tinkoff-invest-api
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/@grpc ./node_modules/@grpc
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/nice-grpc ./node_modules/nice-grpc
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/nice-grpc-common ./node_modules/nice-grpc-common
+COPY --from=builder --chown=nextjs:nodejs /app/node_modules/protobufjs ./node_modules/protobufjs
 
 USER nextjs
 EXPOSE 3000
