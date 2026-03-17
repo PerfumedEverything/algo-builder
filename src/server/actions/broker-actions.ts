@@ -16,10 +16,15 @@ export const connectBrokerAction = async (
 ): Promise<ApiResponse<BrokerAccount[]>> => {
   try {
     if (!token.trim()) return errorResponse("Токен обязателен")
+    console.log("[broker] getting userId...")
     const userId = await getCurrentUserId()
+    console.log("[broker] userId:", userId)
+    console.log("[broker] connecting with token length:", token.length)
     const accounts = await getService().connect(userId, token)
+    console.log("[broker] connected, accounts:", accounts.length)
     return successResponse(accounts)
   } catch (e) {
+    console.error("[broker] ERROR:", e)
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
   }
 }
