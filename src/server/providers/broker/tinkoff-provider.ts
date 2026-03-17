@@ -39,31 +39,61 @@ const mapInstrumentType = (type: string): "STOCK" | "BOND" | "CURRENCY" | "FUTUR
 
 export class TinkoffProvider implements BrokerProvider {
   private api: TinkoffInvestApi | null = null
+  private isSandbox = false
 
   async connect(token: string): Promise<void> {
     this.api = new TinkoffInvestApi({ token })
-    await this.api.users.getAccounts({})
+    try {
+      await this.api.users.getAccounts({})
+      this.isSandbox = false
+    } catch {
+      await this.api.sandbox.getSandboxAccounts({})
+      this.isSandbox = true
+    }
   }
 
   async disconnect(): Promise<void> {
     this.api = null
+    this.isSandbox = false
   }
 
   async getAccounts(): Promise<BrokerAccount[]> {
     const client = this.ensureConnected()
-    const { accounts } = await client.users.getAccounts({})
 
+    if (this.isSandbox) {
+      const { accounts } = await client.sandbox.getSandboxAccounts({})
+      if (accounts.length === 0) {
+        const { accountId } = await client.sandbox.openSandboxAccount({})
+        return [{
+          id: accountId,
+          name: "Песочница",
+          type: "SANDBOX",
+          openedDate: new Date().toISOString().split("T")[0],
+        }]
+      }
+      return accounts.map((a) => ({
+        id: a.id,
+        name: a.name || `Песочница ${a.id.slice(-4)}`,
+        type: "SANDBOX" as const,
+        openedDate: a.openedDate?.toISOString().split("T")[0] ?? "",
+      }))
+    }
+
+    const { accounts } = await client.users.getAccounts({})
     return accounts.map((a) => ({
       id: a.id,
       name: a.name || `Счёт ${a.id.slice(-4)}`,
-      type: a.type === 2 ? "SANDBOX" : "TINKOFF",
+      type: "TINKOFF" as const,
       openedDate: a.openedDate?.toISOString().split("T")[0] ?? "",
     }))
   }
 
   async getPortfolio(accountId: string): Promise<Portfolio> {
     const client = this.ensureConnected()
-    const res = await client.operations.getPortfolio({ accountId })
+
+    const res = this.isSandbox
+      ? await client.sandbox.getSandboxPortfolio({ accountId })
+      : await client.operations.getPortfolio({ accountId })
 
     const positions: PortfolioPosition[] = await Promise.all(
       res.positions.map(async (p) => {
