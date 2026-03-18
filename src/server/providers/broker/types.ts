@@ -14,4 +14,5 @@ export interface BrokerProvider {
   getInstruments(type: string): Promise<BrokerInstrument[]>
   getCandles(params: CandleParams): Promise<Candle[]>
   getCurrentPrice(instrumentId: string): Promise<number>
+  sandboxPayIn?(accountId: string, amount: number): Promise<void>
 }

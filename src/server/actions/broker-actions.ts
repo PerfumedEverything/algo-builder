@@ -78,6 +78,19 @@ export const getPortfolioAction = async (): Promise<ApiResponse<Portfolio | null
   }
 }
 
+export const sandboxPayInAction = async (
+  amount: number,
+): Promise<ApiResponse<null>> => {
+  try {
+    if (amount <= 0 || amount > 10_000_000) return errorResponse("Сумма от 1 до 10 000 000 ₽")
+    const userId = await getCurrentUserId()
+    await getService().sandboxPayIn(userId, amount)
+    return successResponse(null)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
 export const getInstrumentsAction = async (
   type: string,
 ): Promise<ApiResponse<BrokerInstrument[]>> => {

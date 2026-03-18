@@ -113,6 +113,7 @@ export default function BrokerPage() {
               accounts={accounts}
               selectedId={selectedAccountId}
               onSelect={handleSelectAccount}
+              onPayIn={fetchStatus}
             />
           </div>
           <div className="lg:col-span-2">

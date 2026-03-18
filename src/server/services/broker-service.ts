@@ -53,6 +53,18 @@ export class BrokerService {
     await this.repo.saveAccountId(userId, accountId)
   }
 
+  async sandboxPayIn(userId: string, amount: number): Promise<void> {
+    const settings = await this.repo.getSettings(userId)
+    if (!settings?.brokerToken || !settings.brokerAccountId) {
+      throw new Error("Брокер не подключён или счёт не выбран")
+    }
+    await this.provider.connect(settings.brokerToken)
+    if (!this.provider.sandboxPayIn) {
+      throw new Error("Пополнение доступно только для sandbox")
+    }
+    await this.provider.sandboxPayIn(settings.brokerAccountId, amount)
+  }
+
   async getConnectionStatus(userId: string) {
     const settings = await this.repo.getSettings(userId)
     return {

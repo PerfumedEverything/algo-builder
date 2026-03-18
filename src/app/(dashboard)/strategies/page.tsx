@@ -21,6 +21,7 @@ import {
   getStrategiesAction,
   getStrategyStatsAction,
   deleteStrategyAction,
+  updateStrategyAction,
 } from "@/server/actions/strategy-actions"
 import { getBrokerStatusAction } from "@/server/actions/broker-actions"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
@@ -64,6 +65,15 @@ export default function StrategiesPage() {
   const handleEdit = (id: string) => {
     const strategy = strategies.find((s) => s.id === id)
     if (strategy) { setEditStrategy(strategy); setDialogOpen(true) }
+  }
+
+  const handleStatusChange = async (id: string, status: string) => {
+    const result = await updateStrategyAction(id, { status: status as "DRAFT" | "ACTIVE" | "PAUSED" | "ARCHIVED" })
+    if (result.success) {
+      const labels: Record<string, string> = { ACTIVE: "Стратегия активирована", PAUSED: "Стратегия приостановлена", ARCHIVED: "Стратегия в архиве" }
+      toast.success(labels[status] ?? "Статус обновлён")
+      fetchData()
+    } else toast.error(result.error)
   }
 
   const handleDelete = async (id: string) => {
@@ -213,7 +223,7 @@ export default function StrategiesPage() {
       {strategies.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {strategies.map((strategy) => (
-            <StrategyCard key={strategy.id} strategy={strategy} onEdit={handleEdit} onDelete={handleDelete} />
+            <StrategyCard key={strategy.id} strategy={strategy} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
           ))}
         </div>
       ) : (

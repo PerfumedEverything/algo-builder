@@ -194,6 +194,15 @@ export class TinkoffProvider implements BrokerProvider {
     return toNumber(lastPrices[0].price)
   }
 
+  async sandboxPayIn(accountId: string, amount: number): Promise<void> {
+    const client = this.ensureConnected()
+    if (!this.isSandbox) throw new Error("Пополнение доступно только для sandbox-счёта")
+    await client.sandbox.sandboxPayIn({
+      accountId,
+      amount: { units: Math.floor(amount), nano: 0, currency: "rub" },
+    })
+  }
+
   private ensureConnected(): TinkoffInvestApi {
     if (!this.api) throw new Error("Брокер не подключён")
     return this.api

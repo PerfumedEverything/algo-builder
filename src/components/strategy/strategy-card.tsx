@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreHorizontal, Pencil, Trash2 } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, Play, Pause, Archive } from "lucide-react"
 
 import type { StrategyCondition } from "@/core/types"
 import { INDICATORS } from "@/core/config/indicators"
@@ -19,6 +19,7 @@ type StrategyCardProps = {
   strategy: StrategyRow
   onEdit: (id: string) => void
   onDelete: (id: string) => void
+  onStatusChange: (id: string, status: string) => void
 }
 
 const STATUS_STYLES: Record<string, string> = {
@@ -42,7 +43,7 @@ const getConditionSummary = (condition: StrategyCondition) => {
   return `${label}(${paramStr}) ${condition.condition.replace(/_/g, " ")}${condition.value !== undefined ? ` ${condition.value}` : ""}`
 }
 
-export const StrategyCard = ({ strategy, onEdit, onDelete }: StrategyCardProps) => {
+export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
   return (
     <div className="group relative rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/30">
       <GlowingEffect spread={40} glow disabled={false} proximity={64} inactiveZone={0.01} borderWidth={2} />
@@ -69,10 +70,28 @@ export const StrategyCard = ({ strategy, onEdit, onDelete }: StrategyCardProps) 
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
+            {strategy.status !== "ACTIVE" && (
+              <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "ACTIVE")} className="text-emerald-400">
+                <Play className="mr-2 h-3.5 w-3.5" />
+                Активировать
+              </DropdownMenuItem>
+            )}
+            {strategy.status === "ACTIVE" && (
+              <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "PAUSED")} className="text-yellow-400">
+                <Pause className="mr-2 h-3.5 w-3.5" />
+                Приостановить
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => onEdit(strategy.id)}>
               <Pencil className="mr-2 h-3.5 w-3.5" />
               Редактировать
             </DropdownMenuItem>
+            {strategy.status !== "ARCHIVED" && (
+              <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "ARCHIVED")} className="text-muted-foreground">
+                <Archive className="mr-2 h-3.5 w-3.5" />
+                В архив
+              </DropdownMenuItem>
+            )}
             <DropdownMenuItem onClick={() => onDelete(strategy.id)} className="text-red-400">
               <Trash2 className="mr-2 h-3.5 w-3.5" />
               Удалить
