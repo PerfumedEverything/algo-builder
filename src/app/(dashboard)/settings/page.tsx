@@ -20,6 +20,8 @@ import {
   updateProfileAction,
   saveMaxChatIdAction,
   removeMaxChatIdAction,
+  saveTelegramChatIdAction,
+  removeTelegramChatIdAction,
   testNotificationAction,
 } from "@/server/actions/settings-actions"
 import { logoutAction } from "@/server/actions/auth"
@@ -32,6 +34,8 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("")
   const [maxChatId, setMaxChatId] = useState("")
   const [maxConnected, setMaxConnected] = useState(false)
+  const [telegramChatId, setTelegramChatId] = useState("")
+  const [telegramConnected, setTelegramConnected] = useState(false)
 
   const fetchSettings = useCallback(async () => {
     setLoading(true)
@@ -42,6 +46,8 @@ export default function SettingsPage() {
         setEmail(res.data.email ?? "")
         setMaxChatId(res.data.maxChatId ?? "")
         setMaxConnected(!!res.data.maxChatId)
+        setTelegramChatId(res.data.telegramChatId ?? "")
+        setTelegramConnected(!!res.data.telegramChatId)
       }
     } finally {
       setLoading(false)
@@ -82,6 +88,30 @@ export default function SettingsPage() {
       setMaxChatId("")
       setMaxConnected(false)
       toast.success("MAX отключён")
+    }
+  }
+
+  const handleSaveTelegram = async () => {
+    setSaving(true)
+    try {
+      const res = await saveTelegramChatIdAction(telegramChatId)
+      if (res.success) {
+        toast.success("Telegram Chat ID сохранён")
+        setTelegramConnected(true)
+      } else {
+        toast.error(res.error)
+      }
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleRemoveTelegram = async () => {
+    const res = await removeTelegramChatIdAction()
+    if (res.success) {
+      setTelegramChatId("")
+      setTelegramConnected(false)
+      toast.success("Telegram отключён")
     }
   }
 
@@ -133,6 +163,62 @@ export default function SettingsPage() {
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Сохранить
           </Button>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-6">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-500/10">
+            <Send className="h-5 w-5 text-sky-400" />
+          </div>
+          <div>
+            <h2 className="font-semibold">Telegram</h2>
+            <p className="text-sm text-muted-foreground">Уведомления о срабатывании сигналов</p>
+          </div>
+          {telegramConnected && (
+            <span className="ml-auto flex items-center gap-1 text-sm text-emerald-400">
+              <CheckCircle className="h-4 w-4" />
+              Подключён
+            </span>
+          )}
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-lg border border-sky-500/20 bg-sky-500/5 px-4 py-3 text-sm">
+            <p className="text-muted-foreground">
+              Напишите <span className="font-medium text-sky-400">/start</span> боту{" "}
+              <span className="font-medium text-sky-400">@AculaTradeNot_bot</span>{" "}
+              в Telegram. Бот отправит вам Chat ID — вставьте его ниже.
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Chat ID</label>
+            <Input
+              value={telegramChatId}
+              onChange={(e) => setTelegramChatId(e.target.value)}
+              placeholder="Например: 309572330"
+            />
+          </div>
+
+          <div className="flex gap-2">
+            <Button onClick={handleSaveTelegram} disabled={saving || !telegramChatId.trim()}>
+              {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+              Сохранить
+            </Button>
+            {telegramConnected && (
+              <>
+                <Button variant="outline" onClick={handleTestNotification} disabled={testing}>
+                  {testing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+                  Тест
+                </Button>
+                <Button variant="outline" onClick={handleRemoveTelegram} className="text-red-400 hover:text-red-300">
+                  <Trash2 className="mr-2 h-4 w-4" />
+                  Отключить
+                </Button>
+              </>
+            )}
+          </div>
         </div>
       </div>
 

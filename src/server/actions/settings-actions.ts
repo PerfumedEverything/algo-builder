@@ -11,7 +11,7 @@ const getService = () => {
 }
 
 export const getSettingsAction = async (): Promise<
-  ApiResponse<{ name: string | null; email: string | null; maxChatId: string | null }>
+  ApiResponse<{ name: string | null; email: string | null; maxChatId: string | null; telegramChatId: string | null }>
 > => {
   try {
     const userId = await getCurrentUserId()
@@ -52,6 +52,29 @@ export const removeMaxChatIdAction = async (): Promise<ApiResponse<null>> => {
   try {
     const userId = await getCurrentUserId()
     await getService().removeMaxChatId(userId)
+    return successResponse(null)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
+export const saveTelegramChatIdAction = async (
+  chatId: string,
+): Promise<ApiResponse<null>> => {
+  try {
+    if (!chatId.trim()) return errorResponse("Chat ID обязателен")
+    const userId = await getCurrentUserId()
+    await getService().saveTelegramChatId(userId, chatId.trim())
+    return successResponse(null)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
+export const removeTelegramChatIdAction = async (): Promise<ApiResponse<null>> => {
+  try {
+    const userId = await getCurrentUserId()
+    await getService().removeTelegramChatId(userId)
     return successResponse(null)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
