@@ -30,14 +30,14 @@ import type { StrategyRow } from "@/server/repositories/strategy-repository"
 import { INSTRUMENT_TYPES, TIMEFRAMES } from "@/core/config/instruments"
 
 type Strategy = StrategyRow
-type Stats = { total: number; active: number; draft: number; archived: number }
+type Stats = { total: number; active: number; draft: number; paused: number }
 type Filters = { status: string; instrumentType: string; timeframe: string }
 
 const DEFAULT_FILTERS: Filters = { status: "", instrumentType: "", timeframe: "" }
 
 export default function StrategiesPage() {
   const [strategies, setStrategies] = useState<Strategy[]>([])
-  const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, archived: 0 })
+  const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, paused: 0 })
   const [search, setSearch] = useState("")
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [filtersOpen, setFiltersOpen] = useState(false)
@@ -174,7 +174,6 @@ export default function StrategiesPage() {
                     <SelectItem value="ACTIVE">Активные</SelectItem>
                     <SelectItem value="DRAFT">Черновики</SelectItem>
                     <SelectItem value="PAUSED">На паузе</SelectItem>
-                    <SelectItem value="ARCHIVED">В архиве</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

@@ -22,7 +22,7 @@ export const getStrategiesAction = async (
 }
 
 export const getStrategyStatsAction = async (): Promise<
-  ApiResponse<{ total: number; active: number; draft: number; archived: number }>
+  ApiResponse<{ total: number; active: number; draft: number; paused: number }>
 > => {
   try {
     const userId = await getCurrentUserId()

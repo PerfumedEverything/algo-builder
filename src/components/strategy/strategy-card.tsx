@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreHorizontal, Pencil, Trash2, Play, Pause, Archive, Radio } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, Play, Pause, Radio } from "lucide-react"
 
 import type { StrategyCondition } from "@/core/types"
 import { INDICATORS } from "@/core/config/indicators"
@@ -26,14 +26,12 @@ const STATUS_STYLES: Record<string, string> = {
   ACTIVE: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   DRAFT: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
   PAUSED: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  ARCHIVED: "bg-red-500/10 text-red-400 border-red-500/20",
 }
 
 const STATUS_LABELS: Record<string, string> = {
   ACTIVE: "Активна",
   DRAFT: "Черновик",
   PAUSED: "Пауза",
-  ARCHIVED: "Архив",
 }
 
 const getConditionSummary = (condition: StrategyCondition) => {
@@ -85,7 +83,7 @@ export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: Str
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {!isActive && strategy.status !== "ARCHIVED" && (
+            {!isActive && (
               <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "ACTIVE")} className="text-emerald-400">
                 <Play className="mr-2 h-3.5 w-3.5" />
                 Запустить
@@ -101,12 +99,6 @@ export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: Str
               <Pencil className="mr-2 h-3.5 w-3.5" />
               Редактировать
             </DropdownMenuItem>
-            {strategy.status !== "ARCHIVED" && (
-              <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "ARCHIVED")} className="text-muted-foreground">
-                <Archive className="mr-2 h-3.5 w-3.5" />
-                В архив
-              </DropdownMenuItem>
-            )}
             <DropdownMenuItem onClick={() => onDelete(strategy.id)} className="text-red-400">
               <Trash2 className="mr-2 h-3.5 w-3.5" />
               Удалить

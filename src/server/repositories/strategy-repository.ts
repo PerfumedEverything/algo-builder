@@ -131,7 +131,7 @@ export class StrategyRepository {
       total: rows.length,
       active: rows.filter((r) => r.status === "ACTIVE").length,
       draft: rows.filter((r) => r.status === "DRAFT").length,
-      archived: rows.filter((r) => r.status === "ARCHIVED").length,
+      paused: rows.filter((r) => r.status === "PAUSED").length,
     }
   }
 }

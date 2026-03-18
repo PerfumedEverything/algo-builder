@@ -9,7 +9,8 @@ type StrategyStatsProps = {
     total: number
     active: number
     draft: number
-    archived: number
+    paused?: number
+    archived?: number
   }
 }
 
@@ -40,11 +41,11 @@ export const StrategyStats = ({ stats }: StrategyStatsProps) => {
         index={2}
       />
       <StatCard
-        title="В архиве"
-        value={String(stats.archived)}
-        subtitle="Неактивные"
+        title="На паузе"
+        value={String(stats.paused ?? stats.archived)}
+        subtitle="Приостановлены"
         icon={Archive}
-        iconColor="text-muted-foreground"
+        iconColor="text-yellow-400"
         index={3}
       />
     </div>
