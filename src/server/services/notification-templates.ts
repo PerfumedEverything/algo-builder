@@ -188,13 +188,16 @@ const formatIndicator = (
   const conditionType = signal.conditions[0]?.condition ?? ""
   const conditionLabel = formatConditionLabel(conditionType, conditionTarget)
 
+  const typeEmoji = signal.signalType === "BUY" ? "📗" : "📕"
+  const typeLabel = signal.signalType === "BUY" ? "ПОКУПКА" : "ПРОДАЖА"
+
   return [
-    `⚡ *ИНДИКАТОР | ${ticker}*`,
+    `${typeEmoji} *${typeLabel} | ${ticker}*`,
+    `📛 ${signal.name}`,
     `📊 ${indicatorValue} (${interpretation})`,
     `📈 Цена: ${ctx.price.toFixed(2)}₽`,
     conditionTarget ? `⚠️ ${conditionLabel}` : "",
-    "",
-    `🕐 Сигнал: ${indicator} ${conditionLabel}`,
+    `🕐 ${new Date().toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow" })}`,
   ].filter(Boolean).join("\n")
 }
 
