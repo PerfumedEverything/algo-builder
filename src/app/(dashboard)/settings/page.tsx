@@ -110,7 +110,7 @@ export default function SettingsPage() {
         <p className="text-sm text-muted-foreground">Профиль и уведомления</p>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="rounded-xl border border-border bg-card p-4 lg:p-6">
         <div className="mb-4 flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
             <User className="h-5 w-5 text-primary" />
@@ -135,21 +135,23 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6">
-        <div className="mb-4 flex items-center gap-3">
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-sky-500/10">
+      <div className="rounded-xl border border-border bg-card p-4 lg:p-6">
+        <div className="mb-4 flex items-start gap-3">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-sky-500/10">
             <Send className="h-5 w-5 text-sky-400" />
           </div>
-          <div>
-            <h2 className="font-semibold">Telegram</h2>
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <h2 className="font-semibold">Telegram</h2>
+              {telegramConnected && (
+                <span className="flex items-center gap-1 text-sm text-emerald-400">
+                  <CheckCircle className="h-4 w-4" />
+                  Подключён
+                </span>
+              )}
+            </div>
             <p className="text-sm text-muted-foreground">Уведомления о срабатывании сигналов</p>
           </div>
-          {telegramConnected && (
-            <span className="ml-auto flex items-center gap-1 text-sm text-emerald-400">
-              <CheckCircle className="h-4 w-4" />
-              Подключён
-            </span>
-          )}
         </div>
 
         <div className="space-y-4">
@@ -170,7 +172,7 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button onClick={handleSaveTelegram} disabled={saving || !telegramChatId.trim()}>
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
               Сохранить
@@ -191,7 +193,7 @@ export default function SettingsPage() {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-6">
+      <div className="rounded-xl border border-border bg-card p-4 lg:p-6">
         <Button variant="outline" className="text-red-400 hover:text-red-300" onClick={() => logoutAction()}>
           <LogOut className="mr-2 h-4 w-4" />
           Выйти из аккаунта
