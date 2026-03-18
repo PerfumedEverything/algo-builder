@@ -87,9 +87,14 @@ export class SignalChecker {
       ? conditionResults.every(Boolean)
       : conditionResults.some(Boolean)
 
+    const debugParts = signal.conditions.map((c, i) => {
+      const val = this.getIndicatorValue(c, ctx)
+      return `${c.indicator}=${val.toFixed(2)}(${c.condition} ${c.value ?? "?"})=${conditionResults[i] ? "✓" : "✗"}`
+    })
+
     const message = allMet
       ? formatSignalNotification(signal, ctx)
-      : `${signal.instrument}: conditions not met (price: ${price.toFixed(2)})`
+      : `${signal.instrument}: not met (price:${price.toFixed(2)}, candles:${ctx.candles.length}, ${debugParts.join(", ")})`
 
     return {
       signalId: signal.id,
