@@ -6,11 +6,7 @@ import { createSignalSchema, updateSignalSchema } from "@/core/schemas"
 import { SignalService } from "@/server/services"
 import { getCurrentUserId } from "./helpers"
 
-let _service: SignalService | null = null
-const getService = () => {
-  if (!_service) _service = new SignalService()
-  return _service
-}
+const getService = () => new SignalService()
 
 export const getSignalsAction = async (
   filters?: { signalType?: string; isActive?: boolean; search?: string },

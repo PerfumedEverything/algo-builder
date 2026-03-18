@@ -37,7 +37,6 @@ export const SearchInput = ({ value, onChange, placeholder = "Поиск...", cl
   }, [isMac, onChange])
 
   const isExpanded = focused || value.length > 0
-  const shortcut = isMac ? "⌘K" : "Ctrl+K"
 
   return (
     <div

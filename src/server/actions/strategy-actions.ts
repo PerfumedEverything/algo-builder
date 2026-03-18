@@ -7,11 +7,7 @@ import { StrategyService } from "@/server/services"
 import { getAiProvider } from "@/server/providers/ai"
 import { getCurrentUserId } from "./helpers"
 
-let _service: StrategyService | null = null
-const getService = () => {
-  if (!_service) _service = new StrategyService(undefined, getAiProvider())
-  return _service
-}
+const getService = () => new StrategyService(undefined, getAiProvider())
 
 export const getStrategiesAction = async (
   filters?: { status?: string; search?: string },

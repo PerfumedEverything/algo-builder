@@ -5,11 +5,7 @@ import type { BrokerAccount, Portfolio, BrokerInstrument } from "@/core/types"
 import { BrokerService } from "@/server/services"
 import { getCurrentUserId } from "./helpers"
 
-let _service: BrokerService | null = null
-const getService = () => {
-  if (!_service) _service = new BrokerService()
-  return _service
-}
+const getService = () => new BrokerService()
 
 export const connectBrokerAction = async (
   token: string,

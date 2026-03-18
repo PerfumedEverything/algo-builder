@@ -24,7 +24,7 @@ type SignalStore = {
 
 export const useSignalStore = create<SignalStore>((set) => ({
   conditions: [DEFAULT_CONDITION],
-  channels: ["max"] as SignalChannel[],
+  channels: ["telegram"] as SignalChannel[],
   activeTab: "general",
   addCondition: () =>
     set((s) => ({ conditions: [...s.conditions, { ...DEFAULT_CONDITION }] })),
@@ -47,7 +47,7 @@ export const useSignalStore = create<SignalStore>((set) => ({
   reset: () =>
     set({
       conditions: [DEFAULT_CONDITION],
-      channels: ["max"] as SignalChannel[],
+      channels: ["telegram"] as SignalChannel[],
       activeTab: "general",
     }),
   initFromExisting: (conditions, channels) =>

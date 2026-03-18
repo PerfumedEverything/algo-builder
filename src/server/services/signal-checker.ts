@@ -2,7 +2,7 @@ import { createAdminClient } from "@/lib/supabase/admin"
 import type { SignalCondition } from "@/core/types"
 import type { SignalRow } from "@/server/repositories/signal-repository"
 import { getBrokerProvider } from "@/server/providers/broker"
-import { getNotificationProvider } from "@/server/providers/notification"
+import { TelegramProvider } from "@/server/providers/notification"
 
 type CheckResult = {
   signalId: string
@@ -13,9 +13,21 @@ type CheckResult = {
 }
 
 export class SignalChecker {
-  private broker = getBrokerProvider()
-  private notifier = getNotificationProvider()
-  private db = createAdminClient()
+  private _telegram?: TelegramProvider
+  private _db?: ReturnType<typeof createAdminClient>
+
+  private get telegram(): TelegramProvider | null {
+    if (this._telegram) return this._telegram
+    const token = process.env.TELEGRAM_BOT_TOKEN
+    if (!token) return null
+    this._telegram = new TelegramProvider(token)
+    return this._telegram
+  }
+
+  private get db() {
+    if (!this._db) this._db = createAdminClient()
+    return this._db
+  }
 
   async checkAll(): Promise<CheckResult[]> {
     const signals = await this.getActiveSignals()
@@ -65,26 +77,19 @@ export class SignalChecker {
 
   evaluateCondition(condition: SignalCondition, price: number): boolean {
     const value = condition.value ?? 0
-
-    if (condition.indicator === "PRICE") {
-      return this.compare(price, condition.condition, value)
-    }
-
     return this.compare(price, condition.condition, value)
   }
 
   private compare(actual: number, condition: string, target: number): boolean {
     switch (condition) {
       case "GREATER_THAN":
+      case "CROSSES_ABOVE":
         return actual > target
       case "LESS_THAN":
+      case "CROSSES_BELOW":
         return actual < target
       case "EQUALS":
         return Math.abs(actual - target) < 0.01
-      case "CROSSES_ABOVE":
-        return actual > target
-      case "CROSSES_BELOW":
-        return actual < target
       default:
         return false
     }
@@ -96,8 +101,9 @@ export class SignalChecker {
       throw new Error(`Брокер не подключён у пользователя ${signal.userId}`)
     }
 
-    await this.broker.connect(settings.brokerToken)
-    return await this.broker.getCurrentPrice(signal.instrument)
+    const broker = getBrokerProvider()
+    await broker.connect(settings.brokerToken)
+    return await broker.getCurrentPrice(signal.instrument)
   }
 
   private async handleTriggered(signal: SignalRow, result: CheckResult) {
@@ -128,15 +134,12 @@ export class SignalChecker {
     if (!user) return
 
     for (const channel of signal.channels) {
-      try {
-        if (channel === "telegram" && user.telegramChatId) {
-          await this.notifier.send(user.telegramChatId, result.message)
+      if (channel === "telegram" && user.telegramChatId && this.telegram) {
+        try {
+          await this.telegram.send(user.telegramChatId, result.message)
+        } catch (e) {
+          console.error(`[SignalChecker] Telegram send failed for signal ${signal.id}:`, e)
         }
-        if (channel === "max" && user.maxChatId) {
-          await this.notifier.send(user.maxChatId, result.message)
-        }
-      } catch {
-        // log error but don't fail the whole check
       }
     }
   }

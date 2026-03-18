@@ -46,9 +46,14 @@ export class TinkoffProvider implements BrokerProvider {
     try {
       await this.api.users.getAccounts({})
       this.isSandbox = false
-    } catch {
-      await this.api.sandbox.getSandboxAccounts({})
-      this.isSandbox = true
+    } catch (e: unknown) {
+      const code = (e as { code?: number }).code
+      if (code === 16 || code === 7) {
+        await this.api.sandbox.getSandboxAccounts({})
+        this.isSandbox = true
+      } else {
+        throw e
+      }
     }
   }
 
@@ -107,7 +112,6 @@ export class TinkoffProvider implements BrokerProvider {
           ticker = info.instrument?.ticker ?? p.figi
           name = info.instrument?.name ?? p.figi
         } catch {
-          // ignore
         }
 
         return {

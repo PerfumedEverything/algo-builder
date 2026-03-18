@@ -97,6 +97,7 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
         initFromExisting(strategy.config)
       }
       return () => reset()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [strategy])
 
     const onSubmit = async (data: GeneralFormData) => {

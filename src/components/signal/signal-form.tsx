@@ -72,6 +72,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
       initFromExisting(signal.conditions, signal.channels)
     }
     return () => reset()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [signal])
 
   const onSubmit = async (data: GeneralFormData) => {
@@ -184,19 +185,6 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
             <label className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-accent/50">
               <input
                 type="checkbox"
-                checked={channels.includes("max")}
-                onChange={() => toggleChannel("max")}
-                className="h-4 w-4 rounded border-border"
-              />
-              <Send className="h-4 w-4 text-blue-400" />
-              <div>
-                <p className="text-sm font-medium">MAX Мессенджер</p>
-                <p className="text-xs text-muted-foreground">Уведомления через MAX бот</p>
-              </div>
-            </label>
-            <label className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-accent/50">
-              <input
-                type="checkbox"
                 checked={channels.includes("telegram")}
                 onChange={() => toggleChannel("telegram")}
                 className="h-4 w-4 rounded border-border"
@@ -204,7 +192,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
               <Send className="h-4 w-4 text-violet-400" />
               <div>
                 <p className="text-sm font-medium">Telegram</p>
-                <p className="text-xs text-muted-foreground">Уведомления в Telegram бот</p>
+                <p className="text-xs text-muted-foreground">Уведомления в Telegram бот @AculaTradeNot_bot</p>
               </div>
             </label>
           </div>

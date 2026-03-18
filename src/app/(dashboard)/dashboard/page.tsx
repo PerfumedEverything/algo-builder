@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useState } from "react"
 import Link from "next/link"
 import { motion } from "framer-motion"
 import {
@@ -12,6 +13,7 @@ import {
 } from "lucide-react"
 import { GlowingEffect } from "@/components/ui/glowing-effect"
 import { FeatureCard } from "@/components/dashboard"
+import { getSettingsAction } from "@/server/actions/settings-actions"
 
 const sections = [
   {
@@ -49,6 +51,14 @@ const sections = [
 ]
 
 export default function DashboardPage() {
+  const [userName, setUserName] = useState("")
+
+  useEffect(() => {
+    getSettingsAction().then((res) => {
+      if (res.success && res.data.name) setUserName(res.data.name)
+    })
+  }, [])
+
   return (
     <div className="space-y-8">
       <motion.div
@@ -68,7 +78,7 @@ export default function DashboardPage() {
             <Sparkles className="h-4 w-4" />
             Добро пожаловать!
           </motion.div>
-          <h1 className="text-3xl font-bold">Привет, Даня Шнайдер!</h1>
+          <h1 className="text-3xl font-bold">Привет{userName ? `, ${userName}` : ""}!</h1>
           <p className="mt-2 max-w-2xl text-muted-foreground">
             Создавайте умные торговые стратегии с помощью ИИ, тестируйте их и
             запускайте в реальной торговле

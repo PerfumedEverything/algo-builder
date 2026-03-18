@@ -4,11 +4,7 @@ import { type ApiResponse, errorResponse, successResponse } from "@/core/types/a
 import { NotificationService } from "@/server/services"
 import { getCurrentUserId } from "./helpers"
 
-let _service: NotificationService | null = null
-const getService = () => {
-  if (!_service) _service = new NotificationService()
-  return _service
-}
+const getService = () => new NotificationService()
 
 export const getSettingsAction = async (): Promise<
   ApiResponse<{ name: string | null; email: string | null; maxChatId: string | null; telegramChatId: string | null }>

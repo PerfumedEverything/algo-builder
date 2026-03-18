@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization")
   const cronSecret = process.env.CRON_SECRET
 
-  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+  if (!cronSecret || authHeader !== `Bearer ${cronSecret}`) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
   }
 
@@ -13,11 +13,6 @@ export async function POST(request: Request) {
     const checker = new SignalChecker()
     const results = await checker.checkAll()
     const triggered = results.filter((r) => r.triggered)
-
-    console.log(
-      `[SignalChecker] checked=${results.length} triggered=${triggered.length}`,
-      triggered.map((r) => `${r.signalName}: ${r.instrument}`),
-    )
 
     return NextResponse.json({
       checked: results.length,
