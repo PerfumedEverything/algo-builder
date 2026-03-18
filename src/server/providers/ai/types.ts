@@ -1,5 +1,5 @@
-import type { StrategyConfig } from "@/core/types"
+import type { AiGeneratedStrategy } from "@/core/types"
 
 export interface AiProvider {
-  generateStrategy(prompt: string): Promise<StrategyConfig>
+  generateStrategy(prompt: string): Promise<AiGeneratedStrategy>
 }

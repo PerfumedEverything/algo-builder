@@ -1,7 +1,7 @@
 "use server"
 
 import { type ApiResponse, errorResponse, successResponse } from "@/core/types/api"
-import type { StrategyConfig } from "@/core/types"
+import type { AiGeneratedStrategy, StrategyConfig } from "@/core/types"
 import { createStrategySchema, updateStrategySchema } from "@/core/schemas"
 import { StrategyService } from "@/server/services"
 import { getAiProvider } from "@/server/providers/ai"
@@ -99,13 +99,13 @@ export const deleteStrategyAction = async (
 
 export const generateStrategyAction = async (
   prompt: string,
-): Promise<ApiResponse<StrategyConfig>> => {
+): Promise<ApiResponse<AiGeneratedStrategy>> => {
   try {
     if (!prompt.trim()) {
       return errorResponse("Prompt is required")
     }
-    const config = await getService().generateWithAI(prompt)
-    return successResponse(config)
+    const strategy = await getService().generateWithAI(prompt)
+    return successResponse(strategy)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
   }

@@ -1,6 +1,8 @@
 "use client"
 
+import { useRef } from "react"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
+import type { AiGeneratedStrategy } from "@/core/types"
 import {
   Dialog,
   DialogContent,
@@ -8,7 +10,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { AiGenerator } from "./ai-generator"
-import { StrategyForm } from "./strategy-form"
+import { StrategyForm, type StrategyFormHandle } from "./strategy-form"
 
 type StrategyDialogProps = {
   open: boolean
@@ -24,6 +26,17 @@ export const StrategyDialog = ({
   onSuccess,
 }: StrategyDialogProps) => {
   const mode = strategy ? "edit" : "create"
+  const formRef = useRef<StrategyFormHandle>(null)
+
+  const handleGenerated = (data: AiGeneratedStrategy) => {
+    formRef.current?.setGeneralFields({
+      name: data.name,
+      instrument: data.instrument,
+      instrumentType: data.instrumentType,
+      timeframe: data.timeframe,
+      description: data.description,
+    })
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -34,8 +47,9 @@ export const StrategyDialog = ({
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 px-6 pb-6">
-          {mode === "create" && <AiGenerator />}
+          {mode === "create" && <AiGenerator onGenerated={handleGenerated} />}
           <StrategyForm
+            ref={formRef}
             mode={mode}
             strategy={strategy}
             onClose={() => onOpenChange(false)}

@@ -39,7 +39,7 @@ export const useStrategyStore = create<StrategyStore>((set) => ({
   setEntry: (entry) => set((s) => ({ config: { ...s.config, entry } })),
   setExit: (exit) => set((s) => ({ config: { ...s.config, exit } })),
   setRisks: (risks) => set((s) => ({ config: { ...s.config, risks } })),
-  setFromAI: (config) => set({ config }),
+  setFromAI: (config) => set({ config, activeTab: "entry" }),
   setActiveTab: (activeTab) => set({ activeTab }),
   setIsGenerating: (isGenerating) => set({ isGenerating }),
   reset: () =>

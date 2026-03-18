@@ -4,12 +4,17 @@ import { useState } from "react"
 import { Sparkles, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 
+import type { AiGeneratedStrategy } from "@/core/types"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { useStrategyStore } from "@/hooks/use-strategy-store"
 import { generateStrategyAction } from "@/server/actions/strategy-actions"
 
-export const AiGenerator = () => {
+type AiGeneratorProps = {
+  onGenerated: (strategy: AiGeneratedStrategy) => void
+}
+
+export const AiGenerator = ({ onGenerated }: AiGeneratorProps) => {
   const [prompt, setPrompt] = useState("")
   const { isGenerating, setIsGenerating, setFromAI } = useStrategyStore()
 
@@ -20,8 +25,9 @@ export const AiGenerator = () => {
     try {
       const result = await generateStrategyAction(prompt)
       if (result.success) {
-        setFromAI(result.data)
-        toast.success("Стратегия сгенерирована")
+        setFromAI(result.data.config)
+        onGenerated(result.data)
+        toast.success("Стратегия сгенерирована — проверьте все вкладки")
         setPrompt("")
       } else {
         toast.error(result.error)
@@ -40,7 +46,7 @@ export const AiGenerator = () => {
         Генератор стратегий с ИИ
       </div>
       <Textarea
-        placeholder="Опишите стратегию: 'Купить когда RSI ниже 30, продать когда выше 70'"
+        placeholder="Опишите стратегию: 'Купить Сбер когда RSI ниже 30, продать когда выше 70'"
         value={prompt}
         onChange={(e) => setPrompt(e.target.value)}
         rows={3}

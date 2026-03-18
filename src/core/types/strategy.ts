@@ -33,3 +33,12 @@ export type StrategyConfig = {
   exit: StrategyCondition
   risks: StrategyRisks
 }
+
+export type AiGeneratedStrategy = {
+  name: string
+  instrument: string
+  instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+  timeframe: string
+  description: string
+  config: StrategyConfig
+}
