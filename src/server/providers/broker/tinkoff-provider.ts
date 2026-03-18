@@ -171,12 +171,16 @@ export class TinkoffProvider implements BrokerProvider {
       resolvedId = await this.resolveTickerToUid(resolvedId)
     }
 
+    console.log(`[getCandles] ticker=${params.instrumentId} uid=${resolvedId} from=${params.from.toISOString()} to=${params.to.toISOString()} interval=${interval}`)
+
     const { candles } = await client.marketdata.getCandles({
       instrumentId: resolvedId,
       from: params.from,
       to: params.to,
       interval,
     })
+
+    console.log(`[getCandles] returned ${candles.length} candles`)
 
     return candles.map((c) => ({
       open: toNumber(c.open),
