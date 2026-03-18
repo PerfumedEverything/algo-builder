@@ -40,7 +40,7 @@ export default function SignalsPage() {
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editSignal, setEditSignal] = useState<SignalRow | undefined>()
-  const [maxConfigured, setMaxConfigured] = useState(true)
+  const [telegramConfigured, setTelegramConfigured] = useState(true)
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
@@ -57,7 +57,7 @@ export default function SignalsPage() {
     ])
     if (signalsRes.success) setSignals(signalsRes.data as SignalRow[])
     if (statsRes.success) setStats(statsRes.data)
-    if (settingsRes.success) setMaxConfigured(!!settingsRes.data.maxChatId)
+    if (settingsRes.success) setTelegramConfigured(!!settingsRes.data.telegramChatId)
   }, [search, filters])
 
   useEffect(() => { fetchData() }, [fetchData])
@@ -96,9 +96,9 @@ export default function SignalsPage() {
         </Button>
       </div>
 
-      {!maxConfigured && (
+      {!telegramConfigured && (
         <WarningBanner
-          message="MAX Мессенджер не настроен. Уведомления о сигналах не будут отправляться."
+          message="Telegram не настроен. Уведомления о сигналах не будут отправляться."
           linkText="Настроить"
           href="/settings"
         />
