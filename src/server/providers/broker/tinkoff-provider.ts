@@ -44,13 +44,16 @@ export class TinkoffProvider implements BrokerProvider {
   async connect(token: string): Promise<void> {
     this.api = new TinkoffInvestApi({ token })
     try {
-      await this.api.users.getAccounts({})
+      const { accounts } = await this.api.users.getAccounts({})
       this.isSandbox = false
+      console.log(`[broker] connected REAL, accounts: ${accounts.length}`)
     } catch (e: unknown) {
       const code = (e as { code?: number }).code
+      console.log(`[broker] getAccounts failed code=${code}, trying sandbox`)
       if (code === 16 || code === 7) {
         await this.api.sandbox.getSandboxAccounts({})
         this.isSandbox = true
+        console.log(`[broker] connected SANDBOX`)
       } else {
         throw e
       }
