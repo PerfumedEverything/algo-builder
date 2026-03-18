@@ -26,13 +26,13 @@ export const SignalDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-0">
-        <DialogHeader className="px-6 pt-6">
+      <DialogContent className="max-w-2xl p-0 flex flex-col max-h-[85vh]">
+        <DialogHeader className="px-6 pt-6 shrink-0">
           <DialogTitle>
             {mode === "create" ? "Новый сигнал" : "Редактировать сигнал"}
           </DialogTitle>
         </DialogHeader>
-        <div className="px-6 pb-6">
+        <div className="px-6 pb-6 overflow-y-auto">
           <SignalForm
             mode={mode}
             signal={signal}
