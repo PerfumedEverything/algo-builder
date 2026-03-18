@@ -69,13 +69,14 @@ export class SignalChecker {
     let candles: EvalContext["candles"] = []
 
     if (needsCandles) {
+      const interval = signal.timeframe || "1d"
       const now = new Date()
-      const from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
+      const from = new Date(now.getTime() - getCandleRangeMs(interval))
       candles = await broker.getCandles({
         instrumentId: signal.instrument,
         from,
         to: now,
-        interval: signal.timeframe || "1d",
+        interval,
       })
     }
 
@@ -269,5 +270,21 @@ export class SignalChecker {
       .eq("id", userId)
       .single()
     return data
+  }
+}
+
+const HOUR = 60 * 60 * 1000
+const DAY = 24 * HOUR
+
+const getCandleRangeMs = (interval: string): number => {
+  switch (interval) {
+    case "1m":
+    case "5m":
+    case "15m":
+      return DAY
+    case "1h":
+      return 7 * DAY
+    default:
+      return 365 * DAY
   }
 }
