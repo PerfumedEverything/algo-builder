@@ -222,12 +222,14 @@ export class TinkoffProvider implements BrokerProvider {
       query: ticker.toUpperCase(),
     })
 
-    const match = instruments.find(
-      (i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.instrumentKind === 1,
-    )
+    console.log(`[resolve] ${ticker}: found ${instruments.length} instruments:`, instruments.map((i) => `${i.ticker}(${i.classCode},kind=${i.instrumentKind},uid=${i.uid})`).join(", "))
+
+    const match =
+      instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.classCode === "TQBR") ??
+      instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.instrumentKind === 1)
 
     if (match) {
-      console.log(`[resolve] ${ticker} → uid=${match.uid} name=${match.name} type=${match.instrumentType} kind=${match.instrumentKind}`)
+      console.log(`[resolve] ${ticker} → uid=${match.uid} name=${match.name} classCode=${match.classCode}`)
       return match.uid
     }
 
