@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import { Sidebar, Header } from "@/components/layout"
 import { SupportBanner } from "@/components/layout/support-banner"
@@ -14,6 +14,20 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const { collapsed, toggle } = useSidebarStore()
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => {
+      const mobile = window.innerWidth < 1024
+      setIsMobile(mobile)
+      if (mobile && !collapsed) {
+        useSidebarStore.setState({ collapsed: true })
+      }
+    }
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const shortcuts = useMemo(() => [
     { key: "b", handler: toggle },
@@ -21,15 +35,17 @@ export default function DashboardLayout({
 
   useKeyboardShortcuts(shortcuts)
 
+  const marginLeft = isMobile ? 0 : collapsed ? 68 : 240
+
   return (
     <div className="flex min-h-screen">
       <Sidebar />
       <div
         className="flex flex-1 flex-col transition-all duration-300"
-        style={{ marginLeft: collapsed ? 68 : 240 }}
+        style={{ marginLeft }}
       >
         <Header />
-        <main className="relative flex-1 p-6">
+        <main className="relative flex-1 p-4 lg:p-6">
           <BackgroundPlus
             className="fixed inset-0 opacity-30"
             plusColor="#2962FF"

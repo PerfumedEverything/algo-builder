@@ -1,0 +1,5 @@
+FROM node:20-alpine
+WORKDIR /app
+RUN npm install grammy
+COPY scripts/telegram-bot.mjs .
+CMD ["node", "telegram-bot.mjs"]

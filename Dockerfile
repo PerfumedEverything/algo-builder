@@ -39,7 +39,6 @@ COPY --from=builder --chown=nextjs:nodejs /app/node_modules/nice-grpc ./node_mod
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/nice-grpc-common ./node_modules/nice-grpc-common
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/protobufjs ./node_modules/protobufjs
 COPY --from=builder --chown=nextjs:nodejs /app/node_modules/grammy ./node_modules/grammy
-COPY --from=builder --chown=nextjs:nodejs /app/scripts ./scripts
 
 USER nextjs
 EXPOSE 3000

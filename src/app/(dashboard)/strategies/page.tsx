@@ -81,8 +81,8 @@ export default function StrategiesPage() {
 
     if (result.success) {
       const labels: Record<string, string> = {
-        ACTIVE: "Стратегия запущена — сигналы созданы",
-        PAUSED: "Стратегия остановлена — сигналы деактивированы",
+        ACTIVE: "Стратегия запущена — мониторинг активен",
+        PAUSED: "Стратегия остановлена",
         ARCHIVED: "Стратегия в архиве",
       }
       toast.success(labels[status] ?? "Статус обновлён")

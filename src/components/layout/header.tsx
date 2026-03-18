@@ -2,10 +2,11 @@
 
 import { useCallback, useEffect, useState } from "react"
 import Link from "next/link"
-import { Gift, HelpCircle, Crown, Sparkles, User, Zap } from "lucide-react"
+import { Gift, HelpCircle, Crown, Menu, Sparkles, User, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
 import { usePlanStore } from "@/hooks/use-plan-store"
+import { useSidebarStore } from "@/hooks/use-sidebar-store"
 import { getSettingsAction } from "@/server/actions/settings-actions"
 
 type PlanTier = "starter" | "pro" | "expert"
@@ -34,6 +35,7 @@ const tierConfig: Record<PlanTier, {
 
 export const Header = () => {
   const { planName, planTier } = usePlanStore()
+  const { toggle } = useSidebarStore()
   const config = tierConfig[planTier]
   const [userName, setUserName] = useState<string | null>(null)
 
@@ -45,8 +47,13 @@ export const Header = () => {
   useEffect(() => { fetchUser() }, [fetchUser])
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-6 backdrop-blur-sm">
-      <div />
+    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-sm lg:px-6">
+      <button
+        onClick={toggle}
+        className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground lg:hidden"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
       <div className="flex items-center gap-3">
         <Button
           variant="outline"
