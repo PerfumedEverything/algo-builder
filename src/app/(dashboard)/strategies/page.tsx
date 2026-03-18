@@ -22,6 +22,8 @@ import {
   getStrategyStatsAction,
   deleteStrategyAction,
   updateStrategyAction,
+  activateStrategyAction,
+  deactivateStrategyAction,
 } from "@/server/actions/strategy-actions"
 import { getBrokerStatusAction } from "@/server/actions/broker-actions"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
@@ -68,12 +70,26 @@ export default function StrategiesPage() {
   }
 
   const handleStatusChange = async (id: string, status: string) => {
-    const result = await updateStrategyAction(id, { status: status as "DRAFT" | "ACTIVE" | "PAUSED" | "ARCHIVED" })
+    let result
+    if (status === "ACTIVE") {
+      result = await activateStrategyAction(id)
+    } else if (status === "PAUSED") {
+      result = await deactivateStrategyAction(id)
+    } else {
+      result = await updateStrategyAction(id, { status: status as "DRAFT" | "ACTIVE" | "PAUSED" | "ARCHIVED" })
+    }
+
     if (result.success) {
-      const labels: Record<string, string> = { ACTIVE: "Стратегия активирована", PAUSED: "Стратегия приостановлена", ARCHIVED: "Стратегия в архиве" }
+      const labels: Record<string, string> = {
+        ACTIVE: "Стратегия запущена — сигналы созданы",
+        PAUSED: "Стратегия остановлена — сигналы деактивированы",
+        ARCHIVED: "Стратегия в архиве",
+      }
       toast.success(labels[status] ?? "Статус обновлён")
       fetchData()
-    } else toast.error(result.error)
+    } else {
+      toast.error(result.error)
+    }
   }
 
   const handleDelete = async (id: string) => {

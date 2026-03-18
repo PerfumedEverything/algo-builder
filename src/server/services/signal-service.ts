@@ -1,4 +1,4 @@
-import type { SignalCondition, SignalChannel } from "@/core/types"
+import type { SignalCondition, SignalChannel, LogicOperator } from "@/core/types"
 import { AppError } from "@/core/errors/app-error"
 import { SignalRepository } from "@/server/repositories"
 
@@ -31,6 +31,8 @@ export class SignalService {
       signalType: "BUY" | "SELL"
       conditions: SignalCondition[]
       channels: SignalChannel[]
+      logicOperator?: LogicOperator
+      strategyId?: string
     },
   ) {
     return this.repository.create({ ...data, userId })
@@ -48,6 +50,7 @@ export class SignalService {
       signalType: "BUY" | "SELL"
       conditions: SignalCondition[]
       channels: SignalChannel[]
+      logicOperator: LogicOperator
       isActive: boolean
     }>,
   ) {
@@ -63,6 +66,22 @@ export class SignalService {
   async deleteSignal(id: string, userId: string) {
     await this.getSignal(id, userId)
     return this.repository.delete(id, userId)
+  }
+
+  async deactivateByStrategyId(strategyId: string, userId: string) {
+    const signals = await this.repository.findByUserId(userId)
+    const strategySignals = signals.filter((s) => s.strategyId === strategyId)
+    for (const signal of strategySignals) {
+      await this.repository.update(signal.id, userId, { isActive: false })
+    }
+  }
+
+  async deleteByStrategyId(strategyId: string, userId: string) {
+    const signals = await this.repository.findByUserId(userId)
+    const strategySignals = signals.filter((s) => s.strategyId === strategyId)
+    for (const signal of strategySignals) {
+      await this.repository.delete(signal.id, userId)
+    }
   }
 
   async getStats(userId: string) {

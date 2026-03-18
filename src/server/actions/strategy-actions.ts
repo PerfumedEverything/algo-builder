@@ -93,6 +93,30 @@ export const deleteStrategyAction = async (
   }
 }
 
+export const activateStrategyAction = async (
+  id: string,
+): Promise<ApiResponse<{ id: string }>> => {
+  try {
+    const userId = await getCurrentUserId()
+    const strategy = await getService().activateStrategy(id, userId)
+    return successResponse({ id: strategy.id })
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
+export const deactivateStrategyAction = async (
+  id: string,
+): Promise<ApiResponse<{ id: string }>> => {
+  try {
+    const userId = await getCurrentUserId()
+    const strategy = await getService().deactivateStrategy(id, userId)
+    return successResponse({ id: strategy.id })
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
 export const generateStrategyAction = async (
   prompt: string,
 ): Promise<ApiResponse<AiGeneratedStrategy>> => {

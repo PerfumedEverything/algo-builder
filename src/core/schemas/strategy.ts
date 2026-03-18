@@ -7,6 +7,10 @@ export const indicatorTypeSchema = z.enum([
   "MACD",
   "BOLLINGER",
   "PRICE",
+  "VOLUME",
+  "PRICE_CHANGE",
+  "SUPPORT",
+  "RESISTANCE",
 ])
 
 export const conditionTypeSchema = z.enum([
@@ -16,13 +20,19 @@ export const conditionTypeSchema = z.enum([
   "LESS_THAN",
   "EQUALS",
   "BETWEEN",
+  "ABOVE_BY_PERCENT",
+  "BELOW_BY_PERCENT",
+  "MULTIPLIED_BY",
 ])
+
+export const logicOperatorSchema = z.enum(["AND", "OR"])
 
 export const strategyConditionSchema = z.object({
   indicator: indicatorTypeSchema,
   params: z.record(z.string(), z.number()),
   condition: conditionTypeSchema,
   value: z.number().optional(),
+  timeframe: z.string().optional(),
 })
 
 export const strategyRisksSchema = z.object({
@@ -33,8 +43,10 @@ export const strategyRisksSchema = z.object({
 })
 
 export const strategyConfigSchema = z.object({
-  entry: strategyConditionSchema,
-  exit: strategyConditionSchema,
+  entry: z.array(strategyConditionSchema).min(1),
+  exit: z.array(strategyConditionSchema).min(1),
+  entryLogic: logicOperatorSchema.default("AND"),
+  exitLogic: logicOperatorSchema.default("AND"),
   risks: strategyRisksSchema,
 })
 

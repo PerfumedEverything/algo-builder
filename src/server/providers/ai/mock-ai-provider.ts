@@ -12,18 +12,24 @@ export class MockAiProvider implements AiProvider {
       timeframe: "1d",
       description: "Покупка при перепроданности RSI, продажа при перекупленности",
       config: {
-        entry: {
-          indicator: "RSI",
-          params: { period: 14 },
-          condition: "LESS_THAN",
-          value: 30,
-        },
-        exit: {
-          indicator: "RSI",
-          params: { period: 14 },
-          condition: "GREATER_THAN",
-          value: 70,
-        },
+        entry: [
+          {
+            indicator: "RSI",
+            params: { period: 14 },
+            condition: "LESS_THAN",
+            value: 30,
+          },
+        ],
+        exit: [
+          {
+            indicator: "RSI",
+            params: { period: 14 },
+            condition: "GREATER_THAN",
+            value: 70,
+          },
+        ],
+        entryLogic: "AND",
+        exitLogic: "AND",
         risks: {
           stopLoss: 3,
           takeProfit: 6,

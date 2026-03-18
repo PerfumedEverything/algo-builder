@@ -1,15 +1,16 @@
 import { z } from "zod"
 
-import { conditionTypeSchema, indicatorTypeSchema } from "./strategy"
+import { conditionTypeSchema, indicatorTypeSchema, logicOperatorSchema } from "./strategy"
 
 export const signalConditionSchema = z.object({
   indicator: indicatorTypeSchema,
   params: z.record(z.string(), z.number()),
   condition: conditionTypeSchema,
   value: z.number().optional(),
+  timeframe: z.string().optional(),
 })
 
-export const signalChannelSchema = z.enum(["max", "telegram"])
+export const signalChannelSchema = z.enum(["telegram"])
 
 export const createSignalSchema = z.object({
   name: z.string().min(1).max(100),
@@ -20,6 +21,7 @@ export const createSignalSchema = z.object({
   signalType: z.enum(["BUY", "SELL"]),
   conditions: z.array(signalConditionSchema).min(1),
   channels: z.array(signalChannelSchema).min(1),
+  logicOperator: logicOperatorSchema.default("AND"),
 })
 
 export const updateSignalSchema = createSignalSchema.partial()

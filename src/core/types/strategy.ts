@@ -5,6 +5,10 @@ export type IndicatorType =
   | "MACD"
   | "BOLLINGER"
   | "PRICE"
+  | "VOLUME"
+  | "PRICE_CHANGE"
+  | "SUPPORT"
+  | "RESISTANCE"
 
 export type ConditionType =
   | "CROSSES_ABOVE"
@@ -13,12 +17,18 @@ export type ConditionType =
   | "LESS_THAN"
   | "EQUALS"
   | "BETWEEN"
+  | "ABOVE_BY_PERCENT"
+  | "BELOW_BY_PERCENT"
+  | "MULTIPLIED_BY"
+
+export type LogicOperator = "AND" | "OR"
 
 export type StrategyCondition = {
   indicator: IndicatorType
   params: Record<string, number>
   condition: ConditionType
   value?: number
+  timeframe?: string
 }
 
 export type StrategyRisks = {
@@ -29,8 +39,10 @@ export type StrategyRisks = {
 }
 
 export type StrategyConfig = {
-  entry: StrategyCondition
-  exit: StrategyCondition
+  entry: StrategyCondition[]
+  exit: StrategyCondition[]
+  entryLogic: LogicOperator
+  exitLogic: LogicOperator
   risks: StrategyRisks
 }
 

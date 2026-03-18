@@ -26,7 +26,7 @@ import {
   createStrategyAction,
   updateStrategyAction,
 } from "@/server/actions/strategy-actions"
-import { ConditionBuilder } from "./condition-builder"
+import { ConditionBuilder } from "@/components/shared/condition-builder"
 import { RiskForm } from "./risk-form"
 
 const generalSchema = z.object({
@@ -59,7 +59,17 @@ export type StrategyFormHandle = {
 
 export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
   ({ mode, strategy, onClose, onSuccess }, ref) => {
-    const { config, activeTab, setActiveTab, initFromExisting, reset } = useStrategyStore()
+    const {
+      config,
+      activeTab,
+      setActiveTab,
+      addCondition,
+      updateCondition,
+      removeCondition,
+      setLogicOperator,
+      initFromExisting,
+      reset,
+    } = useStrategyStore()
 
     const {
       register,
@@ -101,6 +111,15 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
     }, [strategy])
 
     const onSubmit = async (data: GeneralFormData) => {
+      if (config.entry.length === 0) {
+        toast.error("Добавьте хотя бы одно условие входа")
+        return
+      }
+      if (config.exit.length === 0) {
+        toast.error("Добавьте хотя бы одно условие выхода")
+        return
+      }
+
       const payload = { ...data, config }
 
       const result =
@@ -180,12 +199,26 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
 
           <TabsContent value="entry" className="mt-4">
             <div className="mb-3 text-sm font-medium text-emerald-400">Условия входа в позицию</div>
-            <ConditionBuilder type="entry" />
+            <ConditionBuilder
+              conditions={config.entry}
+              logicOperator={config.entryLogic}
+              onAdd={() => addCondition("entry")}
+              onUpdate={(i, c) => updateCondition("entry", i, c)}
+              onRemove={(i) => removeCondition("entry", i)}
+              onLogicChange={(op) => setLogicOperator("entry", op)}
+            />
           </TabsContent>
 
           <TabsContent value="exit" className="mt-4">
             <div className="mb-3 text-sm font-medium text-red-400">Условия выхода из позиции</div>
-            <ConditionBuilder type="exit" />
+            <ConditionBuilder
+              conditions={config.exit}
+              logicOperator={config.exitLogic}
+              onAdd={() => addCondition("exit")}
+              onUpdate={(i, c) => updateCondition("exit", i, c)}
+              onRemove={(i) => removeCondition("exit", i)}
+              onLogicChange={(op) => setLogicOperator("exit", op)}
+            />
           </TabsContent>
 
           <TabsContent value="risks" className="mt-4">

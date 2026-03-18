@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server"
-import type { SignalCondition, SignalChannel } from "@/core/types"
+import type { SignalCondition, SignalChannel, LogicOperator } from "@/core/types"
 
 export type SignalRow = {
   id: string
@@ -12,9 +12,11 @@ export type SignalRow = {
   signalType: "BUY" | "SELL"
   conditions: SignalCondition[]
   channels: SignalChannel[]
+  logicOperator: LogicOperator
   isActive: boolean
   lastTriggered: string | null
   triggerCount: number
+  strategyId: string | null
   createdAt: string
   updatedAt: string
 }
@@ -77,6 +79,8 @@ export class SignalRepository {
     signalType: "BUY" | "SELL"
     conditions: SignalCondition[]
     channels: SignalChannel[]
+    logicOperator?: LogicOperator
+    strategyId?: string
   }) {
     const supabase = await this.db()
     const now = new Date().toISOString()
@@ -93,6 +97,8 @@ export class SignalRepository {
         signalType: input.signalType,
         conditions: input.conditions,
         channels: input.channels,
+        logicOperator: input.logicOperator ?? "AND",
+        strategyId: input.strategyId ?? null,
         isActive: true,
         triggerCount: 0,
         createdAt: now,

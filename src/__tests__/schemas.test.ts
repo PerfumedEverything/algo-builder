@@ -9,18 +9,24 @@ describe("createStrategySchema", () => {
     instrumentType: "STOCK",
     timeframe: "1d",
     config: {
-      entry: {
-        indicator: "RSI",
-        params: { period: 14 },
-        condition: "LESS_THAN",
-        value: 30,
-      },
-      exit: {
-        indicator: "RSI",
-        params: { period: 14 },
-        condition: "GREATER_THAN",
-        value: 70,
-      },
+      entry: [
+        {
+          indicator: "RSI",
+          params: { period: 14 },
+          condition: "LESS_THAN",
+          value: 30,
+        },
+      ],
+      exit: [
+        {
+          indicator: "RSI",
+          params: { period: 14 },
+          condition: "GREATER_THAN",
+          value: 70,
+        },
+      ],
+      entryLogic: "AND",
+      exitLogic: "AND",
       risks: {
         stopLoss: 3,
         takeProfit: 6,
@@ -43,7 +49,7 @@ describe("createStrategySchema", () => {
       ...validStrategy,
       config: {
         ...validStrategy.config,
-        entry: { ...validStrategy.config.entry, indicator: "INVALID" },
+        entry: [{ ...validStrategy.config.entry[0], indicator: "INVALID" }],
       },
     }
     const result = createStrategySchema.safeParse(bad)
@@ -55,7 +61,7 @@ describe("createStrategySchema", () => {
       ...validStrategy,
       config: {
         ...validStrategy.config,
-        entry: { ...validStrategy.config.entry, condition: "NOT_A_CONDITION" },
+        entry: [{ ...validStrategy.config.entry[0], condition: "NOT_A_CONDITION" }],
       },
     }
     const result = createStrategySchema.safeParse(bad)
@@ -75,17 +81,41 @@ describe("createStrategySchema", () => {
   })
 
   it("accepts all indicator types", () => {
-    for (const indicator of ["SMA", "EMA", "RSI", "MACD", "BOLLINGER", "PRICE"]) {
+    for (const indicator of ["SMA", "EMA", "RSI", "MACD", "BOLLINGER", "PRICE", "VOLUME", "PRICE_CHANGE", "SUPPORT", "RESISTANCE"]) {
       const data = {
         ...validStrategy,
         config: {
           ...validStrategy.config,
-          entry: { ...validStrategy.config.entry, indicator },
+          entry: [{ ...validStrategy.config.entry[0], indicator }],
         },
       }
       const result = createStrategySchema.safeParse(data)
       expect(result.success).toBe(true)
     }
+  })
+
+  it("accepts multiple entry conditions", () => {
+    const data = {
+      ...validStrategy,
+      config: {
+        ...validStrategy.config,
+        entry: [
+          { indicator: "RSI", params: { period: 14 }, condition: "LESS_THAN", value: 30 },
+          { indicator: "PRICE", params: {}, condition: "GREATER_THAN", value: 200 },
+        ],
+      },
+    }
+    const result = createStrategySchema.safeParse(data)
+    expect(result.success).toBe(true)
+  })
+
+  it("rejects empty entry conditions", () => {
+    const data = {
+      ...validStrategy,
+      config: { ...validStrategy.config, entry: [] },
+    }
+    const result = createStrategySchema.safeParse(data)
+    expect(result.success).toBe(false)
   })
 })
 
@@ -104,7 +134,7 @@ describe("createSignalSchema", () => {
         value: 30,
       },
     ],
-    channels: ["max"],
+    channels: ["telegram"],
   }
 
   it("validates correct signal", () => {
@@ -122,18 +152,8 @@ describe("createSignalSchema", () => {
     expect(result.success).toBe(false)
   })
 
-  it("accepts max channel", () => {
-    const result = createSignalSchema.safeParse({ ...validSignal, channels: ["max"] })
-    expect(result.success).toBe(true)
-  })
-
   it("accepts telegram channel", () => {
     const result = createSignalSchema.safeParse({ ...validSignal, channels: ["telegram"] })
-    expect(result.success).toBe(true)
-  })
-
-  it("accepts both channels", () => {
-    const result = createSignalSchema.safeParse({ ...validSignal, channels: ["max", "telegram"] })
     expect(result.success).toBe(true)
   })
 
@@ -160,5 +180,18 @@ describe("createSignalSchema", () => {
       ],
     }
     expect(createSignalSchema.safeParse(multi).success).toBe(true)
+  })
+
+  it("accepts logicOperator", () => {
+    const result = createSignalSchema.safeParse({ ...validSignal, logicOperator: "OR" })
+    expect(result.success).toBe(true)
+  })
+
+  it("defaults logicOperator to AND", () => {
+    const result = createSignalSchema.safeParse(validSignal)
+    expect(result.success).toBe(true)
+    if (result.success) {
+      expect(result.data.logicOperator).toBe("AND")
+    }
   })
 })

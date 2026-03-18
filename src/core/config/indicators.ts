@@ -61,9 +61,41 @@ export const INDICATORS: IndicatorConfig[] = [
   },
   {
     type: "PRICE",
-    label: "Price",
-    description: "Current instrument price",
+    label: "Цена",
+    description: "Текущая цена инструмента",
     params: [],
+  },
+  {
+    type: "VOLUME",
+    label: "Объём",
+    description: "Отношение текущего объёма к среднему",
+    params: [
+      { name: "period", label: "Период среднего", defaultValue: 20, min: 2, max: 200 },
+    ],
+  },
+  {
+    type: "PRICE_CHANGE",
+    label: "Изменение цены",
+    description: "Процентное изменение цены за N баров",
+    params: [
+      { name: "period", label: "Баров назад", defaultValue: 1, min: 1, max: 100 },
+    ],
+  },
+  {
+    type: "SUPPORT",
+    label: "Поддержка",
+    description: "Ближайший уровень поддержки",
+    params: [
+      { name: "lookback", label: "Глубина анализа", defaultValue: 50, min: 10, max: 200 },
+    ],
+  },
+  {
+    type: "RESISTANCE",
+    label: "Сопротивление",
+    description: "Ближайший уровень сопротивления",
+    params: [
+      { name: "lookback", label: "Глубина анализа", defaultValue: 50, min: 10, max: 200 },
+    ],
   },
 ]
 

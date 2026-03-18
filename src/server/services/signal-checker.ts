@@ -1,8 +1,10 @@
 import { createAdminClient } from "@/lib/supabase/admin"
-import type { SignalCondition } from "@/core/types"
+import type { SignalCondition, LogicOperator } from "@/core/types"
 import type { SignalRow } from "@/server/repositories/signal-repository"
 import { getBrokerProvider } from "@/server/providers/broker"
 import { TelegramProvider } from "@/server/providers/notification"
+import { IndicatorCalculator } from "./indicator-calculator"
+import { formatSignalNotification } from "./notification-templates"
 
 type CheckResult = {
   signalId: string
@@ -10,6 +12,11 @@ type CheckResult = {
   instrument: string
   triggered: boolean
   message: string
+}
+
+type EvalContext = {
+  price: number
+  candles: { open: number; high: number; low: number; close: number; volume: number; time: Date }[]
 }
 
 export class SignalChecker {
@@ -55,16 +62,34 @@ export class SignalChecker {
   }
 
   async checkSignal(signal: SignalRow): Promise<CheckResult> {
-    const price = await this.getPrice(signal)
+    const broker = await this.connectBroker(signal.userId)
+    const price = await broker.getCurrentPrice(signal.instrument)
 
-    const allMet = signal.conditions.every((condition) =>
-      this.evaluateCondition(condition, price),
-    )
+    const needsCandles = signal.conditions.some((c) => c.indicator !== "PRICE")
+    let candles: EvalContext["candles"] = []
 
-    const typeLabel = signal.signalType === "BUY" ? "Покупка" : "Продажа"
+    if (needsCandles) {
+      const now = new Date()
+      const from = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+      candles = await broker.getCandles({
+        instrumentId: signal.instrument,
+        from,
+        to: now,
+        interval: signal.timeframe || "1d",
+      })
+    }
+
+    const ctx: EvalContext = { price, candles }
+    const logic: LogicOperator = signal.logicOperator ?? "AND"
+
+    const conditionResults = signal.conditions.map((c) => this.evaluateCondition(c, ctx))
+    const allMet = logic === "AND"
+      ? conditionResults.every(Boolean)
+      : conditionResults.some(Boolean)
+
     const message = allMet
-      ? `🔔 *${signal.name}*\n📊 ${signal.instrument} — ${typeLabel}\n💰 Цена: ${price.toFixed(2)}\n📋 Все условия выполнены\n🕐 ${new Date().toLocaleString("ru-RU")}`
-      : `${signal.instrument}: условия не выполнены (цена: ${price.toFixed(2)})`
+      ? formatSignalNotification(signal, ctx)
+      : `${signal.instrument}: conditions not met (price: ${price.toFixed(2)})`
 
     return {
       signalId: signal.id,
@@ -75,12 +100,85 @@ export class SignalChecker {
     }
   }
 
-  evaluateCondition(condition: SignalCondition, price: number): boolean {
-    const value = condition.value ?? 0
-    return this.compare(price, condition.condition, value)
+  evaluateCondition(condition: SignalCondition, ctx: EvalContext): boolean {
+    const actual = this.getIndicatorValue(condition, ctx)
+    const target = condition.value ?? 0
+
+    return this.compare(actual, condition.condition, target, ctx.price)
   }
 
-  private compare(actual: number, condition: string, target: number): boolean {
+  private getIndicatorValue(condition: SignalCondition, ctx: EvalContext): number {
+    const { indicator, params } = condition
+    const { price, candles } = ctx
+
+    switch (indicator) {
+      case "PRICE":
+        return price
+
+      case "RSI":
+        return IndicatorCalculator.calculateRSI(candles, params.period ?? 14)
+
+      case "SMA":
+        return IndicatorCalculator.calculateSMA(candles, params.period ?? 20)
+
+      case "EMA":
+        return IndicatorCalculator.calculateEMA(candles, params.period ?? 20)
+
+      case "MACD": {
+        const macd = IndicatorCalculator.calculateMACD(
+          candles,
+          params.fast ?? 12,
+          params.slow ?? 26,
+          params.signal ?? 9,
+        )
+        return macd.macd
+      }
+
+      case "BOLLINGER": {
+        const bb = IndicatorCalculator.calculateBollinger(
+          candles,
+          params.period ?? 20,
+          params.stdDev ?? 2,
+        )
+        return bb.upper
+      }
+
+      case "VOLUME": {
+        const avgVol = IndicatorCalculator.getAverageVolume(candles, params.period ?? 20)
+        const currentVol = candles[candles.length - 1]?.volume ?? 0
+        return avgVol > 0 ? currentVol / avgVol : 0
+      }
+
+      case "PRICE_CHANGE":
+        return IndicatorCalculator.getPriceChange(candles, params.period ?? 1)
+
+      case "SUPPORT": {
+        const levels = IndicatorCalculator.detectLevels(candles, params.lookback ?? 50)
+        const nearestSupport = levels.supports
+          .filter((s) => s <= price)
+          .sort((a, b) => b - a)[0]
+        return nearestSupport ?? 0
+      }
+
+      case "RESISTANCE": {
+        const levels = IndicatorCalculator.detectLevels(candles, params.lookback ?? 50)
+        const nearestResistance = levels.resistances
+          .filter((r) => r >= price)
+          .sort((a, b) => a - b)[0]
+        return nearestResistance ?? Infinity
+      }
+
+      default:
+        return 0
+    }
+  }
+
+  private compare(
+    actual: number,
+    condition: string,
+    target: number,
+    currentPrice?: number,
+  ): boolean {
     switch (condition) {
       case "GREATER_THAN":
       case "CROSSES_ABOVE":
@@ -90,20 +188,25 @@ export class SignalChecker {
         return actual < target
       case "EQUALS":
         return Math.abs(actual - target) < 0.01
+      case "ABOVE_BY_PERCENT":
+        return target > 0 && ((actual - target) / target) * 100 >= (currentPrice ?? 0)
+      case "BELOW_BY_PERCENT":
+        return target > 0 && ((target - actual) / target) * 100 >= (currentPrice ?? 0)
+      case "MULTIPLIED_BY":
+        return actual >= target
       default:
         return false
     }
   }
 
-  private async getPrice(signal: SignalRow): Promise<number> {
-    const settings = await this.getBrokerSettings(signal.userId)
+  private async connectBroker(userId: string) {
+    const settings = await this.getBrokerSettings(userId)
     if (!settings?.brokerToken) {
-      throw new Error(`Брокер не подключён у пользователя ${signal.userId}`)
+      throw new Error(`Broker not connected for user ${userId}`)
     }
-
     const broker = getBrokerProvider()
     await broker.connect(settings.brokerToken)
-    return await broker.getCurrentPrice(signal.instrument)
+    return broker
   }
 
   private async handleTriggered(signal: SignalRow, result: CheckResult) {
@@ -127,7 +230,7 @@ export class SignalChecker {
 
     const { data: user } = await this.db
       .from("User")
-      .select("maxChatId, telegramChatId")
+      .select("telegramChatId")
       .eq("id", signal.userId)
       .single()
 

@@ -1,7 +1,7 @@
 "use server"
 
 import { type ApiResponse, errorResponse, successResponse } from "@/core/types/api"
-import type { SignalCondition, SignalChannel } from "@/core/types"
+import type { SignalCondition, SignalChannel, LogicOperator } from "@/core/types"
 import { createSignalSchema, updateSignalSchema } from "@/core/schemas"
 import { SignalService } from "@/server/services"
 import { getCurrentUserId } from "./helpers"
@@ -42,6 +42,7 @@ export const createSignalAction = async (
     signalType: "BUY" | "SELL"
     conditions: SignalCondition[]
     channels: SignalChannel[]
+    logicOperator?: LogicOperator
   },
 ): Promise<ApiResponse<{ id: string }>> => {
   try {
@@ -68,6 +69,7 @@ export const updateSignalAction = async (
     signalType?: "BUY" | "SELL"
     conditions?: SignalCondition[]
     channels?: SignalChannel[]
+    logicOperator?: LogicOperator
     isActive?: boolean
   },
 ): Promise<ApiResponse<{ id: string }>> => {

@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreHorizontal, Pencil, Trash2, Play, Pause, Archive } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, Play, Pause, Archive, Radio } from "lucide-react"
 
 import type { StrategyCondition } from "@/core/types"
 import { INDICATORS } from "@/core/config/indicators"
@@ -43,7 +43,16 @@ const getConditionSummary = (condition: StrategyCondition) => {
   return `${label}(${paramStr}) ${condition.condition.replace(/_/g, " ")}${condition.value !== undefined ? ` ${condition.value}` : ""}`
 }
 
+const getConditionsDisplay = (conditions: StrategyCondition | StrategyCondition[], logic?: string) => {
+  const arr = Array.isArray(conditions) ? conditions : [conditions]
+  const separator = ` ${logic ?? "AND"} `
+  return arr.map(getConditionSummary).join(separator)
+}
+
 export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
+  const config = strategy.config
+  const isActive = strategy.status === "ACTIVE"
+
   return (
     <div className="group relative rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/30">
       <GlowingEffect spread={40} glow disabled={false} proximity={64} inactiveZone={0.01} borderWidth={2} />
@@ -54,6 +63,12 @@ export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: Str
             <Badge variant="outline" className={STATUS_STYLES[strategy.status]}>
               {STATUS_LABELS[strategy.status]}
             </Badge>
+            {isActive && (
+              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 gap-1">
+                <Radio className="h-3 w-3 animate-pulse" />
+                Мониторинг
+              </Badge>
+            )}
           </div>
           <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
             <span className="font-mono">{strategy.instrument}</span>
@@ -70,16 +85,16 @@ export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: Str
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {strategy.status !== "ACTIVE" && (
+            {!isActive && strategy.status !== "ARCHIVED" && (
               <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "ACTIVE")} className="text-emerald-400">
                 <Play className="mr-2 h-3.5 w-3.5" />
-                Активировать
+                Запустить
               </DropdownMenuItem>
             )}
-            {strategy.status === "ACTIVE" && (
+            {isActive && (
               <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "PAUSED")} className="text-yellow-400">
                 <Pause className="mr-2 h-3.5 w-3.5" />
-                Приостановить
+                Остановить
               </DropdownMenuItem>
             )}
             <DropdownMenuItem onClick={() => onEdit(strategy.id)}>
@@ -103,24 +118,24 @@ export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: Str
       <div className="mt-3 space-y-1 text-xs text-muted-foreground">
         <p>
           <span className="text-emerald-400">Вход:</span>{" "}
-          {getConditionSummary(strategy.config.entry)}
+          {getConditionsDisplay(config.entry, config.entryLogic)}
         </p>
         <p>
           <span className="text-red-400">Выход:</span>{" "}
-          {getConditionSummary(strategy.config.exit)}
+          {getConditionsDisplay(config.exit, config.exitLogic)}
         </p>
       </div>
 
-      {(strategy.config.risks.stopLoss || strategy.config.risks.takeProfit) && (
+      {(config.risks.stopLoss || config.risks.takeProfit) && (
         <div className="mt-3 flex gap-2">
-          {strategy.config.risks.stopLoss && (
+          {config.risks.stopLoss && (
             <span className="rounded bg-red-500/10 px-2 py-0.5 text-xs text-red-400">
-              SL: {strategy.config.risks.stopLoss}%
+              SL: {config.risks.stopLoss}%
             </span>
           )}
-          {strategy.config.risks.takeProfit && (
+          {config.risks.takeProfit && (
             <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">
-              TP: {strategy.config.risks.takeProfit}%
+              TP: {config.risks.takeProfit}%
             </span>
           )}
         </div>

@@ -20,13 +20,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useSignalStore } from "@/hooks/use-signal-store"
 import {
   createSignalAction,
   updateSignalAction,
 } from "@/server/actions/signal-actions"
-import { SignalConditionBuilder } from "./signal-condition-builder"
+import { ConditionBuilder } from "@/components/shared/condition-builder"
 
 const generalSchema = z.object({
   name: z.string().min(1, "Введите название"),
@@ -47,8 +46,18 @@ type SignalFormProps = {
 }
 
 export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps) => {
-  const { conditions, channels, activeTab, setActiveTab, toggleChannel, initFromExisting, reset } =
-    useSignalStore()
+  const {
+    conditions,
+    channels,
+    logicOperator,
+    addCondition,
+    updateCondition,
+    removeCondition,
+    toggleChannel,
+    setLogicOperator,
+    initFromExisting,
+    reset,
+  } = useSignalStore()
 
   const {
     register,
@@ -69,7 +78,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
 
   useEffect(() => {
     if (signal) {
-      initFromExisting(signal.conditions, signal.channels)
+      initFromExisting(signal.conditions, signal.channels, signal.logicOperator)
     }
     return () => reset()
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -85,7 +94,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
       return
     }
 
-    const payload = { ...data, conditions, channels }
+    const payload = { ...data, conditions, channels, logicOperator }
 
     const result =
       mode === "create"
@@ -102,102 +111,100 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-4">
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="w-full">
-          <TabsTrigger value="general" className="flex-1">Основное</TabsTrigger>
-          <TabsTrigger value="conditions" className="flex-1">Условия</TabsTrigger>
-          <TabsTrigger value="channels" className="flex-1">Каналы</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="general" className="mt-4 space-y-4">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Название сигнала</Label>
-              <Input {...register("name")} placeholder="Мой сигнал" />
-              {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Инструмент</Label>
-              <Input {...register("instrument")} placeholder="SBER, GAZP, BTCUSD" />
-              {errors.instrument && <p className="text-xs text-red-400">{errors.instrument.message}</p>}
-            </div>
-          </div>
-
-          <div className="grid gap-4 sm:grid-cols-3">
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Тип</Label>
-              <Select
-                defaultValue={signal?.signalType ?? "BUY"}
-                onValueChange={(v) => setValue("signalType", v as GeneralFormData["signalType"])}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="BUY">Покупка (BUY)</SelectItem>
-                  <SelectItem value="SELL">Продажа (SELL)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Тип инструмента</Label>
-              <Select
-                defaultValue={signal?.instrumentType ?? "STOCK"}
-                onValueChange={(v) => setValue("instrumentType", v as GeneralFormData["instrumentType"])}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {INSTRUMENT_TYPES.map((t) => (
-                    <SelectItem key={t.type} value={t.type}>{t.labelRu}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label className="text-xs text-muted-foreground">Таймфрейм</Label>
-              <Select
-                defaultValue={signal?.timeframe ?? "1d"}
-                onValueChange={(v) => setValue("timeframe", v)}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {TIMEFRAMES.map((t) => (
-                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
+    <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-1">
+      <section className="space-y-4">
+        <h3 className="text-sm font-medium text-primary">Основное</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Описание</Label>
-            <Textarea {...register("description")} rows={2} placeholder="Описание сигнала" className="resize-none" />
+            <Label className="text-xs text-muted-foreground">Название сигнала</Label>
+            <Input {...register("name")} placeholder="Мой сигнал" />
+            {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
           </div>
-        </TabsContent>
-
-        <TabsContent value="conditions" className="mt-4">
-          <div className="mb-3 text-sm font-medium text-primary">Условия срабатывания</div>
-          <SignalConditionBuilder />
-        </TabsContent>
-
-        <TabsContent value="channels" className="mt-4">
-          <div className="mb-3 text-sm font-medium">Каналы уведомлений</div>
-          <div className="space-y-3">
-            <label className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-accent/50">
-              <input
-                type="checkbox"
-                checked={channels.includes("telegram")}
-                onChange={() => toggleChannel("telegram")}
-                className="h-4 w-4 rounded border-border"
-              />
-              <Send className="h-4 w-4 text-violet-400" />
-              <div>
-                <p className="text-sm font-medium">Telegram</p>
-                <p className="text-xs text-muted-foreground">Уведомления в Telegram бот @AculaTradeNot_bot</p>
-              </div>
-            </label>
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Инструмент</Label>
+            <Input {...register("instrument")} placeholder="SBER, GAZP, BTCUSD" />
+            {errors.instrument && <p className="text-xs text-red-400">{errors.instrument.message}</p>}
           </div>
-        </TabsContent>
-      </Tabs>
+        </div>
+
+        <div className="grid gap-4 sm:grid-cols-3">
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Тип</Label>
+            <Select
+              defaultValue={signal?.signalType ?? "BUY"}
+              onValueChange={(v) => setValue("signalType", v as GeneralFormData["signalType"])}
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="BUY">Покупка (BUY)</SelectItem>
+                <SelectItem value="SELL">Продажа (SELL)</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Тип инструмента</Label>
+            <Select
+              defaultValue={signal?.instrumentType ?? "STOCK"}
+              onValueChange={(v) => setValue("instrumentType", v as GeneralFormData["instrumentType"])}
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {INSTRUMENT_TYPES.map((t) => (
+                  <SelectItem key={t.type} value={t.type}>{t.labelRu}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs text-muted-foreground">Таймфрейм</Label>
+            <Select
+              defaultValue={signal?.timeframe ?? "1d"}
+              onValueChange={(v) => setValue("timeframe", v)}
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {TIMEFRAMES.map((t) => (
+                  <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Описание</Label>
+          <Textarea {...register("description")} rows={2} placeholder="Описание сигнала" className="resize-none" />
+        </div>
+      </section>
+
+      <section className="space-y-3">
+        <h3 className="text-sm font-medium text-primary">Условия срабатывания</h3>
+        <ConditionBuilder
+          conditions={conditions}
+          logicOperator={logicOperator}
+          onAdd={addCondition}
+          onUpdate={updateCondition}
+          onRemove={removeCondition}
+          onLogicChange={setLogicOperator}
+        />
+      </section>
+
+      <section className="space-y-3">
+        <h3 className="text-sm font-medium text-primary">Каналы уведомлений</h3>
+        <label className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-accent/50">
+          <input
+            type="checkbox"
+            checked={channels.includes("telegram")}
+            onChange={() => toggleChannel("telegram")}
+            className="h-4 w-4 rounded border-border"
+          />
+          <Send className="h-4 w-4 text-violet-400" />
+          <div>
+            <p className="text-sm font-medium">Telegram</p>
+            <p className="text-xs text-muted-foreground">Уведомления в Telegram бот</p>
+          </div>
+        </label>
+      </section>
 
       <div className="flex justify-end gap-2 border-t border-border pt-4">
         <Button type="button" variant="outline" onClick={onClose}>

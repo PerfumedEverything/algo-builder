@@ -33,6 +33,7 @@ model Strategy {
   config         Json
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
+  signals        Signal[]
 
   @@index([userId])
 }
@@ -63,14 +64,18 @@ model Signal {
   signalType     SignalType
   conditions     Json
   channels       Json
+  logicOperator  String         @default("AND")
   isActive       Boolean        @default(true)
   lastTriggered  DateTime?
   triggerCount   Int            @default(0)
+  strategyId     String?
+  strategy       Strategy?      @relation(fields: [strategyId], references: [id])
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
 
   @@index([userId])
   @@index([isActive])
+  @@index([strategyId])
 }
 
 enum SignalType {
