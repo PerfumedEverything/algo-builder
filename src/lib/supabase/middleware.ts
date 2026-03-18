@@ -32,7 +32,9 @@ export const updateSession = async (request: NextRequest) => {
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register")
-  const isApiWebhook = request.nextUrl.pathname.startsWith("/api/webhooks")
+  const isApiWebhook =
+    request.nextUrl.pathname.startsWith("/api/webhooks") ||
+    request.nextUrl.pathname.startsWith("/api/signals")
   const isPublicAsset =
     request.nextUrl.pathname.startsWith("/_next") ||
     request.nextUrl.pathname.startsWith("/favicon")
