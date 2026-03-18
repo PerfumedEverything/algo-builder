@@ -17,14 +17,19 @@ export const RegisterForm = () => {
     e.preventDefault()
     setLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    const result = await registerAction(formData)
+    try {
+      const formData = new FormData(e.currentTarget)
+      const result = await registerAction(formData)
 
-    if (result.success) {
-      toast.success("Аккаунт создан!")
-      router.push("/dashboard")
-    } else {
-      toast.error(result.error)
+      if (result.success) {
+        toast.success("Аккаунт создан!")
+        router.push("/dashboard")
+      } else {
+        toast.error(result.error || "Ошибка регистрации")
+        setLoading(false)
+      }
+    } catch {
+      toast.error("Ошибка подключения к серверу")
       setLoading(false)
     }
   }

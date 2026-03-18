@@ -17,15 +17,20 @@ export const LoginForm = () => {
     e.preventDefault()
     setLoading(true)
 
-    const formData = new FormData(e.currentTarget)
-    const result = await loginAction(formData)
+    try {
+      const formData = new FormData(e.currentTarget)
+      const result = await loginAction(formData)
 
-    if (result.success) {
-      toast.success("Вход выполнен")
-      router.push("/dashboard")
-      router.refresh()
-    } else {
-      toast.error(typeof result.error === "string" ? result.error : "Ошибка входа")
+      if (result.success) {
+        toast.success("Вход выполнен")
+        router.push("/dashboard")
+        router.refresh()
+      } else {
+        toast.error(result.error || "Ошибка входа")
+        setLoading(false)
+      }
+    } catch {
+      toast.error("Ошибка подключения к серверу")
       setLoading(false)
     }
   }

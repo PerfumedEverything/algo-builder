@@ -38,12 +38,14 @@ export const loginAction = async (
     })
 
     if (error) {
-      return errorResponse(translateAuthError(error.message))
+      const msg = error.message || error.status?.toString() || "Неизвестная ошибка авторизации"
+      return errorResponse(translateAuthError(msg))
     }
 
     return successResponse({ email: parsed.data.email })
   } catch (e) {
-    return errorResponse("Ошибка подключения к серверу авторизации")
+    const msg = e instanceof Error ? e.message : "Ошибка подключения к серверу авторизации"
+    return errorResponse(msg)
   }
 }
 
@@ -72,7 +74,8 @@ export const registerAction = async (
     })
 
     if (error) {
-      return errorResponse(translateAuthError(error.message))
+      const msg = error.message || error.status?.toString() || "Неизвестная ошибка регистрации"
+      return errorResponse(translateAuthError(msg))
     }
 
     if (signUpData.user) {
@@ -92,7 +95,8 @@ export const registerAction = async (
 
     return successResponse({ email: parsed.data.email })
   } catch (e) {
-    return errorResponse("Ошибка подключения к серверу авторизации")
+    const msg = e instanceof Error ? e.message : "Ошибка подключения к серверу авторизации"
+    return errorResponse(msg)
   }
 }
 
