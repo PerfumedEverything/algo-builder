@@ -181,17 +181,40 @@ export class TinkoffProvider implements BrokerProvider {
 
   async getCurrentPrice(instrumentId: string): Promise<number> {
     const client = this.ensureConnected()
+
+    let resolvedId = instrumentId
+    if (!instrumentId.includes("-") && instrumentId.length < 20) {
+      resolvedId = await this.resolveTickerToUid(instrumentId)
+    }
+
     const { lastPrices } = await client.marketdata.getLastPrices({
       figi: [],
-      instrumentId: [instrumentId],
+      instrumentId: [resolvedId],
       lastPriceType: LastPriceType.LAST_PRICE_EXCHANGE,
     })
 
     if (!lastPrices.length || !lastPrices[0].price) {
-      throw new Error("Цена не найдена")
+      throw new Error(`Цена не найдена для ${instrumentId}`)
     }
 
     return toNumber(lastPrices[0].price)
+  }
+
+  private async resolveTickerToUid(ticker: string): Promise<string> {
+    const client = this.ensureConnected()
+    const { instruments } = await client.instruments.findInstrument({
+      query: ticker.toUpperCase(),
+    })
+
+    const match = instruments.find(
+      (i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.instrumentKind === 1,
+    )
+
+    if (match) return match.uid
+
+    if (instruments.length > 0) return instruments[0].uid
+
+    throw new Error(`Инструмент "${ticker}" не найден`)
   }
 
   async sandboxPayIn(accountId: string, amount: number): Promise<void> {
