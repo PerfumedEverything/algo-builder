@@ -1,10 +1,8 @@
-import { createClient } from "@/lib/supabase/server"
+import { createAdminClient } from "@/lib/supabase/admin"
 import type { SignalCondition } from "@/core/types"
 import type { SignalRow } from "@/server/repositories/signal-repository"
-import { SignalLogRepository } from "@/server/repositories/signal-log-repository"
 import { getBrokerProvider } from "@/server/providers/broker"
 import { getNotificationProvider } from "@/server/providers/notification"
-import { UserRepository } from "@/server/repositories"
 
 type CheckResult = {
   signalId: string
@@ -15,10 +13,9 @@ type CheckResult = {
 }
 
 export class SignalChecker {
-  private logRepo = new SignalLogRepository()
-  private userRepo = new UserRepository()
   private broker = getBrokerProvider()
   private notifier = getNotificationProvider()
+  private db = createAdminClient()
 
   async checkAll(): Promise<CheckResult[]> {
     const signals = await this.getActiveSignals()
@@ -54,7 +51,7 @@ export class SignalChecker {
 
     const typeLabel = signal.signalType === "BUY" ? "Покупка" : "Продажа"
     const message = allMet
-      ? `🔔 ${signal.name}\n📊 ${signal.instrument} — ${typeLabel}\n💰 Цена: ${price.toFixed(2)}\n📋 Все условия выполнены\n🕐 ${new Date().toLocaleString("ru-RU")}`
+      ? `🔔 *${signal.name}*\n📊 ${signal.instrument} — ${typeLabel}\n💰 Цена: ${price.toFixed(2)}\n📋 Все условия выполнены\n🕐 ${new Date().toLocaleString("ru-RU")}`
       : `${signal.instrument}: условия не выполнены (цена: ${price.toFixed(2)})`
 
     return {
@@ -67,87 +64,85 @@ export class SignalChecker {
   }
 
   evaluateCondition(condition: SignalCondition, price: number): boolean {
-    const value = this.getIndicatorValue(condition, price)
-    const target = condition.value ?? 0
+    const value = condition.value ?? 0
 
-    switch (condition.condition) {
-      case "GREATER_THAN":
-        return value > target
-      case "LESS_THAN":
-        return value < target
-      case "EQUALS":
-        return Math.abs(value - target) < 0.001
-      case "CROSSES_ABOVE":
-        return value > target
-      case "CROSSES_BELOW":
-        return value < target
-      case "BETWEEN":
-        return false
-      default:
-        return false
+    if (condition.indicator === "PRICE") {
+      return this.compare(price, condition.condition, value)
     }
+
+    return this.compare(price, condition.condition, value)
   }
 
-  private getIndicatorValue(condition: SignalCondition, price: number): number {
-    switch (condition.indicator) {
-      case "PRICE":
-        return price
-      case "RSI":
-        return 30 + Math.random() * 40
-      case "SMA":
-      case "EMA":
-        return price * (0.95 + Math.random() * 0.1)
-      case "MACD":
-        return (Math.random() - 0.5) * 10
-      case "BOLLINGER":
-        return price * (0.97 + Math.random() * 0.06)
+  private compare(actual: number, condition: string, target: number): boolean {
+    switch (condition) {
+      case "GREATER_THAN":
+        return actual > target
+      case "LESS_THAN":
+        return actual < target
+      case "EQUALS":
+        return Math.abs(actual - target) < 0.01
+      case "CROSSES_ABOVE":
+        return actual > target
+      case "CROSSES_BELOW":
+        return actual < target
       default:
-        return price
+        return false
     }
   }
 
   private async getPrice(signal: SignalRow): Promise<number> {
-    try {
-      const settings = await this.getBrokerSettings(signal.userId)
-      if (settings?.brokerToken) {
-        await this.broker.connect(settings.brokerToken)
-        return await this.broker.getCurrentPrice(signal.instrument)
-      }
-    } catch {
-      // fallback to mock
+    const settings = await this.getBrokerSettings(signal.userId)
+    if (!settings?.brokerToken) {
+      throw new Error(`Брокер не подключён у пользователя ${signal.userId}`)
     }
-    return 250 + Math.random() * 50
+
+    await this.broker.connect(settings.brokerToken)
+    return await this.broker.getCurrentPrice(signal.instrument)
   }
 
   private async handleTriggered(signal: SignalRow, result: CheckResult) {
-    await this.logRepo.create({
-      signalId: signal.id,
-      instrument: signal.instrument,
-      message: result.message,
-    })
+    await this.db
+      .from("SignalLog")
+      .insert({
+        signalId: signal.id,
+        instrument: signal.instrument,
+        message: result.message,
+        triggeredAt: new Date().toISOString(),
+      })
 
-    await this.updateTriggerCount(signal)
+    await this.db
+      .from("Signal")
+      .update({
+        triggerCount: signal.triggerCount + 1,
+        lastTriggered: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      })
+      .eq("id", signal.id)
 
-    const user = await this.userRepo.findById(signal.userId)
+    const { data: user } = await this.db
+      .from("User")
+      .select("maxChatId, telegramChatId")
+      .eq("id", signal.userId)
+      .single()
+
     if (!user) return
 
     for (const channel of signal.channels) {
       try {
-        if (channel === "max" && user.maxChatId) {
-          await this.notifier.send(user.maxChatId, result.message)
-        }
         if (channel === "telegram" && user.telegramChatId) {
           await this.notifier.send(user.telegramChatId, result.message)
         }
+        if (channel === "max" && user.maxChatId) {
+          await this.notifier.send(user.maxChatId, result.message)
+        }
       } catch {
-        // log but don't fail
+        // log error but don't fail the whole check
       }
     }
   }
 
   private async getActiveSignals(): Promise<SignalRow[]> {
-    const supabase = await createClient()
-    const { data, error } = await supabase
+    const { data, error } = await this.db
       .from("Signal")
       .select("*")
       .eq("isActive", true)
@@ -156,21 +151,8 @@ export class SignalChecker {
     return (data ?? []) as SignalRow[]
   }
 
-  private async updateTriggerCount(signal: SignalRow) {
-    const supabase = await createClient()
-    await supabase
-      .from("Signal")
-      .update({
-        triggerCount: signal.triggerCount + 1,
-        lastTriggered: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      })
-      .eq("id", signal.id)
-  }
-
   private async getBrokerSettings(userId: string) {
-    const supabase = await createClient()
-    const { data } = await supabase
+    const { data } = await this.db
       .from("User")
       .select("brokerToken")
       .eq("id", userId)

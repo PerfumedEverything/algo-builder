@@ -14,12 +14,18 @@ export async function POST(request: Request) {
     const results = await checker.checkAll()
     const triggered = results.filter((r) => r.triggered)
 
+    console.log(
+      `[SignalChecker] checked=${results.length} triggered=${triggered.length}`,
+      triggered.map((r) => `${r.signalName}: ${r.instrument}`),
+    )
+
     return NextResponse.json({
       checked: results.length,
       triggered: triggered.length,
       results,
     })
   } catch (e) {
+    console.error("[SignalChecker] Error:", e)
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Unknown error" },
       { status: 500 },

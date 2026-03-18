@@ -46,4 +46,14 @@ export class UserRepository {
 
     if (error) throw new Error(error.message)
   }
+
+  async updateTelegramChatId(id: string, chatId: string | null) {
+    const supabase = await this.db()
+    const { error } = await supabase
+      .from("User")
+      .update({ telegramChatId: chatId, updatedAt: new Date().toISOString() })
+      .eq("id", id)
+
+    if (error) throw new Error(error.message)
+  }
 }
