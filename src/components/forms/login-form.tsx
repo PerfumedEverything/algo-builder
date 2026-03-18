@@ -25,7 +25,7 @@ export const LoginForm = () => {
       router.push("/dashboard")
       router.refresh()
     } else {
-      toast.error(result.error)
+      toast.error(typeof result.error === "string" ? result.error : "Ошибка входа")
       setLoading(false)
     }
   }

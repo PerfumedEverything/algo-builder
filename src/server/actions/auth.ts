@@ -30,17 +30,21 @@ export const loginAction = async (
     return errorResponse(parsed.error.issues[0].message)
   }
 
-  const supabase = await createClient()
-  const { error } = await supabase.auth.signInWithPassword({
-    email: parsed.data.email,
-    password: parsed.data.password,
-  })
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.signInWithPassword({
+      email: parsed.data.email,
+      password: parsed.data.password,
+    })
 
-  if (error) {
-    return errorResponse(translateAuthError(error.message))
+    if (error) {
+      return errorResponse(translateAuthError(error.message))
+    }
+
+    return successResponse({ email: parsed.data.email })
+  } catch (e) {
+    return errorResponse("Ошибка подключения к серверу авторизации")
   }
-
-  return successResponse({ email: parsed.data.email })
 }
 
 export const registerAction = async (
@@ -57,35 +61,39 @@ export const registerAction = async (
     return errorResponse(parsed.error.issues[0].message)
   }
 
-  const supabase = await createClient()
-  const { data: signUpData, error } = await supabase.auth.signUp({
-    email: parsed.data.email,
-    password: parsed.data.password,
-    options: {
-      data: { name: parsed.data.name },
-    },
-  })
-
-  if (error) {
-    return errorResponse(translateAuthError(error.message))
-  }
-
-  if (signUpData.user) {
-    const now = new Date().toISOString()
-    const admin = createAdminClient()
-    await admin.from("User").upsert(
-      {
-        supabaseId: signUpData.user.id,
-        email: parsed.data.email,
-        name: parsed.data.name || null,
-        createdAt: now,
-        updatedAt: now,
+  try {
+    const supabase = await createClient()
+    const { data: signUpData, error } = await supabase.auth.signUp({
+      email: parsed.data.email,
+      password: parsed.data.password,
+      options: {
+        data: { name: parsed.data.name },
       },
-      { onConflict: "supabaseId" },
-    )
-  }
+    })
 
-  return successResponse({ email: parsed.data.email })
+    if (error) {
+      return errorResponse(translateAuthError(error.message))
+    }
+
+    if (signUpData.user) {
+      const now = new Date().toISOString()
+      const admin = createAdminClient()
+      await admin.from("User").upsert(
+        {
+          supabaseId: signUpData.user.id,
+          email: parsed.data.email,
+          name: parsed.data.name || null,
+          createdAt: now,
+          updatedAt: now,
+        },
+        { onConflict: "supabaseId" },
+      )
+    }
+
+    return successResponse({ email: parsed.data.email })
+  } catch (e) {
+    return errorResponse("Ошибка подключения к серверу авторизации")
+  }
 }
 
 export const logoutAction = async () => {
