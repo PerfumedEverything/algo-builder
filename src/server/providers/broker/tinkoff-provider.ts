@@ -166,8 +166,13 @@ export class TinkoffProvider implements BrokerProvider {
     const client = this.ensureConnected()
     const interval = INTERVAL_MAP[params.interval] ?? CandleInterval.CANDLE_INTERVAL_DAY
 
+    let resolvedId = params.instrumentId
+    if (!resolvedId.includes("-") && resolvedId.length < 20) {
+      resolvedId = await this.resolveTickerToUid(resolvedId)
+    }
+
     const { candles } = await client.marketdata.getCandles({
-      instrumentId: params.instrumentId,
+      instrumentId: resolvedId,
       from: params.from,
       to: params.to,
       interval,
