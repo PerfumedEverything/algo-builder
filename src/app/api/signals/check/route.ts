@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server"
 import { SignalChecker } from "@/server/services/signal-checker"
+import { StrategyChecker } from "@/server/services/strategy-checker"
 
 export async function POST(request: Request) {
   const authHeader = request.headers.get("authorization")
@@ -10,17 +11,25 @@ export async function POST(request: Request) {
   }
 
   try {
-    const checker = new SignalChecker()
-    const results = await checker.checkAll()
-    const triggered = results.filter((r) => r.triggered)
+    const [signalResults, strategyResults] = await Promise.all([
+      new SignalChecker().checkAll(),
+      new StrategyChecker().checkAll(),
+    ])
 
     return NextResponse.json({
-      checked: results.length,
-      triggered: triggered.length,
-      results,
+      signals: {
+        checked: signalResults.length,
+        triggered: signalResults.filter((r) => r.triggered).length,
+        results: signalResults,
+      },
+      strategies: {
+        checked: strategyResults.length,
+        triggered: strategyResults.filter((r) => r.triggered).length,
+        results: strategyResults,
+      },
     })
   } catch (e) {
-    console.error("[SignalChecker] Error:", e)
+    console.error("[Checker] Error:", e)
     return NextResponse.json(
       { error: e instanceof Error ? e.message : "Unknown error" },
       { status: 500 },

@@ -1,4 +1,6 @@
 import type { SignalRow } from "@/server/repositories/signal-repository"
+import type { StrategyRow } from "@/server/repositories/strategy-repository"
+import type { StrategyConfig } from "@/core/types"
 import { IndicatorCalculator } from "./indicator-calculator"
 
 type EvalContext = {
@@ -289,6 +291,41 @@ const formatConditionLabel = (condition: string, value: number): string => {
     EQUALS: `= ${value}`,
   }
   return labels[condition] ?? `${condition} ${value}`
+}
+
+export const formatStrategyNotification = (
+  strategy: StrategyRow,
+  side: "entry" | "exit",
+  ctx: EvalContext,
+): string => {
+  const ticker = strategy.instrument.toUpperCase()
+  const config = strategy.config as StrategyConfig
+  const conditions = side === "entry" ? config.entry : config.exit
+  const logic = side === "entry" ? (config.entryLogic ?? "AND") : (config.exitLogic ?? "AND")
+  const sideEmoji = side === "entry" ? "📗" : "📕"
+  const sideLabel = side === "entry" ? "ВХОД (BUY)" : "ВЫХОД (SELL)"
+  const time = new Date().toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow" })
+
+  if (!conditions?.length) {
+    return `🔔 *${strategy.name}* | ${ticker}\n${sideEmoji} ${sideLabel}\n💰 ${ctx.price.toFixed(2)}₽\n🕐 ${time}`
+  }
+
+  const conditionLines = conditions.map((c) => {
+    const val = getIndicatorDisplayValue(c, ctx)
+    const label = formatConditionLabel(c.condition, c.value ?? 0)
+    return `  ${c.indicator}: ${val} ${label} ✓`
+  })
+
+  return [
+    `🎯 *${strategy.name} | ${ticker}*`,
+    `${sideEmoji} ${sideLabel}`,
+    `📈 Цена: ${ctx.price.toFixed(2)}₽`,
+    "",
+    `📋 Условия (${logic}):`,
+    ...conditionLines,
+    "",
+    `🕐 ${time}`,
+  ].join("\n")
 }
 
 const formatNumber = (n: number): string => {

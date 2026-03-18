@@ -68,22 +68,6 @@ export class SignalService {
     return this.repository.delete(id, userId)
   }
 
-  async deactivateByStrategyId(strategyId: string, userId: string) {
-    const signals = await this.repository.findByUserId(userId)
-    const strategySignals = signals.filter((s) => s.strategyId === strategyId)
-    for (const signal of strategySignals) {
-      await this.repository.update(signal.id, userId, { isActive: false })
-    }
-  }
-
-  async deleteByStrategyId(strategyId: string, userId: string) {
-    const signals = await this.repository.findByUserId(userId)
-    const strategySignals = signals.filter((s) => s.strategyId === strategyId)
-    for (const signal of strategySignals) {
-      await this.repository.delete(signal.id, userId)
-    }
-  }
-
   async getStats(userId: string) {
     return this.repository.getStats(userId)
   }

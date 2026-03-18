@@ -2,14 +2,12 @@ import type { StrategyConfig } from "@/core/types"
 import { AppError } from "@/core/errors/app-error"
 import { strategyConfigSchema } from "@/core/schemas"
 import { StrategyRepository } from "@/server/repositories"
-import { SignalService } from "./signal-service"
 import type { AiProvider } from "@/server/providers/ai"
 
 export class StrategyService {
   constructor(
     private repository = new StrategyRepository(),
     private aiProvider?: AiProvider,
-    private signalService = new SignalService(),
   ) {}
 
   async getStrategies(userId: string, filters?: { status?: string; search?: string }) {
@@ -79,44 +77,12 @@ export class StrategyService {
   }
 
   async activateStrategy(id: string, userId: string) {
-    const strategy = await this.getStrategy(id, userId)
-
-    await this.signalService.deleteByStrategyId(id, userId)
-
-    const config = strategy.config as StrategyConfig
-
-    await this.signalService.createSignal(userId, {
-      name: `${strategy.name} — Вход`,
-      description: `Автосигнал входа для стратегии "${strategy.name}"`,
-      instrument: strategy.instrument,
-      instrumentType: strategy.instrumentType as "STOCK" | "BOND" | "CURRENCY" | "FUTURES",
-      timeframe: strategy.timeframe,
-      signalType: "BUY",
-      conditions: config.entry,
-      channels: ["telegram"],
-      logicOperator: config.entryLogic ?? "AND",
-      strategyId: id,
-    })
-
-    await this.signalService.createSignal(userId, {
-      name: `${strategy.name} — Выход`,
-      description: `Автосигнал выхода для стратегии "${strategy.name}"`,
-      instrument: strategy.instrument,
-      instrumentType: strategy.instrumentType as "STOCK" | "BOND" | "CURRENCY" | "FUTURES",
-      timeframe: strategy.timeframe,
-      signalType: "SELL",
-      conditions: config.exit,
-      channels: ["telegram"],
-      logicOperator: config.exitLogic ?? "AND",
-      strategyId: id,
-    })
-
+    await this.getStrategy(id, userId)
     return this.repository.update(id, userId, { status: "ACTIVE" })
   }
 
   async deactivateStrategy(id: string, userId: string) {
     await this.getStrategy(id, userId)
-    await this.signalService.deactivateByStrategyId(id, userId)
     return this.repository.update(id, userId, { status: "PAUSED" })
   }
 
