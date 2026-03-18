@@ -223,7 +223,10 @@ export class TinkoffProvider implements BrokerProvider {
       (i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.instrumentKind === 1,
     )
 
-    if (match) return match.uid
+    if (match) {
+      console.log(`[resolve] ${ticker} → uid=${match.uid} name=${match.name} type=${match.instrumentType} kind=${match.instrumentKind}`)
+      return match.uid
+    }
 
     if (instruments.length > 0) return instruments[0].uid
 

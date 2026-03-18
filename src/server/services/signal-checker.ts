@@ -70,7 +70,7 @@ export class SignalChecker {
 
     if (needsCandles) {
       const now = new Date()
-      const from = new Date(now.getTime() - 60 * 24 * 60 * 60 * 1000)
+      const from = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
       candles = await broker.getCandles({
         instrumentId: signal.instrument,
         from,
