@@ -65,7 +65,7 @@ export const SearchInput = ({ value, onChange, placeholder = "Поиск...", cl
       />
 
       {!isExpanded && (
-        <span className="inline-flex shrink-0 items-center gap-0.5">
+        <span className="hidden shrink-0 items-center gap-0.5 sm:inline-flex">
           {isMac ? (
             <>
               <kbd className="flex h-5 w-5 items-center justify-center rounded border border-border/50 bg-muted/40 font-mono text-[13px] text-muted-foreground">⌘</kbd>

@@ -54,14 +54,14 @@ export const Header = () => {
       >
         <Menu className="h-5 w-5" />
       </button>
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1.5 lg:gap-3">
         <Button
           variant="outline"
           size="sm"
-          className="gap-2 border-emerald-500/50 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300"
+          className="gap-2 border-emerald-500/50 px-2 text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300 lg:px-3"
         >
           <Gift className="h-4 w-4" />
-          <span className="hidden sm:inline">Приведи друга</span>
+          <span className="hidden lg:inline">Приведи друга</span>
         </Button>
 
         <Link href="/faq">
@@ -93,12 +93,14 @@ export const Header = () => {
           </div>
         </Link>
 
-        <div className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5">
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20">
-            <User className="h-4 w-4 text-primary" />
+        <Link href="/settings">
+          <div className="flex items-center gap-2 rounded-lg border border-border px-2 py-1.5 transition-colors hover:bg-accent lg:px-3">
+            <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/20">
+              <User className="h-4 w-4 text-primary" />
+            </div>
+            <span className="hidden text-sm font-medium md:inline">{userName ?? "..."}</span>
           </div>
-          <span className="hidden text-sm font-medium md:inline">{userName ?? "..."}</span>
-        </div>
+        </Link>
       </div>
     </header>
   )
