@@ -1,8 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Sparkles, Loader2 } from "lucide-react"
-import { toast } from "sonner"
+import { Sparkles, Loader2, CheckCircle2 } from "lucide-react"
 
 import type { AiGeneratedStrategy } from "@/core/types"
 import { Button } from "@/components/ui/button"
@@ -16,24 +15,33 @@ type AiGeneratorProps = {
 
 export const AiGenerator = ({ onGenerated }: AiGeneratorProps) => {
   const [prompt, setPrompt] = useState("")
-  const { isGenerating, setIsGenerating, setFromAI } = useStrategyStore()
+  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+  const [errorMsg, setErrorMsg] = useState("")
+  const { setIsGenerating, setFromAI } = useStrategyStore()
 
   const handleGenerate = async () => {
-    if (!prompt.trim() || isGenerating) return
+    if (!prompt.trim() || status === "loading") return
 
+    setStatus("loading")
     setIsGenerating(true)
+    setErrorMsg("")
     try {
       const result = await generateStrategyAction(prompt)
       if (result.success) {
         setFromAI(result.data.config)
         onGenerated(result.data)
-        toast.success("Стратегия сгенерирована — проверьте все вкладки")
+        setStatus("success")
         setPrompt("")
+        setTimeout(() => setStatus("idle"), 3000)
       } else {
-        toast.error(result.error)
+        setErrorMsg(result.error)
+        setStatus("error")
+        setTimeout(() => setStatus("idle"), 4000)
       }
     } catch {
-      toast.error("Ошибка генерации")
+      setErrorMsg("Ошибка генерации")
+      setStatus("error")
+      setTimeout(() => setStatus("idle"), 4000)
     } finally {
       setIsGenerating(false)
     }
@@ -54,17 +62,30 @@ export const AiGenerator = ({ onGenerated }: AiGeneratorProps) => {
       />
       <Button
         onClick={handleGenerate}
-        disabled={!prompt.trim() || isGenerating}
+        disabled={!prompt.trim() || status === "loading"}
         className="mt-3 w-full"
         size="sm"
       >
-        {isGenerating ? (
+        {status === "loading" ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />
         ) : (
           <Sparkles className="mr-2 h-4 w-4" />
         )}
-        {isGenerating ? "Генерация..." : "Сгенерировать стратегию"}
+        {status === "loading" ? "Генерация..." : "Сгенерировать стратегию"}
       </Button>
+
+      {status === "success" && (
+        <div className="mt-3 flex items-center gap-2 rounded-md bg-emerald-500/10 px-3 py-2 text-sm text-emerald-400">
+          <CheckCircle2 className="h-4 w-4 shrink-0" />
+          Стратегия сгенерирована — проверьте все вкладки
+        </div>
+      )}
+
+      {status === "error" && (
+        <div className="mt-3 rounded-md bg-red-500/10 px-3 py-2 text-sm text-red-400">
+          {errorMsg}
+        </div>
+      )}
     </div>
   )
 }
