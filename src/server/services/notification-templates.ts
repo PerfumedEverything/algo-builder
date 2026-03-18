@@ -7,8 +7,13 @@ type EvalContext = {
 }
 
 export const formatSignalNotification = (signal: SignalRow, ctx: EvalContext): string => {
-  const primaryIndicator = signal.conditions[0]?.indicator ?? "PRICE"
   const ticker = signal.instrument.toUpperCase()
+
+  if (signal.conditions.length > 1) {
+    return formatMultiCondition(ticker, signal, ctx)
+  }
+
+  const primaryIndicator = signal.conditions[0]?.indicator ?? "PRICE"
   const time = new Date().toLocaleTimeString("ru-RU")
 
   switch (primaryIndicator) {
@@ -191,6 +196,66 @@ const formatIndicator = (
     "",
     `🕐 Сигнал: ${indicator} ${conditionLabel}`,
   ].filter(Boolean).join("\n")
+}
+
+const formatMultiCondition = (
+  ticker: string,
+  signal: SignalRow,
+  ctx: EvalContext,
+): string => {
+  const logic = signal.logicOperator ?? "AND"
+  const typeLabel = signal.signalType === "BUY" ? "📗 Покупка" : "📕 Продажа"
+
+  const conditionLines = signal.conditions.map((c) => {
+    const val = getIndicatorDisplayValue(c, ctx)
+    const label = formatConditionLabel(c.condition, c.value ?? 0)
+    return `  ${c.indicator}: ${val} ${label} ✓`
+  })
+
+  return [
+    `⚡ *${signal.name} | ${ticker}*`,
+    typeLabel,
+    `📈 Цена: ${ctx.price.toFixed(2)}₽`,
+    "",
+    `📋 Условия (${logic}):`,
+    ...conditionLines,
+    "",
+    `🕐 ${new Date().toLocaleTimeString("ru-RU")}`,
+  ].join("\n")
+}
+
+const getIndicatorDisplayValue = (
+  c: { indicator: string; params: Record<string, number> },
+  ctx: EvalContext,
+): string => {
+  const p = c.params ?? {}
+  switch (c.indicator) {
+    case "PRICE":
+      return ctx.price.toFixed(2)
+    case "RSI":
+      return IndicatorCalculator.calculateRSI(ctx.candles, p.period ?? 14).toFixed(1)
+    case "SMA":
+      return IndicatorCalculator.calculateSMA(ctx.candles, p.period ?? 20).toFixed(2)
+    case "EMA":
+      return IndicatorCalculator.calculateEMA(ctx.candles, p.period ?? 20).toFixed(2)
+    case "MACD": {
+      const m = IndicatorCalculator.calculateMACD(ctx.candles)
+      return `${m.macd.toFixed(2)}/${m.signal.toFixed(2)}`
+    }
+    case "BOLLINGER": {
+      const bb = IndicatorCalculator.calculateBollinger(ctx.candles, p.period ?? 20)
+      return `${bb.lower.toFixed(0)}-${bb.upper.toFixed(0)}`
+    }
+    case "VOLUME": {
+      const avg = IndicatorCalculator.getAverageVolume(ctx.candles, p.period ?? 20)
+      const cur = ctx.candles[ctx.candles.length - 1]?.volume ?? 0
+      return avg > 0 ? `${(cur / avg).toFixed(1)}x` : "—"
+    }
+    case "PRICE_CHANGE":
+      return `${IndicatorCalculator.getPriceChange(ctx.candles, p.period ?? 1).toFixed(1)}%`
+    default:
+      return "—"
+  }
 }
 
 const formatDefault = (
