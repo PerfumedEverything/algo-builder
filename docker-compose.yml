@@ -24,6 +24,20 @@ services:
     networks:
       - algo-net
 
+  telegram-bot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_SUPABASE_URL=${NEXT_PUBLIC_SUPABASE_URL}
+        - NEXT_PUBLIC_SUPABASE_ANON_KEY=${NEXT_PUBLIC_SUPABASE_ANON_KEY}
+        - NEXT_PUBLIC_APP_URL=${NEXT_PUBLIC_APP_URL}
+    env_file: .env
+    command: ["node", "scripts/telegram-bot.mjs"]
+    restart: unless-stopped
+    networks:
+      - algo-net
+
   nginx:
     image: nginx:alpine
     ports:
