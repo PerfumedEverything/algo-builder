@@ -14,7 +14,7 @@ export const formatSignalNotification = (signal: SignalRow, ctx: EvalContext): s
   }
 
   const primaryIndicator = signal.conditions[0]?.indicator ?? "PRICE"
-  const time = new Date().toLocaleTimeString("ru-RU")
+  const time = new Date().toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow" })
 
   switch (primaryIndicator) {
     case "PRICE":
@@ -50,7 +50,7 @@ const formatPriceLevel = (
     `🔔 *ЦЕЛЕВОЙ УРОВЕНЬ | ${ticker}*`,
     `🎯 Цена: ${target}₽`,
     `📊 Текущая цена: ${ctx.price.toFixed(2)}₽ (${sign}${diff}%)`,
-    `⏱️ Сработало: ${new Date().toLocaleTimeString("ru-RU")}`,
+    `⏱️ Сработало: ${new Date().toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow" })}`,
     "",
     `💡 Ваш алерт на пробой уровня сработал`,
   ].join("\n")
@@ -100,7 +100,7 @@ const formatVolumeAnomaly = (
     `📊 *АНОМАЛИЯ ОБЪЕМА | ${ticker}*`,
     `🔥 Объем: ${formatNumber(curVol)} (в ${multiplier}x выше среднего)`,
     `📈 Цена: ${priceChange >= 0 ? "+" : ""}${priceChange.toFixed(1)}%`,
-    `🕐 ${new Date().toLocaleTimeString("ru-RU")}`,
+    `🕐 ${new Date().toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow" })}`,
     "",
     `🔍 Возможен вход крупного игрока`,
   ].join("\n")
@@ -220,7 +220,7 @@ const formatMultiCondition = (
     `📋 Условия (${logic}):`,
     ...conditionLines,
     "",
-    `🕐 ${new Date().toLocaleTimeString("ru-RU")}`,
+    `🕐 ${new Date().toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow" })}`,
   ].join("\n")
 }
 
