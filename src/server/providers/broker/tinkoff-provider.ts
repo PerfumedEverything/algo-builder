@@ -46,14 +46,11 @@ export class TinkoffProvider implements BrokerProvider {
     try {
       const { accounts } = await this.api.users.getAccounts({})
       this.isSandbox = false
-      console.log(`[broker] connected REAL, accounts: ${accounts.length}`)
     } catch (e: unknown) {
       const code = (e as { code?: number }).code
-      console.log(`[broker] getAccounts failed code=${code}, trying sandbox`)
       if (code === 16 || code === 7) {
         await this.api.sandbox.getSandboxAccounts({})
         this.isSandbox = true
-        console.log(`[broker] connected SANDBOX`)
       } else {
         throw e
       }
@@ -174,16 +171,12 @@ export class TinkoffProvider implements BrokerProvider {
       resolvedId = await this.resolveTickerToUid(resolvedId)
     }
 
-    console.log(`[getCandles] ticker=${params.instrumentId} uid=${resolvedId} from=${params.from.toISOString()} to=${params.to.toISOString()} interval=${interval}`)
-
     const { candles } = await client.marketdata.getCandles({
       instrumentId: resolvedId,
       from: params.from,
       to: params.to,
       interval,
     })
-
-    console.log(`[getCandles] returned ${candles.length} candles`)
 
     return candles.map((c) => ({
       open: toNumber(c.open),
@@ -222,16 +215,11 @@ export class TinkoffProvider implements BrokerProvider {
       query: ticker.toUpperCase(),
     })
 
-    console.log(`[resolve] ${ticker}: found ${instruments.length} instruments:`, instruments.map((i) => `${i.ticker}(${i.classCode},kind=${i.instrumentKind},uid=${i.uid})`).join(", "))
-
     const match =
       instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.classCode === "TQBR") ??
       instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.instrumentKind === 1)
 
-    if (match) {
-      console.log(`[resolve] ${ticker} → uid=${match.uid} name=${match.name} classCode=${match.classCode}`)
-      return match.uid
-    }
+    if (match) return match.uid
 
     if (instruments.length > 0) return instruments[0].uid
 
