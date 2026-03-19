@@ -62,6 +62,11 @@ export default function SignalsPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  useEffect(() => {
+    const interval = setInterval(fetchData, 10_000)
+    return () => clearInterval(interval)
+  }, [fetchData])
+
   const handleEdit = (id: string) => {
     const signal = signals.find((s) => s.id === id)
     if (signal) { setEditSignal(signal); setDialogOpen(true) }

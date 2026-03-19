@@ -64,6 +64,11 @@ export default function StrategiesPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  useEffect(() => {
+    const interval = setInterval(fetchData, 10_000)
+    return () => clearInterval(interval)
+  }, [fetchData])
+
   const handleEdit = (id: string) => {
     const strategy = strategies.find((s) => s.id === id)
     if (strategy) { setEditStrategy(strategy); setDialogOpen(true) }
