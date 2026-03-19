@@ -14,9 +14,10 @@ type InstrumentSelectProps = {
   instrumentType: string
   value: string
   onChange: (ticker: string) => void
+  onPriceChange?: (price: number | null) => void
 }
 
-export const InstrumentSelect = ({ instrumentType, value, onChange }: InstrumentSelectProps) => {
+export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChange }: InstrumentSelectProps) => {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [instruments, setInstruments] = useState<BrokerInstrument[]>([])
@@ -54,8 +55,13 @@ export const InstrumentSelect = ({ instrumentType, value, onChange }: Instrument
     setPriceLoading(true)
     try {
       const res = await getInstrumentPriceAction(ticker)
-      if (res.success) setPrice(res.data.price)
-      else setPrice(null)
+      if (res.success) {
+        setPrice(res.data.price)
+        onPriceChange?.(res.data.price)
+      } else {
+        setPrice(null)
+        onPriceChange?.(null)
+      }
     } catch {
       setPrice(null)
     } finally {

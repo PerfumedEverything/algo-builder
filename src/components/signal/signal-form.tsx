@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -47,6 +47,7 @@ type SignalFormProps = {
 }
 
 export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps) => {
+  const [currentPrice, setCurrentPrice] = useState<number | null>(null)
   const {
     conditions,
     channels,
@@ -146,6 +147,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
               instrumentType={watch("instrumentType")}
               value={watch("instrument")}
               onChange={(v) => setValue("instrument", v, { shouldValidate: true })}
+              onPriceChange={setCurrentPrice}
             />
             {errors.instrument && <p className="text-xs text-red-400">{errors.instrument.message}</p>}
           </div>
@@ -192,6 +194,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
         <ConditionBuilder
           conditions={conditions}
           logicOperator={logicOperator}
+          currentPrice={currentPrice}
           onAdd={addCondition}
           onUpdate={updateCondition}
           onRemove={removeCondition}

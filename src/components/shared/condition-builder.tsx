@@ -46,6 +46,7 @@ const TIMEFRAMES = [
 type ConditionBuilderProps = {
   conditions: Condition[]
   logicOperator: LogicOperator
+  currentPrice?: number | null
   onAdd: () => void
   onUpdate: (index: number, condition: Condition) => void
   onRemove: (index: number) => void
@@ -55,6 +56,7 @@ type ConditionBuilderProps = {
 export const ConditionBuilder = ({
   conditions,
   logicOperator,
+  currentPrice,
   onAdd,
   onUpdate,
   onRemove,
@@ -67,11 +69,14 @@ export const ConditionBuilder = ({
     config?.params.forEach((p) => {
       params[p.name] = p.defaultValue
     })
+    const defaultValue = newIndicator === "PRICE" && currentPrice
+      ? Math.round(currentPrice * 100) / 100
+      : conditions[index].value
     onUpdate(index, {
       indicator: newIndicator,
       params,
       condition: conditions[index].condition,
-      value: conditions[index].value,
+      value: defaultValue,
       timeframe: conditions[index].timeframe,
     })
   }
@@ -195,7 +200,10 @@ export const ConditionBuilder = ({
                         value: e.target.value ? Number(e.target.value) : undefined,
                       })
                     }
-                    placeholder="Целевое значение"
+                    placeholder={condition.indicator === "PRICE" && currentPrice
+                      ? `Текущий: ${Math.round(currentPrice * 100) / 100}`
+                      : "Целевое значение"
+                    }
                   />
                 </div>
                 <div className="space-y-1.5">
@@ -220,7 +228,20 @@ export const ConditionBuilder = ({
         )
       })}
 
-      <Button type="button" variant="outline" size="sm" onClick={onAdd} className="w-full">
+      <Button type="button" variant="outline" size="sm" onClick={() => {
+        onAdd()
+        if (currentPrice) {
+          setTimeout(() => {
+            const newIndex = conditions.length
+            onUpdate(newIndex, {
+              indicator: "PRICE",
+              params: {},
+              condition: "GREATER_THAN",
+              value: Math.round(currentPrice * 100) / 100,
+            })
+          }, 0)
+        }
+      }} className="w-full">
         <Plus className="mr-2 h-4 w-4" />
         Добавить условие
       </Button>

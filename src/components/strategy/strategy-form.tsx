@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useImperativeHandle, forwardRef } from "react"
+import { useEffect, useImperativeHandle, useState, forwardRef } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -60,6 +60,7 @@ export type StrategyFormHandle = {
 
 export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
   ({ mode, strategy, onClose, onSuccess }, ref) => {
+    const [currentPrice, setCurrentPrice] = useState<number | null>(null)
     const {
       config,
       activeTab,
@@ -178,6 +179,7 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
                   instrumentType={watchedInstrumentType}
                   value={watch("instrument")}
                   onChange={(v) => setValue("instrument", v, { shouldValidate: true })}
+                  onPriceChange={setCurrentPrice}
                 />
                 {errors.instrument && <p className="text-xs text-red-400">{errors.instrument.message}</p>}
               </div>
@@ -209,6 +211,7 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
             <ConditionBuilder
               conditions={config.entry}
               logicOperator={config.entryLogic}
+              currentPrice={currentPrice}
               onAdd={() => addCondition("entry")}
               onUpdate={(i, c) => updateCondition("entry", i, c)}
               onRemove={(i) => removeCondition("entry", i)}
@@ -221,6 +224,7 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
             <ConditionBuilder
               conditions={config.exit}
               logicOperator={config.exitLogic}
+              currentPrice={currentPrice}
               onAdd={() => addCondition("exit")}
               onUpdate={(i, c) => updateCondition("exit", i, c)}
               onRemove={(i) => removeCondition("exit", i)}
