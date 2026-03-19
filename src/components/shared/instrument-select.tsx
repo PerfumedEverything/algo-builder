@@ -7,7 +7,6 @@ import type { BrokerInstrument } from "@/core/types"
 import { getInstrumentsAction, getInstrumentPriceAction } from "@/server/actions/broker-actions"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 
 type InstrumentSelectProps = {
@@ -120,7 +119,7 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start" sideOffset={4} collisionPadding={8}>
+        <PopoverContent className="w-[var(--radix-popover-trigger-width)] overflow-hidden p-0" align="start" sideOffset={4} collisionPadding={8}>
           <div className="flex items-center border-b border-border px-3 py-2">
             <Search className="mr-2 h-4 w-4 shrink-0 text-muted-foreground" />
             <Input
@@ -143,7 +142,10 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
           )}
 
           {!loading && !error && (
-            <ScrollArea className="max-h-60">
+            <div
+              className="max-h-60 overflow-y-auto overscroll-contain"
+              onWheel={(e) => e.stopPropagation()}
+            >
               {filtered.length === 0 ? (
                 <div className="px-3 py-4 text-center text-sm text-muted-foreground">
                   Инструменты не найдены
@@ -173,7 +175,7 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
                   ))}
                 </div>
               )}
-            </ScrollArea>
+            </div>
           )}
         </PopoverContent>
       </Popover>

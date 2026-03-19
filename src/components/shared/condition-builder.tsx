@@ -67,12 +67,14 @@ export const ConditionBuilder = ({
 
   useEffect(() => {
     if (!currentPrice || currentPrice === prevPriceRef.current) return
-    const isFirstPrice = prevPriceRef.current === null
+    const prevPrice = prevPriceRef.current
     prevPriceRef.current = currentPrice
-    if (!isFirstPrice) return
     const rounded = Math.round(currentPrice * 100) / 100
     conditions.forEach((c, i) => {
-      if (c.indicator === "PRICE" && (!c.value || c.value <= 1)) {
+      if (c.indicator !== "PRICE" || !c.value) return
+      const isDefault = c.value <= 1
+      const isPrevInstrumentPrice = prevPrice && Math.abs(c.value - prevPrice) / prevPrice < 0.01
+      if (isDefault || isPrevInstrumentPrice) {
         onUpdate(i, { ...c, value: rounded })
       }
     })
