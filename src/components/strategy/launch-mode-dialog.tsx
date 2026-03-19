@@ -31,7 +31,7 @@ export const LaunchModeDialog = ({ open, onOpenChange, onLaunch }: LaunchModeDia
           <button
             type="button"
             onClick={() => onLaunch("test")}
-            className="flex w-full items-start gap-4 rounded-lg border border-border p-4 text-left transition-colors hover:border-primary/30 hover:bg-accent/50"
+            className="flex w-full items-center gap-4 rounded-lg border border-border p-4 text-left transition-colors hover:border-primary/30 hover:bg-accent/50"
           >
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10">
               <TestTube className="h-5 w-5 text-emerald-400" />
@@ -44,7 +44,7 @@ export const LaunchModeDialog = ({ open, onOpenChange, onLaunch }: LaunchModeDia
             </div>
           </button>
 
-          <div className="relative flex w-full items-start gap-4 rounded-lg border border-border p-4 opacity-50">
+          <div className="relative flex w-full items-center gap-4 rounded-lg border border-border p-4 opacity-50">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-primary/10">
               <Play className="h-5 w-5 text-primary" />
             </div>
