@@ -8,7 +8,6 @@ import { getInstrumentsAction, getInstrumentPriceAction } from "@/server/actions
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
 import { Input } from "@/components/ui/input"
-import { ScrollArea } from "@/components/ui/scroll-area"
 
 type InstrumentSelectProps = {
   instrumentType: string
@@ -143,7 +142,7 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
           )}
 
           {!loading && !error && (
-            <ScrollArea className="max-h-48">
+            <div className="max-h-52 overflow-y-auto">
               {filtered.length === 0 ? (
                 <div className="px-3 py-4 text-center text-sm text-muted-foreground">
                   Инструменты не найдены
@@ -175,7 +174,7 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
                   ))}
                 </div>
               )}
-            </ScrollArea>
+            </div>
           )}
         </PopoverContent>
       </Popover>

@@ -138,22 +138,25 @@ export class TinkoffProvider implements BrokerProvider {
     const client = this.ensureConnected()
     const status = InstrumentStatus.INSTRUMENT_STATUS_BASE
 
+    const filterTradeable = (items: TradableInstrument[]) =>
+      items.filter((i) => i.apiTradeAvailableFlag && i.buyAvailableFlag)
+
     const fetchMap: Record<string, () => Promise<BrokerInstrument[]>> = {
       STOCK: async () => {
         const { instruments } = await client.instruments.shares({ instrumentStatus: status })
-        return instruments.map(mapShare)
+        return filterTradeable(instruments).map(mapShare)
       },
       BOND: async () => {
         const { instruments } = await client.instruments.bonds({ instrumentStatus: status })
-        return instruments.map(mapShare)
+        return filterTradeable(instruments).map(mapShare)
       },
       CURRENCY: async () => {
         const { instruments } = await client.instruments.currencies({ instrumentStatus: status })
-        return instruments.map(mapShare)
+        return filterTradeable(instruments).map(mapShare)
       },
       FUTURES: async () => {
         const { instruments } = await client.instruments.futures({ instrumentStatus: status })
-        return instruments.map(mapShare)
+        return filterTradeable(instruments).map(mapShare)
       },
     }
 
@@ -241,14 +244,18 @@ export class TinkoffProvider implements BrokerProvider {
   }
 }
 
-const mapShare = (i: {
+type TradableInstrument = {
   figi: string
   ticker: string
   name: string
   instrumentType?: string
   currency: string
   lot: number
-}): BrokerInstrument => ({
+  apiTradeAvailableFlag?: boolean
+  buyAvailableFlag?: boolean
+}
+
+const mapShare = (i: TradableInstrument): BrokerInstrument => ({
   figi: i.figi,
   ticker: i.ticker,
   name: i.name,
