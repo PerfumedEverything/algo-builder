@@ -6,7 +6,7 @@ export type StrategyRow = {
   userId: string
   name: string
   description: string | null
-  status: "DRAFT" | "ACTIVE" | "PAUSED" | "ARCHIVED"
+  status: "DRAFT" | "ACTIVE" | "PAUSED" | "TRIGGERED"
   instrument: string
   instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
   timeframe: string
@@ -132,6 +132,7 @@ export class StrategyRepository {
       active: rows.filter((r) => r.status === "ACTIVE").length,
       draft: rows.filter((r) => r.status === "DRAFT").length,
       paused: rows.filter((r) => r.status === "PAUSED").length,
+      triggered: rows.filter((r) => r.status === "TRIGGERED").length,
     }
   }
 }

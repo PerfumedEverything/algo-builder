@@ -5,6 +5,7 @@ import { getBrokerProvider } from "@/server/providers/broker"
 import { TelegramProvider } from "@/server/providers/notification"
 import { IndicatorCalculator } from "./indicator-calculator"
 import { formatStrategyNotification } from "./notification-templates"
+import { PriceCache } from "./price-cache"
 
 type CheckResult = {
   strategyId: string
@@ -23,6 +24,7 @@ type EvalContext = {
 export class StrategyChecker {
   private _telegram?: TelegramProvider
   private _db?: ReturnType<typeof createAdminClient>
+  private _priceCache?: PriceCache
 
   private get telegram(): TelegramProvider | null {
     if (this._telegram) return this._telegram
@@ -35,6 +37,11 @@ export class StrategyChecker {
   private get db() {
     if (!this._db) this._db = createAdminClient()
     return this._db
+  }
+
+  private get priceCache() {
+    if (!this._priceCache) this._priceCache = new PriceCache()
+    return this._priceCache
   }
 
   async checkAll(): Promise<CheckResult[]> {
@@ -66,10 +73,51 @@ export class StrategyChecker {
     return results
   }
 
+  async checkByInstrument(instrumentId: string, price: number): Promise<CheckResult[]> {
+    const strategies = await this.getActiveStrategiesByInstrument(instrumentId)
+    const results: CheckResult[] = []
+
+    for (const strategy of strategies) {
+      try {
+        const strategyResults = await this.checkStrategyWithPrice(strategy, price)
+        results.push(...strategyResults)
+
+        for (const result of strategyResults) {
+          if (result.triggered) {
+            await this.handleTriggered(strategy, result)
+          }
+        }
+      } catch (e) {
+        results.push({
+          strategyId: strategy.id,
+          strategyName: strategy.name,
+          instrument: strategy.instrument,
+          side: "entry",
+          triggered: false,
+          message: `Error: ${e instanceof Error ? e.message : "Unknown"}`,
+        })
+      }
+    }
+
+    return results
+  }
+
   private async checkStrategy(strategy: StrategyRow): Promise<CheckResult[]> {
+    const cachedPrice = await this.priceCache.getPrice(strategy.instrument)
+
+    let price: number
+    if (cachedPrice !== null) {
+      price = cachedPrice
+    } else {
+      const broker = await this.connectBroker(strategy.userId)
+      price = await broker.getCurrentPrice(strategy.instrument)
+    }
+
+    return this.checkStrategyWithPrice(strategy, price)
+  }
+
+  private async checkStrategyWithPrice(strategy: StrategyRow, price: number): Promise<CheckResult[]> {
     const config = strategy.config as StrategyConfig
-    const broker = await this.connectBroker(strategy.userId)
-    const price = await broker.getCurrentPrice(strategy.instrument)
 
     const allConditions = [...(config.entry ?? []), ...(config.exit ?? [])]
     const needsCandles = allConditions.some((c) => c.indicator !== "PRICE")
@@ -77,14 +125,21 @@ export class StrategyChecker {
 
     if (needsCandles) {
       const interval = strategy.timeframe || "1d"
-      const now = new Date()
-      const from = new Date(now.getTime() - getCandleRangeMs(interval))
-      candles = await broker.getCandles({
-        instrumentId: strategy.instrument,
-        from,
-        to: now,
-        interval,
-      })
+      const cached = await this.priceCache.getCandles(strategy.instrument, interval)
+
+      if (cached) {
+        candles = cached.map((c) => ({ ...c, time: new Date(c.time) }))
+      } else {
+        const broker = await this.connectBroker(strategy.userId)
+        const now = new Date()
+        const from = new Date(now.getTime() - getCandleRangeMs(interval))
+        candles = await broker.getCandles({
+          instrumentId: strategy.instrument,
+          from,
+          to: now,
+          interval,
+        })
+      }
     }
 
     const ctx: EvalContext = { price, candles }
@@ -211,6 +266,14 @@ export class StrategyChecker {
   }
 
   private async handleTriggered(strategy: StrategyRow, result: CheckResult) {
+    await this.db
+      .from("Strategy")
+      .update({
+        status: "TRIGGERED",
+        updatedAt: new Date().toISOString(),
+      })
+      .eq("id", strategy.id)
+
     const { data: user } = await this.db
       .from("User")
       .select("telegramChatId")
@@ -231,6 +294,17 @@ export class StrategyChecker {
       .from("Strategy")
       .select("*")
       .eq("status", "ACTIVE")
+
+    if (error) throw new Error(error.message)
+    return (data ?? []) as StrategyRow[]
+  }
+
+  private async getActiveStrategiesByInstrument(instrumentId: string): Promise<StrategyRow[]> {
+    const { data, error } = await this.db
+      .from("Strategy")
+      .select("*")
+      .eq("status", "ACTIVE")
+      .eq("instrument", instrumentId)
 
     if (error) throw new Error(error.message)
     return (data ?? []) as StrategyRow[]

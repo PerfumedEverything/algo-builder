@@ -5,6 +5,7 @@ import { getBrokerProvider } from "@/server/providers/broker"
 import { TelegramProvider } from "@/server/providers/notification"
 import { IndicatorCalculator } from "./indicator-calculator"
 import { formatSignalNotification } from "./notification-templates"
+import { PriceCache } from "./price-cache"
 
 type CheckResult = {
   signalId: string
@@ -22,6 +23,7 @@ type EvalContext = {
 export class SignalChecker {
   private _telegram?: TelegramProvider
   private _db?: ReturnType<typeof createAdminClient>
+  private _priceCache?: PriceCache
 
   private get telegram(): TelegramProvider | null {
     if (this._telegram) return this._telegram
@@ -34,6 +36,11 @@ export class SignalChecker {
   private get db() {
     if (!this._db) this._db = createAdminClient()
     return this._db
+  }
+
+  private get priceCache() {
+    if (!this._priceCache) this._priceCache = new PriceCache()
+    return this._priceCache
   }
 
   async checkAll(): Promise<CheckResult[]> {
@@ -61,23 +68,66 @@ export class SignalChecker {
     return results
   }
 
-  async checkSignal(signal: SignalRow): Promise<CheckResult> {
-    const broker = await this.connectBroker(signal.userId)
-    const price = await broker.getCurrentPrice(signal.instrument)
+  async checkByInstrument(instrumentId: string, price: number): Promise<CheckResult[]> {
+    const signals = await this.getActiveSignalsByInstrument(instrumentId)
+    const results: CheckResult[] = []
 
+    for (const signal of signals) {
+      try {
+        const result = await this.checkSignalWithPrice(signal, price)
+        results.push(result)
+        if (result.triggered) {
+          await this.handleTriggered(signal, result)
+        }
+      } catch (e) {
+        results.push({
+          signalId: signal.id,
+          signalName: signal.name,
+          instrument: signal.instrument,
+          triggered: false,
+          message: `Error: ${e instanceof Error ? e.message : "Unknown"}`,
+        })
+      }
+    }
+
+    return results
+  }
+
+  async checkSignal(signal: SignalRow): Promise<CheckResult> {
+    const cachedPrice = await this.priceCache.getPrice(signal.instrument)
+
+    let price: number
+    if (cachedPrice !== null) {
+      price = cachedPrice
+    } else {
+      const broker = await this.connectBroker(signal.userId)
+      price = await broker.getCurrentPrice(signal.instrument)
+    }
+
+    return this.checkSignalWithPrice(signal, price)
+  }
+
+  private async checkSignalWithPrice(signal: SignalRow, price: number): Promise<CheckResult> {
     const needsCandles = signal.conditions.some((c) => c.indicator !== "PRICE")
     let candles: EvalContext["candles"] = []
 
     if (needsCandles) {
       const interval = signal.timeframe || "1d"
-      const now = new Date()
-      const from = new Date(now.getTime() - getCandleRangeMs(interval))
-      candles = await broker.getCandles({
-        instrumentId: signal.instrument,
-        from,
-        to: now,
-        interval,
-      })
+      const cached = await this.priceCache.getCandles(signal.instrument, interval)
+
+      if (cached) {
+        candles = cached.map((c) => ({ ...c, time: new Date(c.time) }))
+      } else {
+        const broker = await this.connectBroker(signal.userId)
+        const now = new Date()
+        const from = new Date(now.getTime() - getCandleRangeMs(interval))
+        candles = await broker.getCandles({
+          instrumentId: signal.instrument,
+          from,
+          to: now,
+          interval,
+        })
+      }
     }
 
     const ctx: EvalContext = { price, candles }
@@ -225,6 +275,7 @@ export class SignalChecker {
       .update({
         triggerCount: signal.triggerCount + 1,
         lastTriggered: new Date().toISOString(),
+        isActive: false,
         updatedAt: new Date().toISOString(),
       })
       .eq("id", signal.id)
@@ -253,6 +304,17 @@ export class SignalChecker {
       .from("Signal")
       .select("*")
       .eq("isActive", true)
+
+    if (error) throw new Error(error.message)
+    return (data ?? []) as SignalRow[]
+  }
+
+  private async getActiveSignalsByInstrument(instrumentId: string): Promise<SignalRow[]> {
+    const { data, error } = await this.db
+      .from("Signal")
+      .select("*")
+      .eq("isActive", true)
+      .eq("instrument", instrumentId)
 
     if (error) throw new Error(error.message)
     return (data ?? []) as SignalRow[]

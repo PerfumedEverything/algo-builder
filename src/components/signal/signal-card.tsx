@@ -47,6 +47,10 @@ export const SignalCard = ({ signal, onEdit, onToggle, onDelete }: SignalCardPro
             </Badge>
             {signal.isActive ? (
               <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
+            ) : signal.triggerCount > 0 ? (
+              <Badge variant="outline" className="bg-blue-500/10 text-blue-400 border-blue-500/20 text-[10px] px-1.5 py-0">
+                Сработал
+              </Badge>
             ) : (
               <span className="flex h-2 w-2 rounded-full bg-zinc-500" />
             )}

@@ -1,6 +1,6 @@
 "use client"
 
-import { TrendingUp, Zap, FileText, Archive } from "lucide-react"
+import { TrendingUp, Zap, FileText, CheckCircle } from "lucide-react"
 
 import { StatCard } from "@/components/dashboard"
 
@@ -10,7 +10,7 @@ type StrategyStatsProps = {
     active: number
     draft: number
     paused?: number
-    archived?: number
+    triggered?: number
   }
 }
 
@@ -41,11 +41,11 @@ export const StrategyStats = ({ stats }: StrategyStatsProps) => {
         index={2}
       />
       <StatCard
-        title="На паузе"
-        value={String(stats.paused ?? stats.archived)}
-        subtitle="Приостановлены"
-        icon={Archive}
-        iconColor="text-yellow-400"
+        title="Сработало"
+        value={String((stats.triggered ?? 0) + (stats.paused ?? 0))}
+        subtitle="Отработали"
+        icon={CheckCircle}
+        iconColor="text-blue-400"
         index={3}
       />
     </div>

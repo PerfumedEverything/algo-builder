@@ -60,5 +60,5 @@ export const createStrategySchema = z.object({
 })
 
 export const updateStrategySchema = createStrategySchema.partial().extend({
-  status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "ARCHIVED"]).optional(),
+  status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "TRIGGERED"]).optional(),
 })

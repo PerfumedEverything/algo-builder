@@ -46,7 +46,7 @@ export class StrategyService {
     data: Partial<{
       name: string
       description: string
-      status: "DRAFT" | "ACTIVE" | "PAUSED" | "ARCHIVED"
+      status: "DRAFT" | "ACTIVE" | "PAUSED" | "TRIGGERED"
       instrument: string
       instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
       timeframe: string

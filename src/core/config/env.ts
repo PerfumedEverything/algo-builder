@@ -15,6 +15,7 @@ const envSchema = z.object({
   DEEPSEEK_BASE_URL: z.string().url().default("https://api.deepseek.com"),
 
   TINKOFF_INVEST_TOKEN: z.string().optional(),
+  TINKOFF_SYSTEM_TOKEN: z.string().optional(),
   TINKOFF_SANDBOX: z.string().default("true"),
 
   TELEGRAM_BOT_TOKEN: z.string().optional(),

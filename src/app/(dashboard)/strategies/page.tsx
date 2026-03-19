@@ -76,14 +76,14 @@ export default function StrategiesPage() {
     } else if (status === "PAUSED") {
       result = await deactivateStrategyAction(id)
     } else {
-      result = await updateStrategyAction(id, { status: status as "DRAFT" | "ACTIVE" | "PAUSED" | "ARCHIVED" })
+      result = await updateStrategyAction(id, { status: status as "DRAFT" | "ACTIVE" | "PAUSED" | "TRIGGERED" })
     }
 
     if (result.success) {
       const labels: Record<string, string> = {
         ACTIVE: "Стратегия запущена — мониторинг активен",
         PAUSED: "Стратегия остановлена",
-        ARCHIVED: "Стратегия в архиве",
+        TRIGGERED: "Стратегия сработала",
       }
       toast.success(labels[status] ?? "Статус обновлён")
       fetchData()
@@ -174,6 +174,7 @@ export default function StrategiesPage() {
                     <SelectItem value="ACTIVE">Активные</SelectItem>
                     <SelectItem value="DRAFT">Черновики</SelectItem>
                     <SelectItem value="PAUSED">На паузе</SelectItem>
+                    <SelectItem value="TRIGGERED">Сработавшие</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

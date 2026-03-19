@@ -33,6 +33,18 @@ services:
     networks:
       - algo-net
 
+  price-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+    env_file: .env
+    depends_on:
+      - redis
+      - nextjs
+    restart: unless-stopped
+    networks:
+      - algo-net
+
   nginx:
     image: nginx:alpine
     ports:

@@ -35,7 +35,7 @@ const generalSchema = z.object({
   instrument: z.string().min(1, "Укажите инструмент"),
   instrumentType: z.enum(["STOCK", "BOND", "CURRENCY", "FUTURES"]),
   timeframe: z.string().min(1, "Выберите таймфрейм"),
-  status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "ARCHIVED"]).optional(),
+  status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "TRIGGERED"]).optional(),
 })
 
 type GeneralFormData = z.infer<typeof generalSchema>
