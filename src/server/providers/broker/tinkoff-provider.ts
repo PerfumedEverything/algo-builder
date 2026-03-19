@@ -143,8 +143,14 @@ export class TinkoffProvider implements BrokerProvider {
 
     const fetchMap: Record<string, () => Promise<BrokerInstrument[]>> = {
       STOCK: async () => {
-        const { instruments } = await client.instruments.shares({ instrumentStatus: status })
-        return filterTradeable(instruments).map(mapShare)
+        const [shares, etfs] = await Promise.all([
+          client.instruments.shares({ instrumentStatus: status }),
+          client.instruments.etfs({ instrumentStatus: status }),
+        ])
+        return [
+          ...filterTradeable(shares.instruments).map(mapShare),
+          ...filterTradeable(etfs.instruments).map(mapShare),
+        ]
       },
       BOND: async () => {
         const { instruments } = await client.instruments.bonds({ instrumentStatus: status })
