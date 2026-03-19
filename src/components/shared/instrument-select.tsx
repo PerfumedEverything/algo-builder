@@ -7,6 +7,7 @@ import type { BrokerInstrument } from "@/core/types"
 import { getInstrumentsAction, getInstrumentPriceAction } from "@/server/actions/broker-actions"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { ScrollArea } from "@/components/ui/scroll-area"
 import { Input } from "@/components/ui/input"
 
 type InstrumentSelectProps = {
@@ -142,7 +143,7 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
           )}
 
           {!loading && !error && (
-            <div className="max-h-52 overflow-y-auto">
+            <ScrollArea className="max-h-60">
               {filtered.length === 0 ? (
                 <div className="px-3 py-4 text-center text-sm text-muted-foreground">
                   Инструменты не найдены
@@ -157,24 +158,22 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
                         onChange(instrument.ticker)
                         setOpen(false)
                       }}
-                      className={`flex w-full items-center justify-between rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-accent ${
+                      className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-accent ${
                         value.toUpperCase() === instrument.ticker.toUpperCase()
                           ? "bg-accent text-accent-foreground"
                           : ""
                       }`}
                     >
-                      <div className="min-w-0 flex-1">
-                        <span className="font-mono font-medium">{instrument.ticker}</span>
-                        <span className="ml-2 truncate text-muted-foreground">{instrument.name}</span>
-                      </div>
-                      <span className="ml-2 shrink-0 text-xs text-muted-foreground uppercase">
+                      <span className="shrink-0 font-mono font-medium w-14">{instrument.ticker}</span>
+                      <span className="min-w-0 flex-1 truncate text-muted-foreground">{instrument.name}</span>
+                      <span className="shrink-0 text-xs text-muted-foreground uppercase">
                         {instrument.currency}
                       </span>
                     </button>
                   ))}
                 </div>
               )}
-            </div>
+            </ScrollArea>
           )}
         </PopoverContent>
       </Popover>
