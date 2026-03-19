@@ -102,8 +102,9 @@ async function subscribeToStream(instruments: string[]) {
 
   console.log(`[Worker] Subscribing to ${figi.length} instruments...`)
 
+  try {
   unsubscribeFn = await api.stream.market.lastPrice(
-    { instruments: figi.map((f) => ({ figi: f, instrumentId: f })) },
+    { instruments: figi.map((f) => ({ figi: "", instrumentId: f })) },
     async (lastPrice) => {
       const price = toNumber(lastPrice.price)
       const uid = lastPrice.figi || lastPrice.instrumentUid
@@ -129,6 +130,9 @@ async function subscribeToStream(instruments: string[]) {
 
   subscribedInstruments = new Set(instruments)
   console.log(`[Worker] Subscribed to: ${instruments.join(", ")}`)
+  } catch (e) {
+    console.error("[Worker] Stream subscription error:", e)
+  }
 }
 
 async function refreshInstruments() {
