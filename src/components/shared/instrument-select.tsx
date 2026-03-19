@@ -170,11 +170,8 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
                           : ""
                       }`}
                     >
-                      <span className="shrink-0 font-mono font-medium w-14">{cleanTicker(instrument.ticker)}</span>
+                      <span className="shrink-0 font-mono font-medium text-xs">{cleanTicker(instrument.ticker)}</span>
                       <span className="min-w-0 flex-1 truncate text-muted-foreground">{instrument.name}</span>
-                      <span className="shrink-0 text-xs text-muted-foreground uppercase">
-                        {instrument.currency}
-                      </span>
                     </button>
                   ))}
                 </div>

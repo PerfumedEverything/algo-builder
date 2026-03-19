@@ -40,7 +40,7 @@ export const createSignalAction = async (
     instrument: string
     instrumentType?: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
     timeframe: string
-    signalType: "BUY" | "SELL"
+    signalType: "BUY" | "SELL" | "ALERT"
     conditions: SignalCondition[]
     channels: SignalChannel[]
     logicOperator?: LogicOperator
@@ -69,7 +69,7 @@ export const updateSignalAction = async (
     instrument?: string
     instrumentType?: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
     timeframe?: string
-    signalType?: "BUY" | "SELL"
+    signalType?: "BUY" | "SELL" | "ALERT"
     conditions?: SignalCondition[]
     channels?: SignalChannel[]
     logicOperator?: LogicOperator

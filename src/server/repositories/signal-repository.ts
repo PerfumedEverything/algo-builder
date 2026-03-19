@@ -9,7 +9,7 @@ export type SignalRow = {
   instrument: string
   instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
   timeframe: string
-  signalType: "BUY" | "SELL"
+  signalType: "BUY" | "SELL" | "ALERT"
   conditions: SignalCondition[]
   channels: SignalChannel[]
   logicOperator: LogicOperator
@@ -81,7 +81,7 @@ export class SignalRepository {
     instrument: string
     instrumentType?: string
     timeframe: string
-    signalType: "BUY" | "SELL"
+    signalType: "BUY" | "SELL" | "ALERT"
     conditions: SignalCondition[]
     channels: SignalChannel[]
     logicOperator?: LogicOperator

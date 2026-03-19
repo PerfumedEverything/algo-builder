@@ -34,7 +34,7 @@ const generalSchema = z.object({
   instrument: z.string().min(1, "Укажите инструмент"),
   instrumentType: z.enum(["STOCK", "BOND", "CURRENCY", "FUTURES"]),
   timeframe: z.string().min(1, "Выберите таймфрейм"),
-  signalType: z.enum(["BUY", "SELL"]),
+  signalType: z.enum(["BUY", "SELL", "ALERT"]),
 })
 
 type GeneralFormData = z.infer<typeof generalSchema>
@@ -166,6 +166,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
               <SelectContent>
                 <SelectItem value="BUY">Покупка (BUY)</SelectItem>
                 <SelectItem value="SELL">Продажа (SELL)</SelectItem>
+                <SelectItem value="ALERT">Алерт (без типа)</SelectItem>
               </SelectContent>
             </Select>
           </div>

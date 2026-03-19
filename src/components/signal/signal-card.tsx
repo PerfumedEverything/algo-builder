@@ -27,6 +27,13 @@ type SignalCardProps = {
 const TYPE_STYLES: Record<string, string> = {
   BUY: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
   SELL: "bg-orange-500/10 text-orange-400 border-orange-500/20",
+  ALERT: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+}
+
+const TYPE_LABELS: Record<string, string> = {
+  BUY: "BUY",
+  SELL: "SELL",
+  ALERT: "Алерт",
 }
 
 const CONDITION_LABELS: Record<string, string> = {
@@ -89,7 +96,7 @@ export const SignalCard = ({ signal, progress, onEdit, onToggle, onDelete }: Sig
           <div className="flex items-center gap-2">
             <h3 className="truncate text-sm font-semibold">{signal.name}</h3>
             <Badge variant="outline" className={TYPE_STYLES[signal.signalType]}>
-              {signal.signalType}
+              {TYPE_LABELS[signal.signalType] ?? signal.signalType}
             </Badge>
             {signal.repeatMode && (
               <Badge variant="outline" className="bg-violet-500/10 text-violet-400 border-violet-500/20 text-[10px] px-1.5 py-0 gap-0.5">

@@ -176,6 +176,7 @@ export default function SignalsPage() {
                     <SelectItem value="all">Все типы</SelectItem>
                     <SelectItem value="BUY">Покупка (BUY)</SelectItem>
                     <SelectItem value="SELL">Продажа (SELL)</SelectItem>
+                    <SelectItem value="ALERT">Алерт</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

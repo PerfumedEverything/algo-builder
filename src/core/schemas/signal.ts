@@ -18,7 +18,7 @@ export const createSignalSchema = z.object({
   instrument: z.string().min(1),
   instrumentType: z.enum(["STOCK", "BOND", "CURRENCY", "FUTURES"]).default("STOCK"),
   timeframe: z.string().min(1),
-  signalType: z.enum(["BUY", "SELL"]),
+  signalType: z.enum(["BUY", "SELL", "ALERT"]),
   conditions: z.array(signalConditionSchema).min(1),
   channels: z.array(signalChannelSchema).min(1),
   logicOperator: logicOperatorSchema.default("AND"),

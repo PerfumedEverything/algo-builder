@@ -162,9 +162,10 @@ describe("createSignalSchema", () => {
     expect(result.success).toBe(false)
   })
 
-  it("accepts BUY and SELL signal types", () => {
+  it("accepts BUY, SELL and ALERT signal types", () => {
     expect(createSignalSchema.safeParse({ ...validSignal, signalType: "BUY" }).success).toBe(true)
     expect(createSignalSchema.safeParse({ ...validSignal, signalType: "SELL" }).success).toBe(true)
+    expect(createSignalSchema.safeParse({ ...validSignal, signalType: "ALERT" }).success).toBe(true)
   })
 
   it("rejects invalid signal type", () => {

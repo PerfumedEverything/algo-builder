@@ -190,8 +190,8 @@ const formatIndicator = (
   const conditionType = signal.conditions[0]?.condition ?? ""
   const conditionLabel = formatConditionLabel(conditionType, conditionTarget)
 
-  const typeEmoji = signal.signalType === "BUY" ? "📗" : "📕"
-  const typeLabel = signal.signalType === "BUY" ? "ПОКУПКА" : "ПРОДАЖА"
+  const typeEmoji = signal.signalType === "BUY" ? "📗" : signal.signalType === "SELL" ? "📕" : "🔔"
+  const typeLabel = signal.signalType === "BUY" ? "ПОКУПКА" : signal.signalType === "SELL" ? "ПРОДАЖА" : "АЛЕРТ"
 
   return [
     `${typeEmoji} *${typeLabel} | ${ticker}*`,
@@ -209,7 +209,7 @@ const formatMultiCondition = (
   ctx: EvalContext,
 ): string => {
   const logic = signal.logicOperator ?? "AND"
-  const typeLabel = signal.signalType === "BUY" ? "📗 Покупка" : "📕 Продажа"
+  const typeLabel = signal.signalType === "BUY" ? "📗 Покупка" : signal.signalType === "SELL" ? "📕 Продажа" : "🔔 Алерт"
 
   const conditionLines = signal.conditions.map((c) => {
     const val = getIndicatorDisplayValue(c, ctx)
@@ -269,7 +269,7 @@ const formatDefault = (
   ctx: EvalContext,
   time: string,
 ): string => {
-  const typeLabel = signal.signalType === "BUY" ? "Покупка" : "Продажа"
+  const typeLabel = signal.signalType === "BUY" ? "Покупка" : signal.signalType === "SELL" ? "Продажа" : "Алерт"
   return [
     `🔔 *${signal.name}*`,
     `📊 ${ticker} — ${typeLabel}`,
