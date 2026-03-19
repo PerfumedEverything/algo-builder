@@ -17,6 +17,18 @@ export const RiskForm = () => {
 
   return (
     <div className="space-y-4">
+      <div className="space-y-2">
+        <Label className="text-xs text-muted-foreground">Сумма для торговли (₽)</Label>
+        <Input
+          type="number"
+          value={risks.tradeAmount ?? ""}
+          onChange={(e) => updateRisk("tradeAmount", e.target.value)}
+          placeholder="100000"
+          min={0}
+          step={1000}
+        />
+        <p className="text-xs text-muted-foreground">Какой частью портфеля торговать по этой стратегии</p>
+      </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Stop Loss (%)</Label>

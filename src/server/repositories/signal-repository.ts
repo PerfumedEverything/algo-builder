@@ -24,6 +24,7 @@ export type SignalRow = {
 type SignalFilters = {
   signalType?: string
   isActive?: boolean
+  triggered?: string
   search?: string
 }
 
@@ -45,6 +46,9 @@ export class SignalRepository {
     }
     if (filters?.isActive !== undefined) {
       query = query.eq("isActive", filters.isActive)
+    }
+    if (filters?.triggered === "true") {
+      query = query.eq("isActive", false).gt("triggerCount", 0)
     }
     if (filters?.search) {
       query = query.or(
@@ -140,7 +144,7 @@ export class SignalRepository {
     const supabase = await this.db()
     const { data, error } = await supabase
       .from("Signal")
-      .select("isActive, signalType")
+      .select("isActive, signalType, triggerCount")
       .eq("userId", userId)
 
     if (error) throw new Error(error.message)
@@ -149,7 +153,7 @@ export class SignalRepository {
     return {
       total: rows.length,
       active: rows.filter((r) => r.isActive).length,
-      inactive: rows.filter((r) => !r.isActive).length,
+      triggered: rows.filter((r) => !r.isActive && r.triggerCount > 0).length,
       buy: rows.filter((r) => r.signalType === "BUY").length,
       sell: rows.filter((r) => r.signalType === "SELL").length,
     }

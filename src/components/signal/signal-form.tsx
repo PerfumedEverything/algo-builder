@@ -26,6 +26,7 @@ import {
   updateSignalAction,
 } from "@/server/actions/signal-actions"
 import { ConditionBuilder } from "@/components/shared/condition-builder"
+import { InstrumentSelect } from "@/components/shared/instrument-select"
 
 const generalSchema = z.object({
   name: z.string().min(1, "Введите название"),
@@ -63,6 +64,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<GeneralFormData>({
     resolver: zodResolver(generalSchema),
@@ -114,22 +116,44 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
     <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-6 max-h-[70vh] overflow-y-auto pr-1">
       <section className="space-y-4">
         <h3 className="text-sm font-medium text-primary">Основное</h3>
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Название сигнала</Label>
+          <Input {...register("name")} placeholder="Мой сигнал" />
+          {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
+        </div>
+
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Название сигнала</Label>
-            <Input {...register("name")} placeholder="Мой сигнал" />
-            {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
+            <Label className="text-xs text-muted-foreground">Тип инструмента</Label>
+            <Select
+              defaultValue={signal?.instrumentType ?? "STOCK"}
+              onValueChange={(v) => {
+                setValue("instrumentType", v as GeneralFormData["instrumentType"])
+                setValue("instrument", "")
+              }}
+            >
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                {INSTRUMENT_TYPES.map((t) => (
+                  <SelectItem key={t.type} value={t.type}>{t.labelRu}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Инструмент</Label>
-            <Input {...register("instrument")} placeholder="SBER, GAZP, BTCUSD" />
+            <InstrumentSelect
+              instrumentType={watch("instrumentType")}
+              value={watch("instrument")}
+              onChange={(v) => setValue("instrument", v, { shouldValidate: true })}
+            />
             {errors.instrument && <p className="text-xs text-red-400">{errors.instrument.message}</p>}
           </div>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Тип</Label>
+            <Label className="text-xs text-muted-foreground">Тип сигнала</Label>
             <Select
               defaultValue={signal?.signalType ?? "BUY"}
               onValueChange={(v) => setValue("signalType", v as GeneralFormData["signalType"])}
@@ -138,20 +162,6 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
               <SelectContent>
                 <SelectItem value="BUY">Покупка (BUY)</SelectItem>
                 <SelectItem value="SELL">Продажа (SELL)</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="space-y-2">
-            <Label className="text-xs text-muted-foreground">Тип инструмента</Label>
-            <Select
-              defaultValue={signal?.instrumentType ?? "STOCK"}
-              onValueChange={(v) => setValue("instrumentType", v as GeneralFormData["instrumentType"])}
-            >
-              <SelectTrigger><SelectValue /></SelectTrigger>
-              <SelectContent>
-                {INSTRUMENT_TYPES.map((t) => (
-                  <SelectItem key={t.type} value={t.type}>{t.labelRu}</SelectItem>
-                ))}
               </SelectContent>
             </Select>
           </div>

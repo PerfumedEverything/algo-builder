@@ -98,3 +98,15 @@ export const getInstrumentsAction = async (
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
   }
 }
+
+export const getInstrumentPriceAction = async (
+  ticker: string,
+): Promise<ApiResponse<{ price: number }>> => {
+  try {
+    const userId = await getCurrentUserId()
+    const price = await getService().getInstrumentPrice(userId, ticker)
+    return successResponse({ price })
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}

@@ -7,7 +7,7 @@ export class SignalService {
 
   async getSignals(
     userId: string,
-    filters?: { signalType?: string; isActive?: boolean; search?: string },
+    filters?: { signalType?: string; isActive?: boolean; triggered?: string; search?: string },
   ) {
     return this.repository.findByUserId(userId, filters)
   }

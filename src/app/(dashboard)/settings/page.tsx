@@ -128,7 +128,7 @@ export default function SettingsPage() {
             <Input value={email} disabled className="opacity-60" />
             <p className="text-xs text-muted-foreground">Email нельзя изменить</p>
           </div>
-          <Button onClick={handleSaveProfile} disabled={saving}>
+          <Button className="w-full sm:w-auto" onClick={handleSaveProfile} disabled={saving}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Сохранить
           </Button>
@@ -172,18 +172,18 @@ export default function SettingsPage() {
             />
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            <Button onClick={handleSaveTelegram} disabled={saving || !telegramChatId.trim()}>
+          <div className="flex flex-col gap-2 sm:flex-row sm:flex-wrap">
+            <Button className="w-full sm:w-auto" onClick={handleSaveTelegram} disabled={saving || !telegramChatId.trim()}>
               {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
               Сохранить
             </Button>
             {telegramConnected && (
               <>
-                <Button variant="outline" onClick={handleTestNotification} disabled={testing}>
+                <Button className="w-full sm:w-auto" variant="outline" onClick={handleTestNotification} disabled={testing}>
                   {testing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
                   Тест
                 </Button>
-                <Button variant="outline" onClick={handleRemoveTelegram} className="text-red-400 hover:text-red-300">
+                <Button variant="outline" onClick={handleRemoveTelegram} className="w-full sm:w-auto text-red-400 hover:text-red-300">
                   <Trash2 className="mr-2 h-4 w-4" />
                   Отключить
                 </Button>
@@ -194,7 +194,7 @@ export default function SettingsPage() {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-4 lg:p-6">
-        <Button variant="outline" className="text-red-400 hover:text-red-300" onClick={() => logoutAction()}>
+        <Button variant="outline" className="w-full sm:w-auto text-red-400 hover:text-red-300" onClick={() => logoutAction()}>
           <LogOut className="mr-2 h-4 w-4" />
           Выйти из аккаунта
         </Button>

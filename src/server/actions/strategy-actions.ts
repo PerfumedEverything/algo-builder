@@ -5,6 +5,7 @@ import type { AiGeneratedStrategy, StrategyConfig } from "@/core/types"
 import { createStrategySchema, updateStrategySchema } from "@/core/schemas"
 import { StrategyService } from "@/server/services"
 import { getAiProvider } from "@/server/providers/ai"
+import { StrategyChecker } from "@/server/services/strategy-checker"
 import { getCurrentUserId } from "./helpers"
 
 const getService = () => new StrategyService(undefined, getAiProvider())
@@ -99,6 +100,7 @@ export const activateStrategyAction = async (
   try {
     const userId = await getCurrentUserId()
     const strategy = await getService().activateStrategy(id, userId)
+    new StrategyChecker().checkAll().catch(() => {})
     return successResponse({ id: strategy.id })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")

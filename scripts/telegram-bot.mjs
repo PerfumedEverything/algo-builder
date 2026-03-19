@@ -12,7 +12,7 @@ bot.command("start", async (ctx) => {
   const chatId = ctx.chat.id.toString()
   await ctx.reply(
     [
-      "👋 *Добро пожаловать в AlgoBuilder!*",
+      "👋 *Добро пожаловать в AculaTrade!*",
       "",
       `🔑 Ваш Chat ID: \`${chatId}\``,
       "",

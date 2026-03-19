@@ -151,6 +151,55 @@ export class SignalChecker {
     }
   }
 
+  async getConditionProgress(signal: SignalRow) {
+    const cachedPrice = await this.priceCache.getPrice(signal.instrument)
+
+    let price: number
+    if (cachedPrice !== null) {
+      price = cachedPrice
+    } else {
+      const broker = await this.connectBroker(signal.userId)
+      price = await broker.getCurrentPrice(signal.instrument)
+    }
+
+    const needsCandles = signal.conditions.some((c) => c.indicator !== "PRICE")
+    let candles: EvalContext["candles"] = []
+
+    if (needsCandles) {
+      const interval = signal.timeframe || "1d"
+      const cached = await this.priceCache.getCandles(signal.instrument, interval)
+
+      if (cached) {
+        candles = cached.map((c) => ({ ...c, time: new Date(c.time) }))
+      } else {
+        const broker = await this.connectBroker(signal.userId)
+        const now = new Date()
+        const from = new Date(now.getTime() - getCandleRangeMs(interval))
+        candles = await broker.getCandles({
+          instrumentId: signal.instrument,
+          from,
+          to: now,
+          interval,
+        })
+      }
+    }
+
+    const ctx: EvalContext = { price, candles }
+
+    return signal.conditions.map((c) => {
+      const current = this.getIndicatorValue(c, ctx)
+      const target = c.value ?? 0
+      const met = this.compare(current, c.condition, target, price)
+      return {
+        indicator: c.indicator,
+        current: Math.round(current * 100) / 100,
+        target,
+        condition: c.condition,
+        met,
+      }
+    })
+  }
+
   evaluateCondition(condition: SignalCondition, ctx: EvalContext): boolean {
     const actual = this.getIndicatorValue(condition, ctx)
     const target = condition.value ?? 0

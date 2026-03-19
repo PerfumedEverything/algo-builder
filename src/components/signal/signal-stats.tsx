@@ -1,6 +1,6 @@
 "use client"
 
-import { Signal, Zap, TrendingUp, TrendingDown } from "lucide-react"
+import { Signal, Zap, CheckCircle, TrendingUp } from "lucide-react"
 
 import { StatCard } from "@/components/dashboard"
 
@@ -8,7 +8,7 @@ type SignalStatsProps = {
   stats: {
     total: number
     active: number
-    inactive: number
+    triggered: number
     buy: number
     sell: number
   }
@@ -16,7 +16,7 @@ type SignalStatsProps = {
 
 export const SignalStats = ({ stats }: SignalStatsProps) => {
   return (
-    <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
       <StatCard
         title="Всего сигналов"
         value={String(stats.total)}
@@ -33,18 +33,18 @@ export const SignalStats = ({ stats }: SignalStatsProps) => {
         index={1}
       />
       <StatCard
-        title="На покупку"
-        value={String(stats.buy)}
-        subtitle="BUY сигналы"
-        icon={TrendingUp}
+        title="Сработало"
+        value={String(stats.triggered)}
+        subtitle="Отработали"
+        icon={CheckCircle}
         iconColor="text-blue-400"
         index={2}
       />
       <StatCard
-        title="На продажу"
-        value={String(stats.sell)}
-        subtitle="SELL сигналы"
-        icon={TrendingDown}
+        title="На покупку"
+        value={String(stats.buy)}
+        subtitle="BUY сигналы"
+        icon={TrendingUp}
         iconColor="text-orange-400"
         index={3}
       />

@@ -36,6 +36,7 @@ export type StrategyRisks = {
   takeProfit?: number
   maxPositionSize?: number
   trailingStop?: number
+  tradeAmount?: number
 }
 
 export type StrategyConfig = {

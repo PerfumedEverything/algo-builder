@@ -22,25 +22,28 @@ import {
   getSignalStatsAction,
   deleteSignalAction,
   toggleSignalAction,
+  getSignalProgressAction,
 } from "@/server/actions/signal-actions"
+import type { SignalProgress } from "@/server/actions/signal-actions"
 import { getSettingsAction } from "@/server/actions/settings-actions"
 import type { SignalRow } from "@/server/repositories/signal-repository"
 import { TIMEFRAMES } from "@/core/config/instruments"
 
-type Stats = { total: number; active: number; inactive: number; buy: number; sell: number }
+type Stats = { total: number; active: number; triggered: number; buy: number; sell: number }
 type Filters = { signalType: string; isActive: string; timeframe: string }
 
 const DEFAULT_FILTERS: Filters = { signalType: "", isActive: "", timeframe: "" }
 
 export default function SignalsPage() {
   const [signals, setSignals] = useState<SignalRow[]>([])
-  const [stats, setStats] = useState<Stats>({ total: 0, active: 0, inactive: 0, buy: 0, sell: 0 })
+  const [stats, setStats] = useState<Stats>({ total: 0, active: 0, triggered: 0, buy: 0, sell: 0 })
   const [search, setSearch] = useState("")
   const [filters, setFilters] = useState<Filters>(DEFAULT_FILTERS)
   const [filtersOpen, setFiltersOpen] = useState(false)
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editSignal, setEditSignal] = useState<SignalRow | undefined>()
   const [telegramConfigured, setTelegramConfigured] = useState(true)
+  const [progressMap, setProgressMap] = useState<Record<string, SignalProgress["conditions"]>>({})
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
@@ -48,7 +51,9 @@ export default function SignalsPage() {
     const params: Record<string, string | boolean> = {}
     if (search) params.search = search
     if (filters.signalType) params.signalType = filters.signalType
-    if (filters.isActive) params.isActive = filters.isActive === "true"
+    if (filters.isActive === "active") params.isActive = true
+    else if (filters.isActive === "inactive") params.isActive = false
+    else if (filters.isActive === "triggered") params.triggered = "true"
 
     const [signalsRes, statsRes, settingsRes] = await Promise.all([
       getSignalsAction(Object.keys(params).length ? params as Record<string, string> : undefined),
@@ -62,10 +67,26 @@ export default function SignalsPage() {
 
   useEffect(() => { fetchData() }, [fetchData])
 
+  const fetchProgress = useCallback(async () => {
+    const res = await getSignalProgressAction()
+    if (res.success) {
+      const map: Record<string, SignalProgress["conditions"]> = {}
+      for (const p of res.data) map[p.signalId] = p.conditions
+      setProgressMap(map)
+    }
+  }, [])
+
   useEffect(() => {
-    const interval = setInterval(fetchData, 10_000)
+    fetchProgress()
+  }, [fetchProgress])
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      fetchData()
+      fetchProgress()
+    }, 10_000)
     return () => clearInterval(interval)
-  }, [fetchData])
+  }, [fetchData, fetchProgress])
 
   const handleEdit = (id: string) => {
     const signal = signals.find((s) => s.id === id)
@@ -90,12 +111,12 @@ export default function SignalsPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Мои сигналы</h1>
           <p className="text-sm text-muted-foreground">Настройте уведомления по условиям рынка</p>
         </div>
-        <Button onClick={() => { setEditSignal(undefined); setDialogOpen(true) }}>
+        <Button className="w-full sm:w-auto" onClick={() => { setEditSignal(undefined); setDialogOpen(true) }}>
           <Plus className="mr-2 h-4 w-4" />
           Новый сигнал
         </Button>
@@ -167,8 +188,9 @@ export default function SignalsPage() {
                   <SelectTrigger className="h-8 text-xs"><SelectValue /></SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Все</SelectItem>
-                    <SelectItem value="true">Активные</SelectItem>
-                    <SelectItem value="false">Отключённые</SelectItem>
+                    <SelectItem value="active">Активные</SelectItem>
+                    <SelectItem value="triggered">Сработавшие</SelectItem>
+                    <SelectItem value="inactive">Отключённые</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -202,7 +224,7 @@ export default function SignalsPage() {
           )}
           {filters.isActive && (
             <Badge variant="outline" className="gap-1 text-xs">
-              {filters.isActive === "true" ? "Активные" : "Отключённые"}
+              {filters.isActive === "active" ? "Активные" : filters.isActive === "triggered" ? "Сработавшие" : "Отключённые"}
               <X className="h-3 w-3 cursor-pointer" onClick={() => setFilters((f) => ({ ...f, isActive: "" }))} />
             </Badge>
           )}
@@ -221,6 +243,7 @@ export default function SignalsPage() {
             <SignalCard
               key={signal.id}
               signal={signal}
+              progress={progressMap[signal.id]}
               onEdit={handleEdit}
               onToggle={handleToggle}
               onDelete={handleDelete}

@@ -5,6 +5,7 @@ import { MoreHorizontal, Pencil, Trash2, Power, PowerOff, Bell } from "lucide-re
 import { INDICATORS } from "@/core/config/indicators"
 import type { SignalCondition } from "@/core/types"
 import type { SignalRow } from "@/server/repositories/signal-repository"
+import type { ConditionProgress } from "@/server/actions/signal-actions"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { GlowingEffect } from "@/components/ui/glowing-effect"
@@ -17,6 +18,7 @@ import {
 
 type SignalCardProps = {
   signal: SignalRow
+  progress?: ConditionProgress[]
   onEdit: (id: string) => void
   onToggle: (id: string) => void
   onDelete: (id: string) => void
@@ -27,6 +29,17 @@ const TYPE_STYLES: Record<string, string> = {
   SELL: "bg-orange-500/10 text-orange-400 border-orange-500/20",
 }
 
+const CONDITION_LABELS: Record<string, string> = {
+  GREATER_THAN: ">",
+  LESS_THAN: "<",
+  CROSSES_ABOVE: "↗",
+  CROSSES_BELOW: "↘",
+  EQUALS: "=",
+  ABOVE_BY_PERCENT: ">%",
+  BELOW_BY_PERCENT: "<%",
+  MULTIPLIED_BY: "×",
+}
+
 const getConditionSummary = (condition: SignalCondition) => {
   const indicator = INDICATORS.find((i) => i.type === condition.indicator)
   const label = indicator?.label ?? condition.indicator
@@ -34,7 +47,26 @@ const getConditionSummary = (condition: SignalCondition) => {
   return `${label}(${paramStr}) ${condition.condition.replace(/_/g, " ")}${condition.value !== undefined ? ` ${condition.value}` : ""}`
 }
 
-export const SignalCard = ({ signal, onEdit, onToggle, onDelete }: SignalCardProps) => {
+const getProgressPercent = (p: ConditionProgress): number => {
+  if (p.met) return 100
+  if (p.target === 0) return 0
+
+  const cond = p.condition
+  if (cond === "GREATER_THAN" || cond === "CROSSES_ABOVE") {
+    if (p.current >= p.target) return 100
+    if (p.current <= 0 && p.target > 0) return 0
+    return Math.min(99, Math.max(0, (p.current / p.target) * 100))
+  }
+  if (cond === "LESS_THAN" || cond === "CROSSES_BELOW") {
+    if (p.current <= p.target) return 100
+    if (p.target <= 0) return 0
+    const ratio = p.target / p.current
+    return Math.min(99, Math.max(0, ratio * 100))
+  }
+  return p.met ? 100 : 50
+}
+
+export const SignalCard = ({ signal, progress, onEdit, onToggle, onDelete }: SignalCardProps) => {
   return (
     <div className="group relative rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/30">
       <GlowingEffect spread={40} glow disabled={false} proximity={64} inactiveZone={0.01} borderWidth={2} />
@@ -65,7 +97,7 @@ export const SignalCard = ({ signal, onEdit, onToggle, onDelete }: SignalCardPro
         </div>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
+            <Button variant="ghost" size="icon" className="h-8 w-8 shrink-0 opacity-100 sm:opacity-0 sm:group-hover:opacity-100">
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
@@ -89,13 +121,35 @@ export const SignalCard = ({ signal, onEdit, onToggle, onDelete }: SignalCardPro
         </DropdownMenu>
       </div>
 
-      <div className="mt-3 space-y-1 text-xs text-muted-foreground">
-        {signal.conditions.map((condition, i) => (
-          <p key={i}>
-            <span className="text-primary">Условие {i + 1}:</span>{" "}
-            {getConditionSummary(condition)}
-          </p>
-        ))}
+      <div className="mt-3 space-y-2">
+        {signal.conditions.map((condition, i) => {
+          const p = progress?.[i]
+          return (
+            <div key={i} className="space-y-1">
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>
+                  <span className="text-primary">Условие {i + 1}:</span>{" "}
+                  {getConditionSummary(condition)}
+                </span>
+                {p && (
+                  <span className={`font-mono ${p.met ? "text-emerald-400" : "text-foreground"}`}>
+                    {p.current} {CONDITION_LABELS[p.condition] ?? ""} {p.target}
+                  </span>
+                )}
+              </div>
+              {p && signal.isActive && (
+                <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full rounded-full transition-all duration-500 ${
+                      p.met ? "bg-emerald-400" : getProgressPercent(p) > 80 ? "bg-yellow-400" : "bg-primary/50"
+                    }`}
+                    style={{ width: `${getProgressPercent(p)}%` }}
+                  />
+                </div>
+              )}
+            </div>
+          )
+        })}
       </div>
 
       <div className="mt-3 flex items-center gap-3 text-xs text-muted-foreground">

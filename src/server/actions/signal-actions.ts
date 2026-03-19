@@ -4,12 +4,13 @@ import { type ApiResponse, errorResponse, successResponse } from "@/core/types/a
 import type { SignalCondition, SignalChannel, LogicOperator } from "@/core/types"
 import { createSignalSchema, updateSignalSchema } from "@/core/schemas"
 import { SignalService } from "@/server/services"
+import { SignalChecker } from "@/server/services/signal-checker"
 import { getCurrentUserId } from "./helpers"
 
 const getService = () => new SignalService()
 
 export const getSignalsAction = async (
-  filters?: { signalType?: string; isActive?: boolean; search?: string },
+  filters?: { signalType?: string; isActive?: boolean; triggered?: string; search?: string },
 ): Promise<ApiResponse<Awaited<ReturnType<SignalService["getSignals"]>>>> => {
   try {
     const userId = await getCurrentUserId()
@@ -21,7 +22,7 @@ export const getSignalsAction = async (
 }
 
 export const getSignalStatsAction = async (): Promise<
-  ApiResponse<{ total: number; active: number; inactive: number; buy: number; sell: number }>
+  ApiResponse<{ total: number; active: number; triggered: number; buy: number; sell: number }>
 > => {
   try {
     const userId = await getCurrentUserId()
@@ -52,6 +53,7 @@ export const createSignalAction = async (
     }
     const userId = await getCurrentUserId()
     const signal = await getService().createSignal(userId, data)
+    new SignalChecker().checkAll().catch(() => {})
     return successResponse({ id: signal.id })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
@@ -92,7 +94,45 @@ export const toggleSignalAction = async (
   try {
     const userId = await getCurrentUserId()
     const signal = await getService().toggleSignal(id, userId)
+    if (signal.isActive) {
+      new SignalChecker().checkAll().catch(() => {})
+    }
     return successResponse({ id: signal.id, isActive: signal.isActive })
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
+export type ConditionProgress = {
+  indicator: string
+  current: number
+  target: number
+  condition: string
+  met: boolean
+}
+
+export type SignalProgress = {
+  signalId: string
+  conditions: ConditionProgress[]
+}
+
+export const getSignalProgressAction = async (): Promise<ApiResponse<SignalProgress[]>> => {
+  try {
+    const userId = await getCurrentUserId()
+    const signals = await getService().getSignals(userId, { isActive: true })
+    const checker = new SignalChecker()
+    const results: SignalProgress[] = []
+
+    for (const signal of signals) {
+      try {
+        const progress = await checker.getConditionProgress(signal)
+        results.push({ signalId: signal.id, conditions: progress })
+      } catch {
+        results.push({ signalId: signal.id, conditions: [] })
+      }
+    }
+
+    return successResponse(results)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
   }

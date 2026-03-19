@@ -16,7 +16,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { StrategyStats, StrategyCard, StrategyDialog } from "@/components/strategy"
+import { StrategyStats, StrategyCard, StrategyDialog, LaunchModeDialog } from "@/components/strategy"
 import {
   getStrategiesAction,
   getStrategyStatsAction,
@@ -44,6 +44,8 @@ export default function StrategiesPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editStrategy, setEditStrategy] = useState<Strategy | undefined>()
   const [brokerConnected, setBrokerConnected] = useState(true)
+  const [launchDialogOpen, setLaunchDialogOpen] = useState(false)
+  const [pendingLaunchId, setPendingLaunchId] = useState<string | null>(null)
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
@@ -75,10 +77,20 @@ export default function StrategiesPage() {
   }
 
   const handleStatusChange = async (id: string, status: string) => {
-    let result
     if (status === "ACTIVE") {
-      result = await activateStrategyAction(id)
-    } else if (status === "PAUSED") {
+      if (!brokerConnected) {
+        toast.error("Подключите брокера для запуска стратегии", {
+          action: { label: "Подключить", onClick: () => window.location.href = "/broker" },
+        })
+        return
+      }
+      setPendingLaunchId(id)
+      setLaunchDialogOpen(true)
+      return
+    }
+
+    let result
+    if (status === "PAUSED") {
       result = await deactivateStrategyAction(id)
     } else {
       result = await updateStrategyAction(id, { status: status as "DRAFT" | "ACTIVE" | "PAUSED" | "TRIGGERED" })
@@ -97,6 +109,19 @@ export default function StrategiesPage() {
     }
   }
 
+  const handleLaunch = async () => {
+    if (!pendingLaunchId) return
+    setLaunchDialogOpen(false)
+    const result = await activateStrategyAction(pendingLaunchId)
+    if (result.success) {
+      toast.success("Стратегия запущена — мониторинг активен")
+      fetchData()
+    } else {
+      toast.error(result.error)
+    }
+    setPendingLaunchId(null)
+  }
+
   const handleDelete = async (id: string) => {
     const result = await deleteStrategyAction(id)
     if (result.success) { toast.success("Стратегия удалена"); fetchData() }
@@ -105,12 +130,12 @@ export default function StrategiesPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold">Мои стратегии</h1>
           <p className="text-sm text-muted-foreground">Создавайте и управляйте торговыми стратегиями</p>
         </div>
-        <Button onClick={() => { setEditStrategy(undefined); setDialogOpen(true) }}>
+        <Button className="w-full sm:w-auto" onClick={() => { setEditStrategy(undefined); setDialogOpen(true) }}>
           <Plus className="mr-2 h-4 w-4" />
           Новая стратегия
         </Button>
@@ -266,6 +291,7 @@ export default function StrategiesPage() {
       )}
 
       <StrategyDialog open={dialogOpen} onOpenChange={setDialogOpen} strategy={editStrategy} onSuccess={fetchData} />
+      <LaunchModeDialog open={launchDialogOpen} onOpenChange={setLaunchDialogOpen} onLaunch={handleLaunch} />
     </div>
   )
 }

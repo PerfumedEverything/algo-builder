@@ -46,6 +46,15 @@ export default function BrokerPage() {
 
   useEffect(() => { fetchStatus() }, [fetchStatus])
 
+  useEffect(() => {
+    if (!connected) return
+    const interval = setInterval(async () => {
+      const res = await getPortfolioAction()
+      if (res.success && res.data) setPortfolio(res.data)
+    }, 10_000)
+    return () => clearInterval(interval)
+  }, [connected])
+
   const handleConnected = (newAccounts: BrokerAccount[]) => {
     setConnected(true)
     setAccounts(newAccounts)

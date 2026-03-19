@@ -27,6 +27,7 @@ import {
   updateStrategyAction,
 } from "@/server/actions/strategy-actions"
 import { ConditionBuilder } from "@/components/shared/condition-builder"
+import { InstrumentSelect } from "@/components/shared/instrument-select"
 import { RiskForm } from "./risk-form"
 
 const generalSchema = z.object({
@@ -147,17 +148,10 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
           </TabsList>
 
           <TabsContent value="general" className="mt-4 space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Название стратегии</Label>
-                <Input {...register("name")} placeholder="Моя стратегия" />
-                {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
-              </div>
-              <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Инструмент</Label>
-                <Input {...register("instrument")} placeholder="SBER, GAZP, BTCUSD" />
-                {errors.instrument && <p className="text-xs text-red-400">{errors.instrument.message}</p>}
-              </div>
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Название стратегии</Label>
+              <Input {...register("name")} placeholder="Моя стратегия" />
+              {errors.name && <p className="text-xs text-red-400">{errors.name.message}</p>}
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
@@ -165,7 +159,10 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
                 <Label className="text-xs text-muted-foreground">Тип инструмента</Label>
                 <Select
                   value={watchedInstrumentType}
-                  onValueChange={(v) => setValue("instrumentType", v as GeneralFormData["instrumentType"])}
+                  onValueChange={(v) => {
+                    setValue("instrumentType", v as GeneralFormData["instrumentType"])
+                    setValue("instrument", "")
+                  }}
                 >
                   <SelectTrigger><SelectValue /></SelectTrigger>
                   <SelectContent>
@@ -176,19 +173,29 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
                 </Select>
               </div>
               <div className="space-y-2">
-                <Label className="text-xs text-muted-foreground">Таймфрейм</Label>
-                <Select
-                  value={watchedTimeframe}
-                  onValueChange={(v) => setValue("timeframe", v)}
-                >
-                  <SelectTrigger><SelectValue /></SelectTrigger>
-                  <SelectContent>
-                    {TIMEFRAMES.map((t) => (
-                      <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <Label className="text-xs text-muted-foreground">Инструмент</Label>
+                <InstrumentSelect
+                  instrumentType={watchedInstrumentType}
+                  value={watch("instrument")}
+                  onChange={(v) => setValue("instrument", v, { shouldValidate: true })}
+                />
+                {errors.instrument && <p className="text-xs text-red-400">{errors.instrument.message}</p>}
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label className="text-xs text-muted-foreground">Таймфрейм</Label>
+              <Select
+                value={watchedTimeframe}
+                onValueChange={(v) => setValue("timeframe", v)}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {TIMEFRAMES.map((t) => (
+                    <SelectItem key={t.value} value={t.value}>{t.label}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">

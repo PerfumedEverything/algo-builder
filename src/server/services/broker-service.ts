@@ -49,6 +49,13 @@ export class BrokerService {
     return this.provider.getCurrentPrice(instrumentId)
   }
 
+  async getInstrumentPrice(userId: string, ticker: string): Promise<number> {
+    const settings = await this.repo.getSettings(userId)
+    if (!settings?.brokerToken) throw new Error("Брокер не подключён")
+    await this.provider.connect(settings.brokerToken)
+    return this.provider.getCurrentPrice(ticker)
+  }
+
   async selectAccount(userId: string, accountId: string): Promise<void> {
     await this.repo.saveAccountId(userId, accountId)
   }
