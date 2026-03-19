@@ -71,14 +71,14 @@ export const ConditionBuilder = ({
     prevPriceRef.current = currentPrice
     const rounded = Math.round(currentPrice * 100) / 100
     conditions.forEach((c, i) => {
-      if (c.indicator !== "PRICE" || !c.value) return
-      const isDefault = c.value <= 1
-      const isPrevInstrumentPrice = prevPrice && Math.abs(c.value - prevPrice) / prevPrice < 0.01
-      if (isDefault || isPrevInstrumentPrice) {
+      if (c.indicator !== "PRICE") return
+      const noValue = c.value === undefined || c.value === 0
+      const matchesPrev = prevPrice !== null && c.value !== undefined && Math.abs(c.value - prevPrice) / prevPrice < 0.01
+      if (noValue || matchesPrev) {
         onUpdate(i, { ...c, value: rounded })
       }
     })
-  }, [currentPrice, conditions, onUpdate])
+  }, [currentPrice])
 
   const handleIndicatorChange = (index: number, value: string) => {
     const newIndicator = value as IndicatorType

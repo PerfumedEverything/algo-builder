@@ -98,8 +98,10 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
       .slice(0, 100)
   }, [instruments, search])
 
+  const cleanTicker = (t: string) => t.replace(/@$/, "")
+
   const selected = instruments.find((i) => i.ticker.toUpperCase() === value.toUpperCase())
-  const displayValue = selected ? `${selected.ticker} — ${selected.name}` : value || "Выберите инструмент"
+  const displayValue = selected ? `${cleanTicker(selected.ticker)} — ${selected.name}` : cleanTicker(value) || "Выберите инструмент"
 
   const formatPrice = (p: number) => {
     return p.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -166,7 +168,7 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
                           : ""
                       }`}
                     >
-                      <span className="shrink-0 font-mono font-medium w-14">{instrument.ticker}</span>
+                      <span className="shrink-0 font-mono font-medium w-14">{cleanTicker(instrument.ticker)}</span>
                       <span className="min-w-0 flex-1 truncate text-muted-foreground">{instrument.name}</span>
                       <span className="shrink-0 text-xs text-muted-foreground uppercase">
                         {instrument.currency}
