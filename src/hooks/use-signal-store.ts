@@ -12,6 +12,7 @@ type SignalStore = {
   conditions: SignalCondition[]
   channels: SignalChannel[]
   logicOperator: LogicOperator
+  repeatMode: boolean
   activeTab: string
   addCondition: () => void
   updateCondition: (index: number, condition: SignalCondition) => void
@@ -19,15 +20,17 @@ type SignalStore = {
   setChannels: (channels: SignalChannel[]) => void
   toggleChannel: (channel: SignalChannel) => void
   setLogicOperator: (op: LogicOperator) => void
+  setRepeatMode: (v: boolean) => void
   setActiveTab: (tab: string) => void
   reset: () => void
-  initFromExisting: (conditions: SignalCondition[], channels: SignalChannel[], logicOperator?: LogicOperator) => void
+  initFromExisting: (conditions: SignalCondition[], channels: SignalChannel[], logicOperator?: LogicOperator, repeatMode?: boolean) => void
 }
 
 export const useSignalStore = create<SignalStore>((set) => ({
   conditions: [DEFAULT_CONDITION],
   channels: ["telegram"] as SignalChannel[],
   logicOperator: "AND",
+  repeatMode: false,
   activeTab: "general",
   addCondition: () =>
     set((s) => ({ conditions: [...s.conditions, { ...DEFAULT_CONDITION }] })),
@@ -47,14 +50,16 @@ export const useSignalStore = create<SignalStore>((set) => ({
         : [...s.channels, channel],
     })),
   setLogicOperator: (logicOperator) => set({ logicOperator }),
+  setRepeatMode: (repeatMode) => set({ repeatMode }),
   setActiveTab: (activeTab) => set({ activeTab }),
   reset: () =>
     set({
       conditions: [DEFAULT_CONDITION],
       channels: ["telegram"] as SignalChannel[],
       logicOperator: "AND",
+      repeatMode: false,
       activeTab: "general",
     }),
-  initFromExisting: (conditions, channels, logicOperator) =>
-    set({ conditions, channels, logicOperator: logicOperator ?? "AND", activeTab: "general" }),
+  initFromExisting: (conditions, channels, logicOperator, repeatMode) =>
+    set({ conditions, channels, logicOperator: logicOperator ?? "AND", repeatMode: repeatMode ?? false, activeTab: "general" }),
 }))

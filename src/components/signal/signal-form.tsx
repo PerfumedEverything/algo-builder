@@ -5,7 +5,7 @@ import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { Loader2, Send } from "lucide-react"
+import { Loader2, Send, Repeat, Zap } from "lucide-react"
 
 import { INSTRUMENT_TYPES, TIMEFRAMES } from "@/core/config/instruments"
 import type { SignalRow } from "@/server/repositories/signal-repository"
@@ -52,11 +52,13 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
     conditions,
     channels,
     logicOperator,
+    repeatMode,
     addCondition,
     updateCondition,
     removeCondition,
     toggleChannel,
     setLogicOperator,
+    setRepeatMode,
     initFromExisting,
     reset,
   } = useSignalStore()
@@ -81,7 +83,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
 
   useEffect(() => {
     if (signal) {
-      initFromExisting(signal.conditions, signal.channels, signal.logicOperator)
+      initFromExisting(signal.conditions, signal.channels, signal.logicOperator, signal.repeatMode)
     }
     return () => reset()
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -97,7 +99,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
       return
     }
 
-    const payload = { ...data, conditions, channels, logicOperator }
+    const payload = { ...data, conditions, channels, logicOperator, repeatMode }
 
     const result =
       mode === "create"
@@ -200,6 +202,42 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
           onRemove={removeCondition}
           onLogicChange={setLogicOperator}
         />
+      </section>
+
+      <section className="space-y-3">
+        <h3 className="text-sm font-medium text-primary">Режим срабатывания</h3>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setRepeatMode(false)}
+            className={`flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition-colors ${
+              !repeatMode
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border text-muted-foreground hover:bg-accent/50"
+            }`}
+          >
+            <Zap className="h-4 w-4 shrink-0" />
+            <div>
+              <p className="font-medium">Одноразовый</p>
+              <p className="text-xs text-muted-foreground">Отключится после срабатывания</p>
+            </div>
+          </button>
+          <button
+            type="button"
+            onClick={() => setRepeatMode(true)}
+            className={`flex items-center gap-2 rounded-lg border p-3 text-left text-sm transition-colors ${
+              repeatMode
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border text-muted-foreground hover:bg-accent/50"
+            }`}
+          >
+            <Repeat className="h-4 w-4 shrink-0" />
+            <div>
+              <p className="font-medium">Постоянный</p>
+              <p className="text-xs text-muted-foreground">Будет алертить каждый раз</p>
+            </div>
+          </button>
+        </div>
       </section>
 
       <section className="space-y-3">

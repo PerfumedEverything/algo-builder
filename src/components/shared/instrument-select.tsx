@@ -146,7 +146,9 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
           {!loading && !error && (
             <div
               className="max-h-60 overflow-y-auto overscroll-contain"
+              style={{ touchAction: "pan-y", WebkitOverflowScrolling: "touch" }}
               onWheel={(e) => e.stopPropagation()}
+              onTouchMove={(e) => e.stopPropagation()}
             >
               {filtered.length === 0 ? (
                 <div className="px-3 py-4 text-center text-sm text-muted-foreground">

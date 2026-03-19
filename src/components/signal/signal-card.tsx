@@ -1,6 +1,6 @@
 "use client"
 
-import { MoreHorizontal, Pencil, Trash2, Power, PowerOff, Bell } from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, Power, PowerOff, Bell, Repeat } from "lucide-react"
 
 import { INDICATORS } from "@/core/config/indicators"
 import type { SignalCondition } from "@/core/types"
@@ -40,11 +40,25 @@ const CONDITION_LABELS: Record<string, string> = {
   MULTIPLIED_BY: "×",
 }
 
+const CONDITION_LABELS_RU: Record<string, string> = {
+  GREATER_THAN: "Больше чем",
+  LESS_THAN: "Меньше чем",
+  CROSSES_ABOVE: "Пересекает вверх",
+  CROSSES_BELOW: "Пересекает вниз",
+  EQUALS: "Равно",
+  ABOVE_BY_PERCENT: "Выше на %",
+  BELOW_BY_PERCENT: "Ниже на %",
+  MULTIPLIED_BY: "Кратно",
+  BETWEEN: "Между",
+}
+
 const getConditionSummary = (condition: SignalCondition) => {
   const indicator = INDICATORS.find((i) => i.type === condition.indicator)
   const label = indicator?.label ?? condition.indicator
   const paramStr = Object.values(condition.params).join(",")
-  return `${label}(${paramStr}) ${condition.condition.replace(/_/g, " ")}${condition.value !== undefined ? ` ${condition.value}` : ""}`
+  const indicatorDisplay = paramStr ? `${label}(${paramStr})` : label
+  const conditionLabel = CONDITION_LABELS_RU[condition.condition] ?? condition.condition
+  return `${indicatorDisplay} ${conditionLabel}${condition.value !== undefined ? ` ${condition.value}` : ""}`
 }
 
 const getProgressPercent = (p: ConditionProgress): number => {
@@ -77,6 +91,12 @@ export const SignalCard = ({ signal, progress, onEdit, onToggle, onDelete }: Sig
             <Badge variant="outline" className={TYPE_STYLES[signal.signalType]}>
               {signal.signalType}
             </Badge>
+            {signal.repeatMode && (
+              <Badge variant="outline" className="bg-violet-500/10 text-violet-400 border-violet-500/20 text-[10px] px-1.5 py-0 gap-0.5">
+                <Repeat className="h-2.5 w-2.5" />
+                Постоянный
+              </Badge>
+            )}
             {signal.isActive ? (
               <span className="flex h-2 w-2 rounded-full bg-emerald-400" />
             ) : signal.triggerCount > 0 ? (

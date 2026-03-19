@@ -36,16 +36,32 @@ const STATUS_LABELS: Record<string, string> = {
   TRIGGERED: "Сработала",
 }
 
+const CONDITION_LABELS_RU: Record<string, string> = {
+  GREATER_THAN: "Больше чем",
+  LESS_THAN: "Меньше чем",
+  CROSSES_ABOVE: "Пересекает вверх",
+  CROSSES_BELOW: "Пересекает вниз",
+  EQUALS: "Равно",
+  ABOVE_BY_PERCENT: "Выше на %",
+  BELOW_BY_PERCENT: "Ниже на %",
+  MULTIPLIED_BY: "Кратно",
+  BETWEEN: "Между",
+}
+
+const LOGIC_LABELS: Record<string, string> = { AND: "И", OR: "ИЛИ" }
+
 const getConditionSummary = (condition: StrategyCondition) => {
   const indicator = INDICATORS.find((i) => i.type === condition.indicator)
   const label = indicator?.label ?? condition.indicator
   const paramStr = Object.values(condition.params).join(",")
-  return `${label}(${paramStr}) ${condition.condition.replace(/_/g, " ")}${condition.value !== undefined ? ` ${condition.value}` : ""}`
+  const indicatorDisplay = paramStr ? `${label}(${paramStr})` : label
+  const conditionLabel = CONDITION_LABELS_RU[condition.condition] ?? condition.condition
+  return `${indicatorDisplay} ${conditionLabel}${condition.value !== undefined ? ` ${condition.value}` : ""}`
 }
 
 const getConditionsDisplay = (conditions: StrategyCondition | StrategyCondition[], logic?: string) => {
   const arr = Array.isArray(conditions) ? conditions : [conditions]
-  const separator = ` ${logic ?? "AND"} `
+  const separator = ` ${LOGIC_LABELS[logic ?? "AND"] ?? logic} `
   return arr.map(getConditionSummary).join(separator)
 }
 

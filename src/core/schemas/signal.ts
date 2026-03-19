@@ -22,6 +22,7 @@ export const createSignalSchema = z.object({
   conditions: z.array(signalConditionSchema).min(1),
   channels: z.array(signalChannelSchema).min(1),
   logicOperator: logicOperatorSchema.default("AND"),
+  repeatMode: z.boolean().default(false),
 })
 
 export const updateSignalSchema = createSignalSchema.partial()

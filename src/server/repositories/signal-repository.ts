@@ -14,6 +14,7 @@ export type SignalRow = {
   channels: SignalChannel[]
   logicOperator: LogicOperator
   isActive: boolean
+  repeatMode: boolean
   lastTriggered: string | null
   triggerCount: number
   strategyId: string | null
@@ -84,6 +85,7 @@ export class SignalRepository {
     conditions: SignalCondition[]
     channels: SignalChannel[]
     logicOperator?: LogicOperator
+    repeatMode?: boolean
     strategyId?: string
   }) {
     const supabase = await this.db()
@@ -103,6 +105,7 @@ export class SignalRepository {
         channels: input.channels,
         logicOperator: input.logicOperator ?? "AND",
         strategyId: input.strategyId ?? null,
+        repeatMode: input.repeatMode ?? false,
         isActive: true,
         triggerCount: 0,
         createdAt: now,

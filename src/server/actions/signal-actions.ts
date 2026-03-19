@@ -44,6 +44,7 @@ export const createSignalAction = async (
     conditions: SignalCondition[]
     channels: SignalChannel[]
     logicOperator?: LogicOperator
+    repeatMode?: boolean
   },
 ): Promise<ApiResponse<{ id: string }>> => {
   try {
@@ -72,6 +73,7 @@ export const updateSignalAction = async (
     conditions?: SignalCondition[]
     channels?: SignalChannel[]
     logicOperator?: LogicOperator
+    repeatMode?: boolean
     isActive?: boolean
   },
 ): Promise<ApiResponse<{ id: string }>> => {

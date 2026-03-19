@@ -324,7 +324,7 @@ export class SignalChecker {
       .update({
         triggerCount: signal.triggerCount + 1,
         lastTriggered: new Date().toISOString(),
-        isActive: false,
+        isActive: signal.repeatMode ? true : false,
         updatedAt: new Date().toISOString(),
       })
       .eq("id", signal.id)
