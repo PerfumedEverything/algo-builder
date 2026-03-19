@@ -70,14 +70,23 @@ async function resolveTickerToUid(ticker: string): Promise<string> {
 }
 
 const tickerToUidMap = new Map<string, string>()
+const tickerToFigiMap = new Map<string, string>()
 
 async function resolveAll(tickers: string[]): Promise<Map<string, string>> {
   for (const ticker of tickers) {
     if (!tickerToUidMap.has(ticker)) {
       try {
-        const uid = await resolveTickerToUid(ticker)
-        tickerToUidMap.set(ticker, uid)
-        console.log(`[Worker] Resolved ${ticker} → ${uid}`)
+        const { instruments } = await api.instruments.findInstrument({ query: ticker.toUpperCase() })
+        const match =
+          instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.classCode === "TQBR") ??
+          instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.instrumentKind === 1) ??
+          instruments[0]
+
+        if (match) {
+          tickerToUidMap.set(ticker, match.uid)
+          tickerToFigiMap.set(ticker, match.figi)
+          console.log(`[Worker] Resolved ${ticker} → uid:${match.uid} figi:${match.figi}`)
+        }
       } catch (e) {
         console.error(`[Worker] Failed to resolve ${ticker}:`, e)
       }
@@ -92,26 +101,26 @@ async function subscribeToStream(instruments: string[]) {
     return
   }
 
-  const uidMap = await resolveAll(instruments)
-  const figi = [...uidMap.values()]
+  await resolveAll(instruments)
+  const figiList = [...tickerToFigiMap.entries()].filter(([t]) => instruments.includes(t))
 
-  if (figi.length === 0) {
-    console.log("[Worker] No resolved UIDs, skipping")
+  if (figiList.length === 0) {
+    console.log("[Worker] No resolved FIGIs, skipping")
     return
   }
 
-  console.log(`[Worker] Subscribing to ${figi.length} instruments...`)
+  console.log(`[Worker] Subscribing to ${figiList.length} instruments...`)
 
   try {
   unsubscribeFn = await api.stream.market.lastPrice(
-    { instruments: figi.map((f) => ({ figi: "", instrumentId: f })) },
+    { instruments: figiList.map(([, f]) => ({ figi: f, instrumentId: f })) },
     async (lastPrice) => {
       const price = toNumber(lastPrice.price)
-      const uid = lastPrice.figi || lastPrice.instrumentUid
+      const responseFigi = lastPrice.figi || lastPrice.instrumentUid
 
-      let ticker = uid
-      for (const [t, u] of tickerToUidMap) {
-        if (u === uid) { ticker = t; break }
+      let ticker = responseFigi
+      for (const [t, f] of tickerToFigiMap) {
+        if (f === responseFigi) { ticker = t; break }
       }
 
       await redis.set(
