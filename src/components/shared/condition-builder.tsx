@@ -1,5 +1,6 @@
 "use client"
 
+import { useEffect, useRef } from "react"
 import { Plus, Trash2 } from "lucide-react"
 
 import type { IndicatorType, ConditionType, LogicOperator } from "@/core/types"
@@ -62,6 +63,21 @@ export const ConditionBuilder = ({
   onRemove,
   onLogicChange,
 }: ConditionBuilderProps) => {
+  const prevPriceRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    if (!currentPrice || currentPrice === prevPriceRef.current) return
+    const isFirstPrice = prevPriceRef.current === null
+    prevPriceRef.current = currentPrice
+    if (!isFirstPrice) return
+    const rounded = Math.round(currentPrice * 100) / 100
+    conditions.forEach((c, i) => {
+      if (c.indicator === "PRICE" && (!c.value || c.value <= 1)) {
+        onUpdate(i, { ...c, value: rounded })
+      }
+    })
+  }, [currentPrice, conditions, onUpdate])
+
   const handleIndicatorChange = (index: number, value: string) => {
     const newIndicator = value as IndicatorType
     const config = getIndicatorConfig(newIndicator)
