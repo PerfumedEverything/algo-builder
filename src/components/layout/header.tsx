@@ -47,14 +47,14 @@ export const Header = () => {
   useEffect(() => { fetchUser() }, [fetchUser])
 
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-background/80 px-4 backdrop-blur-sm lg:px-6">
+    <header className="sticky top-0 z-30 flex h-16 items-center border-b border-border bg-background/80 px-4 backdrop-blur-sm lg:px-6">
       <button
         onClick={toggle}
         className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground lg:hidden"
       >
         <Menu className="h-5 w-5" />
       </button>
-      <div className="flex items-center gap-1.5 lg:gap-3">
+      <div className="ml-auto flex items-center gap-1.5 lg:gap-3">
         <Button
           variant="outline"
           size="sm"
