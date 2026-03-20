@@ -1,10 +1,9 @@
-import { createClient } from "@/lib/supabase/server"
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { StrategyOperation } from "@/core/types"
 
 export class OperationRepository {
-  private async db() {
-    return await createClient()
+  private db() {
+    return createAdminClient()
   }
 
   async create(input: {
@@ -16,8 +15,7 @@ export class OperationRepository {
     quantity: number
     amount: number
   }) {
-    const admin = createAdminClient()
-    const { data, error } = await admin
+    const { data, error } = await this.db()
       .from("StrategyOperation")
       .insert({
         ...input,
@@ -31,8 +29,7 @@ export class OperationRepository {
   }
 
   async findByStrategyId(strategyId: string) {
-    const supabase = await this.db()
-    const { data, error } = await supabase
+    const { data, error } = await this.db()
       .from("StrategyOperation")
       .select("*")
       .eq("strategyId", strategyId)
@@ -43,8 +40,7 @@ export class OperationRepository {
   }
 
   async findByUserId(userId: string) {
-    const supabase = await this.db()
-    const { data, error } = await supabase
+    const { data, error } = await this.db()
       .from("StrategyOperation")
       .select("*")
       .eq("userId", userId)
@@ -56,8 +52,7 @@ export class OperationRepository {
   }
 
   async getStatsByStrategyId(strategyId: string) {
-    const supabase = await this.db()
-    const { data, error } = await supabase
+    const { data, error } = await this.db()
       .from("StrategyOperation")
       .select("*")
       .eq("strategyId", strategyId)
