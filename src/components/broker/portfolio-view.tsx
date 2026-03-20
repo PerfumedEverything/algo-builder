@@ -1,6 +1,18 @@
 "use client"
 
-import { TrendingUp, TrendingDown, Wallet, PiggyBank, BarChart3, Clock } from "lucide-react"
+import { useState } from "react"
+import {
+  TrendingUp,
+  TrendingDown,
+  Wallet,
+  PiggyBank,
+  BarChart3,
+  Clock,
+  ChevronDown,
+  ChevronRight,
+  ArrowDownLeft,
+  ArrowUpRight,
+} from "lucide-react"
 
 import type { Portfolio, PortfolioPosition } from "@/core/types"
 
@@ -24,6 +36,15 @@ const formatPercent = (n: number) =>
 
 const formatSignedMoney = (n: number) =>
   `${n >= 0 ? "+" : ""}${formatMoney(n)}`
+
+const formatDate = (iso: string) =>
+  new Date(iso).toLocaleDateString("ru-RU", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
 
 const yieldColor = (n: number) =>
   n > 0 ? "text-emerald-400" : n < 0 ? "text-red-400" : "text-muted-foreground"
@@ -63,30 +84,71 @@ const AssetChip = ({ label, amount, total }: {
   )
 }
 
-const PositionRow = ({ pos }: { pos: PortfolioPosition }) => (
-  <div className="grid grid-cols-8 gap-2 border-b border-border/50 py-2.5 text-sm last:border-0">
-    <div className="col-span-1">
-      <span className="font-medium">{pos.ticker}</span>
-      <p className="truncate text-xs text-muted-foreground">{pos.name}</p>
+const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
+  const [expanded, setExpanded] = useState(false)
+  const hasOps = pos.operations.length > 0
+
+  return (
+    <div className="border-b border-border/50 last:border-0">
+      <div
+        className={`grid grid-cols-8 gap-2 py-2.5 text-sm ${hasOps ? "cursor-pointer hover:bg-muted/30" : ""}`}
+        onClick={() => hasOps && setExpanded(!expanded)}
+      >
+        <div className="col-span-1 flex items-center gap-1">
+          {hasOps && (
+            expanded
+              ? <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+              : <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+          )}
+          <div className="min-w-0">
+            <span className="font-medium">{pos.ticker}</span>
+            <p className="truncate text-xs text-muted-foreground">{pos.name}</p>
+          </div>
+        </div>
+        <span className="text-right tabular-nums">{pos.quantity}</span>
+        <span className="text-right tabular-nums">{formatPrice(pos.averagePrice)}</span>
+        <span className="text-right tabular-nums">{formatPrice(pos.currentPrice)}</span>
+        <span className="text-right tabular-nums">{formatMoney(pos.currentValue)}</span>
+        <span className={`text-right tabular-nums font-medium ${yieldColor(pos.expectedYieldAbsolute)}`}>
+          {formatSignedMoney(pos.expectedYieldAbsolute)}
+        </span>
+        <span className={`text-right tabular-nums font-medium ${yieldColor(pos.expectedYield)}`}>
+          {formatPercent(pos.expectedYield)}
+        </span>
+        <div className="flex items-center justify-end gap-1">
+          <YieldIcon value={pos.dailyYield} className="h-3 w-3" />
+          <span className={`tabular-nums text-xs ${yieldColor(pos.dailyYield)}`}>
+            {formatSignedMoney(pos.dailyYield)}
+          </span>
+        </div>
+      </div>
+
+      {expanded && pos.operations.length > 0 && (
+        <div className="mb-2 ml-4 mr-2 rounded-lg bg-muted/40 p-3">
+          <p className="mb-2 text-xs font-medium text-muted-foreground">
+            История операций ({pos.operations.length})
+          </p>
+          <div className="space-y-1">
+            {pos.operations.map((op) => (
+              <div key={op.id} className="flex items-center gap-3 text-xs">
+                <div className={`flex items-center gap-1 ${op.type === "BUY" ? "text-emerald-400" : "text-red-400"}`}>
+                  {op.type === "BUY"
+                    ? <ArrowDownLeft className="h-3 w-3" />
+                    : <ArrowUpRight className="h-3 w-3" />}
+                  <span className="w-14 font-medium">{op.type === "BUY" ? "Покупка" : "Продажа"}</span>
+                </div>
+                <span className="w-20 text-right tabular-nums">{op.quantity} шт.</span>
+                <span className="w-24 text-right tabular-nums">по {formatPrice(op.price)}</span>
+                <span className="w-28 text-right tabular-nums">{formatMoney(op.amount)}</span>
+                <span className="text-muted-foreground">{formatDate(op.date)}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
-    <span className="text-right tabular-nums">{pos.quantity}</span>
-    <span className="text-right tabular-nums">{formatPrice(pos.averagePrice)}</span>
-    <span className="text-right tabular-nums">{formatPrice(pos.currentPrice)}</span>
-    <span className="text-right tabular-nums">{formatMoney(pos.currentValue)}</span>
-    <span className={`text-right tabular-nums font-medium ${yieldColor(pos.expectedYieldAbsolute)}`}>
-      {formatSignedMoney(pos.expectedYieldAbsolute)}
-    </span>
-    <span className={`text-right tabular-nums font-medium ${yieldColor(pos.expectedYield)}`}>
-      {formatPercent(pos.expectedYield)}
-    </span>
-    <div className="flex items-center justify-end gap-1">
-      <YieldIcon value={pos.dailyYield} className="h-3 w-3" />
-      <span className={`tabular-nums text-xs ${yieldColor(pos.dailyYield)}`}>
-        {formatSignedMoney(pos.dailyYield)}
-      </span>
-    </div>
-  </div>
-)
+  )
+}
 
 export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
   return (

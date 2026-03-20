@@ -5,6 +5,15 @@ export type BrokerAccount = {
   openedDate: string
 }
 
+export type PositionOperation = {
+  id: string
+  type: "BUY" | "SELL"
+  price: number
+  quantity: number
+  amount: number
+  date: string
+}
+
 export type PortfolioPosition = {
   instrumentId: string
   ticker: string
@@ -19,6 +28,7 @@ export type PortfolioPosition = {
   instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF"
   blocked: boolean
   blockedLots: number
+  operations: PositionOperation[]
 }
 
 export type Portfolio = {

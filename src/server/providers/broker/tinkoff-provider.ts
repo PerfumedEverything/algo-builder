@@ -1,6 +1,7 @@
 import { TinkoffInvestApi } from "tinkoff-invest-api"
 import { CandleInterval, LastPriceType } from "tinkoff-invest-api/dist/generated/marketdata"
 import { InstrumentStatus } from "tinkoff-invest-api/dist/generated/common"
+import { OperationState, OperationType } from "tinkoff-invest-api/dist/generated/operations"
 import type {
   BrokerAccount,
   BrokerInstrument,
@@ -8,6 +9,7 @@ import type {
   CandleParams,
   Portfolio,
   PortfolioPosition,
+  PositionOperation,
 } from "@/core/types"
 import type { BrokerProvider } from "./types"
 
@@ -96,12 +98,42 @@ export class TinkoffProvider implements BrokerProvider {
   async getPortfolio(accountId: string): Promise<Portfolio> {
     const client = this.ensureConnected()
 
-    const [res, cash] = await Promise.all([
+    const yearAgo = new Date()
+    yearAgo.setFullYear(yearAgo.getFullYear() - 1)
+
+    const [res, cash, opsRes] = await Promise.all([
       this.isSandbox
         ? client.sandbox.getSandboxPortfolio({ accountId })
         : client.operations.getPortfolio({ accountId }),
       this.getAvailableCash(accountId),
+      this.isSandbox
+        ? Promise.resolve({ operations: [] })
+        : client.operations.getOperations({
+            accountId,
+            from: yearAgo,
+            to: new Date(),
+            state: OperationState.OPERATION_STATE_EXECUTED,
+          }),
     ])
+
+    const BUY_TYPES = new Set([OperationType.OPERATION_TYPE_BUY, OperationType.OPERATION_TYPE_BUY_CARD, OperationType.OPERATION_TYPE_BUY_MARGIN])
+    const SELL_TYPES = new Set([OperationType.OPERATION_TYPE_SELL, OperationType.OPERATION_TYPE_SELL_CARD, OperationType.OPERATION_TYPE_SELL_MARGIN])
+
+    const opsByFigi = new Map<string, PositionOperation[]>()
+    for (const op of opsRes.operations) {
+      const isBuy = BUY_TYPES.has(op.operationType)
+      const isSell = SELL_TYPES.has(op.operationType)
+      if (!isBuy && !isSell) continue
+      if (!opsByFigi.has(op.figi)) opsByFigi.set(op.figi, [])
+      opsByFigi.get(op.figi)!.push({
+        id: op.id,
+        type: isBuy ? "BUY" : "SELL",
+        price: toNumber(op.price),
+        quantity: op.quantity,
+        amount: Math.abs(toNumber(op.payment)),
+        date: op.date?.toISOString() ?? new Date().toISOString(),
+      })
+    }
 
     const totalAmount = toNumber(res.totalAmountPortfolio)
     const expectedYieldAbs = toNumber(res.expectedYield)
@@ -144,6 +176,7 @@ export class TinkoffProvider implements BrokerProvider {
           instrumentType: mapInstrumentType(p.instrumentType),
           blocked: (p as unknown as Record<string, unknown>).blocked === true,
           blockedLots: toNumber((p as unknown as Record<string, unknown>).blockedLots as { units: number; nano: number } | undefined),
+          operations: (opsByFigi.get(p.figi) ?? []).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
         }
       }),
     )

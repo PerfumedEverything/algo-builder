@@ -65,6 +65,10 @@ export class MockBrokerProvider implements BrokerProvider {
           instrumentType: "STOCK",
           blocked: false,
           blockedLots: 0,
+          operations: [
+            { id: "op1", type: "BUY", price: 250.00, quantity: 50, amount: 12_500, date: "2025-11-15T10:30:00Z" },
+            { id: "op2", type: "BUY", price: 281.00, quantity: 50, amount: 14_050, date: "2026-01-20T14:15:00Z" },
+          ],
         },
         {
           instrumentId: "BBG004730RP0",
@@ -80,6 +84,10 @@ export class MockBrokerProvider implements BrokerProvider {
           instrumentType: "STOCK",
           blocked: false,
           blockedLots: 0,
+          operations: [
+            { id: "op3", type: "BUY", price: 160.50, quantity: 100, amount: 16_050, date: "2025-09-10T11:00:00Z" },
+            { id: "op4", type: "BUY", price: 149.90, quantity: 100, amount: 14_990, date: "2026-02-05T09:45:00Z" },
+          ],
         },
         {
           instrumentId: "BBG004731032",
@@ -95,6 +103,10 @@ export class MockBrokerProvider implements BrokerProvider {
           instrumentType: "STOCK",
           blocked: false,
           blockedLots: 0,
+          operations: [
+            { id: "op5", type: "BUY", price: 6_800, quantity: 3, amount: 20_400, date: "2025-10-01T12:00:00Z" },
+            { id: "op6", type: "BUY", price: 7_550, quantity: 2, amount: 15_100, date: "2026-03-01T10:30:00Z" },
+          ],
         },
       ],
     }
