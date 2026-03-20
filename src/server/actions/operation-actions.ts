@@ -2,11 +2,19 @@
 
 import { type ApiResponse, errorResponse, successResponse } from "@/core/types/api"
 import type { StrategyOperation, OperationStats } from "@/core/types"
-import { OperationService } from "@/server/services"
+import { OperationService, StrategyService } from "@/server/services"
 import { PriceCache } from "@/server/services/price-cache"
 import { getCurrentUserId } from "./helpers"
 
 const getService = () => new OperationService()
+
+export type PaperStrategyRow = {
+  strategyId: string
+  strategyName: string
+  instrument: string
+  stats: OperationStats
+  hasOpenPosition: boolean
+}
 
 export const getOperationsAction = async (
   strategyId: string,
@@ -59,6 +67,47 @@ export const getOperationStatsForStrategiesAction = async (
     }
     const stats = await getService().getStatsForStrategies(strategyIds, priceMap)
     return successResponse({ stats, prices: priceMap })
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
+export const getPaperPortfolioAction = async (): Promise<ApiResponse<PaperStrategyRow[]>> => {
+  try {
+    const userId = await getCurrentUserId()
+    const strategyService = new StrategyService()
+    const strategies = await strategyService.getStrategies(userId)
+    if (strategies.length === 0) return successResponse([])
+
+    const operationService = getService()
+    const cache = new PriceCache()
+    const rows: PaperStrategyRow[] = []
+
+    for (const s of strategies) {
+      const instrument = (s as Record<string, unknown>).instrument as string | undefined
+      if (!instrument) continue
+
+      let currentPrice: number | undefined
+      try {
+        const p = await cache.getPrice(instrument)
+        if (p !== null) currentPrice = p
+      } catch {}
+
+      const stats = await operationService.getStats(s.id, currentPrice)
+      if (stats.totalOperations === 0) continue
+
+      const hasOpenPosition = stats.buyCount > stats.sellCount
+
+      rows.push({
+        strategyId: s.id,
+        strategyName: (s as Record<string, unknown>).name as string ?? s.id,
+        instrument,
+        stats,
+        hasOpenPosition,
+      })
+    }
+
+    return successResponse(rows)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
   }

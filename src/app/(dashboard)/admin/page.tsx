@@ -11,10 +11,17 @@ import {
   ShieldOff,
   Lock,
   Unlock,
+  X,
 } from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import {
   getUsersAction,
   updateUserRoleAction,
@@ -49,10 +56,18 @@ const formatDate = (date: string) =>
     year: "numeric",
   })
 
+const UserDetailRow = ({ label, value }: { label: string; value: string | number }) => (
+  <div className="flex items-center justify-between border-b border-border/50 py-2.5 last:border-0">
+    <span className="text-sm text-muted-foreground">{label}</span>
+    <span className="text-sm font-medium">{value}</span>
+  </div>
+)
+
 export default function AdminPage() {
   const [users, setUsers] = useState<UserWithStats[]>([])
   const [currentUserId, setCurrentUserId] = useState<string>("")
   const [loading, setLoading] = useState(true)
+  const [viewUser, setViewUser] = useState<UserWithStats | null>(null)
 
   const fetchUsers = useCallback(async () => {
     const res = await getUsersAction()
@@ -171,8 +186,8 @@ export default function AdminPage() {
                           variant="ghost"
                           size="icon"
                           className="h-8 w-8"
-                          title="Просмотр ЛК"
-                          onClick={() => toast.info("Функция в разработке")}
+                          title="Просмотр"
+                          onClick={() => setViewUser(user)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -215,6 +230,26 @@ export default function AdminPage() {
           </table>
         </div>
       </div>
+
+      <Dialog open={!!viewUser} onOpenChange={() => setViewUser(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Профиль пользователя</DialogTitle>
+          </DialogHeader>
+          {viewUser && (
+            <div>
+              <UserDetailRow label="Email" value={viewUser.email} />
+              <UserDetailRow label="Имя" value={viewUser.name ?? "—"} />
+              <UserDetailRow label="Роль" value={viewUser.role} />
+              <UserDetailRow label="Статус" value={viewUser.blocked ? "Заблокирован" : "Активен"} />
+              <UserDetailRow label="Стратегий" value={viewUser.strategiesCount} />
+              <UserDetailRow label="Сигналов" value={viewUser.signalsCount} />
+              <UserDetailRow label="Регистрация" value={formatDate(viewUser.createdAt)} />
+              <UserDetailRow label="ID" value={viewUser.id} />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

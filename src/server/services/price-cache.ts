@@ -2,7 +2,7 @@ import { redis } from "@/lib/redis"
 
 const PRICE_PREFIX = "price:"
 const CANDLE_PREFIX = "candles:"
-const PRICE_TTL = 300
+const PRICE_TTL = 600
 const CANDLE_TTL_MAP: Record<string, number> = {
   "1m": 60,
   "5m": 300,

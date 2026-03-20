@@ -13,12 +13,25 @@ export type PortfolioPosition = {
   averagePrice: number
   currentPrice: number
   expectedYield: number
-  instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+  expectedYieldAbsolute: number
+  dailyYield: number
+  currentValue: number
+  instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF"
+  blocked: boolean
+  blockedLots: number
 }
 
 export type Portfolio = {
   totalAmount: number
   expectedYield: number
+  expectedYieldAbsolute: number
+  dailyYield: number
+  dailyYieldRelative: number
+  totalShares: number
+  totalBonds: number
+  totalEtf: number
+  totalCurrencies: number
+  availableCash: number
   positions: PortfolioPosition[]
 }
 
@@ -26,7 +39,7 @@ export type BrokerInstrument = {
   figi: string
   ticker: string
   name: string
-  type: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+  type: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF"
   currency: string
   lot: number
 }

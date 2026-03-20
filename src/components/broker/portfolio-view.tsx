@@ -1,74 +1,152 @@
 "use client"
 
-import { TrendingUp, TrendingDown } from "lucide-react"
+import { TrendingUp, TrendingDown, Wallet, PiggyBank, BarChart3, Clock } from "lucide-react"
 
-import type { Portfolio } from "@/core/types"
+import type { Portfolio, PortfolioPosition } from "@/core/types"
 
 type PortfolioViewProps = {
   portfolio: Portfolio
 }
 
 const formatMoney = (n: number) =>
-  new Intl.NumberFormat("ru-RU", { style: "currency", currency: "RUB", maximumFractionDigits: 0 }).format(n)
+  new Intl.NumberFormat("ru-RU", {
+    style: "currency",
+    currency: "RUB",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(n)
 
-const formatPercent = (current: number, average: number) => {
-  if (average === 0) return "0%"
-  const pct = ((current - average) / average) * 100
-  return `${pct >= 0 ? "+" : ""}${pct.toFixed(2)}%`
+const formatPrice = (n: number) =>
+  n.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+const formatPercent = (n: number) =>
+  `${n >= 0 ? "+" : ""}${n.toFixed(2)}%`
+
+const formatSignedMoney = (n: number) =>
+  `${n >= 0 ? "+" : ""}${formatMoney(n)}`
+
+const yieldColor = (n: number) =>
+  n > 0 ? "text-emerald-400" : n < 0 ? "text-red-400" : "text-muted-foreground"
+
+const YieldIcon = ({ value, className }: { value: number; className?: string }) =>
+  value >= 0
+    ? <TrendingUp className={`${className} text-emerald-400`} />
+    : <TrendingDown className={`${className} text-red-400`} />
+
+const SummaryCard = ({ label, icon, children }: {
+  label: string
+  icon: React.ReactNode
+  children: React.ReactNode
+}) => (
+  <div className="rounded-lg border border-border bg-card p-4">
+    <div className="mb-2 flex items-center gap-2 text-xs text-muted-foreground">
+      {icon}
+      {label}
+    </div>
+    {children}
+  </div>
+)
+
+const AssetChip = ({ label, amount, total }: {
+  label: string
+  amount: number
+  total: number
+}) => {
+  if (amount <= 0) return null
+  const pct = total > 0 ? (amount / total) * 100 : 0
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-md bg-muted px-2.5 py-1 text-xs">
+      <span className="text-muted-foreground">{label}</span>
+      <span className="font-medium">{formatMoney(amount)}</span>
+      <span className="text-muted-foreground">({pct.toFixed(1)}%)</span>
+    </span>
+  )
 }
 
-export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
-  const yieldPositive = portfolio.expectedYield >= 0
+const PositionRow = ({ pos }: { pos: PortfolioPosition }) => (
+  <div className="grid grid-cols-8 gap-2 border-b border-border/50 py-2.5 text-sm last:border-0">
+    <div className="col-span-1">
+      <span className="font-medium">{pos.ticker}</span>
+      <p className="truncate text-xs text-muted-foreground">{pos.name}</p>
+    </div>
+    <span className="text-right tabular-nums">{pos.quantity}</span>
+    <span className="text-right tabular-nums">{formatPrice(pos.averagePrice)}</span>
+    <span className="text-right tabular-nums">{formatPrice(pos.currentPrice)}</span>
+    <span className="text-right tabular-nums">{formatMoney(pos.currentValue)}</span>
+    <span className={`text-right tabular-nums font-medium ${yieldColor(pos.expectedYieldAbsolute)}`}>
+      {formatSignedMoney(pos.expectedYieldAbsolute)}
+    </span>
+    <span className={`text-right tabular-nums font-medium ${yieldColor(pos.expectedYield)}`}>
+      {formatPercent(pos.expectedYield)}
+    </span>
+    <div className="flex items-center justify-end gap-1">
+      <YieldIcon value={pos.dailyYield} className="h-3 w-3" />
+      <span className={`tabular-nums text-xs ${yieldColor(pos.dailyYield)}`}>
+        {formatSignedMoney(pos.dailyYield)}
+      </span>
+    </div>
+  </div>
+)
 
+export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
   return (
-    <div className="rounded-xl border border-border bg-card p-6">
-      <div className="mb-4 flex items-center justify-between">
-        <h2 className="font-semibold">Портфель</h2>
-        <div className="text-right">
-          <p className="text-2xl font-bold">{formatMoney(portfolio.totalAmount)}</p>
-          <p className={`text-sm font-medium ${yieldPositive ? "text-emerald-400" : "text-red-400"}`}>
-            {yieldPositive ? "+" : ""}{formatMoney(portfolio.expectedYield)}
+    <div className="space-y-4">
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <SummaryCard label="Стоимость портфеля" icon={<Wallet className="h-3.5 w-3.5" />}>
+          <p className="text-xl font-bold">{formatMoney(portfolio.totalAmount)}</p>
+        </SummaryCard>
+
+        <SummaryCard label="Свободные средства" icon={<PiggyBank className="h-3.5 w-3.5" />}>
+          <p className="text-xl font-bold">{formatMoney(portfolio.availableCash)}</p>
+        </SummaryCard>
+
+        <SummaryCard label="Общий P&L" icon={<BarChart3 className="h-3.5 w-3.5" />}>
+          <p className={`text-xl font-bold ${yieldColor(portfolio.expectedYieldAbsolute)}`}>
+            {formatSignedMoney(portfolio.expectedYieldAbsolute)}
           </p>
-        </div>
+          <p className={`text-xs ${yieldColor(portfolio.expectedYield)}`}>
+            {formatPercent(portfolio.expectedYield)}
+          </p>
+        </SummaryCard>
+
+        <SummaryCard label="Дневной P&L" icon={<Clock className="h-3.5 w-3.5" />}>
+          <p className={`text-xl font-bold ${yieldColor(portfolio.dailyYield)}`}>
+            {formatSignedMoney(portfolio.dailyYield)}
+          </p>
+          <p className={`text-xs ${yieldColor(portfolio.dailyYieldRelative)}`}>
+            {formatPercent(portfolio.dailyYieldRelative)}
+          </p>
+        </SummaryCard>
       </div>
 
-      {portfolio.positions.length === 0 ? (
-        <p className="py-8 text-center text-sm text-muted-foreground">Нет позиций</p>
-      ) : (
-        <div className="space-y-1">
-          <div className="grid grid-cols-5 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
-            <span>Тикер</span>
-            <span className="text-right">Кол-во</span>
-            <span className="text-right">Ср. цена</span>
-            <span className="text-right">Текущая</span>
-            <span className="text-right">Доход</span>
-          </div>
-          {portfolio.positions.map((pos) => {
-            const positive = pos.expectedYield >= 0
-            return (
-              <div key={pos.instrumentId} className="grid grid-cols-5 gap-2 py-2 text-sm">
-                <div>
-                  <span className="font-medium">{pos.ticker}</span>
-                  <p className="text-xs text-muted-foreground">{pos.name}</p>
-                </div>
-                <span className="text-right">{pos.quantity}</span>
-                <span className="text-right">{pos.averagePrice.toFixed(2)}</span>
-                <span className="text-right">{pos.currentPrice.toFixed(2)}</span>
-                <div className="flex items-center justify-end gap-1">
-                  {positive ? (
-                    <TrendingUp className="h-3 w-3 text-emerald-400" />
-                  ) : (
-                    <TrendingDown className="h-3 w-3 text-red-400" />
-                  )}
-                  <span className={`text-xs font-medium ${positive ? "text-emerald-400" : "text-red-400"}`}>
-                    {formatPercent(pos.currentPrice, pos.averagePrice)}
-                  </span>
-                </div>
-              </div>
-            )
-          })}
-        </div>
-      )}
+      <div className="flex flex-wrap gap-2">
+        <AssetChip label="Акции" amount={portfolio.totalShares} total={portfolio.totalAmount} />
+        <AssetChip label="ETF" amount={portfolio.totalEtf} total={portfolio.totalAmount} />
+        <AssetChip label="Облигации" amount={portfolio.totalBonds} total={portfolio.totalAmount} />
+        <AssetChip label="Валюта" amount={portfolio.totalCurrencies} total={portfolio.totalAmount} />
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-4">
+        {portfolio.positions.length === 0 ? (
+          <p className="py-8 text-center text-sm text-muted-foreground">Нет позиций</p>
+        ) : (
+          <>
+            <div className="grid grid-cols-8 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
+              <span>Тикер</span>
+              <span className="text-right">Кол-во</span>
+              <span className="text-right">Ср. цена</span>
+              <span className="text-right">Текущая</span>
+              <span className="text-right">Стоимость</span>
+              <span className="text-right">P&L ₽</span>
+              <span className="text-right">P&L %</span>
+              <span className="text-right">Дневной</span>
+            </div>
+            {portfolio.positions.map((pos) => (
+              <PositionRow key={pos.instrumentId} pos={pos} />
+            ))}
+          </>
+        )}
+      </div>
     </div>
   )
 }

@@ -26,13 +26,13 @@ const toNumber = (q?: { units: number; nano: number }): number => {
   return q.units + q.nano / 1_000_000_000
 }
 
-const mapInstrumentType = (type: string): "STOCK" | "BOND" | "CURRENCY" | "FUTURES" => {
-  const map: Record<string, "STOCK" | "BOND" | "CURRENCY" | "FUTURES"> = {
+const mapInstrumentType = (type: string): "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF" => {
+  const map: Record<string, "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF"> = {
     share: "STOCK",
     bond: "BOND",
     currency: "CURRENCY",
     future: "FUTURES",
-    etf: "STOCK",
+    etf: "ETF",
   }
   return map[type.toLowerCase()] ?? "STOCK"
 }
@@ -96,9 +96,18 @@ export class TinkoffProvider implements BrokerProvider {
   async getPortfolio(accountId: string): Promise<Portfolio> {
     const client = this.ensureConnected()
 
-    const res = this.isSandbox
-      ? await client.sandbox.getSandboxPortfolio({ accountId })
-      : await client.operations.getPortfolio({ accountId })
+    const [res, cash] = await Promise.all([
+      this.isSandbox
+        ? client.sandbox.getSandboxPortfolio({ accountId })
+        : client.operations.getPortfolio({ accountId }),
+      this.getAvailableCash(accountId),
+    ])
+
+    const totalAmount = toNumber(res.totalAmountPortfolio)
+    const expectedYieldAbs = toNumber(res.expectedYield)
+    const expectedYieldPct = totalAmount > 0
+      ? (expectedYieldAbs / (totalAmount - expectedYieldAbs)) * 100
+      : 0
 
     const positions: PortfolioPosition[] = await Promise.all(
       res.positions.map(async (p) => {
@@ -114,24 +123,59 @@ export class TinkoffProvider implements BrokerProvider {
         } catch {
         }
 
+        const quantity = toNumber(p.quantity)
+        const currentPrice = toNumber(p.currentPrice)
+        const averagePrice = toNumber(p.averagePositionPrice)
+        const yieldAbs = toNumber(p.expectedYield)
+        const cost = averagePrice * quantity
+        const yieldPct = cost > 0 ? (yieldAbs / cost) * 100 : 0
+
         return {
           instrumentId: p.figi,
           ticker,
           name,
-          quantity: toNumber(p.quantity),
-          averagePrice: toNumber(p.averagePositionPrice),
-          currentPrice: toNumber(p.currentPrice),
-          expectedYield: toNumber(p.expectedYield),
+          quantity,
+          averagePrice,
+          currentPrice,
+          expectedYield: yieldPct,
+          expectedYieldAbsolute: yieldAbs,
+          dailyYield: toNumber((p as unknown as Record<string, unknown>).dailyYield as { units: number; nano: number } | undefined),
+          currentValue: quantity * currentPrice,
           instrumentType: mapInstrumentType(p.instrumentType),
+          blocked: (p as unknown as Record<string, unknown>).blocked === true,
+          blockedLots: toNumber((p as unknown as Record<string, unknown>).blockedLots as { units: number; nano: number } | undefined),
         }
       }),
     )
 
     return {
-      totalAmount: toNumber(res.totalAmountPortfolio),
-      expectedYield: toNumber(res.expectedYield),
+      totalAmount,
+      expectedYield: expectedYieldPct,
+      expectedYieldAbsolute: expectedYieldAbs,
+      dailyYield: toNumber(res.dailyYield),
+      dailyYieldRelative: toNumber(res.dailyYieldRelative),
+      totalShares: toNumber(res.totalAmountShares),
+      totalBonds: toNumber(res.totalAmountBonds),
+      totalEtf: toNumber(res.totalAmountEtf),
+      totalCurrencies: toNumber(res.totalAmountCurrencies),
+      availableCash: cash,
       positions,
     }
+  }
+
+  async getAvailableCash(accountId: string): Promise<number> {
+    const client = this.ensureConnected()
+    if (this.isSandbox) {
+      const res = await client.sandbox.getSandboxPortfolio({ accountId })
+      const totalPortfolio = toNumber(res.totalAmountPortfolio)
+      const totalPositions = res.positions.reduce(
+        (sum, p) => sum + toNumber(p.currentPrice) * toNumber(p.quantity), 0,
+      )
+      return Math.max(totalPortfolio - totalPositions, 0)
+    }
+    const { money } = await client.operations.getPositions({ accountId })
+    const rub = money.find((m) => m.currency === "rub")
+    return rub ? toNumber(rub) : 0
   }
 
   async getInstruments(type: string): Promise<BrokerInstrument[]> {

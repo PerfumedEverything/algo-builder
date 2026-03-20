@@ -24,6 +24,15 @@ const INITIAL_MESSAGE: ChatMessage = {
   content: "Привет! Давайте создадим торговую стратегию. Какой инструмент вас интересует? Например, акции Сбера, Газпрома или что-то другое?",
 }
 
+const QUICK_REPLIES = [
+  { label: "SBER Сбер", text: "Хочу стратегию на акции Сбера" },
+  { label: "GAZP Газпром", text: "Хочу стратегию на Газпром" },
+  { label: "LKOH Лукойл", text: "Хочу стратегию на Лукойл" },
+  { label: "Скальпинг", text: "Скальпинг стратегию на короткие сделки" },
+  { label: "Свинг", text: "Свинг-трейдинг стратегию на несколько дней" },
+  { label: "Дивидендная", text: "Дивидендную стратегию на долгосрок" },
+]
+
 const StrategyPreview = ({
   strategy,
   onApply,
@@ -160,6 +169,23 @@ export const AiChat = ({ onGenerated }: AiChatProps) => {
               </div>
             </div>
           ))}
+          {messages.length === 1 && !loading && (
+            <div className="flex flex-wrap gap-1.5 px-1">
+              {QUICK_REPLIES.map((qr) => (
+                <button
+                  key={qr.label}
+                  type="button"
+                  className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
+                  onClick={() => {
+                    setInput(qr.text)
+                    setTimeout(() => inputRef.current?.focus(), 0)
+                  }}
+                >
+                  {qr.label}
+                </button>
+              ))}
+            </div>
+          )}
           {loading && (
             <div className="flex justify-start">
               <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">

@@ -5,9 +5,11 @@ import { createClient } from "@supabase/supabase-js"
 
 const PRICE_PREFIX = "price:"
 const CANDLE_PREFIX = "candles:"
-const PRICE_TTL = 300
+const PRICE_TTL = 600
 const INSTRUMENT_REFRESH_INTERVAL = 60_000
 const CANDLE_REFRESH_INTERVAL = 60_000
+const HEALTH_CHECK_INTERVAL = 30_000
+const HEALTH_CHECK_MAX_STALE_MS = 120_000
 
 const redis = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
   maxRetriesPerRequest: 3,
@@ -40,6 +42,7 @@ const toNumber = (q?: { units: number; nano: number }): number => {
 
 let subscribedInstruments = new Set<string>()
 let unsubscribeFn: (() => Promise<void>) | null = null
+let lastPriceUpdate = Date.now()
 
 async function getActiveInstruments(): Promise<string[]> {
   const [signals, strategies] = await Promise.all([
@@ -115,6 +118,7 @@ async function subscribeToStream(instruments: string[]) {
   unsubscribeFn = await api.stream.market.lastPrice(
     { instruments: figiList.map(([, f]) => ({ figi: f, instrumentId: f })) },
     async (lastPrice) => {
+      lastPriceUpdate = Date.now()
       const price = toNumber(lastPrice.price)
       const responseFigi = lastPrice.figi || lastPrice.instrumentUid
 
@@ -141,6 +145,20 @@ async function subscribeToStream(instruments: string[]) {
   console.log(`[Worker] Subscribed to: ${instruments.join(", ")}`)
   } catch (e) {
     console.error("[Worker] Stream subscription error:", e)
+  }
+}
+
+async function healthCheck() {
+  if (subscribedInstruments.size === 0) return
+
+  const staleDuration = Date.now() - lastPriceUpdate
+  if (staleDuration > HEALTH_CHECK_MAX_STALE_MS) {
+    console.warn(`[Worker] Stream stale for ${Math.round(staleDuration / 1000)}s, reconnecting...`)
+    if (unsubscribeFn) {
+      try { await unsubscribeFn() } catch { /* stream may already be closed */ }
+      unsubscribeFn = null
+    }
+    await subscribeToStream([...subscribedInstruments])
   }
 }
 
@@ -198,11 +216,19 @@ async function refreshCandles() {
     pairs.get(row.instrument)!.add(tf)
   }
 
+  const tasks: Array<{ ticker: string; tf: string; uid: string }> = []
   for (const [ticker, timeframes] of pairs) {
     const uid = tickerToUidMap.get(ticker)
     if (!uid) continue
-
     for (const tf of timeframes) {
+      tasks.push({ ticker, tf, uid })
+    }
+  }
+
+  const BATCH_SIZE = 5
+  for (let i = 0; i < tasks.length; i += BATCH_SIZE) {
+    const batch = tasks.slice(i, i + BATCH_SIZE)
+    await Promise.all(batch.map(async ({ ticker, tf, uid }) => {
       try {
         const now = new Date()
         const from = new Date(now.getTime() - getCandleRangeMs(tf))
@@ -238,7 +264,7 @@ async function refreshCandles() {
       } catch (e) {
         console.error(`[Worker] Candle fetch failed for ${ticker}:${tf}:`, e)
       }
-    }
+    }))
   }
 }
 
@@ -298,6 +324,7 @@ async function main() {
 
   setInterval(() => refreshInstruments(), INSTRUMENT_REFRESH_INTERVAL)
   setInterval(() => refreshCandles(), CANDLE_REFRESH_INTERVAL)
+  setInterval(() => healthCheck(), HEALTH_CHECK_INTERVAL)
 
   await startSignalListener()
 

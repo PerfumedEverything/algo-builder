@@ -41,40 +41,68 @@ export class MockBrokerProvider implements BrokerProvider {
     this.ensureConnected()
     return {
       totalAmount: 1_250_000,
-      expectedYield: 42_500,
+      expectedYield: 3.52,
+      expectedYieldAbsolute: 42_500,
+      dailyYield: 1_230,
+      dailyYieldRelative: 0.10,
+      totalShares: 950_000,
+      totalBonds: 0,
+      totalEtf: 150_000,
+      totalCurrencies: 0,
+      availableCash: 150_000,
       positions: [
         {
           instrumentId: "BBG004730N88",
           ticker: "SBER",
           name: "Сбербанк",
           quantity: 100,
-          averagePrice: 265.5,
-          currentPrice: 278.3,
-          expectedYield: 1280,
+          averagePrice: 265.50,
+          currentPrice: 278.30,
+          expectedYield: 4.82,
+          expectedYieldAbsolute: 1_280,
+          dailyYield: 120,
+          currentValue: 27_830,
           instrumentType: "STOCK",
+          blocked: false,
+          blockedLots: 0,
         },
         {
           instrumentId: "BBG004730RP0",
           ticker: "GAZP",
           name: "Газпром",
           quantity: 200,
-          averagePrice: 155.2,
-          currentPrice: 148.7,
-          expectedYield: -1300,
+          averagePrice: 155.20,
+          currentPrice: 148.70,
+          expectedYield: -4.19,
+          expectedYieldAbsolute: -1_300,
+          dailyYield: -350,
+          currentValue: 29_740,
           instrumentType: "STOCK",
+          blocked: false,
+          blockedLots: 0,
         },
         {
           instrumentId: "BBG004731032",
           ticker: "LKOH",
           name: "Лукойл",
           quantity: 5,
-          averagePrice: 7100,
-          currentPrice: 7350,
-          expectedYield: 1250,
+          averagePrice: 7_100,
+          currentPrice: 7_350,
+          expectedYield: 3.52,
+          expectedYieldAbsolute: 1_250,
+          dailyYield: 450,
+          currentValue: 36_750,
           instrumentType: "STOCK",
+          blocked: false,
+          blockedLots: 0,
         },
       ],
     }
+  }
+
+  async getAvailableCash(_accountId: string): Promise<number> {
+    this.ensureConnected()
+    return 150_000
   }
 
   async getInstruments(_type: string): Promise<BrokerInstrument[]> {
