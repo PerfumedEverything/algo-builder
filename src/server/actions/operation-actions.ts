@@ -32,16 +32,20 @@ export const getOperationStatsAction = async (
   }
 }
 
+type StatsWithPrices = {
+  stats: Record<string, OperationStats>
+  prices: Record<string, number>
+}
+
 export const getOperationStatsForStrategiesAction = async (
   strategyIds: string[],
   instrumentMap?: Record<string, string>,
-): Promise<ApiResponse<Record<string, OperationStats>>> => {
+): Promise<ApiResponse<StatsWithPrices>> => {
   try {
     await getCurrentUserId()
-    let priceMap: Record<string, number> | undefined
+    const priceMap: Record<string, number> = {}
     if (instrumentMap) {
       const cache = new PriceCache()
-      priceMap = {}
       const uniqueInstruments = [...new Set(Object.values(instrumentMap))]
       const prices: Record<string, number> = {}
       for (const inst of uniqueInstruments) {
@@ -54,7 +58,7 @@ export const getOperationStatsForStrategiesAction = async (
       }
     }
     const stats = await getService().getStatsForStrategies(strategyIds, priceMap)
-    return successResponse(stats)
+    return successResponse({ stats, prices: priceMap })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
   }

@@ -34,6 +34,7 @@ type StrategyCardProps = {
   strategy: StrategyRow
   operationStats?: OperationStats
   lastBuyPrice?: number
+  currentPrice?: number
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   onStatusChange: (id: string, status: string) => void
@@ -96,7 +97,7 @@ const formatTime = (iso: string) => {
   })
 }
 
-export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
+export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPrice, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
   const config = strategy.config
   const isActive = strategy.status === "ACTIVE"
   const [expanded, setExpanded] = useState(false)
@@ -147,6 +148,12 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, onEdit, o
             <span>{strategy.timeframe}</span>
             <span>·</span>
             <span>{strategy.instrumentType}</span>
+            {currentPrice && currentPrice > 0 && (
+              <>
+                <span>·</span>
+                <span className="font-mono text-foreground">Курс: {formatAmount(currentPrice)} ₽</span>
+              </>
+            )}
           </div>
         </div>
         <DropdownMenu>
@@ -238,8 +245,10 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, onEdit, o
             {stats.pnlPercent >= 0 ? "+" : ""}{stats.pnlPercent.toFixed(2)}%
           </span>
           {stats.initialAmount > 0 && (
-            <span className="text-xs text-muted-foreground">
-              Портфель: {formatAmount(stats.currentAmount)} ₽
+            <span className={`text-xs font-mono ${
+              stats.pnl >= 0 ? "text-emerald-400" : "text-red-400"
+            }`}>
+              {formatAmount(stats.currentAmount)} ₽
             </span>
           )}
 

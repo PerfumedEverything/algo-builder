@@ -49,6 +49,7 @@ export default function StrategiesPage() {
   const [launchDialogOpen, setLaunchDialogOpen] = useState(false)
   const [pendingLaunchId, setPendingLaunchId] = useState<string | null>(null)
   const [opsStatsMap, setOpsStatsMap] = useState<Record<string, OperationStats>>({})
+  const [pricesMap, setPricesMap] = useState<Record<string, number>>({})
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
@@ -70,7 +71,10 @@ export default function StrategiesPage() {
         const instrumentMap: Record<string, string> = {}
         strategies.forEach((s) => { instrumentMap[s.id] = s.instrument })
         const opsRes = await getOperationStatsForStrategiesAction(ids, instrumentMap)
-        if (opsRes.success) setOpsStatsMap(opsRes.data)
+        if (opsRes.success) {
+          setOpsStatsMap(opsRes.data.stats)
+          setPricesMap(opsRes.data.prices)
+        }
       }
     }
     if (statsRes.success) setStats(statsRes.data)
@@ -291,7 +295,7 @@ export default function StrategiesPage() {
       {strategies.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {strategies.map((strategy) => (
-            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
           ))}
         </div>
       ) : (

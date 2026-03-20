@@ -1,8 +1,29 @@
 "use client"
 
+import { HelpCircle } from "lucide-react"
+
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip"
 import { useStrategyStore } from "@/hooks/use-strategy-store"
+
+const HintLabel = ({ label, hint }: { label: string; hint: string }) => (
+  <div className="flex items-center gap-1">
+    <Label className="text-xs text-muted-foreground">{label}</Label>
+    <Tooltip>
+      <TooltipTrigger type="button" tabIndex={-1}>
+        <HelpCircle className="h-3.5 w-3.5 text-muted-foreground/50" />
+      </TooltipTrigger>
+      <TooltipContent side="top" className="max-w-52 text-xs">
+        {hint}
+      </TooltipContent>
+    </Tooltip>
+  </div>
+)
 
 export const RiskForm = () => {
   const { config, setRisks } = useStrategyStore()
@@ -18,7 +39,10 @@ export const RiskForm = () => {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label className="text-xs text-muted-foreground">Сумма для торговли (₽)</Label>
+        <HintLabel
+          label="Сумма для торговли (₽)"
+          hint="Сколько рублей выделить на эту стратегию. От этой суммы рассчитывается количество лотов при покупке."
+        />
         <Input
           type="number"
           value={risks.tradeAmount ?? ""}
@@ -27,11 +51,13 @@ export const RiskForm = () => {
           min={0}
           step={1000}
         />
-        <p className="text-xs text-muted-foreground">Какой частью портфеля торговать по этой стратегии</p>
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Stop Loss (%)</Label>
+          <HintLabel
+            label="Stop Loss (%)"
+            hint="Максимальный допустимый убыток в %. Если цена упадёт на этот процент от цены входа — позиция будет закрыта."
+          />
           <Input
             type="number"
             value={risks.stopLoss ?? ""}
@@ -43,7 +69,10 @@ export const RiskForm = () => {
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Take Profit (%)</Label>
+          <HintLabel
+            label="Take Profit (%)"
+            hint="Целевая прибыль в %. Если цена вырастет на этот процент от цены входа — позиция будет закрыта с прибылью."
+          />
           <Input
             type="number"
             value={risks.takeProfit ?? ""}
@@ -57,7 +86,10 @@ export const RiskForm = () => {
       </div>
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Размер позиции (лоты)</Label>
+          <HintLabel
+            label="Размер позиции (лоты)"
+            hint="Максимальное количество лотов для покупки. Ограничивает размер позиции независимо от суммы."
+          />
           <Input
             type="number"
             value={risks.maxPositionSize ?? ""}
@@ -67,7 +99,10 @@ export const RiskForm = () => {
           />
         </div>
         <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Trailing Stop (%)</Label>
+          <HintLabel
+            label="Trailing Stop (%)"
+            hint="Скользящий стоп в %. Следует за ценой вверх, но не опускается. Фиксирует прибыль если цена развернётся."
+          />
           <Input
             type="number"
             value={risks.trailingStop ?? ""}
