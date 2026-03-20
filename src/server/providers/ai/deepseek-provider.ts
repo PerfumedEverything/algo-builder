@@ -1,7 +1,7 @@
 import OpenAI from "openai"
-import type { ChatCompletionTool } from "openai/resources/chat/completions"
+import type { ChatCompletionTool, ChatCompletionMessageParam } from "openai/resources/chat/completions"
 import type { AiGeneratedStrategy, IndicatorType, ConditionType } from "@/core/types"
-import type { AiProvider } from "./types"
+import type { AiProvider, AiChatMessage, AiChatResponse } from "./types"
 
 const VALID_INDICATORS: IndicatorType[] = ["SMA", "EMA", "RSI", "MACD", "BOLLINGER", "PRICE", "VOLUME", "PRICE_CHANGE", "SUPPORT", "RESISTANCE"]
 const VALID_CONDITIONS: ConditionType[] = [
@@ -144,6 +144,27 @@ For scalping strategies use short timeframes (1m, 5m). For swing trading use lon
 Default timeframe is 1d if not specified.
 Respond in Russian for name and description fields.`
 
+const CHAT_SYSTEM_PROMPT = `Ты — AI-помощник AlgoBuilder для создания торговых стратегий.
+
+Твоя задача — помочь пользователю создать стратегию через диалог.
+Пользователь может быть новичком в трейдинге — объясняй просто.
+
+Порядок:
+1. Спроси какой инструмент интересует (акция, валюта, конкретный тикер — Сбер, Газпром и т.д.)
+2. Спроси стиль торговли: скальпинг (минуты), свинг (дни-недели), долгосрок (месяцы)
+3. Спроси про допустимый риск: консервативный (SL 2%), умеренный (SL 3-5%), агрессивный (SL 5-10%)
+4. Когда собрал достаточно информации — вызови функцию create_strategy
+
+Правила:
+- Отвечай коротко, 2-3 предложения максимум
+- Задавай по одному вопросу за раз
+- Если пользователь сразу описал конкретную стратегию с деталями — сразу генерируй через create_strategy
+- Используй русский язык
+- Будь дружелюбным и профессиональным
+- Не используй технический жаргон без объяснения
+- Тикеры: "Сбер" → "sber", "Газпром" → "gazp", "Лукойл" → "lkoh", "Яндекс" → "yndx", "ВТБ" → "vtbr"
+- Риск-менеджмент подбирай по стилю: консервативный (SL 2%, TP 4%), умеренный (SL 3%, TP 6%), агрессивный (SL 5%, TP 10%)`
+
 export class DeepSeekProvider implements AiProvider {
   private client: OpenAI
 
@@ -176,6 +197,45 @@ export class DeepSeekProvider implements AiProvider {
     this.validateConfig(parsed)
 
     return parsed
+  }
+
+  async chatAboutStrategy(messages: AiChatMessage[]): Promise<AiChatResponse> {
+    const apiMessages: ChatCompletionMessageParam[] = [
+      { role: "system", content: CHAT_SYSTEM_PROMPT },
+      ...messages.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
+    ]
+
+    const response = await this.client.chat.completions.create({
+      model: "deepseek-chat",
+      messages: apiMessages,
+      tools: [generateStrategyTool],
+      temperature: 0.7,
+    })
+
+    const choice = response.choices[0]?.message
+    if (!choice) {
+      throw new Error("AI не ответил")
+    }
+
+    const toolCall = choice.tool_calls?.[0]
+    if (toolCall && toolCall.type === "function" && toolCall.function.name === "create_strategy") {
+      const parsed = JSON.parse(toolCall.function.arguments) as AiGeneratedStrategy
+      this.validateConfig(parsed)
+
+      const textContent = choice.content || "Готово! Вот ваша стратегия:"
+
+      return {
+        message: textContent,
+        strategy: parsed,
+      }
+    }
+
+    return {
+      message: choice.content || "Не удалось получить ответ",
+    }
   }
 
   private validateConfig(strategy: AiGeneratedStrategy): void {

@@ -2,6 +2,7 @@
 
 import { type ApiResponse, errorResponse, successResponse } from "@/core/types/api"
 import type { AiGeneratedStrategy, StrategyConfig } from "@/core/types"
+import type { AiChatResponse, AiChatMessage } from "@/server/providers/ai/types"
 import { createStrategySchema, updateStrategySchema } from "@/core/schemas"
 import { StrategyService } from "@/server/services"
 import { getAiProvider } from "@/server/providers/ai"
@@ -128,6 +129,20 @@ export const generateStrategyAction = async (
     }
     const strategy = await getService().generateWithAI(prompt)
     return successResponse(strategy)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
+export const chatStrategyAction = async (
+  messages: AiChatMessage[],
+): Promise<ApiResponse<AiChatResponse>> => {
+  try {
+    if (messages.length === 0) {
+      return errorResponse("Messages are required")
+    }
+    const response = await getService().chatWithAI(messages)
+    return successResponse(response)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
   }

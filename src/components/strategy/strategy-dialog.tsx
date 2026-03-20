@@ -9,7 +9,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { AiGenerator } from "./ai-generator"
+import { AiChat } from "./ai-chat"
 import { StrategyForm, type StrategyFormHandle } from "./strategy-form"
 
 type StrategyDialogProps = {
@@ -47,7 +47,7 @@ export const StrategyDialog = ({
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 overflow-y-auto">
-          {mode === "create" && <AiGenerator onGenerated={handleGenerated} />}
+          {mode === "create" && <AiChat onGenerated={handleGenerated} />}
           <StrategyForm
             ref={formRef}
             mode={mode}

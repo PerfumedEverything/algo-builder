@@ -1,6 +1,7 @@
 export { StrategyStats } from "./strategy-stats"
 export { StrategyCard } from "./strategy-card"
 export { AiGenerator } from "./ai-generator"
+export { AiChat } from "./ai-chat"
 export { RiskForm } from "./risk-form"
 export { StrategyForm } from "./strategy-form"
 export { StrategyDialog } from "./strategy-dialog"

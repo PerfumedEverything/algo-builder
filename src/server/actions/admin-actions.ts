@@ -13,12 +13,17 @@ const assertAdmin = async () => {
   return user
 }
 
-export const getUsersAction = async (): Promise<ApiResponse<UserWithStats[]>> => {
+type AdminData = {
+  users: UserWithStats[]
+  currentUserId: string
+}
+
+export const getUsersAction = async (): Promise<ApiResponse<AdminData>> => {
   try {
-    await assertAdmin()
+    const admin = await assertAdmin()
     const repo = new UserRepository()
     const users = await repo.findAll()
-    return successResponse(users)
+    return successResponse({ users, currentUserId: admin.id })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Ошибка загрузки пользователей")
   }

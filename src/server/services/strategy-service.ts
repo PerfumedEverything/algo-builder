@@ -76,6 +76,13 @@ export class StrategyService {
     return this.aiProvider.generateStrategy(prompt)
   }
 
+  async chatWithAI(messages: { role: "user" | "assistant"; content: string }[]) {
+    if (!this.aiProvider) {
+      throw AppError.badRequest("AI provider not configured")
+    }
+    return this.aiProvider.chatAboutStrategy(messages)
+  }
+
   async activateStrategy(id: string, userId: string) {
     await this.getStrategy(id, userId)
     return this.repository.update(id, userId, { status: "ACTIVE" })

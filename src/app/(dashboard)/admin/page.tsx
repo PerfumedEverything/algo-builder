@@ -51,12 +51,17 @@ const formatDate = (date: string) =>
 
 export default function AdminPage() {
   const [users, setUsers] = useState<UserWithStats[]>([])
+  const [currentUserId, setCurrentUserId] = useState<string>("")
   const [loading, setLoading] = useState(true)
 
   const fetchUsers = useCallback(async () => {
     const res = await getUsersAction()
-    if (res.success) setUsers(res.data)
-    else toast.error(res.error)
+    if (res.success) {
+      setUsers(res.data.users)
+      setCurrentUserId(res.data.currentUserId)
+    } else {
+      toast.error(res.error)
+    }
     setLoading(false)
   }, [])
 
@@ -124,76 +129,88 @@ export default function AdminPage() {
               </tr>
             </thead>
             <tbody>
-              {users.map((user) => (
-                <tr key={user.id} className="border-b border-border last:border-0 hover:bg-muted/50">
-                  <td className="px-4 py-3 font-medium">{user.email}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{user.name ?? "—"}</td>
-                  <td className="px-4 py-3">
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
-                      user.role === "ADMIN"
-                        ? "bg-primary/10 text-primary"
-                        : "bg-muted text-muted-foreground"
-                    }`}>
-                      {user.role === "ADMIN" ? <ShieldCheck className="h-3 w-3" /> : null}
-                      {user.role}
-                    </span>
-                  </td>
-                  <td className="px-4 py-3 text-center">{user.strategiesCount}</td>
-                  <td className="px-4 py-3 text-center">{user.signalsCount}</td>
-                  <td className="px-4 py-3 text-muted-foreground">{formatDate(user.createdAt)}</td>
-                  <td className="px-4 py-3">
-                    {user.blocked ? (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-400">
-                        <Ban className="h-3 w-3" />
-                        Заблокирован
+              {users.map((user) => {
+                const isSelf = user.id === currentUserId
+                return (
+                  <tr key={user.id} className="border-b border-border last:border-0 hover:bg-muted/50">
+                    <td className="px-4 py-3 font-medium">
+                      {user.email}
+                      {isSelf && (
+                        <span className="ml-1.5 text-xs text-muted-foreground">(вы)</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-muted-foreground">{user.name ?? "—"}</td>
+                    <td className="px-4 py-3">
+                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${
+                        user.role === "ADMIN"
+                          ? "bg-primary/10 text-primary"
+                          : "bg-muted text-muted-foreground"
+                      }`}>
+                        {user.role === "ADMIN" ? <ShieldCheck className="h-3 w-3" /> : null}
+                        {user.role}
                       </span>
-                    ) : (
-                      <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400">
-                        Активен
-                      </span>
-                    )}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex items-center justify-end gap-1">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        title="Просмотр ЛК"
-                        onClick={() => toast.info("Функция в разработке")}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        title={user.role === "ADMIN" ? "Снять админа" : "Сделать админом"}
-                        onClick={() => handleToggleRole(user.id, user.role)}
-                      >
-                        {user.role === "ADMIN" ? (
-                          <ShieldOff className="h-4 w-4" />
-                        ) : (
-                          <ShieldCheck className="h-4 w-4" />
+                    </td>
+                    <td className="px-4 py-3 text-center">{user.strategiesCount}</td>
+                    <td className="px-4 py-3 text-center">{user.signalsCount}</td>
+                    <td className="px-4 py-3 text-muted-foreground">{formatDate(user.createdAt)}</td>
+                    <td className="px-4 py-3">
+                      {user.blocked ? (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-red-500/10 px-2 py-0.5 text-xs font-medium text-red-400">
+                          <Ban className="h-3 w-3" />
+                          Заблокирован
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400">
+                          Активен
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8"
+                          title="Просмотр ЛК"
+                          onClick={() => toast.info("Функция в разработке")}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        {!isSelf && (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title={user.role === "ADMIN" ? "Снять админа" : "Сделать админом"}
+                              onClick={() => handleToggleRole(user.id, user.role)}
+                            >
+                              {user.role === "ADMIN" ? (
+                                <ShieldOff className="h-4 w-4" />
+                              ) : (
+                                <ShieldCheck className="h-4 w-4" />
+                              )}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              title={user.blocked ? "Разблокировать" : "Заблокировать"}
+                              onClick={() => handleToggleBlock(user.id, user.blocked)}
+                            >
+                              {user.blocked ? (
+                                <Unlock className="h-4 w-4 text-emerald-400" />
+                              ) : (
+                                <Lock className="h-4 w-4 text-red-400" />
+                              )}
+                            </Button>
+                          </>
                         )}
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-8 w-8"
-                        title={user.blocked ? "Разблокировать" : "Заблокировать"}
-                        onClick={() => handleToggleBlock(user.id, user.blocked)}
-                      >
-                        {user.blocked ? (
-                          <Unlock className="h-4 w-4 text-emerald-400" />
-                        ) : (
-                          <Lock className="h-4 w-4 text-red-400" />
-                        )}
-                      </Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
+                      </div>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
