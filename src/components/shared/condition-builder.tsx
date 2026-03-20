@@ -109,9 +109,11 @@ export const ConditionBuilder = ({
     const currentCondition = conditions[index].condition
     const newCondition = allowed.includes(currentCondition) ? currentCondition : allowed[0] ?? "GREATER_THAN"
     const isPercentCondition = newCondition === "ABOVE_BY_PERCENT" || newCondition === "BELOW_BY_PERCENT"
+    const prevIndicator = conditions[index].indicator
+    const switchedFromPrice = prevIndicator === "PRICE" && newIndicator !== "PRICE"
     const defaultValue = newIndicator === "PRICE" && currentPrice && !isPercentCondition
       ? Math.round(currentPrice * 100) / 100
-      : isPercentCondition ? undefined : conditions[index].value
+      : isPercentCondition || switchedFromPrice ? undefined : conditions[index].value
     onUpdate(index, {
       indicator: newIndicator,
       params,
