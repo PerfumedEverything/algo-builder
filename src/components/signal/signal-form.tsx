@@ -88,7 +88,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
       instrument: signal?.instrument ?? "",
       instrumentType: (signal?.instrumentType as GeneralFormData["instrumentType"]) ?? "STOCK",
       timeframe: signal?.timeframe ?? "1d",
-      signalType: (signal?.signalType as GeneralFormData["signalType"]) ?? "BUY",
+      signalType: (signal?.signalType as GeneralFormData["signalType"]) ?? "ALERT",
     },
   })
 
@@ -166,11 +166,11 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
           </div>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground">Тип сигнала</Label>
             <Select
-              defaultValue={signal?.signalType ?? "BUY"}
+              defaultValue={signal?.signalType ?? "ALERT"}
               onValueChange={(v) => setValue("signalType", v as GeneralFormData["signalType"])}
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
