@@ -11,6 +11,8 @@ model User {
   supabaseId      String     @unique
   email           String     @unique
   name            String?
+  role            String     @default("USER")
+  blocked         Boolean    @default(false)
   telegramChatId  String?
   brokerToken     String?
   brokerAccountId String?

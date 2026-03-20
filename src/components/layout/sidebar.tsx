@@ -12,10 +12,13 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
+  Wallet,
+  Shield,
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { logoutAction } from "@/server/actions/auth"
+import { getCurrentUserRoleAction } from "@/server/actions/admin-actions"
 import { useSidebarStore } from "@/hooks/use-sidebar-store"
 
 type NavItem = {
@@ -28,15 +31,23 @@ const mainNav: NavItem[] = [
   { href: "/dashboard", label: "Рабочий стол", icon: <LayoutDashboard className="h-5 w-5" /> },
   { href: "/strategies", label: "Стратегии", icon: <TrendingUp className="h-5 w-5" /> },
   { href: "/signals", label: "Сигналы", icon: <Signal className="h-5 w-5" /> },
-  { href: "/broker", label: "API Интеграция", icon: <Cable className="h-5 w-5" /> },
+  { href: "/portfolio", label: "Портфель", icon: <Wallet className="h-5 w-5" /> },
+  { href: "/broker", label: "Брокеры", icon: <Cable className="h-5 w-5" /> },
   { href: "/settings", label: "Настройки", icon: <Settings className="h-5 w-5" /> },
 ]
+
+const adminNav: NavItem = {
+  href: "/admin",
+  label: "Админ",
+  icon: <Shield className="h-5 w-5" />,
+}
 
 export const Sidebar = () => {
   const pathname = usePathname()
   const { collapsed, toggle } = useSidebarStore()
   const [isMac, setIsMac] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   useEffect(() => {
     setIsMac(navigator.platform.toUpperCase().includes("MAC"))
@@ -47,6 +58,12 @@ export const Sidebar = () => {
     check()
     window.addEventListener("resize", check)
     return () => window.removeEventListener("resize", check)
+  }, [])
+
+  useEffect(() => {
+    getCurrentUserRoleAction().then((res) => {
+      if (res.success) setIsAdmin(res.data.role === "ADMIN")
+    })
   }, [])
 
   const handleLogout = async () => {
@@ -63,9 +80,10 @@ export const Sidebar = () => {
 
   const shortcutLabel = isMac ? "⌘B" : "Ctrl+B"
 
+  const navItems = isAdmin ? [...mainNav, adminNav] : mainNav
+
   return (
     <>
-      {/* Mobile backdrop */}
       {isMobile && !collapsed && (
         <div
           className="fixed inset-0 z-30 bg-black/50 lg:hidden"
@@ -81,7 +99,6 @@ export const Sidebar = () => {
             : "w-[240px] translate-x-0 lg:w-[240px]"
         )}
       >
-        {/* Collapse toggle — desktop only */}
         <div className="group absolute -right-3 top-5 z-50 hidden lg:block">
           <button
             onClick={toggle}
@@ -112,7 +129,7 @@ export const Sidebar = () => {
         </div>
 
         <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
-          {mainNav.map((item) => {
+          {navItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + "/")
             return (
               <Link

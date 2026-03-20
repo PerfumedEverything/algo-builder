@@ -55,5 +55,27 @@ export const updateSession = async (request: NextRequest) => {
     return NextResponse.redirect(url)
   }
 
+  if (user && !isAuthPage) {
+    const { data: dbUser } = await supabase
+      .from("User")
+      .select("blocked, role")
+      .eq("supabaseId", user.id)
+      .single()
+
+    if (dbUser?.blocked) {
+      await supabase.auth.signOut()
+      const url = request.nextUrl.clone()
+      url.pathname = "/login"
+      return NextResponse.redirect(url)
+    }
+
+    const isAdminRoute = request.nextUrl.pathname.startsWith("/admin")
+    if (isAdminRoute && dbUser?.role !== "ADMIN") {
+      const url = request.nextUrl.clone()
+      url.pathname = "/dashboard"
+      return NextResponse.redirect(url)
+    }
+  }
+
   return supabaseResponse
 }

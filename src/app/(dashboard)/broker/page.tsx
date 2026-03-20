@@ -1,26 +1,109 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
-import { Unplug, ShieldCheck, Loader2 } from "lucide-react"
+import {
+  Unplug,
+  ShieldCheck,
+  Loader2,
+  CheckCircle2,
+  Clock,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import { BrokerConnectForm, BrokerAccounts, PortfolioView } from "@/components/broker"
+import { BrokerConnectForm, BrokerAccounts } from "@/components/broker"
 import {
   getBrokerStatusAction,
   getBrokerAccountsAction,
-  getPortfolioAction,
   selectBrokerAccountAction,
   disconnectBrokerAction,
 } from "@/server/actions/broker-actions"
-import type { BrokerAccount, Portfolio } from "@/core/types"
+import type { BrokerAccount } from "@/core/types"
+
+type BrokerCardProps = {
+  name: string
+  description: string
+  logo: string
+  available: boolean
+  connected?: boolean
+  expanded?: boolean
+  onToggle?: () => void
+  onDisconnect?: () => void
+  children?: React.ReactNode
+}
+
+const BrokerCard = ({
+  name,
+  description,
+  logo,
+  available,
+  connected,
+  expanded,
+  onToggle,
+  onDisconnect,
+  children,
+}: BrokerCardProps) => (
+  <div className="rounded-xl border border-border bg-card overflow-hidden">
+    <div
+      className={`flex items-center justify-between p-5 ${available && onToggle ? "cursor-pointer" : ""}`}
+      onClick={available ? onToggle : undefined}
+    >
+      <div className="flex items-center gap-4">
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-2xl">
+          {logo}
+        </div>
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="font-semibold">{name}</h3>
+            {connected && (
+              <span className="flex items-center gap-1 rounded-full bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400">
+                <CheckCircle2 className="h-3 w-3" />
+                Подключён
+              </span>
+            )}
+          </div>
+          <p className="text-sm text-muted-foreground">{description}</p>
+        </div>
+      </div>
+      <div className="flex items-center gap-2">
+        {!available && (
+          <span className="flex items-center gap-1 rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+            <Clock className="h-3 w-3" />
+            Скоро
+          </span>
+        )}
+        {available && connected && onDisconnect && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation()
+              onDisconnect()
+            }}
+            className="text-muted-foreground hover:text-destructive"
+          >
+            <Unplug className="h-4 w-4" />
+          </Button>
+        )}
+        {available && onToggle && (
+          expanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />
+        )}
+      </div>
+    </div>
+    {expanded && children && (
+      <div className="border-t border-border p-5">{children}</div>
+    )}
+  </div>
+)
 
 export default function BrokerPage() {
   const [connected, setConnected] = useState(false)
   const [loading, setLoading] = useState(true)
   const [accounts, setAccounts] = useState<BrokerAccount[]>([])
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null)
-  const [portfolio, setPortfolio] = useState<Portfolio | null>(null)
+  const [expanded, setExpanded] = useState(false)
 
   const fetchStatus = useCallback(async () => {
     setLoading(true)
@@ -32,12 +115,9 @@ export default function BrokerPage() {
       setSelectedAccountId(statusRes.data.accountId)
 
       if (statusRes.data.connected) {
-        const [accountsRes, portfolioRes] = await Promise.all([
-          getBrokerAccountsAction(),
-          getPortfolioAction(),
-        ])
+        const accountsRes = await getBrokerAccountsAction()
         if (accountsRes.success) setAccounts(accountsRes.data)
-        if (portfolioRes.success && portfolioRes.data) setPortfolio(portfolioRes.data)
+        setExpanded(true)
       }
     } finally {
       setLoading(false)
@@ -46,19 +126,11 @@ export default function BrokerPage() {
 
   useEffect(() => { fetchStatus() }, [fetchStatus])
 
-  useEffect(() => {
-    if (!connected) return
-    const interval = setInterval(async () => {
-      const res = await getPortfolioAction()
-      if (res.success && res.data) setPortfolio(res.data)
-    }, 10_000)
-    return () => clearInterval(interval)
-  }, [connected])
-
   const handleConnected = (newAccounts: BrokerAccount[]) => {
     setConnected(true)
     setAccounts(newAccounts)
     if (newAccounts.length > 0) setSelectedAccountId(newAccounts[0].id)
+    setExpanded(true)
     fetchStatus()
   }
 
@@ -66,8 +138,6 @@ export default function BrokerPage() {
     const result = await selectBrokerAccountAction(accountId)
     if (result.success) {
       setSelectedAccountId(accountId)
-      const portfolioRes = await getPortfolioAction()
-      if (portfolioRes.success && portfolioRes.data) setPortfolio(portfolioRes.data)
     }
   }
 
@@ -77,7 +147,7 @@ export default function BrokerPage() {
       setConnected(false)
       setAccounts([])
       setSelectedAccountId(null)
-      setPortfolio(null)
+      setExpanded(false)
       toast.success("Брокер отключён")
     }
   }
@@ -92,17 +162,9 @@ export default function BrokerPage() {
 
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">API Интеграция</h1>
-          <p className="text-sm text-muted-foreground">Подключение и управление брокерским счётом</p>
-        </div>
-        {connected && (
-          <Button variant="outline" onClick={handleDisconnect}>
-            <Unplug className="mr-2 h-4 w-4" />
-            Отключить
-          </Button>
-        )}
+      <div>
+        <h1 className="text-2xl font-bold">Брокеры</h1>
+        <p className="text-sm text-muted-foreground">Подключение и управление брокерскими счетами</p>
       </div>
 
       <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-2.5 text-sm">
@@ -113,23 +175,43 @@ export default function BrokerPage() {
         </span>
       </div>
 
-      {!connected ? (
-        <BrokerConnectForm onConnected={handleConnected} />
-      ) : (
-        <div className="grid gap-5 lg:grid-cols-3">
-          <div className="lg:col-span-1">
+      <div className="grid gap-4">
+        <BrokerCard
+          name="Т-Инвестиции"
+          description="Акции, облигации, ETF на Московской бирже"
+          logo="🟡"
+          available={true}
+          connected={connected}
+          expanded={expanded}
+          onToggle={() => setExpanded(!expanded)}
+          onDisconnect={connected ? handleDisconnect : undefined}
+        >
+          {!connected ? (
+            <BrokerConnectForm onConnected={handleConnected} />
+          ) : (
             <BrokerAccounts
               accounts={accounts}
               selectedId={selectedAccountId}
               onSelect={handleSelectAccount}
               onPayIn={fetchStatus}
             />
-          </div>
-          <div className="lg:col-span-2">
-            {portfolio && <PortfolioView portfolio={portfolio} />}
-          </div>
-        </div>
-      )}
+          )}
+        </BrokerCard>
+
+        <BrokerCard
+          name="Interactive Brokers"
+          description="Международные рынки, акции, опционы, фьючерсы"
+          logo="🔴"
+          available={false}
+        />
+
+        <BrokerCard
+          name="Финам"
+          description="Акции, облигации, валюта на Московской бирже"
+          logo="🔵"
+          available={false}
+        />
+      </div>
     </div>
   )
 }
