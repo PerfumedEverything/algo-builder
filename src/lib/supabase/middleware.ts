@@ -38,6 +38,7 @@ export const updateSession = async (request: NextRequest) => {
   const isPublicAsset =
     request.nextUrl.pathname.startsWith("/_next") ||
     request.nextUrl.pathname.startsWith("/favicon")
+  const isServerAction = request.method === "POST" && request.headers.get("next-action")
 
   if (isApiWebhook || isPublicAsset) {
     return supabaseResponse
@@ -55,25 +56,29 @@ export const updateSession = async (request: NextRequest) => {
     return NextResponse.redirect(url)
   }
 
-  if (user && !isAuthPage) {
-    const { data: dbUser } = await supabase
-      .from("User")
-      .select("blocked, role")
-      .eq("supabaseId", user.id)
-      .single()
+  if (user && !isAuthPage && !isServerAction) {
+    try {
+      const { data: dbUser } = await supabase
+        .from("User")
+        .select("blocked, role")
+        .eq("supabaseId", user.id)
+        .single()
 
-    if (dbUser?.blocked) {
-      await supabase.auth.signOut()
-      const url = request.nextUrl.clone()
-      url.pathname = "/login"
-      return NextResponse.redirect(url)
-    }
+      if (dbUser?.blocked) {
+        await supabase.auth.signOut()
+        const url = request.nextUrl.clone()
+        url.pathname = "/login"
+        return NextResponse.redirect(url)
+      }
 
-    const isAdminRoute = request.nextUrl.pathname.startsWith("/admin")
-    if (isAdminRoute && dbUser?.role !== "ADMIN") {
-      const url = request.nextUrl.clone()
-      url.pathname = "/dashboard"
-      return NextResponse.redirect(url)
+      const isAdminRoute = request.nextUrl.pathname.startsWith("/admin")
+      if (isAdminRoute && dbUser?.role !== "ADMIN") {
+        const url = request.nextUrl.clone()
+        url.pathname = "/dashboard"
+        return NextResponse.redirect(url)
+      }
+    } catch {
+      // ignore — don't block navigation on DB errors
     }
   }
 
