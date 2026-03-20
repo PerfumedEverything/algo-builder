@@ -26,6 +26,7 @@ import {
 } from "@/server/actions/signal-actions"
 import type { SignalProgress } from "@/server/actions/signal-actions"
 import { getSettingsAction } from "@/server/actions/settings-actions"
+import { getBrokerStatusAction } from "@/server/actions/broker-actions"
 import type { SignalRow } from "@/server/repositories/signal-repository"
 import { TIMEFRAMES } from "@/core/config/instruments"
 
@@ -43,6 +44,7 @@ export default function SignalsPage() {
   const [dialogOpen, setDialogOpen] = useState(false)
   const [editSignal, setEditSignal] = useState<SignalRow | undefined>()
   const [telegramConfigured, setTelegramConfigured] = useState(true)
+  const [brokerConnected, setBrokerConnected] = useState(true)
   const [progressMap, setProgressMap] = useState<Record<string, SignalProgress["conditions"]>>({})
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
@@ -55,14 +57,16 @@ export default function SignalsPage() {
     else if (filters.isActive === "inactive") params.isActive = false
     else if (filters.isActive === "triggered") params.triggered = "true"
 
-    const [signalsRes, statsRes, settingsRes] = await Promise.all([
+    const [signalsRes, statsRes, settingsRes, brokerRes] = await Promise.all([
       getSignalsAction(Object.keys(params).length ? params as Record<string, string> : undefined),
       getSignalStatsAction(),
       getSettingsAction(),
+      getBrokerStatusAction(),
     ])
     if (signalsRes.success) setSignals(signalsRes.data as SignalRow[])
     if (statsRes.success) setStats(statsRes.data)
     if (settingsRes.success) setTelegramConfigured(!!settingsRes.data.telegramChatId)
+    if (brokerRes.success) setBrokerConnected(brokerRes.data.connected)
   }, [search, filters])
 
   useEffect(() => { fetchData() }, [fetchData])
@@ -116,11 +120,28 @@ export default function SignalsPage() {
           <h1 className="text-2xl font-bold">Мои сигналы</h1>
           <p className="text-sm text-muted-foreground">Настройте уведомления по условиям рынка</p>
         </div>
-        <Button className="w-full sm:w-auto" onClick={() => { setEditSignal(undefined); setDialogOpen(true) }}>
+        <Button className="w-full sm:w-auto" onClick={() => {
+          if (!brokerConnected) {
+            toast.error("Сначала подключите брокера", {
+              action: { label: "Подключить", onClick: () => window.location.href = "/broker" },
+            })
+            return
+          }
+          setEditSignal(undefined)
+          setDialogOpen(true)
+        }}>
           <Plus className="mr-2 h-4 w-4" />
           Новый сигнал
         </Button>
       </div>
+
+      {!brokerConnected && (
+        <WarningBanner
+          message="Брокер не подключён. Подключите API T-Invest для работы с сигналами."
+          linkText="Подключить"
+          href="/broker"
+        />
+      )}
 
       {!telegramConfigured && (
         <WarningBanner
@@ -259,7 +280,16 @@ export default function SignalsPage() {
             Создайте первый сигнал для мониторинга рынка
           </p>
           <Button
-            onClick={() => { setEditSignal(undefined); setDialogOpen(true) }}
+            onClick={() => {
+              if (!brokerConnected) {
+                toast.error("Сначала подключите брокера", {
+                  action: { label: "Подключить", onClick: () => window.location.href = "/broker" },
+                })
+                return
+              }
+              setEditSignal(undefined)
+              setDialogOpen(true)
+            }}
             className="mt-4"
             variant="outline"
           >

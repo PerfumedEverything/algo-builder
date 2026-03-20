@@ -158,7 +158,14 @@ export default function SettingsPage() {
           <div className="rounded-lg border border-sky-500/20 bg-sky-500/5 px-4 py-3 text-sm">
             <p className="text-muted-foreground">
               Напишите <span className="font-medium text-sky-400">/start</span> боту{" "}
-              <span className="font-medium text-sky-400">@AculaTradeNot_bot</span>{" "}
+              <a
+                href="https://t.me/AculaTradeNot_bot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-sky-400 underline underline-offset-2 hover:text-sky-300"
+              >
+                @AculaTradeNot_bot
+              </a>{" "}
               в Telegram. Бот отправит вам Chat ID — вставьте его ниже.
             </p>
           </div>

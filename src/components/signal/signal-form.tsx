@@ -1,11 +1,12 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { toast } from "sonner"
-import { Loader2, Send, Repeat, Zap } from "lucide-react"
+import { Loader2, Send, Repeat, Zap, AlertTriangle } from "lucide-react"
+import Link from "next/link"
 
 import { INSTRUMENT_TYPES, TIMEFRAMES } from "@/core/config/instruments"
 import type { SignalRow } from "@/server/repositories/signal-repository"
@@ -25,6 +26,7 @@ import {
   createSignalAction,
   updateSignalAction,
 } from "@/server/actions/signal-actions"
+import { getSettingsAction } from "@/server/actions/settings-actions"
 import { ConditionBuilder } from "@/components/shared/condition-builder"
 import { InstrumentSelect } from "@/components/shared/instrument-select"
 
@@ -48,6 +50,15 @@ type SignalFormProps = {
 
 export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps) => {
   const [currentPrice, setCurrentPrice] = useState<number | null>(null)
+  const [telegramConnected, setTelegramConnected] = useState(true)
+
+  const checkTelegram = useCallback(async () => {
+    const res = await getSettingsAction()
+    if (res.success) setTelegramConnected(!!res.data.telegramChatId)
+  }, [])
+
+  useEffect(() => { checkTelegram() }, [checkTelegram])
+
   const {
     conditions,
     channels,
@@ -243,19 +254,33 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
 
       <section className="space-y-3">
         <h3 className="text-sm font-medium text-primary">Каналы уведомлений</h3>
-        <label className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-accent/50">
-          <input
-            type="checkbox"
-            checked={channels.includes("telegram")}
-            onChange={() => toggleChannel("telegram")}
-            className="h-4 w-4 rounded border-border"
-          />
-          <Send className="h-4 w-4 text-violet-400" />
-          <div>
-            <p className="text-sm font-medium">Telegram</p>
-            <p className="text-xs text-muted-foreground">Уведомления в Telegram бот</p>
+        {telegramConnected ? (
+          <label className="flex items-center gap-3 rounded-lg border border-border p-3 transition-colors hover:bg-accent/50">
+            <input
+              type="checkbox"
+              checked={channels.includes("telegram")}
+              onChange={() => toggleChannel("telegram")}
+              className="h-4 w-4 rounded border-border"
+            />
+            <Send className="h-4 w-4 text-violet-400" />
+            <div>
+              <p className="text-sm font-medium">Telegram</p>
+              <p className="text-xs text-muted-foreground">Уведомления в Telegram бот</p>
+            </div>
+          </label>
+        ) : (
+          <div className="flex items-center gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3">
+            <AlertTriangle className="h-4 w-4 shrink-0 text-amber-400" />
+            <div className="min-w-0 flex-1">
+              <p className="text-sm font-medium text-muted-foreground">Telegram не подключён</p>
+              <p className="text-xs text-muted-foreground">
+                <Link href="/settings" className="text-primary underline underline-offset-2 hover:text-primary/80">
+                  Подключить в настройках
+                </Link>
+              </p>
+            </div>
           </div>
-        </label>
+        )}
       </section>
 
       <div className="flex justify-end gap-2 border-t border-border pt-4">

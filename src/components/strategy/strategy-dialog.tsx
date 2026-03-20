@@ -40,13 +40,13 @@ export const StrategyDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl p-0 flex flex-col max-h-[85vh]">
-        <DialogHeader className="px-6 pt-6 shrink-0">
+      <DialogContent className="max-w-2xl w-[calc(100vw-2rem)] p-0 flex flex-col max-h-[85vh]">
+        <DialogHeader className="px-4 pt-4 sm:px-6 sm:pt-6 shrink-0">
           <DialogTitle>
             {mode === "create" ? "Новая стратегия" : "Редактировать стратегию"}
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 px-6 pb-6 overflow-y-auto">
+        <div className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 overflow-y-auto">
           {mode === "create" && <AiGenerator onGenerated={handleGenerated} />}
           <StrategyForm
             ref={formRef}

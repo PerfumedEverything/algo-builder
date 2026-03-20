@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react"
 import { Plus, TrendingUp, SlidersHorizontal, ShieldCheck, X } from "lucide-react"
 import { toast } from "sonner"
 
+import type { OperationStats } from "@/core/types"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { WarningBanner } from "@/components/ui/warning-banner"
@@ -26,6 +27,7 @@ import {
   deactivateStrategyAction,
 } from "@/server/actions/strategy-actions"
 import { getBrokerStatusAction } from "@/server/actions/broker-actions"
+import { getOperationStatsForStrategiesAction } from "@/server/actions/operation-actions"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
 import { INSTRUMENT_TYPES, TIMEFRAMES } from "@/core/config/instruments"
 
@@ -46,6 +48,7 @@ export default function StrategiesPage() {
   const [brokerConnected, setBrokerConnected] = useState(true)
   const [launchDialogOpen, setLaunchDialogOpen] = useState(false)
   const [pendingLaunchId, setPendingLaunchId] = useState<string | null>(null)
+  const [opsStatsMap, setOpsStatsMap] = useState<Record<string, OperationStats>>({})
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
@@ -59,7 +62,14 @@ export default function StrategiesPage() {
       getStrategyStatsAction(),
       getBrokerStatusAction(),
     ])
-    if (strategiesRes.success) setStrategies(strategiesRes.data as Strategy[])
+    if (strategiesRes.success) {
+      setStrategies(strategiesRes.data as Strategy[])
+      const ids = (strategiesRes.data as Strategy[]).map((s) => s.id)
+      if (ids.length > 0) {
+        const opsRes = await getOperationStatsForStrategiesAction(ids)
+        if (opsRes.success) setOpsStatsMap(opsRes.data)
+      }
+    }
     if (statsRes.success) setStats(statsRes.data)
     if (brokerRes.success) setBrokerConnected(brokerRes.data.connected)
   }, [search, filters])
@@ -135,7 +145,16 @@ export default function StrategiesPage() {
           <h1 className="text-2xl font-bold">Мои стратегии</h1>
           <p className="text-sm text-muted-foreground">Создавайте и управляйте торговыми стратегиями</p>
         </div>
-        <Button className="w-full sm:w-auto" onClick={() => { setEditStrategy(undefined); setDialogOpen(true) }}>
+        <Button className="w-full sm:w-auto" onClick={() => {
+          if (!brokerConnected) {
+            toast.error("Сначала подключите брокера", {
+              action: { label: "Подключить", onClick: () => window.location.href = "/broker" },
+            })
+            return
+          }
+          setEditStrategy(undefined)
+          setDialogOpen(true)
+        }}>
           <Plus className="mr-2 h-4 w-4" />
           Новая стратегия
         </Button>
@@ -269,7 +288,7 @@ export default function StrategiesPage() {
       {strategies.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {strategies.map((strategy) => (
-            <StrategyCard key={strategy.id} strategy={strategy} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
           ))}
         </div>
       ) : (
@@ -280,7 +299,16 @@ export default function StrategiesPage() {
             Создайте первую стратегию с помощью ИИ или вручную
           </p>
           <Button
-            onClick={() => { setEditStrategy(undefined); setDialogOpen(true) }}
+            onClick={() => {
+              if (!brokerConnected) {
+                toast.error("Сначала подключите брокера", {
+                  action: { label: "Подключить", onClick: () => window.location.href = "/broker" },
+                })
+                return
+              }
+              setEditStrategy(undefined)
+              setDialogOpen(true)
+            }}
             className="mt-4"
             variant="outline"
           >

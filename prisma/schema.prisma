@@ -18,6 +18,7 @@ model User {
   updatedAt       DateTime   @updatedAt
   strategies      Strategy[]
   signals         Signal[]
+  operations      StrategyOperation[]
 }
 
 model Strategy {
@@ -34,6 +35,7 @@ model Strategy {
   createdAt      DateTime       @default(now())
   updatedAt      DateTime       @updatedAt
   signals        Signal[]
+  operations     StrategyOperation[]
 
   @@index([userId])
 }
@@ -89,4 +91,21 @@ model SignalLog {
   instrument  String
   message     String
   triggeredAt DateTime @default(now())
+}
+
+model StrategyOperation {
+  id         String   @id @default(uuid())
+  strategyId String
+  strategy   Strategy @relation(fields: [strategyId], references: [id], onDelete: Cascade)
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type       String
+  instrument String
+  price      Float
+  quantity   Int      @default(1)
+  amount     Float
+  createdAt  DateTime @default(now())
+
+  @@index([strategyId])
+  @@index([userId])
 }

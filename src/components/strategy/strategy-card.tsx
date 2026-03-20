@@ -1,8 +1,22 @@
 "use client"
 
-import { MoreHorizontal, Pencil, Trash2, Play, Pause, Radio } from "lucide-react"
+import { useState } from "react"
+import {
+  MoreHorizontal,
+  Pencil,
+  Trash2,
+  Play,
+  Pause,
+  Radio,
+  ChevronDown,
+  ArrowUpRight,
+  ArrowDownRight,
+  Activity,
+  TrendingUp,
+  TrendingDown,
+} from "lucide-react"
 
-import type { StrategyCondition } from "@/core/types"
+import type { StrategyCondition, OperationStats, StrategyOperation } from "@/core/types"
 import { INDICATORS } from "@/core/config/indicators"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
 import { Badge } from "@/components/ui/badge"
@@ -14,9 +28,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { getOperationsAction } from "@/server/actions/operation-actions"
 
 type StrategyCardProps = {
   strategy: StrategyRow
+  operationStats?: OperationStats
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   onStatusChange: (id: string, status: string) => void
@@ -65,28 +81,60 @@ const getConditionsDisplay = (conditions: StrategyCondition | StrategyCondition[
   return arr.map(getConditionSummary).join(separator)
 }
 
-export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
+const formatAmount = (n: number) =>
+  n.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+
+const formatTime = (iso: string) => {
+  const d = new Date(iso)
+  return d.toLocaleString("ru-RU", {
+    timeZone: "Europe/Moscow",
+    day: "2-digit",
+    month: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  })
+}
+
+export const StrategyCard = ({ strategy, operationStats, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
   const config = strategy.config
   const isActive = strategy.status === "ACTIVE"
+  const [expanded, setExpanded] = useState(false)
+  const [operations, setOperations] = useState<StrategyOperation[]>([])
+  const [opsLoading, setOpsLoading] = useState(false)
+
+  const stats = operationStats
+  const hasOps = stats && stats.totalOperations > 0
+
+  const handleToggleOps = async () => {
+    if (expanded) {
+      setExpanded(false)
+      return
+    }
+    setOpsLoading(true)
+    const res = await getOperationsAction(strategy.id)
+    if (res.success) setOperations(res.data)
+    setOpsLoading(false)
+    setExpanded(true)
+  }
 
   return (
-    <div className="group relative rounded-lg border border-border bg-card p-4 transition-colors hover:border-primary/30">
+    <div className="group relative overflow-hidden rounded-lg border border-border bg-card p-3 sm:p-4 transition-colors hover:border-primary/30">
       <GlowingEffect spread={40} glow disabled={false} proximity={64} inactiveZone={0.01} borderWidth={2} />
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <h3 className="truncate text-sm font-semibold">{strategy.name}</h3>
-            <Badge variant="outline" className={STATUS_STYLES[strategy.status]}>
+            <Badge variant="outline" className={`text-[10px] sm:text-xs ${STATUS_STYLES[strategy.status]}`}>
               {STATUS_LABELS[strategy.status]}
             </Badge>
             {isActive && (
-              <Badge variant="outline" className="bg-emerald-500/10 text-emerald-400 border-emerald-500/20 gap-1">
+              <Badge variant="outline" className="text-[10px] sm:text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/20 gap-1">
                 <Radio className="h-3 w-3 animate-pulse" />
                 Мониторинг
               </Badge>
             )}
           </div>
-          <div className="mt-1.5 flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-muted-foreground">
             <span className="font-mono">{strategy.instrument}</span>
             <span>·</span>
             <span>{strategy.timeframe}</span>
@@ -125,7 +173,7 @@ export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: Str
         </DropdownMenu>
       </div>
 
-      <div className="mt-3 space-y-1 text-xs text-muted-foreground">
+      <div className="mt-3 space-y-1 text-xs text-muted-foreground break-words">
         <p>
           <span className="text-emerald-400">Вход:</span>{" "}
           {getConditionsDisplay(config.entry, config.entryLogic)}
@@ -136,17 +184,96 @@ export const StrategyCard = ({ strategy, onEdit, onDelete, onStatusChange }: Str
         </p>
       </div>
 
-      {(config.risks.stopLoss || config.risks.takeProfit) && (
-        <div className="mt-3 flex gap-2">
-          {config.risks.stopLoss && (
-            <span className="rounded bg-red-500/10 px-2 py-0.5 text-xs text-red-400">
-              SL: {config.risks.stopLoss}%
+      <div className="mt-3 flex flex-wrap gap-2">
+        {config.risks.stopLoss && (
+          <span className="rounded bg-red-500/10 px-2 py-0.5 text-xs text-red-400">
+            SL: {config.risks.stopLoss}%
+          </span>
+        )}
+        {config.risks.takeProfit && (
+          <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">
+            TP: {config.risks.takeProfit}%
+          </span>
+        )}
+      </div>
+
+      {hasOps && (
+        <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-border pt-3">
+          <span className="flex items-center gap-1 rounded bg-primary/10 px-2 py-0.5 text-xs text-primary">
+            <Activity className="h-3 w-3" />
+            {stats.totalOperations} {stats.totalOperations === 1 ? "операция" : stats.totalOperations < 5 ? "операции" : "операций"}
+          </span>
+          <span className="flex items-center gap-1 rounded px-2 py-0.5 text-xs font-mono">
+            {stats.pnl >= 0 ? (
+              <>
+                <TrendingUp className="h-3 w-3 text-emerald-400" />
+                <span className="text-emerald-400">+{formatAmount(stats.pnl)} ₽</span>
+              </>
+            ) : (
+              <>
+                <TrendingDown className="h-3 w-3 text-red-400" />
+                <span className="text-red-400">{formatAmount(stats.pnl)} ₽</span>
+              </>
+            )}
+          </span>
+          <span className={`rounded px-2 py-0.5 text-xs font-mono ${
+            stats.pnlPercent >= 0
+              ? "bg-emerald-500/10 text-emerald-400"
+              : "bg-red-500/10 text-red-400"
+          }`}>
+            {stats.pnlPercent >= 0 ? "+" : ""}{stats.pnlPercent.toFixed(2)}%
+          </span>
+          {stats.initialAmount > 0 && (
+            <span className="text-xs text-muted-foreground">
+              Портфель: {formatAmount(stats.currentAmount)} ₽
             </span>
           )}
-          {config.risks.takeProfit && (
-            <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">
-              TP: {config.risks.takeProfit}%
-            </span>
+
+          <button
+            type="button"
+            onClick={handleToggleOps}
+            className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+          >
+            Операции
+            <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          </button>
+        </div>
+      )}
+
+      {expanded && (
+        <div className="mt-2 max-h-48 overflow-y-auto rounded border border-border bg-background/50">
+          {opsLoading ? (
+            <div className="py-4 text-center text-xs text-muted-foreground">Загрузка...</div>
+          ) : operations.length === 0 ? (
+            <div className="py-4 text-center text-xs text-muted-foreground">Нет операций</div>
+          ) : (
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="border-b border-border text-muted-foreground">
+                  <th className="px-2 py-1.5 text-left font-medium">Тип</th>
+                  <th className="px-2 py-1.5 text-right font-medium">Цена</th>
+                  <th className="px-2 py-1.5 text-right font-medium">Кол-во</th>
+                  <th className="px-2 py-1.5 text-right font-medium">Сумма</th>
+                  <th className="px-2 py-1.5 text-right font-medium">Время</th>
+                </tr>
+              </thead>
+              <tbody>
+                {operations.map((op) => (
+                  <tr key={op.id} className="border-b border-border/50 last:border-0">
+                    <td className="px-2 py-1.5">
+                      <span className={`flex items-center gap-1 ${op.type === "BUY" ? "text-emerald-400" : "text-red-400"}`}>
+                        {op.type === "BUY" ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
+                        {op.type === "BUY" ? "Покупка" : "Продажа"}
+                      </span>
+                    </td>
+                    <td className="px-2 py-1.5 text-right font-mono">{formatAmount(op.price)}</td>
+                    <td className="px-2 py-1.5 text-right font-mono">{op.quantity}</td>
+                    <td className="px-2 py-1.5 text-right font-mono">{formatAmount(op.amount)} ₽</td>
+                    <td className="px-2 py-1.5 text-right text-muted-foreground">{formatTime(op.createdAt)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           )}
         </div>
       )}

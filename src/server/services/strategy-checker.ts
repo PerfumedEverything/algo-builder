@@ -6,6 +6,7 @@ import { TelegramProvider } from "@/server/providers/notification"
 import { IndicatorCalculator } from "./indicator-calculator"
 import { formatStrategyNotification } from "./notification-templates"
 import { PriceCache } from "./price-cache"
+import { OperationService } from "./operation-service"
 
 type CheckResult = {
   strategyId: string
@@ -14,6 +15,7 @@ type CheckResult = {
   side: "entry" | "exit"
   triggered: boolean
   message: string
+  price?: number
 }
 
 type EvalContext = {
@@ -25,6 +27,7 @@ export class StrategyChecker {
   private _telegram?: TelegramProvider
   private _db?: ReturnType<typeof createAdminClient>
   private _priceCache?: PriceCache
+  private _operationService?: OperationService
 
   private get telegram(): TelegramProvider | null {
     if (this._telegram) return this._telegram
@@ -42,6 +45,11 @@ export class StrategyChecker {
   private get priceCache() {
     if (!this._priceCache) this._priceCache = new PriceCache()
     return this._priceCache
+  }
+
+  private get operationService() {
+    if (!this._operationService) this._operationService = new OperationService()
+    return this._operationService
   }
 
   async checkAll(): Promise<CheckResult[]> {
@@ -153,6 +161,7 @@ export class StrategyChecker {
         instrument: strategy.instrument,
         side: "entry",
         triggered: entryMet,
+        price,
         message: entryMet
           ? formatStrategyNotification(strategy, "entry", ctx)
           : `${strategy.instrument}: entry not met`,
@@ -167,6 +176,7 @@ export class StrategyChecker {
         instrument: strategy.instrument,
         side: "exit",
         triggered: exitMet,
+        price,
         message: exitMet
           ? formatStrategyNotification(strategy, "exit", ctx)
           : `${strategy.instrument}: exit not met`,
@@ -273,6 +283,22 @@ export class StrategyChecker {
         updatedAt: new Date().toISOString(),
       })
       .eq("id", strategy.id)
+
+    if (result.price) {
+      try {
+        const config = strategy.config as StrategyConfig
+        await this.operationService.recordOperation({
+          strategyId: strategy.id,
+          userId: strategy.userId,
+          type: result.side === "entry" ? "BUY" : "SELL",
+          instrument: strategy.instrument,
+          price: result.price,
+          tradeAmount: config.risks.tradeAmount,
+        })
+      } catch (e) {
+        console.error(`[StrategyChecker] Operation record failed for strategy ${strategy.id}:`, e)
+      }
+    }
 
     const { data: user } = await this.db
       .from("User")
