@@ -33,6 +33,7 @@ import { getOperationsAction } from "@/server/actions/operation-actions"
 type StrategyCardProps = {
   strategy: StrategyRow
   operationStats?: OperationStats
+  lastBuyPrice?: number
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   onStatusChange: (id: string, status: string) => void
@@ -95,7 +96,7 @@ const formatTime = (iso: string) => {
   })
 }
 
-export const StrategyCard = ({ strategy, operationStats, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
+export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
   const config = strategy.config
   const isActive = strategy.status === "ACTIVE"
   const [expanded, setExpanded] = useState(false)
@@ -127,10 +128,16 @@ export const StrategyCard = ({ strategy, operationStats, onEdit, onDelete, onSta
             <Badge variant="outline" className={`text-[10px] sm:text-xs ${STATUS_STYLES[strategy.status]}`}>
               {STATUS_LABELS[strategy.status]}
             </Badge>
-            {isActive && (
+            {isActive && strategy.positionState === "OPEN" && (
               <Badge variant="outline" className="text-[10px] sm:text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/20 gap-1">
                 <Radio className="h-3 w-3 animate-pulse" />
-                Мониторинг
+                Позиция открыта
+              </Badge>
+            )}
+            {isActive && strategy.positionState !== "OPEN" && (
+              <Badge variant="outline" className="text-[10px] sm:text-xs bg-zinc-500/10 text-zinc-400 border-zinc-500/20 gap-1">
+                <Radio className="h-3 w-3" />
+                Ожидает вход
               </Badge>
             )}
           </div>
@@ -183,6 +190,13 @@ export const StrategyCard = ({ strategy, operationStats, onEdit, onDelete, onSta
           {getConditionsDisplay(config.exit, config.exitLogic)}
         </p>
       </div>
+
+      {isActive && strategy.positionState === "OPEN" && lastBuyPrice && lastBuyPrice > 0 && (
+        <div className="mt-2 flex items-center gap-2 text-xs">
+          <span className="text-muted-foreground">Цена входа:</span>
+          <span className="font-mono text-emerald-400">{formatAmount(lastBuyPrice)} ₽</span>
+        </div>
+      )}
 
       <div className="mt-3 flex flex-wrap gap-2">
         {config.risks.stopLoss && (

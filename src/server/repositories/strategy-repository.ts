@@ -1,12 +1,15 @@
 import { createClient } from "@/lib/supabase/server"
 import type { StrategyConfig } from "@/core/types"
 
+export type PositionState = "NONE" | "OPEN"
+
 export type StrategyRow = {
   id: string
   userId: string
   name: string
   description: string | null
   status: "DRAFT" | "ACTIVE" | "PAUSED" | "TRIGGERED"
+  positionState: PositionState
   instrument: string
   instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
   timeframe: string

@@ -20,4 +20,5 @@ export type OperationStats = {
   currentAmount: number
   pnl: number
   pnlPercent: number
+  lastBuyPrice: number
 }

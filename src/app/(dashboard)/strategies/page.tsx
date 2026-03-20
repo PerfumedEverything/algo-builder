@@ -288,7 +288,7 @@ export default function StrategiesPage() {
       {strategies.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {strategies.map((strategy) => (
-            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
           ))}
         </div>
       ) : (

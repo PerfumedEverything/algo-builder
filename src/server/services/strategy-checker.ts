@@ -126,9 +126,14 @@ export class StrategyChecker {
 
   private async checkStrategyWithPrice(strategy: StrategyRow, price: number): Promise<CheckResult[]> {
     const config = strategy.config as StrategyConfig
+    const positionState = strategy.positionState ?? "NONE"
+    const side: "entry" | "exit" = positionState === "OPEN" ? "exit" : "entry"
+    const conditions = side === "entry" ? config.entry : config.exit
+    const logic = side === "entry" ? (config.entryLogic ?? "AND") : (config.exitLogic ?? "AND")
 
-    const allConditions = [...(config.entry ?? []), ...(config.exit ?? [])]
-    const needsCandles = allConditions.some((c) => c.indicator !== "PRICE")
+    if (!conditions?.length) return []
+
+    const needsCandles = conditions.some((c) => c.indicator !== "PRICE")
     let candles: EvalContext["candles"] = []
 
     if (needsCandles) {
@@ -151,39 +156,19 @@ export class StrategyChecker {
     }
 
     const ctx: EvalContext = { price, candles }
-    const results: CheckResult[] = []
+    const met = this.evaluateConditions(conditions, logic, ctx)
 
-    if (config.entry?.length) {
-      const entryMet = this.evaluateConditions(config.entry, config.entryLogic ?? "AND", ctx)
-      results.push({
-        strategyId: strategy.id,
-        strategyName: strategy.name,
-        instrument: strategy.instrument,
-        side: "entry",
-        triggered: entryMet,
-        price,
-        message: entryMet
-          ? formatStrategyNotification(strategy, "entry", ctx)
-          : `${strategy.instrument}: entry not met`,
-      })
-    }
-
-    if (config.exit?.length) {
-      const exitMet = this.evaluateConditions(config.exit, config.exitLogic ?? "AND", ctx)
-      results.push({
-        strategyId: strategy.id,
-        strategyName: strategy.name,
-        instrument: strategy.instrument,
-        side: "exit",
-        triggered: exitMet,
-        price,
-        message: exitMet
-          ? formatStrategyNotification(strategy, "exit", ctx)
-          : `${strategy.instrument}: exit not met`,
-      })
-    }
-
-    return results
+    return [{
+      strategyId: strategy.id,
+      strategyName: strategy.name,
+      instrument: strategy.instrument,
+      side,
+      triggered: met,
+      price,
+      message: met
+        ? formatStrategyNotification(strategy, side, ctx)
+        : `${strategy.instrument}: ${side} not met`,
+    }]
   }
 
   private evaluateConditions(
@@ -276,10 +261,13 @@ export class StrategyChecker {
   }
 
   private async handleTriggered(strategy: StrategyRow, result: CheckResult) {
+    const isEntry = result.side === "entry"
+    const newPositionState = isEntry ? "OPEN" : "NONE"
+
     await this.db
       .from("Strategy")
       .update({
-        status: "TRIGGERED",
+        positionState: newPositionState,
         updatedAt: new Date().toISOString(),
       })
       .eq("id", strategy.id)
@@ -290,13 +278,29 @@ export class StrategyChecker {
         await this.operationService.recordOperation({
           strategyId: strategy.id,
           userId: strategy.userId,
-          type: result.side === "entry" ? "BUY" : "SELL",
+          type: isEntry ? "BUY" : "SELL",
           instrument: strategy.instrument,
           price: result.price,
           tradeAmount: config.risks.tradeAmount,
         })
       } catch (e) {
         console.error(`[StrategyChecker] Operation record failed for strategy ${strategy.id}:`, e)
+      }
+    }
+
+    let message = result.message
+    if (!isEntry && result.price) {
+      try {
+        const buyPrice = await this.operationService.getLastBuyPrice(strategy.id)
+        if (buyPrice > 0) {
+          const pnl = result.price - buyPrice
+          const pnlPercent = ((pnl / buyPrice) * 100).toFixed(2)
+          const pnlSign = pnl >= 0 ? "+" : ""
+          message += `\n\n💰 *P&L:* ${pnlSign}${pnl.toFixed(2)}₽ (${pnlSign}${pnlPercent}%)`
+          message += `\n📊 Вход: ${buyPrice.toFixed(2)}₽ → Выход: ${result.price.toFixed(2)}₽`
+        }
+      } catch (e) {
+        console.error(`[StrategyChecker] P&L calc failed for strategy ${strategy.id}:`, e)
       }
     }
 
@@ -309,7 +313,7 @@ export class StrategyChecker {
     if (!user?.telegramChatId || !this.telegram) return
 
     try {
-      await this.telegram.send(user.telegramChatId, result.message)
+      await this.telegram.send(user.telegramChatId, message)
     } catch (e) {
       console.error(`[StrategyChecker] Telegram send failed for strategy ${strategy.id}:`, e)
     }

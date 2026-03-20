@@ -43,11 +43,13 @@ export class OperationService {
         currentAmount: 0,
         pnl: 0,
         pnlPercent: 0,
+        lastBuyPrice: 0,
       }
     }
 
     const buys = ops.filter((o) => o.type === "BUY")
     const sells = ops.filter((o) => o.type === "SELL")
+    const lastBuy = [...ops].reverse().find((o) => o.type === "BUY")
 
     let totalBought = 0
     let totalBuyAmount = 0
@@ -82,7 +84,14 @@ export class OperationService {
       currentAmount: totalBuyAmount + pnl,
       pnl,
       pnlPercent,
+      lastBuyPrice: lastBuy?.price ?? 0,
     }
+  }
+
+  async getLastBuyPrice(strategyId: string): Promise<number> {
+    const ops = await this.repo.findByStrategyId(strategyId)
+    const lastBuy = ops.find((o) => o.type === "BUY")
+    return lastBuy?.price ?? 0
   }
 
   async getStatsForStrategies(strategyIds: string[]): Promise<Record<string, OperationStats>> {

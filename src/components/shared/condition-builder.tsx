@@ -44,6 +44,22 @@ const TIMEFRAMES = [
   { value: "1d", label: "1 день" },
 ]
 
+const getFilteredConditions = (indicator: IndicatorType) => {
+  const config = getIndicatorConfig(indicator)
+  if (!config?.allowedConditions?.length) return CONDITIONS
+  return CONDITIONS.filter((c) => config.allowedConditions.includes(c.value))
+}
+
+const getValueLabel = (indicator: IndicatorType, condition: ConditionType): string => {
+  if (condition === "ABOVE_BY_PERCENT" || condition === "BELOW_BY_PERCENT") return "Процент (%)"
+  if (condition === "MULTIPLIED_BY") return "Множитель (x)"
+  switch (indicator) {
+    case "PRICE": return "Цена (₽)"
+    case "RSI": return "Значение (0-100)"
+    default: return "Значение"
+  }
+}
+
 type ConditionBuilderProps = {
   conditions: Condition[]
   logicOperator: LogicOperator
@@ -72,6 +88,8 @@ export const ConditionBuilder = ({
     const rounded = Math.round(currentPrice * 100) / 100
     conditions.forEach((c, i) => {
       if (c.indicator !== "PRICE") return
+      const isPercent = c.condition === "ABOVE_BY_PERCENT" || c.condition === "BELOW_BY_PERCENT"
+      if (isPercent) return
       const noValue = c.value === undefined || c.value === 0
       const matchesPrev = prevPrice !== null && c.value !== undefined && Math.abs(c.value - prevPrice) / prevPrice < 0.01
       if (noValue || matchesPrev) {
@@ -87,13 +105,17 @@ export const ConditionBuilder = ({
     config?.params.forEach((p) => {
       params[p.name] = p.defaultValue
     })
-    const defaultValue = newIndicator === "PRICE" && currentPrice
+    const allowed = config?.allowedConditions ?? []
+    const currentCondition = conditions[index].condition
+    const newCondition = allowed.includes(currentCondition) ? currentCondition : allowed[0] ?? "GREATER_THAN"
+    const isPercentCondition = newCondition === "ABOVE_BY_PERCENT" || newCondition === "BELOW_BY_PERCENT"
+    const defaultValue = newIndicator === "PRICE" && currentPrice && !isPercentCondition
       ? Math.round(currentPrice * 100) / 100
-      : conditions[index].value
+      : isPercentCondition ? undefined : conditions[index].value
     onUpdate(index, {
       indicator: newIndicator,
       params,
-      condition: conditions[index].condition,
+      condition: newCondition,
       value: defaultValue,
       timeframe: conditions[index].timeframe,
     })
@@ -178,7 +200,7 @@ export const ConditionBuilder = ({
                   >
                     <SelectTrigger><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {CONDITIONS.map((c) => (
+                      {getFilteredConditions(condition.indicator).map((c) => (
                         <SelectItem key={c.value} value={c.value}>
                           {c.label}
                         </SelectItem>
@@ -209,7 +231,9 @@ export const ConditionBuilder = ({
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
-                  <Label className="text-xs text-muted-foreground">Значение</Label>
+                  <Label className="text-xs text-muted-foreground">
+                    {getValueLabel(condition.indicator, condition.condition)}
+                  </Label>
                   <Input
                     type="number"
                     value={condition.value ?? ""}
@@ -218,9 +242,15 @@ export const ConditionBuilder = ({
                         value: e.target.value ? Number(e.target.value) : undefined,
                       })
                     }
-                    placeholder={condition.indicator === "PRICE" && currentPrice
-                      ? `Текущий: ${Math.round(currentPrice * 100) / 100}`
-                      : "Целевое значение"
+                    placeholder={
+                      condition.indicator === "PRICE" && currentPrice &&
+                      condition.condition !== "ABOVE_BY_PERCENT" && condition.condition !== "BELOW_BY_PERCENT"
+                        ? `Текущий: ${Math.round(currentPrice * 100) / 100}`
+                        : condition.condition === "ABOVE_BY_PERCENT" || condition.condition === "BELOW_BY_PERCENT"
+                          ? "Например: 5"
+                          : condition.condition === "MULTIPLIED_BY"
+                            ? "Например: 2"
+                            : "Целевое значение"
                     }
                   />
                 </div>
