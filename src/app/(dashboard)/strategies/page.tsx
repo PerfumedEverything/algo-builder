@@ -64,9 +64,12 @@ export default function StrategiesPage() {
     ])
     if (strategiesRes.success) {
       setStrategies(strategiesRes.data as Strategy[])
-      const ids = (strategiesRes.data as Strategy[]).map((s) => s.id)
+      const strategies = strategiesRes.data as Strategy[]
+      const ids = strategies.map((s) => s.id)
       if (ids.length > 0) {
-        const opsRes = await getOperationStatsForStrategiesAction(ids)
+        const instrumentMap: Record<string, string> = {}
+        strategies.forEach((s) => { instrumentMap[s.id] = s.instrument })
+        const opsRes = await getOperationStatsForStrategiesAction(ids, instrumentMap)
         if (opsRes.success) setOpsStatsMap(opsRes.data)
       }
     }

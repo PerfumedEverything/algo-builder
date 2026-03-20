@@ -94,10 +94,13 @@ export class OperationService {
     return lastBuy?.price ?? 0
   }
 
-  async getStatsForStrategies(strategyIds: string[]): Promise<Record<string, OperationStats>> {
+  async getStatsForStrategies(
+    strategyIds: string[],
+    priceMap?: Record<string, number>,
+  ): Promise<Record<string, OperationStats>> {
     const result: Record<string, OperationStats> = {}
     for (const id of strategyIds) {
-      result[id] = await this.getStats(id)
+      result[id] = await this.getStats(id, priceMap?.[id])
     }
     return result
   }

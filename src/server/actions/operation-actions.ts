@@ -3,6 +3,7 @@
 import { type ApiResponse, errorResponse, successResponse } from "@/core/types/api"
 import type { StrategyOperation, OperationStats } from "@/core/types"
 import { OperationService } from "@/server/services"
+import { PriceCache } from "@/server/services/price-cache"
 import { getCurrentUserId } from "./helpers"
 
 const getService = () => new OperationService()
@@ -33,10 +34,26 @@ export const getOperationStatsAction = async (
 
 export const getOperationStatsForStrategiesAction = async (
   strategyIds: string[],
+  instrumentMap?: Record<string, string>,
 ): Promise<ApiResponse<Record<string, OperationStats>>> => {
   try {
     await getCurrentUserId()
-    const stats = await getService().getStatsForStrategies(strategyIds)
+    let priceMap: Record<string, number> | undefined
+    if (instrumentMap) {
+      const cache = new PriceCache()
+      priceMap = {}
+      const uniqueInstruments = [...new Set(Object.values(instrumentMap))]
+      const prices: Record<string, number> = {}
+      for (const inst of uniqueInstruments) {
+        const p = await cache.getPrice(inst)
+        if (p !== null) prices[inst] = p
+      }
+      for (const id of strategyIds) {
+        const inst = instrumentMap[id]
+        if (inst && prices[inst]) priceMap[id] = prices[inst]
+      }
+    }
+    const stats = await getService().getStatsForStrategies(strategyIds, priceMap)
     return successResponse(stats)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
