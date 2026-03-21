@@ -15,6 +15,23 @@ import {
   Image as ImageIcon,
 } from "lucide-react"
 import { toast } from "sonner"
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
+import type { DragEndEvent } from "@dnd-kit/core"
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable"
+import { CSS } from "@dnd-kit/utilities"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -63,20 +80,91 @@ type BrokerFormData = {
   name: string
   description: string
   providerKey: string
-  logoEmoji: string
   logoUrl: string
   status: BrokerStatus
-  sortOrder: number
 }
 
 const emptyForm: BrokerFormData = {
   name: "",
   description: "",
   providerKey: "",
-  logoEmoji: "",
   logoUrl: "",
   status: "LOCKED",
-  sortOrder: 0,
+}
+
+type SortableBrokerRowProps = {
+  broker: BrokerRow
+  onEdit: (broker: BrokerRow) => void
+  onDelete: (id: string, name: string) => void
+}
+
+const SortableBrokerRow = ({ broker, onEdit, onDelete }: SortableBrokerRowProps) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: broker.id })
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  }
+
+  const statusCfg = STATUS_CONFIG[broker.status] ?? STATUS_CONFIG.LOCKED
+
+  return (
+    <tr ref={setNodeRef} style={style} className="border-b border-border last:border-0 hover:bg-muted/50">
+      <td className="px-4 py-3">
+        <button
+          {...attributes}
+          {...listeners}
+          className="flex items-center gap-1 text-muted-foreground/50 hover:text-muted-foreground cursor-grab active:cursor-grabbing"
+        >
+          <GripVertical className="h-4 w-4" />
+        </button>
+      </td>
+      <td className="px-4 py-3">
+        {broker.logoUrl ? (
+          <img src={broker.logoUrl} alt={broker.name} className="h-8 w-8 rounded-lg object-cover" />
+        ) : (
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-lg">
+            {broker.logoEmoji || "?"}
+          </div>
+        )}
+      </td>
+      <td className="px-4 py-3">
+        <div>
+          <p className="font-medium">{broker.name}</p>
+          {broker.description && (
+            <p className="text-xs text-muted-foreground line-clamp-1">{broker.description}</p>
+          )}
+        </div>
+      </td>
+      <td className="px-4 py-3">
+        <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{broker.providerKey}</code>
+      </td>
+      <td className="px-4 py-3">
+        <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.color}`}>
+          {statusCfg.icon}
+          {statusCfg.label}
+        </span>
+      </td>
+      <td className="px-4 py-3">
+        <div className="flex items-center justify-end gap-1">
+          <Button variant="ghost" size="icon" className="h-8 w-8" title="Редактировать" onClick={() => onEdit(broker)}>
+            <Pencil className="h-4 w-4" />
+          </Button>
+          <Button variant="ghost" size="icon" className="h-8 w-8" title="Удалить" onClick={() => onDelete(broker.id, broker.name)}>
+            <Trash2 className="h-4 w-4 text-red-400" />
+          </Button>
+        </div>
+      </td>
+    </tr>
+  )
 }
 
 export const AdminBrokers = () => {
@@ -89,6 +177,11 @@ export const AdminBrokers = () => {
   const [uploading, setUploading] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  )
+
   const fetchBrokers = useCallback(async () => {
     const res = await getBrokersAction()
     if (res.success) setBrokers(res.data)
@@ -96,6 +189,23 @@ export const AdminBrokers = () => {
   }, [])
 
   useEffect(() => { fetchBrokers() }, [fetchBrokers])
+
+  const handleDragEnd = async (event: DragEndEvent) => {
+    const { active, over } = event
+    if (!over || active.id === over.id) return
+
+    const oldIndex = brokers.findIndex((b) => b.id === active.id)
+    const newIndex = brokers.findIndex((b) => b.id === over.id)
+    const reordered = arrayMove(brokers, oldIndex, newIndex)
+
+    setBrokers(reordered)
+
+    const updates = reordered.map((b, i) =>
+      updateBrokerAction(b.id, { sortOrder: i + 1 }),
+    )
+    await Promise.all(updates)
+    toast.success("Порядок сохранён")
+  }
 
   const openCreate = () => {
     setEditingId(null)
@@ -109,17 +219,19 @@ export const AdminBrokers = () => {
       name: broker.name,
       description: broker.description ?? "",
       providerKey: broker.providerKey,
-      logoEmoji: broker.logoEmoji,
       logoUrl: broker.logoUrl ?? "",
       status: broker.status,
-      sortOrder: broker.sortOrder,
     })
     setDialogOpen(true)
   }
 
   const handleSave = async () => {
-    if (!form.name || !form.providerKey) {
-      toast.error("Заполните название и ключ провайдера")
+    if (!form.name) {
+      toast.error("Заполните название")
+      return
+    }
+    if (!editingId && !form.providerKey) {
+      toast.error("Заполните ключ провайдера")
       return
     }
 
@@ -129,10 +241,8 @@ export const AdminBrokers = () => {
         const res = await updateBrokerAction(editingId, {
           name: form.name,
           description: form.description || undefined,
-          logoEmoji: form.logoEmoji,
           logoUrl: form.logoUrl || undefined,
           status: form.status,
-          sortOrder: form.sortOrder,
         })
         if (res.success) {
           toast.success("Брокер обновлён")
@@ -141,14 +251,16 @@ export const AdminBrokers = () => {
           return
         }
       } else {
+        const nextOrder = brokers.length > 0
+          ? Math.max(...brokers.map((b) => b.sortOrder)) + 1
+          : 1
         const res = await createBrokerAction({
           name: form.name,
           description: form.description || undefined,
           providerKey: form.providerKey,
-          logoEmoji: form.logoEmoji,
           logoUrl: form.logoUrl || undefined,
           status: form.status,
-          sortOrder: form.sortOrder,
+          sortOrder: nextOrder,
         })
         if (res.success) {
           toast.success("Брокер создан")
@@ -219,92 +331,39 @@ export const AdminBrokers = () => {
 
       <div className="rounded-xl border border-border bg-card overflow-hidden">
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="border-b border-border text-left text-xs text-muted-foreground">
-                <th className="px-4 py-3 font-medium w-10">#</th>
-                <th className="px-4 py-3 font-medium">Логотип</th>
-                <th className="px-4 py-3 font-medium">Название</th>
-                <th className="px-4 py-3 font-medium">Ключ</th>
-                <th className="px-4 py-3 font-medium">Статус</th>
-                <th className="px-4 py-3 font-medium text-right">Действия</th>
-              </tr>
-            </thead>
-            <tbody>
-              {brokers.map((broker) => {
-                const statusCfg = STATUS_CONFIG[broker.status] ?? STATUS_CONFIG.LOCKED
-                return (
-                  <tr key={broker.id} className="border-b border-border last:border-0 hover:bg-muted/50">
-                    <td className="px-4 py-3 text-muted-foreground">
-                      <div className="flex items-center gap-1">
-                        <GripVertical className="h-3.5 w-3.5 text-muted-foreground/50" />
-                        {broker.sortOrder}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      {broker.logoUrl ? (
-                        <img
-                          src={broker.logoUrl}
-                          alt={broker.name}
-                          className="h-8 w-8 rounded-lg object-cover"
-                        />
-                      ) : (
-                        <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-lg">
-                          {broker.logoEmoji || "?"}
-                        </div>
-                      )}
-                    </td>
-                    <td className="px-4 py-3">
-                      <div>
-                        <p className="font-medium">{broker.name}</p>
-                        {broker.description && (
-                          <p className="text-xs text-muted-foreground line-clamp-1">{broker.description}</p>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
-                      <code className="rounded bg-muted px-1.5 py-0.5 text-xs">{broker.providerKey}</code>
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.color}`}>
-                        {statusCfg.icon}
-                        {statusCfg.label}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end gap-1">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          title="Редактировать"
-                          onClick={() => openEdit(broker)}
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8"
-                          title="Удалить"
-                          onClick={() => handleDelete(broker.id, broker.name)}
-                        >
-                          <Trash2 className="h-4 w-4 text-red-400" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                )
-              })}
-              {brokers.length === 0 && (
-                <tr>
-                  <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
-                    Нет брокеров. Нажмите &quot;Добавить&quot; для создания.
-                  </td>
+          <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="border-b border-border text-left text-xs text-muted-foreground">
+                  <th className="px-4 py-3 font-medium w-10" />
+                  <th className="px-4 py-3 font-medium">Логотип</th>
+                  <th className="px-4 py-3 font-medium">Название</th>
+                  <th className="px-4 py-3 font-medium">Ключ</th>
+                  <th className="px-4 py-3 font-medium">Статус</th>
+                  <th className="px-4 py-3 font-medium text-right">Действия</th>
                 </tr>
-              )}
-            </tbody>
-          </table>
+              </thead>
+              <SortableContext items={brokers.map((b) => b.id)} strategy={verticalListSortingStrategy}>
+                <tbody>
+                  {brokers.map((broker) => (
+                    <SortableBrokerRow
+                      key={broker.id}
+                      broker={broker}
+                      onEdit={openEdit}
+                      onDelete={handleDelete}
+                    />
+                  ))}
+                  {brokers.length === 0 && (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-muted-foreground">
+                        Нет брокеров. Нажмите &quot;Добавить&quot; для создания.
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </SortableContext>
+            </table>
+          </DndContext>
         </div>
       </div>
 
@@ -317,30 +376,31 @@ export const AdminBrokers = () => {
       />
 
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>{editingId ? "Редактировать брокера" : "Новый брокер"}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Название</Label>
+              <Input
+                value={form.name}
+                onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
+                placeholder="T-Invest"
+              />
+            </div>
+
+            {!editingId && (
               <div className="space-y-2">
-                <Label>Название *</Label>
-                <Input
-                  value={form.name}
-                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                  placeholder="T-Invest"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Ключ провайдера *</Label>
+                <Label>Ключ провайдера</Label>
                 <Input
                   value={form.providerKey}
                   onChange={(e) => setForm((p) => ({ ...p, providerKey: e.target.value.toUpperCase() }))}
                   placeholder="TINKOFF"
-                  disabled={!!editingId}
                 />
+                <p className="text-xs text-muted-foreground">Уникальный идентификатор для привязки к коду. Нельзя изменить после создания.</p>
               </div>
-            </div>
+            )}
 
             <div className="space-y-2">
               <Label>Описание</Label>
@@ -351,39 +411,21 @@ export const AdminBrokers = () => {
               />
             </div>
 
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label>Эмодзи</Label>
-                <Input
-                  value={form.logoEmoji}
-                  onChange={(e) => setForm((p) => ({ ...p, logoEmoji: e.target.value }))}
-                  placeholder=""
-                />
-              </div>
-              <div className="space-y-2">
-                <Label>Статус</Label>
-                <Select
-                  value={form.status}
-                  onValueChange={(v) => setForm((p) => ({ ...p, status: v as BrokerStatus }))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="ACTIVE">Активен</SelectItem>
-                    <SelectItem value="LOCKED">Заблокирован</SelectItem>
-                    <SelectItem value="COMING_SOON">Скоро</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label>Порядок</Label>
-                <Input
-                  type="number"
-                  value={form.sortOrder}
-                  onChange={(e) => setForm((p) => ({ ...p, sortOrder: Number(e.target.value) }))}
-                />
-              </div>
+            <div className="space-y-2">
+              <Label>Статус</Label>
+              <Select
+                value={form.status}
+                onValueChange={(v) => setForm((p) => ({ ...p, status: v as BrokerStatus }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ACTIVE">Активен — можно подключить</SelectItem>
+                  <SelectItem value="COMING_SOON">Скоро — показан, но недоступен</SelectItem>
+                  <SelectItem value="LOCKED">Скрыт — не показывается</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
             <div className="space-y-2">
@@ -404,11 +446,11 @@ export const AdminBrokers = () => {
                     </button>
                   </div>
                 ) : (
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg border border-dashed border-border">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-lg border border-dashed border-border">
                     <ImageIcon className="h-5 w-5 text-muted-foreground" />
                   </div>
                 )}
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-1 flex-col gap-2">
                   {editingId && (
                     <Button
                       variant="outline"
@@ -421,13 +463,13 @@ export const AdminBrokers = () => {
                       ) : (
                         <Upload className="mr-1.5 h-3.5 w-3.5" />
                       )}
-                      Загрузить
+                      Загрузить файл
                     </Button>
                   )}
                   <Input
                     value={form.logoUrl}
                     onChange={(e) => setForm((p) => ({ ...p, logoUrl: e.target.value }))}
-                    placeholder="https://... или загрузите файл"
+                    placeholder="https://..."
                     className="text-xs"
                   />
                 </div>
