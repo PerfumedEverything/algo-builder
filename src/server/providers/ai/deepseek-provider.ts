@@ -131,18 +131,44 @@ const generateStrategyTool: ChatCompletionTool = {
   },
 }
 
+const INDICATOR_HINTS = [
+  "Используй RSI с нестандартным периодом (7, 9, 21) вместо дефолтного 14",
+  "Попробуй комбинацию MACD + Bollinger Bands для фильтрации сигналов",
+  "Используй пересечение двух SMA (быстрая 9, медленная 21) как entry",
+  "Примени EMA crossover (12/26) с подтверждением RSI",
+  "Используй прорыв Bollinger Bands с подтверждением объёмом",
+  "Попробуй стратегию на базе уровней поддержки/сопротивления",
+  "Используй RSI divergence — расхождение RSI и цены",
+  "Примени MACD histogram crossover с EMA фильтром",
+  "Используй стратегию mean reversion — возврат к SMA после отклонения",
+  "Попробуй momentum стратегию на PRICE_CHANGE с RSI фильтром",
+  "Используй Volume spike + Price breakout комбинацию",
+  "Примени двойное дно/вершину через Support/Resistance индикаторы",
+]
+
+const RISK_PROFILES = [
+  "Консервативный: SL 1-2%, TP 3-5%, позиция 5-10%",
+  "Умеренный: SL 3-4%, TP 6-8%, позиция 10-15%",
+  "Агрессивный: SL 5-8%, TP 10-20%, позиция 15-25%",
+  "Скальпинг: SL 0.3-1%, TP 0.5-2%, позиция 20-30%",
+  "Свинг: SL 3-5%, TP 8-15%, позиция 10-20%, trailing 2-3%",
+]
+
+const randomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
+
 const SYSTEM_PROMPT = `You are a trading strategy assistant for the AlgoBuilder platform.
 Your task is to generate complete trading strategy configurations based on user requests.
 Always use the create_strategy function to return the result.
 Generate a descriptive Russian name and description for each strategy.
 Extract the instrument ticker from the user's request (e.g. "Сбер" → "sber", "Газпром" → "gazp", "Лукойл" → "lkoh", "Яндекс" → "yndx").
 Choose the appropriate instrumentType and timeframe based on context.
-If the user's request is vague, create a reasonable strategy based on common trading patterns.
-Use appropriate indicator parameters (RSI period 14, SMA/EMA periods 12/26, MACD 12/26/9, Bollinger 20/2).
-Always include risk management: stopLoss 2-5%, takeProfit 4-10%, maxPositionSize 5-20%, trailingStop 1-3%.
+If the user's request is vague, create a CREATIVE and UNIQUE strategy — avoid repeating standard RSI 30/70 patterns.
+Vary indicator parameters: RSI period 7-21, SMA/EMA periods 5-50, MACD fast 8-16/slow 21-30/signal 5-12, Bollinger period 10-30 stdDev 1.5-2.5.
+Always include risk management with varied values based on strategy style.
 For scalping strategies use short timeframes (1m, 5m). For swing trading use longer (1d, 1w).
 Default timeframe is 1d if not specified.
-Respond in Russian for name and description fields.`
+Respond in Russian for name and description fields.
+Be creative — each strategy should be unique even for similar requests.`
 
 const CHAT_SYSTEM_PROMPT = `Ты — AI-помощник AlgoBuilder для создания торговых стратегий.
 
@@ -176,15 +202,19 @@ export class DeepSeekProvider implements AiProvider {
   }
 
   async generateStrategy(prompt: string): Promise<AiGeneratedStrategy> {
+    const hint = randomItem(INDICATOR_HINTS)
+    const risk = randomItem(RISK_PROFILES)
+    const seed = `\nCreativity hint: ${hint}\nRisk profile: ${risk}`
+
     const response = await this.client.chat.completions.create({
       model: "deepseek-chat",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT },
+        { role: "system", content: SYSTEM_PROMPT + seed },
         { role: "user", content: prompt },
       ],
       tools: [generateStrategyTool],
       tool_choice: { type: "function", function: { name: "create_strategy" } },
-      temperature: 0.3,
+      temperature: 0.8,
     })
 
     const toolCall = response.choices[0]?.message?.tool_calls?.[0]

@@ -11,6 +11,7 @@ import type {
   PortfolioPosition,
   PositionOperation,
 } from "@/core/types"
+import { FifoCalculator } from "@/server/services/fifo-calculator"
 import type { BrokerProvider } from "./types"
 
 const INTERVAL_MAP: Record<string, CandleInterval> = {
@@ -177,6 +178,7 @@ export class TinkoffProvider implements BrokerProvider {
           blocked: (p as unknown as Record<string, unknown>).blocked === true,
           blockedLots: toNumber((p as unknown as Record<string, unknown>).blockedLots as { units: number; nano: number } | undefined),
           operations: (opsByFigi.get(p.figi) ?? []).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+          lots: FifoCalculator.calculate(opsByFigi.get(p.figi) ?? [], currentPrice),
         }
       }),
     )

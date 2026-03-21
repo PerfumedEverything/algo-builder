@@ -4,8 +4,10 @@ import Redis from "ioredis"
 import { createClient } from "@supabase/supabase-js"
 
 const PRICE_PREFIX = "price:"
+const LAST_PRICE_PREFIX = "lastprice:"
 const CANDLE_PREFIX = "candles:"
 const PRICE_TTL = 600
+const LAST_PRICE_TTL = 604800
 const INSTRUMENT_REFRESH_INTERVAL = 60_000
 const CANDLE_REFRESH_INTERVAL = 60_000
 const HEALTH_CHECK_INTERVAL = 30_000
@@ -127,12 +129,9 @@ async function subscribeToStream(instruments: string[]) {
         if (f === responseFigi) { ticker = t; break }
       }
 
-      await redis.set(
-        `${PRICE_PREFIX}${ticker}`,
-        JSON.stringify({ price, updatedAt: Date.now() }),
-        "EX",
-        PRICE_TTL,
-      )
+      const payload = JSON.stringify({ price, updatedAt: Date.now() })
+      await redis.set(`${PRICE_PREFIX}${ticker}`, payload, "EX", PRICE_TTL)
+      await redis.set(`${LAST_PRICE_PREFIX}${ticker}`, payload, "EX", LAST_PRICE_TTL)
 
       await redis.publish(
         "price-updates",

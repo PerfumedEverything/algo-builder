@@ -1,8 +1,10 @@
 import { redis } from "@/lib/redis"
 
 const PRICE_PREFIX = "price:"
+const LAST_PRICE_PREFIX = "lastprice:"
 const CANDLE_PREFIX = "candles:"
 const PRICE_TTL = 600
+const LAST_PRICE_TTL = 604800
 const CANDLE_TTL_MAP: Record<string, number> = {
   "1m": 60,
   "5m": 300,
@@ -24,19 +26,17 @@ type CachedCandle = {
 
 export class PriceCache {
   async setPrice(instrumentId: string, price: number): Promise<void> {
-    await redis.set(
-      `${PRICE_PREFIX}${instrumentId}`,
-      JSON.stringify({ price, updatedAt: Date.now() }),
-      "EX",
-      PRICE_TTL,
-    )
+    const payload = JSON.stringify({ price, updatedAt: Date.now() })
+    await redis.set(`${PRICE_PREFIX}${instrumentId}`, payload, "EX", PRICE_TTL)
+    await redis.set(`${LAST_PRICE_PREFIX}${instrumentId}`, payload, "EX", LAST_PRICE_TTL)
   }
 
   async getPrice(instrumentId: string): Promise<number | null> {
     const data = await redis.get(`${PRICE_PREFIX}${instrumentId}`)
-    if (!data) return null
-    const parsed = JSON.parse(data) as { price: number }
-    return parsed.price
+    if (data) return (JSON.parse(data) as { price: number }).price
+    const lastData = await redis.get(`${LAST_PRICE_PREFIX}${instrumentId}`)
+    if (lastData) return (JSON.parse(lastData) as { price: number }).price
+    return null
   }
 
   async setCandles(

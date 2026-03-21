@@ -14,6 +14,16 @@ export type PositionOperation = {
   date: string
 }
 
+export type PositionLot = {
+  buyDate: string
+  buyPrice: number
+  quantity: number
+  remainingQuantity: number
+  currentPrice: number
+  pnl: number
+  pnlPercent: number
+}
+
 export type PortfolioPosition = {
   instrumentId: string
   ticker: string
@@ -29,6 +39,7 @@ export type PortfolioPosition = {
   blocked: boolean
   blockedLots: number
   operations: PositionOperation[]
+  lots?: PositionLot[]
 }
 
 export type Portfolio = {

@@ -5,6 +5,13 @@ import Link from "next/link"
 import { Loader2, Cable, Wallet } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { PortfolioView, PaperPortfolioView } from "@/components/broker"
 import {
@@ -57,9 +64,21 @@ export default function PortfolioPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold">Портфель</h1>
-        <p className="text-sm text-muted-foreground">Позиции и доходность</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold">Портфель</h1>
+          <p className="text-sm text-muted-foreground">Позиции и доходность</p>
+        </div>
+        {connected && (
+          <Select defaultValue="tinkoff">
+            <SelectTrigger className="h-9 w-[160px]">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="tinkoff">T-Invest</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
       </div>
 
       <Tabs defaultValue="broker">

@@ -86,44 +86,48 @@ export const PaperPortfolioView = () => {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-4">
-        <div className="grid grid-cols-7 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
-          <span className="col-span-2">Стратегия</span>
-          <span>Инструмент</span>
-          <span className="text-right">Операций</span>
-          <span className="text-right">P&L ₽</span>
-          <span className="text-right">P&L %</span>
-          <span className="text-right">Статус</span>
-        </div>
-        {rows.map((row) => (
-          <div
-            key={row.strategyId}
-            className="grid grid-cols-7 gap-2 border-b border-border/50 py-2.5 text-sm last:border-0"
-          >
-            <span className="col-span-2 truncate font-medium">{row.strategyName}</span>
-            <span className="text-muted-foreground">{row.instrument}</span>
-            <span className="text-right tabular-nums">{row.stats.totalOperations}</span>
-            <div className="flex items-center justify-end gap-1">
-              {row.stats.pnl >= 0
-                ? <TrendingUp className="h-3 w-3 text-emerald-400" />
-                : <TrendingDown className="h-3 w-3 text-red-400" />}
-              <span className={`tabular-nums font-medium ${yieldColor(row.stats.pnl)}`}>
-                {formatSignedMoney(row.stats.pnl)}
-              </span>
+        <div className="overflow-x-auto">
+          <div className="min-w-[600px]">
+            <div className="grid grid-cols-7 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
+              <span className="col-span-2">Стратегия</span>
+              <span>Инструмент</span>
+              <span className="text-right">Операций</span>
+              <span className="text-right">P&L ₽</span>
+              <span className="text-right">P&L %</span>
+              <span className="text-right">Статус</span>
             </div>
-            <span className={`text-right tabular-nums font-medium ${yieldColor(row.stats.pnlPercent)}`}>
-              {formatPercent(row.stats.pnlPercent)}
-            </span>
-            <span className="text-right">
-              <span className={`inline-flex rounded-full px-2 py-0.5 text-xs ${
-                row.hasOpenPosition
-                  ? "bg-emerald-500/10 text-emerald-400"
-                  : "bg-muted text-muted-foreground"
-              }`}>
-                {row.hasOpenPosition ? "Открыта" : "Закрыта"}
-              </span>
-            </span>
+            {rows.map((row) => (
+              <div
+                key={row.strategyId}
+                className="grid grid-cols-7 gap-2 border-b border-border/50 py-2.5 text-sm last:border-0"
+              >
+                <span className="col-span-2 truncate font-medium">{row.strategyName}</span>
+                <span className="text-muted-foreground">{row.instrument}</span>
+                <span className="text-right tabular-nums">{row.stats.totalOperations}</span>
+                <div className="flex items-center justify-end gap-1">
+                  {row.stats.pnl >= 0
+                    ? <TrendingUp className="h-3 w-3 text-emerald-400" />
+                    : <TrendingDown className="h-3 w-3 text-red-400" />}
+                  <span className={`tabular-nums font-medium ${yieldColor(row.stats.pnl)}`}>
+                    {formatSignedMoney(row.stats.pnl)}
+                  </span>
+                </div>
+                <span className={`text-right tabular-nums font-medium ${yieldColor(row.stats.pnlPercent)}`}>
+                  {formatPercent(row.stats.pnlPercent)}
+                </span>
+                <span className="text-right">
+                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs ${
+                    row.hasOpenPosition
+                      ? "bg-emerald-500/10 text-emerald-400"
+                      : "bg-muted text-muted-foreground"
+                  }`}>
+                    {row.hasOpenPosition ? "Открыта" : "Закрыта"}
+                  </span>
+                </span>
+              </div>
+            ))}
           </div>
-        ))}
+        </div>
       </div>
     </div>
   )

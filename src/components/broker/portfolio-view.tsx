@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 import {
   TrendingUp,
   TrendingDown,
@@ -12,9 +12,11 @@ import {
   ChevronRight,
   ArrowDownLeft,
   ArrowUpRight,
+  Layers,
 } from "lucide-react"
 
 import type { Portfolio, PortfolioPosition } from "@/core/types"
+import { DateRangeFilter, getRange } from "@/components/shared/date-range-filter"
 
 type PortfolioViewProps = {
   portfolio: Portfolio
@@ -84,9 +86,14 @@ const AssetChip = ({ label, amount, total }: {
   )
 }
 
-const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
+const PositionRow = ({ pos, dateFrom }: { pos: PortfolioPosition; dateFrom: Date }) => {
   const [expanded, setExpanded] = useState(false)
-  const hasOps = pos.operations.length > 0
+  const filteredOps = useMemo(
+    () => pos.operations.filter((op) => new Date(op.date) >= dateFrom),
+    [pos.operations, dateFrom],
+  )
+  const hasOps = filteredOps.length > 0
+  const hasLots = (pos.lots?.length ?? 0) > 0
 
   return (
     <div className="border-b border-border/50 last:border-0">
@@ -123,13 +130,37 @@ const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
         </div>
       </div>
 
-      {expanded && pos.operations.length > 0 && (
+      {expanded && hasLots && (
+        <div className="mb-2 ml-4 mr-2 rounded-lg bg-accent/20 p-3">
+          <div className="mb-2 flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+            <Layers className="h-3 w-3" />
+            Текущие лоты ({pos.lots!.length})
+          </div>
+          <div className="space-y-1">
+            {pos.lots!.map((lot, i) => (
+              <div key={i} className="flex items-center gap-3 text-xs">
+                <span className="w-28 text-muted-foreground">{formatDate(lot.buyDate)}</span>
+                <span className="w-24 text-right tabular-nums">по {formatPrice(lot.buyPrice)}</span>
+                <span className="w-16 text-right tabular-nums">{lot.remainingQuantity} шт.</span>
+                <span className={`w-28 text-right tabular-nums font-medium ${yieldColor(lot.pnl)}`}>
+                  {formatSignedMoney(lot.pnl)}
+                </span>
+                <span className={`tabular-nums ${yieldColor(lot.pnlPercent)}`}>
+                  {formatPercent(lot.pnlPercent)}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {expanded && filteredOps.length > 0 && (
         <div className="mb-2 ml-4 mr-2 rounded-lg bg-muted/40 p-3">
           <p className="mb-2 text-xs font-medium text-muted-foreground">
-            История операций ({pos.operations.length})
+            История операций ({filteredOps.length})
           </p>
           <div className="space-y-1">
-            {pos.operations.map((op) => (
+            {filteredOps.map((op) => (
               <div key={op.id} className="flex items-center gap-3 text-xs">
                 <div className={`flex items-center gap-1 ${op.type === "BUY" ? "text-emerald-400" : "text-red-400"}`}>
                   {op.type === "BUY"
@@ -151,6 +182,15 @@ const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
 }
 
 export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
+  const [datePreset, setDatePreset] = useState("1y")
+  const [dateFrom, setDateFrom] = useState(() => getRange("1y").from)
+
+  const pnlAbs = portfolio.positions.reduce((s, p) => s + p.expectedYieldAbsolute, 0)
+  const totalCost = portfolio.positions.reduce((s, p) => s + p.averagePrice * p.quantity, 0)
+  const pnlPct = totalCost > 0 ? (pnlAbs / totalCost) * 100 : 0
+  const dailyAbs = portfolio.positions.reduce((s, p) => s + p.dailyYield, 0)
+  const dailyPct = totalCost > 0 ? (dailyAbs / totalCost) * 100 : 0
+
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
@@ -163,20 +203,20 @@ export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
         </SummaryCard>
 
         <SummaryCard label="Общий P&L" icon={<BarChart3 className="h-3.5 w-3.5" />}>
-          <p className={`text-xl font-bold ${yieldColor(portfolio.expectedYieldAbsolute)}`}>
-            {formatSignedMoney(portfolio.expectedYieldAbsolute)}
+          <p className={`text-xl font-bold ${yieldColor(pnlAbs)}`}>
+            {formatSignedMoney(pnlAbs)}
           </p>
-          <p className={`text-xs ${yieldColor(portfolio.expectedYield)}`}>
-            {formatPercent(portfolio.expectedYield)}
+          <p className={`text-xs ${yieldColor(pnlPct)}`}>
+            {formatPercent(pnlPct)}
           </p>
         </SummaryCard>
 
         <SummaryCard label="Дневной P&L" icon={<Clock className="h-3.5 w-3.5" />}>
-          <p className={`text-xl font-bold ${yieldColor(portfolio.dailyYield)}`}>
-            {formatSignedMoney(portfolio.dailyYield)}
+          <p className={`text-xl font-bold ${yieldColor(dailyAbs)}`}>
+            {formatSignedMoney(dailyAbs)}
           </p>
-          <p className={`text-xs ${yieldColor(portfolio.dailyYieldRelative)}`}>
-            {formatPercent(portfolio.dailyYieldRelative)}
+          <p className={`text-xs ${yieldColor(dailyPct)}`}>
+            {formatPercent(dailyPct)}
           </p>
         </SummaryCard>
       </div>
@@ -189,24 +229,33 @@ export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
       </div>
 
       <div className="rounded-xl border border-border bg-card p-4">
+        <div className="mb-3 flex items-center justify-between">
+          <p className="text-sm font-medium">Позиции</p>
+          <DateRangeFilter
+            value={datePreset}
+            onChange={(v, range) => { setDatePreset(v); setDateFrom(range.from) }}
+          />
+        </div>
         {portfolio.positions.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Нет позиций</p>
         ) : (
-          <>
-            <div className="grid grid-cols-8 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
-              <span>Тикер</span>
-              <span className="text-right">Кол-во</span>
-              <span className="text-right">Ср. цена</span>
-              <span className="text-right">Текущая</span>
-              <span className="text-right">Стоимость</span>
-              <span className="text-right">P&L ₽</span>
-              <span className="text-right">P&L %</span>
-              <span className="text-right">Дневной</span>
+          <div className="overflow-x-auto">
+            <div className="min-w-[700px]">
+              <div className="grid grid-cols-8 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
+                <span>Тикер</span>
+                <span className="text-right">Кол-во</span>
+                <span className="text-right">Ср. цена</span>
+                <span className="text-right">Текущая</span>
+                <span className="text-right">Стоимость</span>
+                <span className="text-right">P&L ₽</span>
+                <span className="text-right">P&L %</span>
+                <span className="text-right">Дневной</span>
+              </div>
+              {portfolio.positions.map((pos) => (
+                <PositionRow key={pos.instrumentId} pos={pos} dateFrom={dateFrom} />
+              ))}
             </div>
-            {portfolio.positions.map((pos) => (
-              <PositionRow key={pos.instrumentId} pos={pos} />
-            ))}
-          </>
+          </div>
         )}
       </div>
     </div>
