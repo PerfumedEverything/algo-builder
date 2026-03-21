@@ -6,6 +6,8 @@ import type { ApiResponse } from "@/core/types/api"
 import { getCurrentUser } from "./helpers"
 import { UserRepository } from "@/server/repositories/user-repository"
 import type { UserRole, UserWithStats } from "@/server/repositories/user-repository"
+import { BrokerCatalogRepository } from "@/server/repositories/broker-catalog-repository"
+import type { BrokerRow, CreateBrokerInput, UpdateBrokerInput } from "@/server/repositories/broker-catalog-repository"
 
 const assertAdmin = async () => {
   const user = await getCurrentUser()
@@ -69,5 +71,76 @@ export const getCurrentUserRoleAction = async (): Promise<ApiResponse<{ role: Us
     return successResponse({ role: user.role })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Ошибка получения роли")
+  }
+}
+
+export const getBrokersAction = async (): Promise<ApiResponse<BrokerRow[]>> => {
+  try {
+    const repo = new BrokerCatalogRepository()
+    const brokers = await repo.findAll()
+    return successResponse(brokers)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Ошибка загрузки брокеров")
+  }
+}
+
+export const createBrokerAction = async (
+  input: CreateBrokerInput,
+): Promise<ApiResponse<BrokerRow>> => {
+  try {
+    await assertAdmin()
+    const repo = new BrokerCatalogRepository()
+    const broker = await repo.create(input)
+    return successResponse(broker)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Ошибка создания брокера")
+  }
+}
+
+export const updateBrokerAction = async (
+  id: string,
+  input: UpdateBrokerInput,
+): Promise<ApiResponse<BrokerRow>> => {
+  try {
+    await assertAdmin()
+    const repo = new BrokerCatalogRepository()
+    const broker = await repo.update(id, input)
+    return successResponse(broker)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Ошибка обновления брокера")
+  }
+}
+
+export const deleteBrokerAction = async (
+  id: string,
+): Promise<ApiResponse<null>> => {
+  try {
+    await assertAdmin()
+    const repo = new BrokerCatalogRepository()
+    await repo.delete(id)
+    return successResponse(null)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Ошибка удаления брокера")
+  }
+}
+
+export const uploadBrokerLogoAction = async (
+  brokerId: string,
+  formData: FormData,
+): Promise<ApiResponse<{ logoUrl: string }>> => {
+  try {
+    await assertAdmin()
+    const file = formData.get("logo") as File
+    if (!file) return errorResponse("Файл не выбран")
+
+    const buffer = Buffer.from(await file.arrayBuffer())
+    const ext = file.name.split(".").pop() ?? "png"
+    const fileName = `logo-${Date.now()}.${ext}`
+
+    const repo = new BrokerCatalogRepository()
+    const logoUrl = await repo.uploadLogo(brokerId, buffer, fileName)
+    return successResponse({ logoUrl })
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Ошибка загрузки логотипа")
   }
 }

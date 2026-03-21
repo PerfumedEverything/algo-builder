@@ -20,12 +20,15 @@ import {
   selectBrokerAccountAction,
   disconnectBrokerAction,
 } from "@/server/actions/broker-actions"
+import { getBrokersAction } from "@/server/actions/admin-actions"
 import type { BrokerAccount } from "@/core/types"
+import type { BrokerRow } from "@/server/repositories/broker-catalog-repository"
 
 type BrokerCardProps = {
   name: string
   description: string
   logo: string
+  logoUrl?: string | null
   available: boolean
   connected?: boolean
   expanded?: boolean
@@ -38,6 +41,7 @@ const BrokerCard = ({
   name,
   description,
   logo,
+  logoUrl,
   available,
   connected,
   expanded,
@@ -51,8 +55,12 @@ const BrokerCard = ({
       onClick={available ? onToggle : undefined}
     >
       <div className="flex items-center gap-4">
-        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-2xl">
-          {logo}
+        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-muted text-2xl overflow-hidden">
+          {logoUrl ? (
+            <img src={logoUrl} alt={name} className="h-full w-full object-cover" />
+          ) : (
+            logo || "?"
+          )}
         </div>
         <div>
           <div className="flex items-center gap-2">
@@ -99,46 +107,51 @@ const BrokerCard = ({
 )
 
 export default function BrokerPage() {
+  const [catalog, setCatalog] = useState<BrokerRow[]>([])
   const [connected, setConnected] = useState(false)
   const [loading, setLoading] = useState(true)
   const [accounts, setAccounts] = useState<BrokerAccount[]>([])
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
 
-  const fetchStatus = useCallback(async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const statusRes = await getBrokerStatusAction()
-      if (!statusRes.success) return
+      const [catalogRes, statusRes] = await Promise.all([
+        getBrokersAction(),
+        getBrokerStatusAction(),
+      ])
 
-      setConnected(statusRes.data.connected)
-      setSelectedAccountId(statusRes.data.accountId)
+      if (catalogRes.success) setCatalog(catalogRes.data)
 
-      if (statusRes.data.connected) {
-        const accountsRes = await getBrokerAccountsAction()
-        if (accountsRes.success) setAccounts(accountsRes.data)
-        setExpanded(true)
+      if (statusRes.success) {
+        setConnected(statusRes.data.connected)
+        setSelectedAccountId(statusRes.data.accountId)
+
+        if (statusRes.data.connected) {
+          const accountsRes = await getBrokerAccountsAction()
+          if (accountsRes.success) setAccounts(accountsRes.data)
+          setExpanded(true)
+        }
       }
     } finally {
       setLoading(false)
     }
   }, [])
 
-  useEffect(() => { fetchStatus() }, [fetchStatus])
+  useEffect(() => { fetchData() }, [fetchData])
 
   const handleConnected = (newAccounts: BrokerAccount[]) => {
     setConnected(true)
     setAccounts(newAccounts)
     if (newAccounts.length > 0) setSelectedAccountId(newAccounts[0].id)
     setExpanded(true)
-    fetchStatus()
+    fetchData()
   }
 
   const handleSelectAccount = async (accountId: string) => {
     const result = await selectBrokerAccountAction(accountId)
-    if (result.success) {
-      setSelectedAccountId(accountId)
-    }
+    if (result.success) setSelectedAccountId(accountId)
   }
 
   const handleDisconnect = async () => {
@@ -160,6 +173,9 @@ export default function BrokerPage() {
     )
   }
 
+  const tinkoffBroker = catalog.find((b) => b.providerKey === "TINKOFF")
+  const otherBrokers = catalog.filter((b) => b.providerKey !== "TINKOFF")
+
   return (
     <div className="space-y-5">
       <div>
@@ -176,41 +192,41 @@ export default function BrokerPage() {
       </div>
 
       <div className="grid gap-4">
-        <BrokerCard
-          name="Т-Инвестиции"
-          description="Акции, облигации, ETF на Московской бирже"
-          logo="🟡"
-          available={true}
-          connected={connected}
-          expanded={expanded}
-          onToggle={() => setExpanded(!expanded)}
-          onDisconnect={connected ? handleDisconnect : undefined}
-        >
-          {!connected ? (
-            <BrokerConnectForm onConnected={handleConnected} />
-          ) : (
-            <BrokerAccounts
-              accounts={accounts}
-              selectedId={selectedAccountId}
-              onSelect={handleSelectAccount}
-              onPayIn={fetchStatus}
-            />
-          )}
-        </BrokerCard>
+        {tinkoffBroker && (
+          <BrokerCard
+            name={tinkoffBroker.name}
+            description={tinkoffBroker.description ?? ""}
+            logo={tinkoffBroker.logoEmoji}
+            logoUrl={tinkoffBroker.logoUrl}
+            available={tinkoffBroker.status === "ACTIVE"}
+            connected={connected}
+            expanded={expanded}
+            onToggle={() => setExpanded(!expanded)}
+            onDisconnect={connected ? handleDisconnect : undefined}
+          >
+            {!connected ? (
+              <BrokerConnectForm onConnected={handleConnected} />
+            ) : (
+              <BrokerAccounts
+                accounts={accounts}
+                selectedId={selectedAccountId}
+                onSelect={handleSelectAccount}
+                onPayIn={fetchData}
+              />
+            )}
+          </BrokerCard>
+        )}
 
-        <BrokerCard
-          name="Interactive Brokers"
-          description="Международные рынки, акции, опционы, фьючерсы"
-          logo="🔴"
-          available={false}
-        />
-
-        <BrokerCard
-          name="Финам"
-          description="Акции, облигации, валюта на Московской бирже"
-          logo="🔵"
-          available={false}
-        />
+        {otherBrokers.map((broker) => (
+          <BrokerCard
+            key={broker.id}
+            name={broker.name}
+            description={broker.description ?? ""}
+            logo={broker.logoEmoji}
+            logoUrl={broker.logoUrl}
+            available={broker.status === "ACTIVE"}
+          />
+        ))}
       </div>
     </div>
   )
