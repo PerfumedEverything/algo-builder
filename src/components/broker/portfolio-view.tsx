@@ -18,9 +18,11 @@ import {
 import type { Portfolio, PortfolioPosition } from "@/core/types"
 import { DateRangeFilter, getRange } from "@/components/shared/date-range-filter"
 import { LotAnalysisDialog } from "@/components/broker/lot-analysis-dialog"
+import { DepositTracker } from "@/components/broker/deposit-tracker"
 
 type PortfolioViewProps = {
   portfolio: Portfolio
+  deposits?: { totalDeposits: number; totalWithdrawals: number }
 }
 
 const formatMoney = (n: number) =>
@@ -273,7 +275,7 @@ const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
   )
 }
 
-export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
+export const PortfolioView = ({ portfolio, deposits }: PortfolioViewProps) => {
   const pnlAbs = portfolio.positions.reduce((s, p) => s + p.expectedYieldAbsolute, 0)
   const totalCost = portfolio.positions.reduce((s, p) => s + p.averagePrice * p.quantity, 0)
   const pnlPct = totalCost > 0 ? (pnlAbs / totalCost) * 100 : 0
@@ -308,6 +310,14 @@ export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
             {formatPercent(dailyPct)}
           </p>
         </SummaryCard>
+
+        {deposits && (
+          <DepositTracker
+            totalDeposits={deposits.totalDeposits}
+            totalWithdrawals={deposits.totalWithdrawals}
+            portfolioValue={portfolio.totalAmount}
+          />
+        )}
       </div>
 
       <div className="flex flex-wrap gap-2">
