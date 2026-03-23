@@ -91,6 +91,7 @@ export default function TerminalPage() {
             value={ticker}
             onChange={setTicker}
             onInstrumentSelect={handleInstrumentSelect}
+            showPrice={false}
           />
         </div>
         {instrument && <ChartPeriodSelector value={period} onChange={handlePeriodChange} />}

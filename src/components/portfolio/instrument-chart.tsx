@@ -25,29 +25,34 @@ export const InstrumentChart = ({ candles, markers, height }: InstrumentChartPro
   useEffect(() => {
     if (!containerRef.current || candles.length === 0) return
 
+    const styles = getComputedStyle(document.documentElement)
+    const cssVar = (name: string) => {
+      const raw = styles.getPropertyValue(name).trim()
+      return raw.startsWith("hsl") || raw.startsWith("#") || raw.startsWith("rgb") ? raw : `hsl(${raw})`
+    }
+
+    const textColor = cssVar("--foreground")
+    const borderColor = cssVar("--border")
+    const mutedFg = cssVar("--muted-foreground")
+    const cardBg = cssVar("--card")
+
     const chart = createChart(containerRef.current, {
       layout: {
         background: { type: ColorType.Solid, color: "transparent" },
-        textColor: "hsl(var(--foreground))",
+        textColor,
       },
       grid: {
-        vertLines: { color: "hsl(var(--border))" },
-        horzLines: { color: "hsl(var(--border))" },
+        vertLines: { color: borderColor },
+        horzLines: { color: borderColor },
       },
       width: containerRef.current.clientWidth,
       height: height ?? 400,
       autoSize: true,
-      rightPriceScale: { borderColor: "hsl(var(--border))" },
-      timeScale: { borderColor: "hsl(var(--border))" },
+      rightPriceScale: { borderColor },
+      timeScale: { borderColor },
       crosshair: {
-        horzLine: {
-          color: "hsl(var(--muted-foreground))",
-          labelBackgroundColor: "hsl(var(--card))",
-        },
-        vertLine: {
-          color: "hsl(var(--muted-foreground))",
-          labelBackgroundColor: "hsl(var(--card))",
-        },
+        horzLine: { color: mutedFg, labelBackgroundColor: cardBg },
+        vertLine: { color: mutedFg, labelBackgroundColor: cardBg },
       },
     })
 

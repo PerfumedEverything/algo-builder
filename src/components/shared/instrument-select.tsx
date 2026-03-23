@@ -15,9 +15,10 @@ type InstrumentSelectProps = {
   onChange: (ticker: string) => void
   onInstrumentSelect?: (instrument: BrokerInstrument) => void
   onPriceChange?: (price: number | null) => void
+  showPrice?: boolean
 }
 
-export const InstrumentSelect = ({ instrumentType, value, onChange, onInstrumentSelect, onPriceChange }: InstrumentSelectProps) => {
+export const InstrumentSelect = ({ instrumentType, value, onChange, onInstrumentSelect, onPriceChange, showPrice = true }: InstrumentSelectProps) => {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [instruments, setInstruments] = useState<BrokerInstrument[]>([])
@@ -183,7 +184,7 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onInstrument
         </PopoverContent>
       </Popover>
 
-      {value && (
+      {value && showPrice && (
         <div className="flex items-center gap-1.5 text-xs">
           <TrendingUp className="h-3 w-3 text-emerald-400" />
           {priceLoading ? (
