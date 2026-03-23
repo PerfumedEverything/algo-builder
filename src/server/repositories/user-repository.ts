@@ -38,6 +38,17 @@ export class UserRepository {
     return data as UserRow | null
   }
 
+  async findByEmail(email: string): Promise<UserRow | null> {
+    const admin = createAdminClient()
+    const { data } = await admin
+      .from("User")
+      .select("*")
+      .eq("email", email)
+      .single()
+
+    return data as UserRow | null
+  }
+
   async findAll(): Promise<UserWithStats[]> {
     const admin = createAdminClient()
     const { data: users, error } = await admin

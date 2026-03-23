@@ -9,6 +9,9 @@ import {
   LogOut,
   CheckCircle,
   Trash2,
+  Lock,
+  Eye,
+  EyeOff,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -21,7 +24,7 @@ import {
   removeTelegramChatIdAction,
   testNotificationAction,
 } from "@/server/actions/settings-actions"
-import { logoutAction } from "@/server/actions/auth"
+import { logoutAction, changePasswordAction } from "@/server/actions/auth"
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
@@ -31,6 +34,12 @@ export default function SettingsPage() {
   const [email, setEmail] = useState("")
   const [telegramChatId, setTelegramChatId] = useState("")
   const [telegramConnected, setTelegramConnected] = useState(false)
+  const [currentPassword, setCurrentPassword] = useState("")
+  const [newPassword, setNewPassword] = useState("")
+  const [confirmPassword, setConfirmPassword] = useState("")
+  const [changingPassword, setChangingPassword] = useState(false)
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false)
+  const [showNewPassword, setShowNewPassword] = useState(false)
 
   const fetchSettings = useCallback(async () => {
     setLoading(true)
@@ -57,6 +66,27 @@ export default function SettingsPage() {
       else toast.error(res.error)
     } finally {
       setSaving(false)
+    }
+  }
+
+  const handleChangePassword = async () => {
+    if (newPassword !== confirmPassword) {
+      toast.error("Пароли не совпадают")
+      return
+    }
+    setChangingPassword(true)
+    try {
+      const res = await changePasswordAction(currentPassword, newPassword, confirmPassword)
+      if (res.success) {
+        toast.success("Пароль изменён")
+        setCurrentPassword("")
+        setNewPassword("")
+        setConfirmPassword("")
+      } else {
+        toast.error(res.error)
+      }
+    } finally {
+      setChangingPassword(false)
     }
   }
 
@@ -131,6 +161,74 @@ export default function SettingsPage() {
           <Button className="w-full sm:w-auto" onClick={handleSaveProfile} disabled={saving}>
             {saving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
             Сохранить
+          </Button>
+        </div>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-4 lg:p-6">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-500/10">
+            <Lock className="h-5 w-5 text-amber-400" />
+          </div>
+          <h2 className="font-semibold">Смена пароля</h2>
+        </div>
+
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Текущий пароль</label>
+            <div className="relative">
+              <Input
+                type={showCurrentPassword ? "text" : "password"}
+                value={currentPassword}
+                onChange={(e) => setCurrentPassword(e.target.value)}
+                placeholder="Введите текущий пароль"
+                autoComplete="current-password"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+              >
+                {showCurrentPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Новый пароль</label>
+            <div className="relative">
+              <Input
+                type={showNewPassword ? "text" : "password"}
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Минимум 8 символов"
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                onClick={() => setShowNewPassword(!showNewPassword)}
+              >
+                {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <label className="text-sm font-medium">Повторите пароль</label>
+            <Input
+              type="password"
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Повторите новый пароль"
+              autoComplete="new-password"
+            />
+          </div>
+          <Button
+            className="w-full sm:w-auto"
+            onClick={handleChangePassword}
+            disabled={changingPassword || !currentPassword || !newPassword || !confirmPassword}
+          >
+            {changingPassword ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Lock className="mr-2 h-4 w-4" />}
+            Изменить пароль
           </Button>
         </div>
       </div>

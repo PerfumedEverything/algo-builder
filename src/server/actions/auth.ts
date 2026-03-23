@@ -2,10 +2,21 @@
 
 import { redirect } from "next/navigation"
 
-import { loginSchema, registerSchema } from "@/core/schemas/auth"
+import { randomInt, timingSafeEqual } from "crypto"
+
+import {
+  loginSchema,
+  registerSchema,
+  changePasswordSchema,
+  requestOtpSchema,
+  resetWithOtpSchema,
+} from "@/core/schemas/auth"
 import { type ApiResponse, errorResponse, successResponse } from "@/core/types/api"
 import { createAdminClient } from "@/lib/supabase/admin"
+import { redis } from "@/lib/redis"
 import { createClient } from "@/lib/supabase/server"
+import { UserRepository } from "@/server/repositories"
+import { getNotificationProvider } from "@/server/providers/notification"
 
 const authErrorMap: Record<string, string> = {
   "Invalid login credentials": "Неверный email или пароль",
@@ -106,39 +117,141 @@ export const logoutAction = async () => {
   redirect("/login")
 }
 
-export const forgotPasswordAction = async (
-  formData: FormData,
+const CHANGE_PWD_RATE_PREFIX = "change_password_rate"
+const CHANGE_PWD_RATE_LIMIT = 5
+const CHANGE_PWD_RATE_TTL = 900
+
+export const changePasswordAction = async (
+  currentPassword: string,
+  newPassword: string,
+  confirmPassword: string,
 ): Promise<ApiResponse<null>> => {
-  const email = formData.get("email") as string
-  if (!email) return errorResponse("Введите email")
+  const parsed = changePasswordSchema.safeParse({ currentPassword, newPassword, confirmPassword })
+  if (!parsed.success) return errorResponse(parsed.error.issues[0].message)
 
   try {
     const supabase = await createClient()
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aculatrade.com"
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${appUrl}/reset-password`,
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user?.email) return errorResponse("Не удалось определить пользователя")
+
+    const rateKey = `${CHANGE_PWD_RATE_PREFIX}:${user.id}`
+    const pipeline = redis.pipeline()
+    pipeline.incr(rateKey)
+    pipeline.expire(rateKey, CHANGE_PWD_RATE_TTL)
+    const results = await pipeline.exec()
+    const attempts = results?.[0]?.[1] as number
+    if (attempts > CHANGE_PWD_RATE_LIMIT) return errorResponse("Слишком много попыток. Попробуйте через 15 минут")
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
+      email: user.email,
+      password: currentPassword,
     })
+    if (signInError) return errorResponse("Неверный текущий пароль")
+
+    const { error } = await supabase.auth.updateUser({ password: newPassword })
     if (error) return errorResponse(translateAuthError(error.message))
+
     return successResponse(null)
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Ошибка отправки письма"
-    return errorResponse(msg)
+    return errorResponse(e instanceof Error ? e.message : "Ошибка смены пароля")
   }
 }
 
-export const resetPasswordAction = async (
-  formData: FormData,
+const OTP_PREFIX = "password_reset"
+const OTP_TTL = 600
+const OTP_RATE_PREFIX = "password_reset_rate"
+const OTP_RATE_LIMIT = 3
+const OTP_RATE_TTL = 900
+const OTP_ATTEMPT_PREFIX = "password_reset_attempts"
+const OTP_MAX_ATTEMPTS = 5
+
+const normalizeEmail = (email: string) => email.toLowerCase().trim()
+
+export const requestPasswordOtpAction = async (
+  email: string,
 ): Promise<ApiResponse<null>> => {
-  const password = formData.get("password") as string
-  if (!password || password.length < 6) return errorResponse("Пароль должен быть не менее 6 символов")
+  const parsed = requestOtpSchema.safeParse({ email })
+  if (!parsed.success) return errorResponse(parsed.error.issues[0].message)
 
   try {
-    const supabase = await createClient()
-    const { error } = await supabase.auth.updateUser({ password })
-    if (error) return errorResponse(translateAuthError(error.message))
+    const normalized = normalizeEmail(parsed.data.email)
+    const rateKey = `${OTP_RATE_PREFIX}:${normalized}`
+    const pipeline = redis.pipeline()
+    pipeline.incr(rateKey)
+    pipeline.expire(rateKey, OTP_RATE_TTL)
+    const results = await pipeline.exec()
+    const attempts = results?.[0]?.[1] as number
+    if (attempts > OTP_RATE_LIMIT) return errorResponse("Слишком много попыток. Попробуйте через 15 минут")
+
+    const repo = new UserRepository()
+    const user = await repo.findByEmail(normalized)
+    if (!user || !user.telegramChatId) {
+      return successResponse(null)
+    }
+
+    const code = randomInt(0, 1000000).toString().padStart(6, "0")
+    await redis.setex(`${OTP_PREFIX}:${normalized}`, OTP_TTL, code)
+
+    const provider = getNotificationProvider()
+    await provider.send(
+      user.telegramChatId,
+      `🔐 *Код для сброса пароля AculaTrade*\n\nВаш код: \`${code}\`\n\nДействителен 10 минут. Если вы не запрашивали сброс — проигнорируйте это сообщение.`,
+    )
+
     return successResponse(null)
   } catch (e) {
-    const msg = e instanceof Error ? e.message : "Ошибка сброса пароля"
-    return errorResponse(msg)
+    return errorResponse(e instanceof Error ? e.message : "Ошибка отправки кода")
+  }
+}
+
+export const resetPasswordWithOtpAction = async (
+  email: string,
+  code: string,
+  newPassword: string,
+  confirmPassword: string,
+): Promise<ApiResponse<null>> => {
+  const parsed = resetWithOtpSchema.safeParse({ email, code, newPassword, confirmPassword })
+  if (!parsed.success) return errorResponse(parsed.error.issues[0].message)
+
+  try {
+    const normalized = normalizeEmail(parsed.data.email)
+    const otpKey = `${OTP_PREFIX}:${normalized}`
+    const attemptKey = `${OTP_ATTEMPT_PREFIX}:${normalized}`
+
+    const attemptPipeline = redis.pipeline()
+    attemptPipeline.incr(attemptKey)
+    attemptPipeline.expire(attemptKey, OTP_TTL)
+    const attemptResults = await attemptPipeline.exec()
+    const attempts = attemptResults?.[0]?.[1] as number
+    if (attempts > OTP_MAX_ATTEMPTS) {
+      await redis.del(otpKey)
+      await redis.del(attemptKey)
+      return errorResponse("Слишком много попыток. Запросите новый код")
+    }
+
+    const storedCode = await redis.get(otpKey)
+    const codesMatch =
+      storedCode !== null &&
+      storedCode.length === code.length &&
+      timingSafeEqual(Buffer.from(storedCode), Buffer.from(code))
+
+    if (!codesMatch) return errorResponse("Неверный или истёкший код")
+
+    await redis.del(otpKey)
+    await redis.del(attemptKey)
+
+    const repo = new UserRepository()
+    const user = await repo.findByEmail(normalized)
+    if (!user) return errorResponse("Ошибка сброса пароля")
+
+    const admin = createAdminClient()
+    const { error } = await admin.auth.admin.updateUserById(user.supabaseId, {
+      password: newPassword,
+    })
+    if (error) return errorResponse(translateAuthError(error.message))
+
+    return successResponse(null)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Ошибка сброса пароля")
   }
 }
