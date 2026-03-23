@@ -85,8 +85,8 @@ export const PaperPortfolioView = () => {
         </div>
       </div>
 
-      <div className="rounded-xl border border-border bg-card p-4">
-        <div className="overflow-x-auto">
+      <div className="max-w-full overflow-hidden rounded-xl border border-border bg-card p-4">
+        <div className="overflow-x-auto [&]:[-webkit-overflow-scrolling:touch]">
           <div className="min-w-[600px]">
             <div className="grid grid-cols-7 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
               <span className="col-span-2">Стратегия</span>
