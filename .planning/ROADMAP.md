@@ -48,7 +48,11 @@ Plans:
   1. User sees 5 risk metric cards (Sharpe, Beta, VaR, Max Drawdown, Alpha) on the portfolio page with color coding (green/yellow/red)
   2. User can hover over any metric card and see a tooltip explaining what the metric means and how to interpret it
   3. User can click the AI risk analysis button and receive a streaming evaluation of all 5 metrics in context of their positions
-**Plans**: TBD
+**Plans:** 3 plans
+Plans:
+- [ ] 02-01-PLAN.md — Risk types, pure math calculations (TDD), RiskService orchestration
+- [ ] 02-02-PLAN.md — Server action with Redis cache, risk metric cards UI, portfolio page integration
+- [ ] 02-03-PLAN.md — AI risk analysis button integration
 **UI hint**: yes
 
 ### Phase 3: Fundamentals
@@ -92,7 +96,17 @@ Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Terminal | 0/5 | Planning complete | - |
-| 2. Risk Metrics | 0/TBD | Not started | - |
+| 2. Risk Metrics | 0/3 | Planning complete | - |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
+
+## Backlog
+
+### Phase 999.1: AI Analysis Flow (BACKLOG)
+**Goal:** After AI technical analysis in Terminal -- actionable flow: create signal from recommendation, create strategy from analysis, add to watchlist. UX: action buttons in analysis dialog, mapping AI recommendations to signal/strategy parameters.
+**Requirements:** TBD
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (promote with /gsd:review-backlog when ready)
