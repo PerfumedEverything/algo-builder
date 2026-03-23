@@ -40,7 +40,7 @@ export default function DashboardLayout({
     <div className="flex min-h-screen">
       <Sidebar />
       <div
-        className="flex flex-1 flex-col transition-all duration-300"
+        className="flex min-w-0 flex-1 flex-col overflow-x-hidden transition-all duration-300"
         style={{ marginLeft }}
       >
         <Header />

@@ -286,7 +286,9 @@ export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
         {portfolio.positions.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Нет позиций</p>
         ) : (
-          <div className="overflow-x-auto [&]:[-webkit-overflow-scrolling:touch]">
+          <div className="overflow-x-auto"
+            style={{ WebkitOverflowScrolling: "touch" }}
+          >
             <div className="min-w-[750px]">
               <div className="grid grid-cols-8 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
                 <span>Тикер</span>
