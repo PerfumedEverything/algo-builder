@@ -65,7 +65,8 @@ export class RiskService {
     positionMaps.forEach((m) => m.forEach((_, k) => allDates.add(k)))
 
     const portfolioMap = new Map<string, number>()
-    for (const date of allDates) {
+    const sortedDates = [...allDates].sort()
+    for (const date of sortedDates) {
       let weightedReturn = 0
       let coveredWeight = 0
       positionMaps.forEach((m, i) => {

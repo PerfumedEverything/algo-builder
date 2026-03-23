@@ -57,16 +57,16 @@ const var95 = (returns: number[]): number | null => {
 const beta = (portfolio: number[], benchmark: number[]): number | null => {
   if (portfolio.length !== benchmark.length) return null
   if (portfolio.length < 30) return null
-  const bVar = standardDeviation(benchmark) ** 2
-  if (bVar === 0) return null
   const pMean = mean(portfolio)
   const bMean = mean(benchmark)
+  const n = portfolio.length
   let cov = 0
-  for (let i = 0; i < portfolio.length; i++) {
-    cov += (portfolio[i] - pMean) * (benchmark[i] - bMean)
+  let bVariance = 0
+  for (let i = 0; i < n; i++) {
+    const bDiff = benchmark[i] - bMean
+    cov += (portfolio[i] - pMean) * bDiff
+    bVariance += bDiff * bDiff
   }
-  cov /= portfolio.length
-  const bVariance = benchmark.reduce((s, v) => s + (v - bMean) ** 2, 0) / benchmark.length
   if (bVariance === 0) return null
   return cov / bVariance
 }

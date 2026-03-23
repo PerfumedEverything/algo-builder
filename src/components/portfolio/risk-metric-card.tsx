@@ -19,7 +19,7 @@ const statusColor: Record<string, string> = {
 }
 
 const formatValue = (value: number, format: RiskMetricResult["format"]): string => {
-  if (format === "percent") return `${(value * 100).toFixed(2)}%`
+  if (format === "percent") return `${value.toFixed(2)}%`
   return value.toFixed(2)
 }
 
