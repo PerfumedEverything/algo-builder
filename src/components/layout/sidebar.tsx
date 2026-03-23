@@ -13,6 +13,7 @@ import {
   ChevronRight,
   LogOut,
   Wallet,
+  BarChart3,
   Shield,
 } from "lucide-react"
 import { toast } from "sonner"
@@ -32,6 +33,7 @@ const mainNav: NavItem[] = [
   { href: "/strategies", label: "Стратегии", icon: <TrendingUp className="h-5 w-5" /> },
   { href: "/signals", label: "Сигналы", icon: <Signal className="h-5 w-5" /> },
   { href: "/portfolio", label: "Портфель", icon: <Wallet className="h-5 w-5" /> },
+  { href: "/terminal", label: "Терминал", icon: <BarChart3 className="h-5 w-5" /> },
   { href: "/broker", label: "Брокеры", icon: <Cable className="h-5 w-5" /> },
   { href: "/settings", label: "Настройки", icon: <Settings className="h-5 w-5" /> },
 ]

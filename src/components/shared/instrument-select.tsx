@@ -13,10 +13,11 @@ type InstrumentSelectProps = {
   instrumentType: string
   value: string
   onChange: (ticker: string) => void
+  onInstrumentSelect?: (instrument: BrokerInstrument) => void
   onPriceChange?: (price: number | null) => void
 }
 
-export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChange }: InstrumentSelectProps) => {
+export const InstrumentSelect = ({ instrumentType, value, onChange, onInstrumentSelect, onPriceChange }: InstrumentSelectProps) => {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [instruments, setInstruments] = useState<BrokerInstrument[]>([])
@@ -162,6 +163,7 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onPriceChang
                       type="button"
                       onClick={() => {
                         onChange(instrument.ticker)
+                        onInstrumentSelect?.(instrument)
                         setOpen(false)
                       }}
                       className={`flex w-full items-center gap-2 rounded-md px-3 py-2 text-left text-sm transition-colors hover:bg-accent ${
