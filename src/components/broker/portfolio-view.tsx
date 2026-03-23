@@ -19,6 +19,7 @@ import type { Portfolio, PortfolioPosition } from "@/core/types"
 import { DateRangeFilter, getRange } from "@/components/shared/date-range-filter"
 import { LotAnalysisDialog } from "@/components/broker/lot-analysis-dialog"
 import { DepositTracker } from "@/components/broker/deposit-tracker"
+import { RiskMetricsSection } from "@/components/portfolio/risk-metrics-section"
 
 type PortfolioViewProps = {
   portfolio: Portfolio
@@ -353,6 +354,8 @@ export const PortfolioView = ({ portfolio, deposits }: PortfolioViewProps) => {
           </div>
         )}
       </div>
+
+      <RiskMetricsSection />
     </div>
   )
 }
