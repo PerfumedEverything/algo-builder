@@ -129,7 +129,7 @@ const SortableBrokerRow = ({ broker, onEdit, onDelete }: SortableBrokerRowProps)
       </td>
       <td className="px-4 py-3">
         {broker.logoUrl ? (
-          <img src={broker.logoUrl} alt={broker.name} className="h-8 w-8 rounded-lg object-cover" />
+          <img src={broker.logoUrl.replace(/^https?:\/\/[^/]+/, "")} alt={broker.name} className="h-8 w-8 rounded-lg object-cover" />
         ) : (
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-muted text-lg">
             {broker.logoEmoji || "?"}
@@ -434,7 +434,7 @@ export const AdminBrokers = () => {
                 {form.logoUrl ? (
                   <div className="relative">
                     <img
-                      src={form.logoUrl}
+                      src={form.logoUrl.replace(/^https?:\/\/[^/]+/, "")}
                       alt="Logo"
                       className="h-12 w-12 rounded-lg object-cover"
                     />
