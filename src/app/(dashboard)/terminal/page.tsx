@@ -87,7 +87,7 @@ export default function TerminalPage() {
       <div className="flex items-center gap-4">
         <div className="w-80">
           <InstrumentSelect
-            instrumentType="share"
+            instrumentType="STOCK"
             value={ticker}
             onChange={setTicker}
             onInstrumentSelect={handleInstrumentSelect}
