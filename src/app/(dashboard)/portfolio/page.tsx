@@ -18,12 +18,14 @@ import {
   getBrokerStatusAction,
   getPortfolioAction,
 } from "@/server/actions/broker-actions"
+import { getDepositsAction, type DepositData } from "@/server/actions/deposit-actions"
 import type { Portfolio } from "@/core/types"
 
 export default function PortfolioPage() {
   const [connected, setConnected] = useState(false)
   const [loading, setLoading] = useState(true)
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null)
+  const [deposits, setDeposits] = useState<DepositData | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -33,9 +35,15 @@ export default function PortfolioPage() {
 
       setConnected(statusRes.data.connected)
       if (statusRes.data.connected) {
-        const portfolioRes = await getPortfolioAction()
+        const [portfolioRes, depositsRes] = await Promise.all([
+          getPortfolioAction(),
+          getDepositsAction(),
+        ])
         if (portfolioRes.success && portfolioRes.data) {
           setPortfolio(portfolioRes.data)
+        }
+        if (depositsRes.success) {
+          setDeposits(depositsRes.data)
         }
       }
     } finally {
@@ -107,7 +115,7 @@ export default function PortfolioPage() {
               </Button>
             </div>
           ) : portfolio ? (
-            <PortfolioView portfolio={portfolio} />
+            <PortfolioView portfolio={portfolio} deposits={deposits ?? undefined} />
           ) : (
             <div className="flex h-48 items-center justify-center rounded-xl border border-border bg-card">
               <p className="text-sm text-muted-foreground">Нет данных портфеля</p>

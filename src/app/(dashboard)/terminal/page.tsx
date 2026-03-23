@@ -6,10 +6,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { InstrumentSelect } from "@/components/shared/instrument-select"
 import { ChartPeriodSelector, type ChartPeriod } from "@/components/portfolio/chart-period-selector"
 import { AiAnalysisButton } from "@/components/portfolio/ai-analysis-button"
-import { getCandlesForChartAction } from "@/server/actions/chart-actions"
+import { getCandlesForChartAction, getTradeMarkersAction, type ChartMarker } from "@/server/actions/chart-actions"
 import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
+import { getPortfolioAction } from "@/server/actions/broker-actions"
 import type { BrokerInstrument } from "@/core/types"
-import type { CandlestickData, Time } from "lightweight-charts"
+import type { CandlestickData, SeriesMarker, Time } from "lightweight-charts"
 
 const InstrumentChart = dynamic(
   () => import("@/components/portfolio/instrument-chart").then((m) => ({ default: m.InstrumentChart })),
@@ -29,6 +30,7 @@ export default function TerminalPage() {
   const [ticker, setTicker] = useState("")
   const [period, setPeriod] = useState<ChartPeriod>("3m")
   const [candles, setCandles] = useState<CandlestickData<Time>[]>([])
+  const [markers, setMarkers] = useState<SeriesMarker<Time>[]>([])
   const [loading, setLoading] = useState(false)
 
   const fetchCandles = useCallback(async (figi: string, p: ChartPeriod) => {
@@ -38,6 +40,20 @@ export default function TerminalPage() {
     const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000)
     const res = await getCandlesForChartAction(figi, interval, from.toISOString(), to.toISOString())
     if (res.success) setCandles(res.data as CandlestickData<Time>[])
+
+    const portfolioRes = await getPortfolioAction()
+    if (portfolioRes.success && portfolioRes.data) {
+      const pos = portfolioRes.data.positions.find((p) => p.instrumentId === figi)
+      if (pos?.operations.length) {
+        const markersRes = await getTradeMarkersAction(figi, pos.operations)
+        if (markersRes.success) setMarkers(markersRes.data as SeriesMarker<Time>[])
+        else setMarkers([])
+      } else {
+        setMarkers([])
+      }
+    } else {
+      setMarkers([])
+    }
     setLoading(false)
   }, [])
 
@@ -48,6 +64,7 @@ export default function TerminalPage() {
   const handleInstrumentSelect = useCallback((inst: BrokerInstrument) => {
     setInstrument(inst)
     setCandles([])
+    setMarkers([])
   }, [])
 
   const handlePeriodChange = useCallback((p: ChartPeriod) => {
@@ -101,7 +118,7 @@ export default function TerminalPage() {
           <div className="mb-2 text-sm text-muted-foreground">
             {instrument.name} ({instrument.ticker})
           </div>
-          <InstrumentChart candles={candles} height={500} />
+          <InstrumentChart candles={candles} markers={markers} height={500} />
         </div>
       )}
     </div>

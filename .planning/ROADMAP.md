@@ -33,11 +33,11 @@ Decimal phases appear between their surrounding integers in numeric order.
   5. All dashboard pages show skeleton loading states instead of blank screens during data fetch
 **Plans:** 5 plans
 Plans:
-- [ ] 01-01-PLAN.md — MOEX ISS provider with Redis cache + ticker bug fix
-- [ ] 01-02-PLAN.md — Skeleton loading states + deposit tracker
-- [ ] 01-03-PLAN.md — Reusable AI analysis button + system prompts config
-- [ ] 01-04-PLAN.md — Candlestick chart component + period selector + server actions
-- [ ] 01-05-PLAN.md — Terminal page + sidebar navigation + visual verification
+- [x] 01-01-PLAN.md — MOEX ISS provider with Redis cache + ticker bug fix
+- [x] 01-02-PLAN.md — Skeleton loading states + deposit tracker
+- [x] 01-03-PLAN.md — Reusable AI analysis button + system prompts config
+- [x] 01-04-PLAN.md — Candlestick chart component + period selector + server actions
+- [x] 01-05-PLAN.md — Terminal page + sidebar navigation + visual verification
 **UI hint**: yes
 
 ### Phase 2: Risk Metrics

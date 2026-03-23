@@ -9,23 +9,23 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### Infrastructure
 
-- [ ] **INFR-01**: MOEX ISS provider fetches IMOEX benchmark candles with Redis cache (24h TTL)
-- [ ] **INFR-02a**: MOEX ISS provider fetches dividend history per ticker with Redis cache (7d TTL)
+- [x] **INFR-01**: MOEX ISS provider fetches IMOEX benchmark candles with Redis cache (24h TTL)
+- [x] **INFR-02a**: MOEX ISS provider fetches dividend history per ticker with Redis cache (7d TTL)
 - [ ] **INFR-02b**: Security fundamentals P/E, P/B ratios (deferred to Phase 3 — MOEX ISS does not provide these; alternative source needed)
-- [ ] **INFR-03**: MOEX ISS provider handles pagination (100-row limit) automatically
-- [ ] **INFR-04**: Deposit tracker shows total deposits/withdrawals and deposit-adjusted real P&L
-- [ ] **INFR-05**: Skeleton loading on all dashboard pages (dashboard, strategies, signals, portfolio, settings, admin, terminal)
-- [ ] **INFR-06**: Ticker display bug fixed — no @ suffix, correct case in strategies
+- [x] **INFR-03**: MOEX ISS provider handles pagination (100-row limit) automatically
+- [x] **INFR-04**: Deposit tracker shows total deposits/withdrawals and deposit-adjusted real P&L
+- [x] **INFR-05**: Skeleton loading on all dashboard pages (dashboard, strategies, signals, portfolio, settings, admin, terminal)
+- [x] **INFR-06**: Ticker display bug fixed — no @ suffix, correct case in strategies
 
 ### Charts & Terminal
 
-- [ ] **CHRT-01**: Candlestick chart renders T-Invest OHLCV data via lightweight-charts (dark theme, CSS vars)
-- [ ] **CHRT-02**: Period selector switches between 1d/1w/1m/3m/1y timeframes
-- [ ] **CHRT-03**: Trade markers overlay on chart (entry/exit points from operations)
+- [x] **CHRT-01**: Candlestick chart renders T-Invest OHLCV data via lightweight-charts (dark theme, CSS vars)
+- [x] **CHRT-02**: Period selector switches between 1d/1w/1m/3m/1y timeframes
+- [x] **CHRT-03**: Trade markers overlay on chart (entry/exit points from operations)
 - [ ] **CHRT-04**: Terminal page at /terminal with ticker search (InstrumentSelect reuse)
 - [ ] **CHRT-05**: Terminal page accessible from sidebar navigation
 - [ ] **CHRT-06**: AI technical analysis button on chart — DeepSeek analyzes OHLCV as professional trader
-- [ ] **CHRT-07**: Chart component reusable in portfolio position expand and terminal page
+- [x] **CHRT-07**: Chart component reusable in portfolio position expand and terminal page
 
 ### Risk Metrics
 
@@ -69,8 +69,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### AI Analysis (Cross-cutting)
 
-- [ ] **AIAN-01**: Reusable AiAnalysisButton component — button opens dialog with streaming DeepSeek response
-- [ ] **AIAN-02**: Different system prompts per analytics block (chart, risk, fundamental, optimization, full portfolio)
+- [x] **AIAN-01**: Reusable AiAnalysisButton component — button opens dialog with streaming DeepSeek response
+- [x] **AIAN-02**: Different system prompts per analytics block (chart, risk, fundamental, optimization, full portfolio)
 - [ ] **AIAN-03**: Full portfolio AI analysis button — comprehensive analysis with all data
 
 ## v2 Requirements
@@ -109,22 +109,22 @@ Which phases cover which requirements. Updated during roadmap creation.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| INFR-01 | Phase 1 | Pending |
-| INFR-02a | Phase 1 | Pending |
+| INFR-01 | Phase 1 | Complete |
+| INFR-02a | Phase 1 | Complete |
 | INFR-02b | Phase 3 | Pending |
-| INFR-03 | Phase 1 | Pending |
-| INFR-04 | Phase 1 | Pending |
-| INFR-05 | Phase 1 | Pending |
-| INFR-06 | Phase 1 | Pending |
-| CHRT-01 | Phase 1 | Pending |
-| CHRT-02 | Phase 1 | Pending |
-| CHRT-03 | Phase 1 | Pending |
+| INFR-03 | Phase 1 | Complete |
+| INFR-04 | Phase 1 | Complete |
+| INFR-05 | Phase 1 | Complete |
+| INFR-06 | Phase 1 | Complete |
+| CHRT-01 | Phase 1 | Complete |
+| CHRT-02 | Phase 1 | Complete |
+| CHRT-03 | Phase 1 | Complete |
 | CHRT-04 | Phase 1 | Pending |
 | CHRT-05 | Phase 1 | Pending |
 | CHRT-06 | Phase 1 | Pending |
-| CHRT-07 | Phase 1 | Pending |
-| AIAN-01 | Phase 1 | Pending |
-| AIAN-02 | Phase 1 | Pending |
+| CHRT-07 | Phase 1 | Complete |
+| AIAN-01 | Phase 1 | Complete |
+| AIAN-02 | Phase 1 | Complete |
 | RISK-01 | Phase 2 | Pending |
 | RISK-02 | Phase 2 | Pending |
 | RISK-03 | Phase 2 | Pending |
