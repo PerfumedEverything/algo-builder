@@ -122,3 +122,46 @@ describe("FifoCalculator", () => {
     expect(lots[0].pnlPercent).toBe(-25)
   })
 })
+
+describe("FifoCalculator.calculateSummary", () => {
+  it("weighted average price from multiple lots", () => {
+    const ops = [
+      makeOp("BUY", 10, 100, "2026-01-01"),
+      makeOp("BUY", 5, 200, "2026-01-10"),
+    ]
+    const summary = FifoCalculator.calculateSummary(ops, 150)
+
+    expect(summary.totalQuantity).toBe(15)
+    expect(summary.avgPrice).toBeCloseTo(133.33, 1)
+    expect(summary.totalCost).toBeCloseTo(2000, 0)
+    expect(summary.currentValue).toBe(2250)
+    expect(summary.totalPnl).toBe(250)
+    expect(summary.totalPnlPercent).toBeCloseTo(12.5, 1)
+  })
+
+  it("FIFO average after partial sell (TGLD scenario)", () => {
+    const ops = [
+      makeOp("BUY", 100, 15.50, "2026-02-01"),
+      makeOp("BUY", 50, 16.00, "2026-02-15"),
+      makeOp("SELL", 80, 15.80, "2026-03-01"),
+    ]
+    const summary = FifoCalculator.calculateSummary(ops, 16.20)
+
+    expect(summary.totalQuantity).toBe(70)
+    expect(summary.avgPrice).toBeCloseTo(15.857, 2)
+    expect(summary.lots).toHaveLength(2)
+    expect(summary.lots[0].buyPrice).toBe(15.50)
+    expect(summary.lots[0].remainingQuantity).toBe(20)
+    expect(summary.lots[1].buyPrice).toBe(16.00)
+    expect(summary.lots[1].remainingQuantity).toBe(50)
+  })
+
+  it("empty operations — zero summary", () => {
+    const summary = FifoCalculator.calculateSummary([], 100)
+
+    expect(summary.totalQuantity).toBe(0)
+    expect(summary.avgPrice).toBe(0)
+    expect(summary.totalCost).toBe(0)
+    expect(summary.lots).toHaveLength(0)
+  })
+})

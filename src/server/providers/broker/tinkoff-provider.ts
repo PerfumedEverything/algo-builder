@@ -158,9 +158,12 @@ export class TinkoffProvider implements BrokerProvider {
 
         const quantity = toNumber(p.quantity)
         const currentPrice = toNumber(p.currentPrice)
-        const averagePrice = toNumber(p.averagePositionPrice)
-        const yieldAbs = toNumber(p.expectedYield)
+        const apiAvgPrice = toNumber(p.averagePositionPrice)
+        const ops = opsByFigi.get(p.figi) ?? []
+        const fifoSummary = FifoCalculator.calculateSummary(ops, currentPrice)
+        const averagePrice = fifoSummary.totalQuantity > 0 ? fifoSummary.avgPrice : apiAvgPrice
         const cost = averagePrice * quantity
+        const yieldAbs = (currentPrice - averagePrice) * quantity
         const yieldPct = cost > 0 ? (yieldAbs / cost) * 100 : 0
 
         return {
@@ -177,8 +180,8 @@ export class TinkoffProvider implements BrokerProvider {
           instrumentType: mapInstrumentType(p.instrumentType),
           blocked: (p as unknown as Record<string, unknown>).blocked === true,
           blockedLots: toNumber((p as unknown as Record<string, unknown>).blockedLots as { units: number; nano: number } | undefined),
-          operations: (opsByFigi.get(p.figi) ?? []).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
-          lots: FifoCalculator.calculate(opsByFigi.get(p.figi) ?? [], currentPrice),
+          operations: ops.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
+          lots: fifoSummary.lots,
         }
       }),
     )

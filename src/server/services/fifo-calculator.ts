@@ -1,5 +1,15 @@
 import type { PositionOperation, PositionLot } from "@/core/types"
 
+export type FifoSummary = {
+  lots: PositionLot[]
+  totalQuantity: number
+  avgPrice: number
+  totalCost: number
+  currentValue: number
+  totalPnl: number
+  totalPnlPercent: number
+}
+
 type BuyEntry = {
   date: string
   price: number
@@ -7,6 +17,18 @@ type BuyEntry = {
 }
 
 export class FifoCalculator {
+  static calculateSummary(operations: PositionOperation[], currentPrice: number): FifoSummary {
+    const lots = this.calculate(operations, currentPrice)
+    const totalQuantity = lots.reduce((s, l) => s + l.remainingQuantity, 0)
+    const totalCost = lots.reduce((s, l) => s + l.buyPrice * l.remainingQuantity, 0)
+    const avgPrice = totalQuantity > 0 ? totalCost / totalQuantity : 0
+    const currentValue = totalQuantity * currentPrice
+    const totalPnl = currentValue - totalCost
+    const totalPnlPercent = totalCost > 0 ? (totalPnl / totalCost) * 100 : 0
+
+    return { lots, totalQuantity, avgPrice, totalCost, currentValue, totalPnl, totalPnlPercent }
+  }
+
   static calculate(operations: PositionOperation[], currentPrice: number): PositionLot[] {
     const sorted = [...operations].sort(
       (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
