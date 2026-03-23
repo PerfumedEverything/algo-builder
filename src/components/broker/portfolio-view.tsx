@@ -100,8 +100,9 @@ const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
 
   return (
     <div className="border-b border-border/50 last:border-0">
+      {/* Desktop row */}
       <div
-        className={`grid grid-cols-8 gap-2 py-2.5 text-sm ${canExpand ? "cursor-pointer hover:bg-muted/30" : ""}`}
+        className={`hidden sm:grid grid-cols-8 gap-2 py-2.5 text-sm ${canExpand ? "cursor-pointer hover:bg-muted/30" : ""}`}
         onClick={() => canExpand && setExpanded(!expanded)}
       >
         <div className="col-span-1 flex items-center gap-1">
@@ -129,6 +130,43 @@ const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
           <YieldIcon value={pos.dailyYield} className="h-3 w-3" />
           <span className={`tabular-nums text-xs ${yieldColor(pos.dailyYield)}`}>
             {formatSignedMoney(pos.dailyYield)}
+          </span>
+        </div>
+      </div>
+
+      {/* Mobile card */}
+      <div
+        className={`sm:hidden py-3 ${canExpand ? "cursor-pointer" : ""}`}
+        onClick={() => canExpand && setExpanded(!expanded)}
+      >
+        <div className="flex items-start justify-between gap-2">
+          <div className="flex items-center gap-1.5 min-w-0">
+            {canExpand && (
+              expanded
+                ? <ChevronDown className="h-3 w-3 shrink-0 text-muted-foreground" />
+                : <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground" />
+            )}
+            <div className="min-w-0">
+              <span className="font-semibold text-sm">{pos.ticker}</span>
+              <p className="truncate text-xs text-muted-foreground">{pos.name}</p>
+            </div>
+          </div>
+          <div className="text-right shrink-0">
+            <p className="text-sm font-medium tabular-nums">{formatMoney(pos.currentValue)}</p>
+            <p className={`text-xs tabular-nums ${yieldColor(pos.dailyYield)}`}>
+              {formatSignedMoney(pos.dailyYield)} день
+            </p>
+          </div>
+        </div>
+        <div className="mt-2 grid grid-cols-3 gap-x-2 gap-y-1 text-xs text-muted-foreground">
+          <span>{pos.quantity} шт</span>
+          <span>ср. {formatPrice(pos.averagePrice)}</span>
+          <span>тек. {formatPrice(pos.currentPrice)}</span>
+          <span className={`font-medium ${yieldColor(pos.expectedYieldAbsolute)}`}>
+            {formatSignedMoney(pos.expectedYieldAbsolute)}
+          </span>
+          <span className={`font-medium ${yieldColor(pos.expectedYield)}`}>
+            {formatPercent(pos.expectedYield)}
           </span>
         </div>
       </div>
@@ -286,11 +324,9 @@ export const PortfolioView = ({ portfolio }: PortfolioViewProps) => {
         {portfolio.positions.length === 0 ? (
           <p className="py-8 text-center text-sm text-muted-foreground">Нет позиций</p>
         ) : (
-          <div className="overflow-x-auto"
-            style={{ WebkitOverflowScrolling: "touch" }}
-          >
-            <div className="min-w-[750px]">
-              <div className="grid grid-cols-8 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
+            <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" }}>
+            <div className="sm:min-w-[750px]">
+              <div className="hidden sm:grid grid-cols-8 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
                 <span>Тикер</span>
                 <span className="text-right">Кол-во</span>
                 <span className="text-right">Ср. цена</span>

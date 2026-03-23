@@ -273,26 +273,26 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
             <table className="w-full text-xs">
               <thead>
                 <tr className="border-b border-border text-muted-foreground">
-                  <th className="px-2 py-1.5 text-left font-medium">Тип</th>
-                  <th className="px-2 py-1.5 text-right font-medium">Цена</th>
-                  <th className="px-2 py-1.5 text-right font-medium">Кол-во</th>
-                  <th className="px-2 py-1.5 text-right font-medium">Сумма</th>
-                  <th className="px-2 py-1.5 text-right font-medium">Время</th>
+                  <th className="px-1.5 py-1.5 text-left font-medium whitespace-nowrap">Тип</th>
+                  <th className="px-1.5 py-1.5 text-right font-medium whitespace-nowrap">Цена</th>
+                  <th className="px-1.5 py-1.5 text-right font-medium whitespace-nowrap">Кол</th>
+                  <th className="px-1.5 py-1.5 text-right font-medium whitespace-nowrap">Сумма</th>
+                  <th className="px-1.5 py-1.5 text-right font-medium whitespace-nowrap">Время</th>
                 </tr>
               </thead>
               <tbody>
                 {operations.map((op) => (
                   <tr key={op.id} className="border-b border-border/50 last:border-0">
-                    <td className="px-2 py-1.5">
+                    <td className="px-1.5 py-1.5">
                       <span className={`flex items-center gap-1 ${op.type === "BUY" ? "text-emerald-400" : "text-red-400"}`}>
                         {op.type === "BUY" ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
                         {op.type === "BUY" ? "Покупка" : "Продажа"}
                       </span>
                     </td>
-                    <td className="px-2 py-1.5 text-right font-mono">{formatAmount(op.price)}</td>
-                    <td className="px-2 py-1.5 text-right font-mono">{op.quantity}</td>
-                    <td className="px-2 py-1.5 text-right font-mono">{formatAmount(op.amount)} ₽</td>
-                    <td className="px-2 py-1.5 text-right text-muted-foreground">{formatTime(op.createdAt)}</td>
+                    <td className="px-1.5 py-1.5 text-right font-mono">{formatAmount(op.price)}</td>
+                    <td className="px-1.5 py-1.5 text-right font-mono">{op.quantity}</td>
+                    <td className="px-1.5 py-1.5 text-right font-mono whitespace-nowrap">{formatAmount(op.amount)} ₽</td>
+                    <td className="px-1.5 py-1.5 text-right text-muted-foreground whitespace-nowrap">{formatTime(op.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>

@@ -93,7 +93,7 @@ export const Sidebar = () => {
 
       <aside
         className={cn(
-          "fixed left-0 top-0 z-40 flex h-screen flex-col border-r border-sidebar-border bg-sidebar-background transition-all duration-300",
+          "fixed left-0 top-0 z-40 flex h-[100dvh] flex-col border-r border-sidebar-border bg-sidebar-background transition-all duration-300",
           collapsed
             ? "w-[240px] -translate-x-full lg:w-[68px] lg:translate-x-0"
             : "w-[240px] translate-x-0 lg:w-[240px]"
