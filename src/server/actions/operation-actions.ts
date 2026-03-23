@@ -2,7 +2,7 @@
 
 import { type ApiResponse, errorResponse, successResponse } from "@/core/types/api"
 import type { StrategyOperation, OperationStats } from "@/core/types"
-import { OperationService, StrategyService } from "@/server/services"
+import { OperationService, StrategyService, BrokerService } from "@/server/services"
 import { PriceCache } from "@/server/services/price-cache"
 import { getCurrentUserId } from "./helpers"
 
@@ -60,15 +60,21 @@ export const getOperationStatsForStrategiesAction = async (
   instrumentMap?: Record<string, string>,
 ): Promise<ApiResponse<StatsWithPrices>> => {
   try {
-    await getCurrentUserId()
+    const userId = await getCurrentUserId()
     const priceMap: Record<string, number> = {}
     if (instrumentMap) {
-      const cache = new PriceCache()
+      const broker = new BrokerService()
       const uniqueInstruments = [...new Set(Object.values(instrumentMap))]
       const prices: Record<string, number> = {}
       for (const inst of uniqueInstruments) {
-        const p = await cache.getPrice(inst)
-        if (p !== null) prices[inst] = p
+        try {
+          const p = await broker.getInstrumentPrice(userId, inst)
+          prices[inst] = p
+        } catch {
+          const cache = new PriceCache()
+          const cached = await cache.getPrice(inst)
+          if (cached !== null) prices[inst] = cached
+        }
       }
       for (const id of strategyIds) {
         const inst = instrumentMap[id]
