@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import { toast } from "sonner"
@@ -49,7 +50,12 @@ export const LoginForm = () => {
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="password">Пароль</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor="password">Пароль</Label>
+          <Link href="/forgot-password" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+            Забыл пароль?
+          </Link>
+        </div>
         <Input
           id="password"
           name="password"

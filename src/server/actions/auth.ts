@@ -105,3 +105,40 @@ export const logoutAction = async () => {
   await supabase.auth.signOut()
   redirect("/login")
 }
+
+export const forgotPasswordAction = async (
+  formData: FormData,
+): Promise<ApiResponse<null>> => {
+  const email = formData.get("email") as string
+  if (!email) return errorResponse("Введите email")
+
+  try {
+    const supabase = await createClient()
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "https://aculatrade.com"
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${appUrl}/reset-password`,
+    })
+    if (error) return errorResponse(translateAuthError(error.message))
+    return successResponse(null)
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Ошибка отправки письма"
+    return errorResponse(msg)
+  }
+}
+
+export const resetPasswordAction = async (
+  formData: FormData,
+): Promise<ApiResponse<null>> => {
+  const password = formData.get("password") as string
+  if (!password || password.length < 6) return errorResponse("Пароль должен быть не менее 6 символов")
+
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase.auth.updateUser({ password })
+    if (error) return errorResponse(translateAuthError(error.message))
+    return successResponse(null)
+  } catch (e) {
+    const msg = e instanceof Error ? e.message : "Ошибка сброса пароля"
+    return errorResponse(msg)
+  }
+}
