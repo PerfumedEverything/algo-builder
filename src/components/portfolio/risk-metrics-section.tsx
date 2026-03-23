@@ -9,10 +9,12 @@ import {
   Target,
 } from "lucide-react"
 
-import type { RiskMetrics } from "@/core/types"
+import type { RiskMetrics, MetricStatus } from "@/core/types"
 import { getRiskMetricsAction } from "@/server/actions/risk-actions"
+import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { Skeleton } from "@/components/ui/skeleton"
+import { AiAnalysisButton } from "@/components/portfolio/ai-analysis-button"
 import { RiskMetricCard } from "./risk-metric-card"
 
 const METRIC_ICONS: Record<keyof Omit<RiskMetrics, "calculatedAt" | "dataPoints">, React.ReactNode> = {
@@ -24,6 +26,34 @@ const METRIC_ICONS: Record<keyof Omit<RiskMetrics, "calculatedAt" | "dataPoints"
 }
 
 const METRIC_KEYS = ["sharpe", "beta", "var95", "maxDrawdown", "alpha"] as const
+
+const STATUS_LABELS: Record<MetricStatus, string> = {
+  green: "хорошо",
+  yellow: "умеренно",
+  red: "плохо",
+}
+
+const formatMetricValue = (value: number | null, format: string): string => {
+  if (value === null) return "Н/Д"
+  if (format === "percent") return `${value.toFixed(2)}%`
+  return value.toFixed(2)
+}
+
+const buildRiskAnalysisMessage = (metrics: RiskMetrics): string => {
+  const lines = METRIC_KEYS.map((key) => {
+    const m = metrics[key]
+    const val = formatMetricValue(m.value, m.format)
+    const status = m.status ? STATUS_LABELS[m.status] : "нет данных"
+    return `- ${m.label}: ${val} (${status})`
+  })
+
+  return [
+    "Риск-метрики портфеля:",
+    ...lines,
+    "",
+    `Количество торговых дней в расчёте: ${metrics.dataPoints}`,
+  ].join("\n")
+}
 
 export const RiskMetricsSection = () => {
   const [metrics, setMetrics] = useState<RiskMetrics | null>(null)
@@ -45,9 +75,20 @@ export const RiskMetricsSection = () => {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 text-sm font-medium">
-        <ShieldAlert className="h-4 w-4 text-muted-foreground" />
-        Риск-метрики
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2 text-sm font-medium">
+          <ShieldAlert className="h-4 w-4 text-muted-foreground" />
+          Риск-метрики
+        </div>
+        {metrics && (
+          <AiAnalysisButton
+            title="AI Анализ рисков"
+            triggerLabel="Анализ рисков"
+            analyzeAction={() => analyzeWithAiAction("risk", buildRiskAnalysisMessage(metrics))}
+            size="sm"
+            variant="ghost"
+          />
+        )}
       </div>
 
       {loading && (
