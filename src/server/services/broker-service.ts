@@ -1,4 +1,4 @@
-import type { BrokerAccount, Portfolio, BrokerInstrument } from "@/core/types"
+import type { BrokerAccount, Portfolio, BrokerInstrument, Candle, CandleParams } from "@/core/types"
 import { BrokerRepository } from "@/server/repositories"
 import { getBrokerProvider } from "@/server/providers/broker"
 
@@ -54,6 +54,13 @@ export class BrokerService {
     if (!settings?.brokerToken) throw new Error("Брокер не подключён")
     await this.provider.connect(settings.brokerToken)
     return this.provider.getCurrentPrice(ticker)
+  }
+
+  async getCandles(userId: string, params: CandleParams): Promise<Candle[]> {
+    const settings = await this.repo.getSettings(userId)
+    if (!settings?.brokerToken) throw new Error("Брокер не подключён")
+    await this.provider.connect(settings.brokerToken)
+    return this.provider.getCandles(params)
   }
 
   async selectAccount(userId: string, accountId: string): Promise<void> {
