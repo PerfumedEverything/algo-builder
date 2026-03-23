@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "AlgoBuilder — AI Trading Platform",
+  title: "AculaTrade — AI Trading Platform",
   description:
     "AI-powered algorithmic trading platform. Strategy constructor with AI generation, signal monitoring, broker integration.",
 }

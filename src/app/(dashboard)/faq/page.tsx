@@ -47,7 +47,7 @@ export default function FaqPage() {
           Часто задаваемые вопросы
         </h1>
         <p className="text-muted-foreground">
-          {totalQuestions} ответов на популярные вопросы о работе с AlgoBuilder
+          {totalQuestions} ответов на популярные вопросы о работе с AculaTrade
         </p>
       </div>
 

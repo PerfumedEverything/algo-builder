@@ -43,7 +43,7 @@ export const AuthSwitch = () => {
             <div className="auth-panel-content">
               <h3 className="mb-2 text-2xl font-bold">Впервые здесь?</h3>
               <p className="mb-4 text-sm text-white/80">
-                Присоединяйтесь к AlgoBuilder и создавайте торговые стратегии с
+                Присоединяйтесь к AculaTrade и создавайте торговые стратегии с
                 помощью AI.
               </p>
               <button

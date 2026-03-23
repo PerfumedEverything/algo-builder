@@ -16,7 +16,7 @@ export class TelegramProvider implements NotificationProvider {
     try {
       await this.bot.api.sendMessage(
         chatId,
-        "✅ *AlgoBuilder* — тестовое уведомление\n\nВсё настроено, уведомления работают!",
+        "✅ *AculaTrade* — тестовое уведомление\n\nВсё настроено, уведомления работают!",
         { parse_mode: "Markdown" },
       )
       return true

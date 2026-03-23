@@ -123,7 +123,7 @@ export const Sidebar = () => {
           </div>
           {(!collapsed || isMobile) && (
             <span className="text-lg font-bold text-sidebar-foreground">
-              AlgoBuilder
+              AculaTrade
             </span>
           )}
         </div>

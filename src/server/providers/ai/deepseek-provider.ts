@@ -156,7 +156,7 @@ const RISK_PROFILES = [
 
 const randomItem = <T>(arr: T[]): T => arr[Math.floor(Math.random() * arr.length)]
 
-const SYSTEM_PROMPT = `You are a trading strategy assistant for the AlgoBuilder platform.
+const SYSTEM_PROMPT = `You are a trading strategy assistant for the AculaTrade platform.
 Your task is to generate complete trading strategy configurations based on user requests.
 Always use the create_strategy function to return the result.
 Generate a descriptive Russian name and description for each strategy.
@@ -170,7 +170,7 @@ Default timeframe is 1d if not specified.
 Respond in Russian for name and description fields.
 Be creative — each strategy should be unique even for similar requests.`
 
-const CHAT_SYSTEM_PROMPT = `Ты — AI-помощник AlgoBuilder для создания торговых стратегий.
+const CHAT_SYSTEM_PROMPT = `Ты — AI-помощник AculaTrade для создания торговых стратегий.
 
 Твоя задача — помочь пользователю создать стратегию через диалог.
 Пользователь может быть новичком в трейдинге — объясняй просто.
