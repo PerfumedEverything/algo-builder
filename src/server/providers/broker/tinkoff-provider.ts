@@ -12,6 +12,7 @@ import type {
   PositionOperation,
 } from "@/core/types"
 import { FifoCalculator } from "@/server/services/fifo-calculator"
+import { cleanTicker } from "@/lib/ticker-utils"
 import type { BrokerProvider } from "./types"
 
 const INTERVAL_MAP: Record<string, CandleInterval> = {
@@ -151,7 +152,7 @@ export class TinkoffProvider implements BrokerProvider {
             idType: 1,
             id: p.figi,
           })
-          ticker = info.instrument?.ticker ?? p.figi
+          ticker = cleanTicker(info.instrument?.ticker ?? p.figi)
           name = info.instrument?.name ?? p.figi
         } catch {
         }
@@ -345,7 +346,7 @@ type TradableInstrument = {
 
 const mapShare = (i: TradableInstrument): BrokerInstrument => ({
   figi: i.figi,
-  ticker: i.ticker,
+  ticker: cleanTicker(i.ticker),
   name: i.name,
   type: mapInstrumentType(i.instrumentType ?? "share"),
   currency: i.currency,
