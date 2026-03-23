@@ -196,7 +196,7 @@ const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
                 currentPrice={pos.currentPrice}
               />
             </div>
-            <div className="min-w-[560px]">
+            <div className="overflow-x-auto">
               <div className="grid grid-cols-7 gap-2 border-b border-border/30 pb-1 text-[10px] text-muted-foreground">
                 <span>Дата</span>
                 <span className="text-right">Цена покупки</span>

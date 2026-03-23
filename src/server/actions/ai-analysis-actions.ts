@@ -15,6 +15,10 @@ export const analyzeWithAiAction = async (
   try {
     await getCurrentUserId()
 
+    if (userMessage.length > 50_000) {
+      return { success: false, error: "Сообщение слишком длинное (макс. 50 000 символов)" }
+    }
+
     const env = getEnv()
     if (!env.DEEPSEEK_API_KEY) {
       return { success: false, error: "AI провайдер не настроен" }
@@ -43,6 +47,6 @@ export const analyzeWithAiAction = async (
 
     return { success: true, data: content }
   } catch (e) {
-    return { success: false, error: (e as Error).message }
+    return { success: false, error: "Ошибка AI анализа" }
   }
 }

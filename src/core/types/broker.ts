@@ -80,5 +80,3 @@ export type Candle = {
   volume: number
   time: Date
 }
-
-export type BrokerConnectionStatus = "CONNECTED" | "DISCONNECTED" | "ERROR"

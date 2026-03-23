@@ -5,7 +5,6 @@ import { TelegramProvider } from "./telegram-provider"
 
 export type { NotificationProvider }
 export { MockNotificationProvider }
-export { MaxProvider } from "./max-provider"
 export { TelegramProvider }
 
 export const getNotificationProvider = (): NotificationProvider => {

@@ -125,5 +125,4 @@ export {
   getMetricStatus,
   alignByDate,
   RF_DAILY,
-  TRADING_DAYS,
 }

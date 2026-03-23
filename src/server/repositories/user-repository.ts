@@ -53,13 +53,13 @@ export class UserRepository {
     const admin = createAdminClient()
     const { data: users, error } = await admin
       .from("User")
-      .select("*")
+      .select("id, email, name, supabaseId, role, blocked, maxChatId, telegramChatId, brokerAccountId, createdAt")
       .order("createdAt", { ascending: false })
 
     if (error) throw new Error(error.message)
     if (!users) return []
 
-    const userIds = users.map((u: UserRow) => u.id)
+    const userIds = (users as { id: string }[]).map((u) => u.id)
 
     const [strategiesRes, signalsRes] = await Promise.all([
       admin.from("Strategy").select("userId").in("userId", userIds),
@@ -76,8 +76,9 @@ export class UserRepository {
       signalCounts.set(s.userId, (signalCounts.get(s.userId) ?? 0) + 1)
     }
 
-    return users.map((u: UserRow) => ({
+    return (users as Omit<UserRow, "brokerToken">[]).map((u) => ({
       ...u,
+      brokerToken: null,
       strategiesCount: strategyCounts.get(u.id) ?? 0,
       signalsCount: signalCounts.get(u.id) ?? 0,
     }))

@@ -58,7 +58,7 @@ export const updateSession = async (request: NextRequest) => {
     return NextResponse.redirect(url)
   }
 
-  if (user && !isAuthPage && !isServerAction) {
+  if (user && !isAuthPage) {
     try {
       const { data: dbUser } = await supabase
         .from("User")
@@ -67,6 +67,9 @@ export const updateSession = async (request: NextRequest) => {
         .single()
 
       if (dbUser?.blocked) {
+        if (isServerAction) {
+          return new NextResponse(JSON.stringify({ error: "Blocked" }), { status: 403 })
+        }
         await supabase.auth.signOut()
         const url = request.nextUrl.clone()
         url.pathname = "/login"
@@ -80,7 +83,12 @@ export const updateSession = async (request: NextRequest) => {
         return NextResponse.redirect(url)
       }
     } catch {
-      // ignore — don't block navigation on DB errors
+      const isAdminRoute = request.nextUrl.pathname.startsWith("/admin")
+      if (isAdminRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = "/dashboard"
+        return NextResponse.redirect(url)
+      }
     }
   }
 

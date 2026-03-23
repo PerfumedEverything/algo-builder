@@ -20,7 +20,12 @@ export const getOperationsAction = async (
   strategyId: string,
 ): Promise<ApiResponse<StrategyOperation[]>> => {
   try {
-    await getCurrentUserId()
+    const userId = await getCurrentUserId()
+    const strategyService = new StrategyService()
+    const strategies = await strategyService.getStrategies(userId)
+    if (!strategies.some((s) => s.id === strategyId)) {
+      return errorResponse("Стратегия не найдена")
+    }
     const operations = await getService().getOperations(strategyId)
     return successResponse(operations)
   } catch (e) {
@@ -32,7 +37,12 @@ export const getOperationStatsAction = async (
   strategyId: string,
 ): Promise<ApiResponse<OperationStats>> => {
   try {
-    await getCurrentUserId()
+    const userId = await getCurrentUserId()
+    const strategyService = new StrategyService()
+    const strategies = await strategyService.getStrategies(userId)
+    if (!strategies.some((s) => s.id === strategyId)) {
+      return errorResponse("Стратегия не найдена")
+    }
     const stats = await getService().getStats(strategyId)
     return successResponse(stats)
   } catch (e) {

@@ -90,7 +90,7 @@ export class OperationService {
 
   async getLastBuyPrice(strategyId: string): Promise<number> {
     const ops = await this.repo.findByStrategyId(strategyId)
-    const lastBuy = ops.find((o) => o.type === "BUY")
+    const lastBuy = [...ops].reverse().find((o) => o.type === "BUY")
     return lastBuy?.price ?? 0
   }
 

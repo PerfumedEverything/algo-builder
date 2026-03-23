@@ -56,6 +56,7 @@ export default function PortfolioPage() {
   useEffect(() => {
     if (!connected) return
     const interval = setInterval(async () => {
+      if (document.hidden) return
       const res = await getPortfolioAction()
       if (res.success && res.data) setPortfolio(res.data)
     }, 10_000)

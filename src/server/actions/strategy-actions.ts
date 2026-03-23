@@ -124,6 +124,7 @@ export const generateStrategyAction = async (
   prompt: string,
 ): Promise<ApiResponse<AiGeneratedStrategy>> => {
   try {
+    await getCurrentUserId()
     if (!prompt.trim()) {
       return errorResponse("Prompt is required")
     }
@@ -138,6 +139,7 @@ export const chatStrategyAction = async (
   messages: AiChatMessage[],
 ): Promise<ApiResponse<AiChatResponse>> => {
   try {
+    await getCurrentUserId()
     if (messages.length === 0) {
       return errorResponse("Messages are required")
     }

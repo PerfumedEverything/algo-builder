@@ -240,9 +240,9 @@ export class StrategyChecker {
       case "EQUALS":
         return Math.abs(actual - target) < 0.01
       case "ABOVE_BY_PERCENT":
-        return target > 0 && ((actual - target) / target) * 100 >= (currentPrice ?? 0)
+        return currentPrice != null && currentPrice > 0 && ((actual - currentPrice) / currentPrice) * 100 >= target
       case "BELOW_BY_PERCENT":
-        return target > 0 && ((target - actual) / target) * 100 >= (currentPrice ?? 0)
+        return currentPrice != null && currentPrice > 0 && ((currentPrice - actual) / currentPrice) * 100 >= target
       case "MULTIPLIED_BY":
         return actual >= target
       default:

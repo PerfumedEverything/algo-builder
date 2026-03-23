@@ -4,6 +4,7 @@ import { useCallback, useEffect, useMemo, useState, useRef } from "react"
 import { ChevronsUpDown, Search, Loader2, TrendingUp } from "lucide-react"
 
 import type { BrokerInstrument } from "@/core/types"
+import { cleanTicker } from "@/lib/ticker-utils"
 import { getInstrumentsAction, getInstrumentPriceAction } from "@/server/actions/broker-actions"
 import { Button } from "@/components/ui/button"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
@@ -99,8 +100,6 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onInstrument
       .filter((i) => i.ticker.toLowerCase().includes(q) || i.name.toLowerCase().includes(q))
       .slice(0, 100)
   }, [instruments, search])
-
-  const cleanTicker = (t: string) => t.replace(/@$/, "")
 
   const selected = instruments.find((i) => i.ticker.toUpperCase() === value.toUpperCase())
   const displayValue = selected ? `${cleanTicker(selected.ticker)} — ${selected.name}` : cleanTicker(value) || "Выберите инструмент"

@@ -10,8 +10,6 @@ export type SignalCondition = {
 
 export type SignalChannel = "telegram"
 
-export type SignalChannels = SignalChannel[]
-
 export type SignalWithLogic = {
   conditions: SignalCondition[]
   logicOperator: LogicOperator

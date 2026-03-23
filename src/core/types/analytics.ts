@@ -16,8 +16,3 @@ export type DividendData = {
   value: number
   currencyid: string
 }
-
-export type MOEXISSResponse<T> = {
-  columns: string[]
-  data: T[][]
-}

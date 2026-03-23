@@ -18,8 +18,9 @@ export class MOEXProvider implements AnalyticsProvider {
     const cached = await redis.get(cacheKey)
     if (cached) return JSON.parse(cached) as MOEXCandle[]
 
-    const url = `${this.baseUrl}/engines/stock/markets/index/securities/IMOEX/candles.json?from=${from}&till=${till}&interval=24&iss.meta=off`
+    const url = `${this.baseUrl}/engines/stock/markets/index/securities/IMOEX/candles.json?from=${encodeURIComponent(from)}&till=${encodeURIComponent(till)}&interval=24&iss.meta=off`
     const res = await fetch(url)
+    if (!res.ok) throw new Error(`MOEX API error: ${res.status} ${res.statusText}`)
     const json = await res.json()
     const { columns, data } = json.candles
     const candles = (data as unknown[][]).map((row) => mapColumnsToObject<MOEXCandle>(columns, row))
@@ -29,12 +30,14 @@ export class MOEXProvider implements AnalyticsProvider {
   }
 
   async getDividends(ticker: string): Promise<DividendData[]> {
+    if (!/^[A-Z0-9]{1,12}$/.test(ticker)) throw new Error(`Invalid ticker: ${ticker}`)
     const cacheKey = `moex:dividends:${ticker}`
     const cached = await redis.get(cacheKey)
     if (cached) return JSON.parse(cached) as DividendData[]
 
-    const url = `${this.baseUrl}/securities/${ticker}/dividends.json?iss.meta=off`
+    const url = `${this.baseUrl}/securities/${encodeURIComponent(ticker)}/dividends.json?iss.meta=off`
     const res = await fetch(url)
+    if (!res.ok) throw new Error(`MOEX API error: ${res.status} ${res.statusText}`)
     const json = await res.json()
     const { columns, data } = json.dividends
     const dividends = (data as unknown[][]).map((row) => mapColumnsToObject<DividendData>(columns, row))
@@ -51,6 +54,7 @@ export class MOEXProvider implements AnalyticsProvider {
       const separator = url.includes("?") ? "&" : "?"
       const pageUrl = `${url}${separator}start=${start}&iss.meta=off`
       const res = await fetch(pageUrl)
+      if (!res.ok) throw new Error(`MOEX API error: ${res.status} ${res.statusText}`)
       const json = await res.json()
 
       const rows = json.history?.data as unknown[][] | undefined

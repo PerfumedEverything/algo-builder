@@ -3,7 +3,7 @@
 import { AppError } from "@/core/errors/app-error"
 import { successResponse, errorResponse } from "@/core/types/api"
 import type { ApiResponse } from "@/core/types/api"
-import { getCurrentUser } from "./helpers"
+import { getCurrentUser, getCurrentUserId } from "./helpers"
 import { UserRepository } from "@/server/repositories/user-repository"
 import type { UserRole, UserWithStats } from "@/server/repositories/user-repository"
 import { BrokerCatalogRepository } from "@/server/repositories/broker-catalog-repository"
@@ -76,6 +76,7 @@ export const getCurrentUserRoleAction = async (): Promise<ApiResponse<{ role: Us
 
 export const getBrokersAction = async (): Promise<ApiResponse<BrokerRow[]>> => {
   try {
+    await getCurrentUserId()
     const repo = new BrokerCatalogRepository()
     const brokers = await repo.findAll()
     return successResponse(brokers)
@@ -132,6 +133,15 @@ export const uploadBrokerLogoAction = async (
     await assertAdmin()
     const file = formData.get("logo") as File
     if (!file) return errorResponse("Файл не выбран")
+
+    const ALLOWED_TYPES = ["image/jpeg", "image/png", "image/webp"]
+    const MAX_SIZE = 2 * 1024 * 1024
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      return errorResponse("Допустимые форматы: JPEG, PNG, WebP")
+    }
+    if (file.size > MAX_SIZE) {
+      return errorResponse("Максимальный размер файла: 2 МБ")
+    }
 
     const buffer = Buffer.from(await file.arrayBuffer())
     const ext = file.name.split(".").pop() ?? "png"

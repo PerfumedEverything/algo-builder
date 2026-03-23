@@ -46,11 +46,17 @@ export class RiskService {
     const now = new Date()
     const yearAgo = new Date(now.getTime() - 365 * 24 * 60 * 60 * 1000)
 
-    const candlesArr = await Promise.all(
-      positions.map((p) =>
-        this.broker.getCandles(userId, { instrumentId: p.instrumentId, from: yearAgo, to: now, interval: "day" })
+    const candlesArr: Awaited<ReturnType<BrokerService["getCandles"]>>[] = []
+    const BATCH_SIZE = 3
+    for (let i = 0; i < positions.length; i += BATCH_SIZE) {
+      const batch = positions.slice(i, i + BATCH_SIZE)
+      const results = await Promise.all(
+        batch.map((p) =>
+          this.broker.getCandles(userId, { instrumentId: p.instrumentId, from: yearAgo, to: now, interval: "day" })
+        )
       )
-    )
+      candlesArr.push(...results)
+    }
 
     const positionMaps: Map<string, number>[] = candlesArr.map((candles) => {
       const closes = candles.map((c) => c.close)

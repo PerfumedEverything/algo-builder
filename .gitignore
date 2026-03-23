@@ -38,10 +38,9 @@ yarn-error.log*
 # vercel
 .vercel
 
-# claude code
+# local tools
 .claude/
-
-# playwright mcp
+.planning/
 .playwright-mcp/
 
 # typescript

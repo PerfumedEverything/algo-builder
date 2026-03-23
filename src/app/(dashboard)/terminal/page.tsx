@@ -35,26 +35,31 @@ export default function TerminalPage() {
 
   const fetchCandles = useCallback(async (figi: string, p: ChartPeriod) => {
     setLoading(true)
-    const { days, interval } = PERIOD_CONFIG[p]
-    const to = new Date()
-    const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000)
-    const res = await getCandlesForChartAction(figi, interval, from.toISOString(), to.toISOString())
-    if (res.success) setCandles(res.data as CandlestickData<Time>[])
+    try {
+      const { days, interval } = PERIOD_CONFIG[p]
+      const to = new Date()
+      const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000)
+      const [res, portfolioRes] = await Promise.all([
+        getCandlesForChartAction(figi, interval, from.toISOString(), to.toISOString()),
+        getPortfolioAction(),
+      ])
+      if (res.success) setCandles(res.data as CandlestickData<Time>[])
 
-    const portfolioRes = await getPortfolioAction()
-    if (portfolioRes.success && portfolioRes.data) {
-      const pos = portfolioRes.data.positions.find((p) => p.instrumentId === figi)
-      if (pos?.operations.length) {
-        const markersRes = await getTradeMarkersAction(figi, pos.operations)
-        if (markersRes.success) setMarkers(markersRes.data as SeriesMarker<Time>[])
-        else setMarkers([])
+      if (portfolioRes.success && portfolioRes.data) {
+        const pos = portfolioRes.data.positions.find((p) => p.instrumentId === figi)
+        if (pos?.operations.length) {
+          const markersRes = await getTradeMarkersAction(figi, pos.operations)
+          if (markersRes.success) setMarkers(markersRes.data as SeriesMarker<Time>[])
+          else setMarkers([])
+        } else {
+          setMarkers([])
+        }
       } else {
         setMarkers([])
       }
-    } else {
-      setMarkers([])
+    } finally {
+      setLoading(false)
     }
-    setLoading(false)
   }, [])
 
   useEffect(() => {
@@ -85,7 +90,7 @@ export default function TerminalPage() {
       </div>
 
       <div className="flex items-center gap-4">
-        <div className="w-80">
+        <div className="w-full sm:w-80">
           <InstrumentSelect
             instrumentType="STOCK"
             value={ticker}

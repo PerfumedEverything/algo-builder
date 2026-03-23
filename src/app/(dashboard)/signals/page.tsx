@@ -86,6 +86,7 @@ export default function SignalsPage() {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      if (document.hidden) return
       fetchData()
       fetchProgress()
     }, 10_000)
