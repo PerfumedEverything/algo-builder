@@ -1,7 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { StrategyConfig, LogicOperator, SignalCondition } from "@/core/types"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
-import { cleanTicker } from "@/lib/ticker-utils"
 import { getBrokerProvider } from "@/server/providers/broker"
 import { TelegramProvider } from "@/server/providers/notification"
 import { IndicatorCalculator } from "./indicator-calculator"
@@ -112,7 +111,7 @@ export class StrategyChecker {
   }
 
   private async checkStrategy(strategy: StrategyRow): Promise<CheckResult[]> {
-    const instrument = cleanTicker(strategy.instrument)
+    const instrument = strategy.instrument
     const cachedPrice = await this.priceCache.getPrice(instrument)
 
     let price: number
@@ -140,8 +139,8 @@ export class StrategyChecker {
 
     if (needsCandles) {
       const interval = strategy.timeframe || "1d"
-      const cleanedInstrument = cleanTicker(strategy.instrument)
-      const cached = await this.priceCache.getCandles(cleanedInstrument, interval)
+      const instrumentId = strategy.instrument
+      const cached = await this.priceCache.getCandles(instrumentId, interval)
 
       if (cached) {
         candles = cached.map((c) => ({ ...c, time: new Date(c.time) }))
@@ -151,20 +150,20 @@ export class StrategyChecker {
           const now = new Date()
           const from = new Date(now.getTime() - getCandleRangeMs(interval))
           candles = await broker.getCandles({
-            instrumentId: cleanedInstrument,
+            instrumentId,
             from,
             to: now,
             interval,
           })
         } catch (e) {
-          console.error(`[StrategyChecker] getCandles failed for ${strategy.instrument} (${cleanedInstrument}):`, e)
+          console.error(`[StrategyChecker] getCandles failed for ${instrumentId}:`, e)
           return [{
             strategyId: strategy.id,
             strategyName: strategy.name,
             instrument: strategy.instrument,
             side,
             triggered: false,
-            message: `Candle fetch failed for ${cleanedInstrument}: ${e instanceof Error ? e.message : "Unknown error"}`,
+            message: `Candle fetch failed for ${instrumentId}: ${e instanceof Error ? e.message : "Unknown error"}`,
           }]
         }
       }
@@ -176,7 +175,7 @@ export class StrategyChecker {
           instrument: strategy.instrument,
           side,
           triggered: false,
-          message: `Not enough candle data for ${cleanedInstrument}`,
+          message: `Not enough candle data for ${instrumentId}`,
         }]
       }
     }

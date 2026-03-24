@@ -1,7 +1,6 @@
 import type { StrategyConfig } from "@/core/types"
 import { AppError } from "@/core/errors/app-error"
 import { strategyConfigSchema } from "@/core/schemas"
-import { cleanTicker } from "@/lib/ticker-utils"
 import { StrategyRepository } from "@/server/repositories"
 import type { AiProvider } from "@/server/providers/ai"
 
@@ -40,7 +39,6 @@ export class StrategyService {
     }
     return this.repository.create({
       ...data,
-      instrument: cleanTicker(data.instrument),
       userId,
     })
   }
@@ -66,10 +64,7 @@ export class StrategyService {
         throw AppError.badRequest("Invalid strategy config")
       }
     }
-    const cleaned = data.instrument
-      ? { ...data, instrument: cleanTicker(data.instrument) }
-      : data
-    return this.repository.update(id, userId, cleaned)
+    return this.repository.update(id, userId, data)
   }
 
   async deleteStrategy(id: string, userId: string) {

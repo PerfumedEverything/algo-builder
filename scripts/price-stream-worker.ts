@@ -42,7 +42,7 @@ const toNumber = (q?: { units: number; nano: number }): number => {
   return q.units + q.nano / 1_000_000_000
 }
 
-const cleanTicker = (ticker: string): string => ticker.replace(/@$/, "")
+const stripTickerSuffix = (ticker: string): string => ticker.replace(/@$/, "")
 
 let subscribedInstruments = new Set<string>()
 let unsubscribeFn: (() => Promise<void>) | null = null
@@ -55,8 +55,8 @@ async function getActiveInstruments(): Promise<string[]> {
   ])
 
   const instruments = new Set<string>()
-  for (const row of signals.data ?? []) instruments.add(cleanTicker(row.instrument))
-  for (const row of strategies.data ?? []) instruments.add(cleanTicker(row.instrument))
+  for (const row of signals.data ?? []) instruments.add(row.instrument)
+  for (const row of strategies.data ?? []) instruments.add(row.instrument)
   return [...instruments]
 }
 
@@ -83,10 +83,11 @@ async function resolveAll(tickers: string[]): Promise<Map<string, string>> {
   for (const ticker of tickers) {
     if (!tickerToUidMap.has(ticker)) {
       try {
-        const { instruments } = await api.instruments.findInstrument({ query: ticker.toUpperCase() })
+        const apiQuery = stripTickerSuffix(ticker)
+        const { instruments } = await api.instruments.findInstrument({ query: apiQuery.toUpperCase() })
         const match =
-          instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.classCode === "TQBR") ??
-          instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.instrumentKind === 1) ??
+          instruments.find((i) => stripTickerSuffix(i.ticker).toUpperCase() === apiQuery.toUpperCase() && i.classCode === "TQBR") ??
+          instruments.find((i) => stripTickerSuffix(i.ticker).toUpperCase() === apiQuery.toUpperCase() && i.instrumentKind === 1) ??
           instruments[0]
 
         if (match) {
@@ -218,8 +219,7 @@ async function refreshCandles() {
   }
 
   const tasks: Array<{ ticker: string; tf: string; uid: string }> = []
-  for (const [rawTicker, timeframes] of pairs) {
-    const ticker = cleanTicker(rawTicker)
+  for (const [ticker, timeframes] of pairs) {
     const uid = tickerToUidMap.get(ticker)
     if (!uid) continue
     for (const tf of timeframes) {
