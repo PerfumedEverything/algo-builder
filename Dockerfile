@@ -4,7 +4,7 @@ RUN apk add --no-cache libc6-compat
 FROM base AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN --mount=type=cache,target=/root/.npm npm ci
+RUN npm ci
 
 FROM base AS builder
 WORKDIR /app
@@ -20,7 +20,7 @@ ENV NEXT_PUBLIC_SUPABASE_ANON_KEY=$NEXT_PUBLIC_SUPABASE_ANON_KEY
 ENV NEXT_PUBLIC_APP_URL=$NEXT_PUBLIC_APP_URL
 
 RUN npx prisma generate
-RUN --mount=type=cache,target=/app/.next/cache npm run build
+RUN npm run build
 
 FROM base AS runner
 WORKDIR /app
