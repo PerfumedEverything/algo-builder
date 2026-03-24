@@ -69,7 +69,7 @@ Plans:
   6. User sees top gainers and top losers across all MOEX instruments for the day
 **Plans:** 2 plans
 Plans:
-- [ ] 02.1-01-PLAN.md — Data layer: SSE price stream, order book action, top movers action, terminal types
+- [x] 02.1-01-PLAN.md — Data layer: SSE price stream, order book action, top movers action, terminal types
 - [ ] 02.1-02-PLAN.md — Terminal page UI: TradingView widget, price bar, order book, positions, trade history, top movers
 **UI hint**: yes
 
