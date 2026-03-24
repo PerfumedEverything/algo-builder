@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { toNumber, mapOrderBookResponse } from "@/server/actions/terminal-actions"
+import { toNumber, mapOrderBookResponse } from "@/lib/order-book-utils"
 
 describe("toNumber", () => {
   it("converts Quotation with units and nano to number", () => {
