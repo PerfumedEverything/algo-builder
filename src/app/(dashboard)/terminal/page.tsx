@@ -1,96 +1,111 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import dynamic from "next/dynamic"
-import { Skeleton } from "@/components/ui/skeleton"
-import { InstrumentSelect } from "@/components/shared/instrument-select"
-import { ChartPeriodSelector, type ChartPeriod } from "@/components/portfolio/chart-period-selector"
-import { AiAnalysisButton } from "@/components/portfolio/ai-analysis-button"
-import { getCandlesForChartAction, getTradeMarkersAction, type ChartMarker } from "@/server/actions/chart-actions"
-import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
+
+import type { BrokerInstrument, PortfolioPosition } from "@/core/types"
+import type { OrderBookData, TopMover, PriceUpdate, PositionOperation } from "@/core/types"
+import { getOrderBookAction, getTopMoversAction, getOperationsByTickerAction } from "@/server/actions/terminal-actions"
 import { getPortfolioAction } from "@/server/actions/broker-actions"
-import type { BrokerInstrument } from "@/core/types"
-import type { CandlestickData, SeriesMarker, Time } from "lightweight-charts"
-
-const InstrumentChart = dynamic(
-  () => import("@/components/portfolio/instrument-chart").then((m) => ({ default: m.InstrumentChart })),
-  { ssr: false, loading: () => <Skeleton className="h-[500px] rounded-xl" /> },
-)
-
-const PERIOD_CONFIG: Record<ChartPeriod, { days: number; interval: string }> = {
-  "1d": { days: 1, interval: "1m" },
-  "1w": { days: 7, interval: "15m" },
-  "1m": { days: 30, interval: "1h" },
-  "3m": { days: 90, interval: "1d" },
-  "1y": { days: 365, interval: "1d" },
-}
+import { TradingViewWidget } from "@/components/terminal/tradingview-widget"
+import { PriceBar } from "@/components/terminal/price-bar"
+import { OrderBook } from "@/components/terminal/order-book"
+import { PositionsPanel } from "@/components/terminal/positions-panel"
+import { TradeHistoryPanel } from "@/components/terminal/trade-history-panel"
+import { TopMovers } from "@/components/terminal/top-movers"
+import { InstrumentSelect } from "@/components/shared/instrument-select"
+import { usePriceStream } from "@/hooks/use-price-stream"
 
 export default function TerminalPage() {
   const [instrument, setInstrument] = useState<BrokerInstrument | null>(null)
   const [ticker, setTicker] = useState("")
-  const [period, setPeriod] = useState<ChartPeriod>("3m")
-  const [candles, setCandles] = useState<CandlestickData<Time>[]>([])
-  const [markers, setMarkers] = useState<SeriesMarker<Time>[]>([])
-  const [loading, setLoading] = useState(false)
+  const [orderBook, setOrderBook] = useState<OrderBookData | null>(null)
+  const [positions, setPositions] = useState<PortfolioPosition[]>([])
+  const [operations, setOperations] = useState<PositionOperation[]>([])
+  const [topMovers, setTopMovers] = useState<{ gainers: TopMover[]; losers: TopMover[] }>({ gainers: [], losers: [] })
+  const [orderBookLoading, setOrderBookLoading] = useState(false)
+  const [operationsLoading, setOperationsLoading] = useState(false)
+  const [topMoversLoading, setTopMoversLoading] = useState(true)
 
-  const fetchCandles = useCallback(async (figi: string, p: ChartPeriod) => {
-    setLoading(true)
+  const priceUpdates = usePriceStream()
+
+  const fetchOrderBook = useCallback(async (figi: string) => {
+    setOrderBookLoading(true)
     try {
-      const { days, interval } = PERIOD_CONFIG[p]
-      const to = new Date()
-      const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000)
-      const [res, portfolioRes] = await Promise.all([
-        getCandlesForChartAction(figi, interval, from.toISOString(), to.toISOString()),
-        getPortfolioAction(),
-      ])
-      if (res.success) setCandles(res.data as CandlestickData<Time>[])
-
-      if (portfolioRes.success && portfolioRes.data) {
-        const pos = portfolioRes.data.positions.find((p) => p.instrumentId === figi)
-        if (pos?.operations.length) {
-          const markersRes = await getTradeMarkersAction(figi, pos.operations)
-          if (markersRes.success) setMarkers(markersRes.data as SeriesMarker<Time>[])
-          else setMarkers([])
-        } else {
-          setMarkers([])
-        }
-      } else {
-        setMarkers([])
-      }
+      const res = await getOrderBookAction(figi)
+      if (res.success) setOrderBook(res.data)
     } finally {
-      setLoading(false)
+      setOrderBookLoading(false)
+    }
+  }, [])
+
+  const fetchOperations = useCallback(async (t: string) => {
+    setOperationsLoading(true)
+    try {
+      const res = await getOperationsByTickerAction(t)
+      if (res.success) setOperations(res.data)
+      else setOperations([])
+    } finally {
+      setOperationsLoading(false)
     }
   }, [])
 
   useEffect(() => {
-    if (instrument?.figi) fetchCandles(instrument.figi, period)
-  }, [instrument, period, fetchCandles])
+    const loadInitial = async () => {
+      const [portfolioRes, topMoversRes] = await Promise.all([
+        getPortfolioAction(),
+        getTopMoversAction(),
+      ])
+      if (portfolioRes.success && portfolioRes.data) {
+        setPositions(portfolioRes.data.positions)
+      }
+      if (topMoversRes.success) {
+        setTopMovers(topMoversRes.data)
+      }
+      setTopMoversLoading(false)
+    }
+    void loadInitial()
+  }, [])
+
+  useEffect(() => {
+    if (!instrument) {
+      setOrderBook(null)
+      setOperations([])
+      return
+    }
+    void fetchOrderBook(instrument.figi)
+    void fetchOperations(instrument.ticker)
+  }, [instrument, fetchOrderBook, fetchOperations])
+
+  useEffect(() => {
+    if (!instrument) return
+    const interval = setInterval(() => {
+      void fetchOrderBook(instrument.figi)
+    }, 5_000)
+    return () => clearInterval(interval)
+  }, [instrument, fetchOrderBook])
+
+  useEffect(() => {
+    const interval = setInterval(async () => {
+      const res = await getTopMoversAction()
+      if (res.success) setTopMovers(res.data)
+    }, 60_000)
+    return () => clearInterval(interval)
+  }, [])
 
   const handleInstrumentSelect = useCallback((inst: BrokerInstrument) => {
     setInstrument(inst)
-    setCandles([])
-    setMarkers([])
+    setOrderBook(null)
+    setOperations([])
   }, [])
 
-  const handlePeriodChange = useCallback((p: ChartPeriod) => {
-    setPeriod(p)
-  }, [])
-
-  const buildChartMessage = useCallback(() => {
-    if (!instrument) return ""
-    const last30 = candles.slice(-30)
-    const lines = last30.map((c) => `${c.time} O:${c.open} H:${c.high} L:${c.low} C:${c.close}`)
-    return `Инструмент: ${instrument.ticker}\nПериод: ${period}\nДанные OHLCV:\n${lines.join("\n")}`
-  }, [instrument, candles, period])
+  const priceUpdate: PriceUpdate | undefined = instrument
+    ? priceUpdates.get(instrument.figi)
+    : undefined
 
   return (
-    <div className="space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Терминал</h1>
-      </div>
-
+    <div className="flex flex-col gap-4 p-4 h-full">
       <div className="flex items-center gap-4">
-        <div className="w-full sm:w-80">
+        <div className="w-64 shrink-0">
           <InstrumentSelect
             instrumentType="STOCK"
             value={ticker}
@@ -99,34 +114,34 @@ export default function TerminalPage() {
             showPrice={false}
           />
         </div>
-        {instrument && <ChartPeriodSelector value={period} onChange={handlePeriodChange} />}
-        {instrument && candles.length > 0 && (
-          <AiAnalysisButton
-            title={`Тех. анализ ${instrument.ticker}`}
-            triggerLabel="Анализ с ИИ"
-            analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
-            variant="outline"
-            size="sm"
+        <PriceBar instrument={instrument} priceUpdate={priceUpdate} orderBook={orderBook} />
+      </div>
+
+      <div className="flex gap-4">
+        <div className="flex-1 min-w-0">
+          <TradingViewWidget
+            key={instrument?.ticker ?? "empty"}
+            symbol={instrument ? `MOEX:${instrument.ticker}` : "MOEX:SBER"}
+            theme="dark"
           />
+        </div>
+        {instrument && (
+          <OrderBook data={orderBook} loading={orderBookLoading} />
         )}
       </div>
 
-      {!instrument && (
-        <div className="flex h-[500px] items-center justify-center rounded-xl border border-dashed border-border">
-          <p className="text-muted-foreground">Выберите инструмент для просмотра графика</p>
+      {instrument && (
+        <div className="grid grid-cols-2 gap-4">
+          <PositionsPanel positions={positions} priceUpdates={priceUpdates} />
+          <TradeHistoryPanel
+            operations={operations}
+            ticker={instrument.ticker}
+            loading={operationsLoading}
+          />
         </div>
       )}
 
-      {loading && <Skeleton className="h-[500px] rounded-xl" />}
-
-      {instrument && !loading && candles.length > 0 && (
-        <div className="rounded-xl border border-border bg-card p-4">
-          <div className="mb-2 text-sm text-muted-foreground">
-            {instrument.name} ({instrument.ticker})
-          </div>
-          <InstrumentChart candles={candles} markers={markers} height={500} />
-        </div>
-      )}
+      <TopMovers gainers={topMovers.gainers} losers={topMovers.losers} loading={topMoversLoading} />
     </div>
   )
 }
