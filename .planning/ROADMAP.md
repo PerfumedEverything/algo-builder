@@ -14,7 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Infrastructure & Terminal** - MOEX provider, candlestick charts, terminal page, deposit tracker, skeleton loading, ticker bug fix, AI analysis button
 - [x] **Phase 2: Risk Metrics** - Sharpe, Beta, VaR, Max Drawdown, Alpha with color-coded cards and AI analysis
-- [x] **Phase 2.1: Terminal v2** - INSERTED — TradingView widget, order book, realtime prices, positions panel, trade history, top movers (completed 2026-03-24)
+- [ ] **Phase 2.1: Terminal v2** - INSERTED (REPLANNED) — lightweight-charts terminal with order book, realtime prices, positions panel, trade history
 - [ ] **Phase 3: Fundamentals** - P/E, P/B, dividend yield scoring per position with AI fundamental analysis
 - [ ] **Phase 4: Diversification Analysis** - Correlation heatmap, sector/type/performance cohort charts, AI diversification analysis
 - [ ] **Phase 5: Portfolio Optimization** - Markowitz optimal weights, rebalancing recommendations, full portfolio AI analysis
@@ -56,21 +56,21 @@ Plans:
 - [x] 02-03-PLAN.md — AI risk analysis button integration
 **UI hint**: yes
 
-### Phase 2.1: Terminal v2 (INSERTED)
-**Goal**: Users have a professional trading terminal with TradingView charts, order book, realtime prices, open positions, and trade history
+### Phase 2.1: Terminal v2 (INSERTED — REPLANNED)
+**Goal**: Users have a professional trading terminal with lightweight-charts candlestick chart, order book, realtime prices, open positions with P&L, and trade history
 **Depends on**: Phase 1 (existing terminal page, MOEX provider, price-stream-worker)
 **Requirements**: TERM-01, TERM-02, TERM-03, TERM-04, TERM-05, TERM-06
+**Note**: TradingView widget abandoned (no MOEX support on free tier). Using lightweight-charts instead. Top movers removed (not in Anton's wireframe).
 **Success Criteria** (what must be TRUE):
-  1. User sees TradingView Advanced Chart widget with full indicator/drawing tool set for MOEX instruments
-  2. User sees realtime price bar (ticker, price, change %, H/L, volume, bid/ask) updating live
+  1. User sees lightweight-charts candlestick chart with period switching and trade markers
+  2. User sees realtime price bar (ticker, price, change %, H/L, volume, bid/ask) updating live via SSE
   3. User sees order book (стакан) with bid/ask depth and spread next to the chart
   4. User sees their open positions with realtime P&L below the chart
   5. User sees trade history for the selected instrument
-  6. User sees top gainers and top losers across all MOEX instruments for the day
-**Plans:** 2/2 plans complete
+**Plans:** 2 plans
 Plans:
-- [x] 02.1-01-PLAN.md — Data layer: SSE price stream, order book action, top movers action, terminal types
-- [x] 02.1-02-PLAN.md — Terminal page UI: TradingView widget, price bar, order book, positions, trade history, top movers
+- [ ] 02.1-01-PLAN.md — Terminal utilities with tests, PriceBar and OrderBook components
+- [ ] 02.1-02-PLAN.md — PositionsPanel, TradeHistoryPanel, terminal page assembly per wireframe
 **UI hint**: yes
 
 ### Phase 3: Fundamentals
@@ -115,7 +115,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Terminal | 5/5 | Complete | 2026-03-23 |
 | 2. Risk Metrics | 3/3 | Complete | 2026-03-24 |
-| 2.1 Terminal v2 (INSERTED) | 2/2 | Complete   | 2026-03-24 |
+| 2.1 Terminal v2 (REPLANNED) | 0/2 | In progress | - |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
