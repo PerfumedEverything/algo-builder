@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 02.1-01-PLAN.md
-last_updated: "2026-03-24T10:14:26.142Z"
+status: Checkpoint — awaiting visual verification of Terminal v2
+stopped_at: Checkpoint 02.1-02 Task 4 (human-verify)
+last_updated: "2026-03-24T10:19:17.430Z"
 progress:
   total_phases: 7
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 9
-  completed_plans: 5
+  completed_plans: 6
 ---
 
 # Project State
@@ -26,7 +26,7 @@ Plan: 2 of 2
 
 ## Progress
 
-[██████████░░░░░░░░░░] 40% (2/5 phases complete)
+[███████░░░] 67% (6/9 plans complete)
 
 ## Completed Phases
 
@@ -39,6 +39,8 @@ Plan: 2 of 2
 - Dead code cleanup, planning artifacts removed (restored)
 - Strategy checker: atomic guards against race conditions (duplicate notifications fix)
 - cleanTicker applied on save for @ suffix removal
+- TradingView widget remounts on ticker change via key prop to prevent stale widget state (02.1-02)
+- shadcn table component installed for consistent OrderBook table styling (02.1-02)
 
 ## Pending Todos
 
@@ -48,6 +50,6 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-24T10:14:26.139Z
-Stopped at: Completed 02.1-01-PLAN.md
-Next: Plan Phase 3 (Fundamentals) or address remaining Anton feedback
+Last session: 2026-03-24T10:19:17.430Z
+Stopped at: Checkpoint 02.1-02 Task 4 (human-verify Terminal v2)
+Next: After visual verification approval — continue to Phase 3 (Fundamentals)
