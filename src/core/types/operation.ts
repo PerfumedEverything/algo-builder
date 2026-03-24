@@ -18,6 +18,7 @@ export type OperationStats = {
   sellCount: number
   initialAmount: number
   currentAmount: number
+  holdingQty: number
   pnl: number
   pnlPercent: number
   lastBuyPrice: number

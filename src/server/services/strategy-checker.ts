@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin"
 import type { StrategyConfig, LogicOperator, SignalCondition } from "@/core/types"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
+import { cleanTicker } from "@/lib/ticker-utils"
 import { getBrokerProvider } from "@/server/providers/broker"
 import { TelegramProvider } from "@/server/providers/notification"
 import { IndicatorCalculator } from "./indicator-calculator"
@@ -111,14 +112,15 @@ export class StrategyChecker {
   }
 
   private async checkStrategy(strategy: StrategyRow): Promise<CheckResult[]> {
-    const cachedPrice = await this.priceCache.getPrice(strategy.instrument)
+    const instrument = cleanTicker(strategy.instrument)
+    const cachedPrice = await this.priceCache.getPrice(instrument)
 
     let price: number
     if (cachedPrice !== null) {
       price = cachedPrice
     } else {
       const broker = await this.connectBroker(strategy.userId)
-      price = await broker.getCurrentPrice(strategy.instrument)
+      price = await broker.getCurrentPrice(instrument)
     }
 
     return this.checkStrategyWithPrice(strategy, price)
@@ -262,15 +264,26 @@ export class StrategyChecker {
 
   private async handleTriggered(strategy: StrategyRow, result: CheckResult) {
     const isEntry = result.side === "entry"
+    const expectedState = isEntry ? "NONE" : "OPEN"
     const newPositionState = isEntry ? "OPEN" : "NONE"
 
-    await this.db
+    let query = this.db
       .from("Strategy")
       .update({
         positionState: newPositionState,
         updatedAt: new Date().toISOString(),
       })
       .eq("id", strategy.id)
+
+    if (isEntry) {
+      query = query.or("positionState.eq.NONE,positionState.is.null")
+    } else {
+      query = query.eq("positionState", "OPEN")
+    }
+
+    const { data: updated } = await query.select("id")
+
+    if (!updated?.length) return
 
     if (result.price) {
       try {

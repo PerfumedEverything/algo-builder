@@ -66,6 +66,7 @@ describe("OperationService.getStats", () => {
     expect(stats.totalOperations).toBe(0)
     expect(stats.pnl).toBe(0)
     expect(stats.pnlPercent).toBe(0)
+    expect(stats.holdingQty).toBe(0)
   })
 
   it("calculates realized P&L for BUY+SELL pair", async () => {
@@ -81,6 +82,7 @@ describe("OperationService.getStats", () => {
     expect(stats.pnlPercent).toBeCloseTo(10, 0)
     expect(stats.initialAmount).toBe(9900)
     expect(stats.currentAmount).toBeCloseTo(10890, 0)
+    expect(stats.holdingQty).toBe(0)
   })
 
   it("calculates unrealized P&L for open position", async () => {
@@ -94,6 +96,7 @@ describe("OperationService.getStats", () => {
     expect(stats.sellCount).toBe(0)
     expect(stats.pnl).toBe(66 * 180 - 9900)
     expect(stats.pnlPercent).toBeCloseTo(((66 * 180 - 9900) / 9900) * 100, 0)
+    expect(stats.holdingQty).toBe(66)
   })
 
   it("calculates zero unrealized without currentPrice", async () => {

@@ -310,6 +310,20 @@ export class SignalChecker {
   }
 
   private async handleTriggered(signal: SignalRow, result: CheckResult) {
+    const { data: updated } = await this.db
+      .from("Signal")
+      .update({
+        triggerCount: signal.triggerCount + 1,
+        lastTriggered: new Date().toISOString(),
+        isActive: signal.repeatMode ? true : false,
+        updatedAt: new Date().toISOString(),
+      })
+      .eq("id", signal.id)
+      .eq("triggerCount", signal.triggerCount)
+      .select("id")
+
+    if (!updated?.length) return
+
     await this.db
       .from("SignalLog")
       .insert({
@@ -319,16 +333,6 @@ export class SignalChecker {
         triggeredAt: new Date().toISOString(),
       })
 
-    await this.db
-      .from("Signal")
-      .update({
-        triggerCount: signal.triggerCount + 1,
-        lastTriggered: new Date().toISOString(),
-        isActive: signal.repeatMode ? true : false,
-        updatedAt: new Date().toISOString(),
-      })
-      .eq("id", signal.id)
-
     const { data: user } = await this.db
       .from("User")
       .select("telegramChatId")
@@ -337,7 +341,8 @@ export class SignalChecker {
 
     if (!user) return
 
-    for (const channel of signal.channels) {
+    const uniqueChannels = [...new Set(signal.channels)]
+    for (const channel of uniqueChannels) {
       if (channel === "telegram" && user.telegramChatId && this.telegram) {
         try {
           await this.telegram.send(user.telegramChatId, result.message)

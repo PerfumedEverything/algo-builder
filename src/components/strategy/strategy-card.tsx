@@ -244,7 +244,7 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
           }`}>
             {stats.pnlPercent >= 0 ? "+" : ""}{stats.pnlPercent.toFixed(2)}%
           </span>
-          {stats.initialAmount > 0 && (
+          {stats.holdingQty > 0 && stats.initialAmount > 0 && (
             <span className={`text-xs font-mono ${
               stats.pnl >= 0 ? "text-emerald-400" : "text-red-400"
             }`}>

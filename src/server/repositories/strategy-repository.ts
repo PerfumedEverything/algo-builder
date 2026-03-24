@@ -81,6 +81,7 @@ export class StrategyRepository {
         name: input.name,
         description: input.description ?? null,
         status: "DRAFT",
+        positionState: "NONE",
         instrument: input.instrument,
         instrumentType: input.instrumentType ?? "STOCK",
         timeframe: input.timeframe,
