@@ -69,7 +69,7 @@ Plans:
   5. User sees trade history for the selected instrument
 **Plans:** 2 plans
 Plans:
-- [ ] 02.1-01-PLAN.md — Terminal utilities with tests, PriceBar and OrderBook components
+- [x] 02.1-01-PLAN.md — Terminal utilities with tests, PriceBar and OrderBook components
 - [ ] 02.1-02-PLAN.md — PositionsPanel, TradeHistoryPanel, terminal page assembly per wireframe
 **UI hint**: yes
 

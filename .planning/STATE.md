@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Phase complete — ready for verification
-stopped_at: Completed 02.1-02-PLAN.md
-last_updated: "2026-03-24T10:57:14.909Z"
+stopped_at: Completed 02.1-01-PLAN.md
+last_updated: "2026-03-24T13:41:49.460Z"
 progress:
   total_phases: 7
-  completed_phases: 2
+  completed_phases: 1
   total_plans: 9
-  completed_plans: 6
+  completed_plans: 5
 ---
 
 # Project State
@@ -26,7 +26,7 @@ Plan: 2 of 2
 
 ## Progress
 
-[███████░░░] 67% (6/9 plans complete)
+[██████░░░░] 56% (5/9 plans complete)
 
 ## Completed Phases
 
@@ -41,6 +41,8 @@ Plan: 2 of 2
 - cleanTicker applied on save for @ suffix removal
 - TradingView widget remounts on ticker change via key prop to prevent stale widget state (02.1-02)
 - shadcn table component installed for consistent OrderBook table styling (02.1-02)
+- formatChange uses Math.abs() + manual +/- prefix to avoid Russian locale double-minus (02.1-01)
+- formatVolume K threshold at 10K per plan spec — numbers below 10K use plain Intl format (02.1-01)
 
 ## Pending Todos
 
@@ -50,6 +52,6 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-24T10:57:14.905Z
-Stopped at: Completed 02.1-02-PLAN.md
+Last session: 2026-03-24T13:41:49.454Z
+Stopped at: Completed 02.1-01-PLAN.md
 Next: After visual verification approval — continue to Phase 3 (Fundamentals)
