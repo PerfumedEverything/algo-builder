@@ -86,7 +86,6 @@ export const RiskMetricsSection = () => {
             triggerLabel="Анализ рисков"
             analyzeAction={() => analyzeWithAiAction("risk", buildRiskAnalysisMessage(metrics))}
             size="sm"
-            variant="ghost"
           />
         )}
       </div>

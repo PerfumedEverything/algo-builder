@@ -140,20 +140,44 @@ export class StrategyChecker {
 
     if (needsCandles) {
       const interval = strategy.timeframe || "1d"
-      const cached = await this.priceCache.getCandles(strategy.instrument, interval)
+      const cleanedInstrument = cleanTicker(strategy.instrument)
+      const cached = await this.priceCache.getCandles(cleanedInstrument, interval)
 
       if (cached) {
         candles = cached.map((c) => ({ ...c, time: new Date(c.time) }))
       } else {
-        const broker = await this.connectBroker(strategy.userId)
-        const now = new Date()
-        const from = new Date(now.getTime() - getCandleRangeMs(interval))
-        candles = await broker.getCandles({
-          instrumentId: strategy.instrument,
-          from,
-          to: now,
-          interval,
-        })
+        try {
+          const broker = await this.connectBroker(strategy.userId)
+          const now = new Date()
+          const from = new Date(now.getTime() - getCandleRangeMs(interval))
+          candles = await broker.getCandles({
+            instrumentId: cleanedInstrument,
+            from,
+            to: now,
+            interval,
+          })
+        } catch (e) {
+          console.error(`[StrategyChecker] getCandles failed for ${strategy.instrument} (${cleanedInstrument}):`, e)
+          return [{
+            strategyId: strategy.id,
+            strategyName: strategy.name,
+            instrument: strategy.instrument,
+            side,
+            triggered: false,
+            message: `Candle fetch failed for ${cleanedInstrument}: ${e instanceof Error ? e.message : "Unknown error"}`,
+          }]
+        }
+      }
+
+      if (candles.length === 0) {
+        return [{
+          strategyId: strategy.id,
+          strategyName: strategy.name,
+          instrument: strategy.instrument,
+          side,
+          triggered: false,
+          message: `Not enough candle data for ${cleanedInstrument}`,
+        }]
       }
     }
 

@@ -27,7 +27,7 @@ export const AiAnalysisButton = ({
   triggerLabel = "Анализ с ИИ",
   triggerIcon = <Bot className="h-4 w-4" />,
   analyzeAction,
-  variant = "ghost",
+  variant = "default",
   size = "sm",
 }: AiAnalysisButtonProps) => {
   const [open, setOpen] = useState(false)
@@ -59,7 +59,11 @@ export const AiAnalysisButton = ({
   return (
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
-        <Button variant={variant} size={size} className="gap-1.5">
+        <Button
+          variant={variant}
+          size={size}
+          className={variant === "default" ? "gap-1.5 bg-blue-600 hover:bg-blue-700 text-white" : "gap-1.5"}
+        >
           {triggerIcon}
           {triggerLabel}
         </Button>

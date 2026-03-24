@@ -22,7 +22,6 @@ export const LotAnalysisDialog = ({ ticker, operations, currentPrice }: LotAnaly
       triggerLabel="AI анализ"
       triggerIcon={<Layers className="h-3.5 w-3.5" />}
       size="sm"
-      variant="ghost"
     />
   )
 }

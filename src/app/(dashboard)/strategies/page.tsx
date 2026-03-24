@@ -1,10 +1,10 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
-import { Plus, TrendingUp, SlidersHorizontal, ShieldCheck, X } from "lucide-react"
+import { useCallback, useEffect, useMemo, useState } from "react"
+import { Plus, TrendingUp, SlidersHorizontal, ShieldCheck, X, Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { toast } from "sonner"
 
-import type { OperationStats } from "@/core/types"
+import type { OperationStats, StrategyConfig } from "@/core/types"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { WarningBanner } from "@/components/ui/warning-banner"
@@ -52,6 +52,17 @@ export default function StrategiesPage() {
   const [pricesMap, setPricesMap] = useState<Record<string, number>>({})
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
+
+  const portfolioSummary = useMemo(() => {
+    const totalPortfolio = strategies.reduce((sum, s) => {
+      const config = s.config as StrategyConfig
+      return sum + (config.risks?.tradeAmount ?? 0)
+    }, 0)
+    const totalPnl = Object.values(opsStatsMap).reduce((sum, s) => sum + (s.pnl ?? 0), 0)
+    const totalInitial = Object.values(opsStatsMap).reduce((sum, s) => sum + (s.initialAmount ?? 0), 0)
+    const totalPnlPercent = totalInitial > 0 ? (totalPnl / totalInitial) * 100 : 0
+    return { totalPortfolio, totalPnl, totalPnlPercent }
+  }, [strategies, opsStatsMap])
 
   const fetchData = useCallback(async () => {
     const params: Record<string, string> = {}
@@ -184,6 +195,44 @@ export default function StrategiesPage() {
       )}
 
       <StrategyStats stats={stats} />
+
+      {strategies.length > 0 && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          <div className="rounded-lg border border-border bg-card px-4 py-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+              <Wallet className="h-3.5 w-3.5" />
+              Размер портфеля стратегий
+            </div>
+            <p className="text-lg font-semibold">
+              {portfolioSummary.totalPortfolio.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ₽
+            </p>
+          </div>
+          <div className="rounded-lg border border-border bg-card px-4 py-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+              {portfolioSummary.totalPnl >= 0
+                ? <ArrowUpRight className="h-3.5 w-3.5 text-emerald-400" />
+                : <ArrowDownRight className="h-3.5 w-3.5 text-red-400" />}
+              Суммарный P&L
+            </div>
+            <p className={`text-lg font-semibold ${portfolioSummary.totalPnl >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+              {portfolioSummary.totalPnl >= 0 ? "+" : ""}
+              {portfolioSummary.totalPnl.toLocaleString("ru-RU", { maximumFractionDigits: 2 })} ₽
+            </p>
+          </div>
+          <div className="rounded-lg border border-border bg-card px-4 py-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground mb-1">
+              {portfolioSummary.totalPnlPercent >= 0
+                ? <ArrowUpRight className="h-3.5 w-3.5 text-emerald-400" />
+                : <ArrowDownRight className="h-3.5 w-3.5 text-red-400" />}
+              P&L %
+            </div>
+            <p className={`text-lg font-semibold ${portfolioSummary.totalPnlPercent >= 0 ? "text-emerald-400" : "text-red-400"}`}>
+              {portfolioSummary.totalPnlPercent >= 0 ? "+" : ""}
+              {portfolioSummary.totalPnlPercent.toFixed(2)}%
+            </p>
+          </div>
+        </div>
+      )}
 
       <div className="flex items-center justify-end gap-2">
         <SearchInput

@@ -1,6 +1,7 @@
 import type { SignalCondition, SignalChannel, LogicOperator } from "@/core/types"
 import { AppError } from "@/core/errors/app-error"
 import { SignalRepository } from "@/server/repositories"
+import { cleanTicker } from "@/lib/ticker-utils"
 
 export class SignalService {
   constructor(private repository = new SignalRepository()) {}
@@ -35,7 +36,7 @@ export class SignalService {
       strategyId?: string
     },
   ) {
-    return this.repository.create({ ...data, userId })
+    return this.repository.create({ ...data, userId, instrument: cleanTicker(data.instrument) })
   }
 
   async updateSignal(
@@ -55,7 +56,8 @@ export class SignalService {
     }>,
   ) {
     await this.getSignal(id, userId)
-    return this.repository.update(id, userId, data)
+    const cleanedData = data.instrument ? { ...data, instrument: cleanTicker(data.instrument) } : data
+    return this.repository.update(id, userId, cleanedData)
   }
 
   async toggleSignal(id: string, userId: string) {
