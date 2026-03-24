@@ -40,7 +40,6 @@ yarn-error.log*
 
 # local tools
 .claude/
-.planning/
 .playwright-mcp/
 
 # typescript
