@@ -3,7 +3,7 @@
 import { cn } from "@/lib/utils"
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip"
 
-export type ChartPeriod = "1d" | "1w" | "1m" | "3m" | "1y"
+export type ChartPeriod = "1m" | "5m" | "15m" | "1h" | "1d" | "1w"
 
 type ChartPeriodSelectorProps = {
   value: ChartPeriod
@@ -11,11 +11,12 @@ type ChartPeriodSelectorProps = {
 }
 
 const PERIODS: Array<{ value: ChartPeriod; label: string; tooltip: string }> = [
-  { value: "1d", label: "1Д", tooltip: "1 день · минутные свечи" },
-  { value: "1w", label: "1Н", tooltip: "1 неделя · 15-мин свечи" },
-  { value: "1m", label: "1М", tooltip: "1 месяц · часовые свечи" },
-  { value: "3m", label: "3М", tooltip: "3 месяца · дневные свечи" },
-  { value: "1y", label: "1Г", tooltip: "1 год · дневные свечи" },
+  { value: "1m", label: "1м", tooltip: "1-минутные свечи" },
+  { value: "5m", label: "5м", tooltip: "5-минутные свечи" },
+  { value: "15m", label: "15м", tooltip: "15-минутные свечи" },
+  { value: "1h", label: "1ч", tooltip: "Часовые свечи" },
+  { value: "1d", label: "1д", tooltip: "Дневные свечи" },
+  { value: "1w", label: "1н", tooltip: "Недельные свечи" },
 ]
 
 export const ChartPeriodSelector = ({ value, onChange }: ChartPeriodSelectorProps) => (

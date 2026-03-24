@@ -25,17 +25,18 @@ const InstrumentChart = dynamic(
 )
 
 const PERIOD_CONFIG: Record<ChartPeriod, { days: number; interval: string }> = {
-  "1d": { days: 1, interval: "1m" },
-  "1w": { days: 7, interval: "15m" },
-  "1m": { days: 30, interval: "1h" },
-  "3m": { days: 90, interval: "1d" },
-  "1y": { days: 365, interval: "1d" },
+  "1m": { days: 1, interval: "1m" },
+  "5m": { days: 3, interval: "5m" },
+  "15m": { days: 7, interval: "15m" },
+  "1h": { days: 30, interval: "1h" },
+  "1d": { days: 365, interval: "1d" },
+  "1w": { days: 730, interval: "1w" },
 }
 
 export default function TerminalPage() {
   const [instrument, setInstrument] = useState<BrokerInstrument | null>(null)
   const [ticker, setTicker] = useState("")
-  const [period, setPeriod] = useState<ChartPeriod>("3m")
+  const [period, setPeriod] = useState<ChartPeriod>("1d")
   const [candles, setCandles] = useState<CandlestickData<Time>[]>([])
   const [markers, setMarkers] = useState<SeriesMarker<Time>[]>([])
   const [loading, setLoading] = useState(false)
@@ -164,7 +165,9 @@ export default function TerminalPage() {
     return `Инструмент: ${instrument.ticker}\nПериод: ${period}\nДанные OHLCV:\n${lines.join("\n")}`
   }, [instrument, candles, period])
 
-  const livePrice = instrument ? prices.get(instrument.figi) : undefined
+  const livePrice = instrument
+    ? (prices.get(instrument.ticker) ?? prices.get(instrument.figi))
+    : undefined
 
   const currentPrice = livePrice?.price ?? (candles.length > 0 ? (candles[candles.length - 1].close as number) : 0)
   const openPrice = candles.length > 0 ? (candles[0].open as number) : 0
