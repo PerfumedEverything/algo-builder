@@ -21,4 +21,20 @@ describe("cleanTicker", () => {
   it("handles ticker with only @", () => {
     expect(cleanTicker("@")).toBe("")
   })
+
+  it("strips trailing @ from TGLD@", () => {
+    expect(cleanTicker("TGLD@")).toBe("TGLD")
+  })
+
+  it("returns SBER unchanged when no trailing @", () => {
+    expect(cleanTicker("SBER")).toBe("SBER")
+  })
+
+  it("handles empty string without crash", () => {
+    expect(cleanTicker("")).toBe("")
+  })
+
+  it("strips trailing @ from GAZP@", () => {
+    expect(cleanTicker("GAZP@")).toBe("GAZP")
+  })
 })

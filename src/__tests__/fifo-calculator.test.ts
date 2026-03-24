@@ -139,6 +139,65 @@ describe("FifoCalculator.calculateSummary", () => {
     expect(summary.totalPnlPercent).toBeCloseTo(12.5, 1)
   })
 
+  it("average weighted price calculation with multiple lots at different prices", () => {
+    const ops = [
+      makeOp("BUY", 100, 10, "2026-01-01"),
+      makeOp("BUY", 200, 20, "2026-01-10"),
+      makeOp("BUY", 50, 30, "2026-01-20"),
+    ]
+    const summary = FifoCalculator.calculateSummary(ops, 25)
+
+    expect(summary.totalQuantity).toBe(350)
+    const expectedTotalCost = 100 * 10 + 200 * 20 + 50 * 30
+    expect(summary.totalCost).toBe(expectedTotalCost)
+    expect(summary.avgPrice).toBeCloseTo(expectedTotalCost / 350, 4)
+  })
+
+  it("verify remaining lots after partial sell across two lots — first lot consumed, only second remains", () => {
+    const ops = [
+      makeOp("BUY", 10, 100, "2026-01-01"),
+      makeOp("BUY", 20, 200, "2026-01-10"),
+      makeOp("SELL", 15, 150, "2026-01-15"),
+    ]
+    const summary = FifoCalculator.calculateSummary(ops, 180)
+
+    expect(summary.totalQuantity).toBe(15)
+    // First lot fully consumed (10 shares), partially consumed second lot (5 of 20 consumed)
+    expect(summary.lots).toHaveLength(1)
+    expect(summary.lots[0].buyPrice).toBe(200)
+    expect(summary.lots[0].remainingQuantity).toBe(15)
+  })
+
+  it("verify remaining lots — first lot fully consumed, second partially", () => {
+    const ops = [
+      makeOp("BUY", 10, 100, "2026-01-01"),
+      makeOp("BUY", 20, 200, "2026-01-10"),
+      makeOp("SELL", 12, 150, "2026-01-15"),
+    ]
+    const summary = FifoCalculator.calculateSummary(ops, 180)
+
+    expect(summary.totalQuantity).toBe(18)
+    // First lot fully consumed (10), 2 consumed from second lot → 18 remain
+    expect(summary.lots).toHaveLength(1)
+    expect(summary.lots[0].buyPrice).toBe(200)
+    expect(summary.lots[0].remainingQuantity).toBe(18)
+  })
+
+  it("full liquidation — all lots sold, no remaining lots", () => {
+    const ops = [
+      makeOp("BUY", 10, 100, "2026-01-01"),
+      makeOp("BUY", 20, 200, "2026-01-10"),
+      makeOp("SELL", 30, 150, "2026-01-15"),
+    ]
+    const summary = FifoCalculator.calculateSummary(ops, 180)
+
+    expect(summary.totalQuantity).toBe(0)
+    expect(summary.lots).toHaveLength(0)
+    expect(summary.avgPrice).toBe(0)
+    expect(summary.totalCost).toBe(0)
+    expect(summary.currentValue).toBe(0)
+  })
+
   it("FIFO average after partial sell (TGLD scenario)", () => {
     const ops = [
       makeOp("BUY", 100, 15.50, "2026-02-01"),
