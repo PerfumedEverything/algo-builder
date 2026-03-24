@@ -67,7 +67,10 @@ Plans:
   4. User sees their open positions with realtime P&L below the chart
   5. User sees trade history for the selected instrument
   6. User sees top gainers and top losers across all MOEX instruments for the day
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 02.1-01-PLAN.md — Data layer: SSE price stream, order book action, top movers action, terminal types
+- [ ] 02.1-02-PLAN.md — Terminal page UI: TradingView widget, price bar, order book, positions, trade history, top movers
 **UI hint**: yes
 
 ### Phase 3: Fundamentals
@@ -112,7 +115,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 3 -> 4 -> 5
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Terminal | 5/5 | Complete | 2026-03-23 |
 | 2. Risk Metrics | 3/3 | Complete | 2026-03-24 |
-| 2.1 Terminal v2 (INSERTED) | 0/TBD | Not started | - |
+| 2.1 Terminal v2 (INSERTED) | 0/2 | Planning | - |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
