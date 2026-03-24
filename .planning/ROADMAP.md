@@ -14,6 +14,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 
 - [x] **Phase 1: Infrastructure & Terminal** - MOEX provider, candlestick charts, terminal page, deposit tracker, skeleton loading, ticker bug fix, AI analysis button
 - [x] **Phase 2: Risk Metrics** - Sharpe, Beta, VaR, Max Drawdown, Alpha with color-coded cards and AI analysis
+- [ ] **Phase 2.1: Terminal v2** - INSERTED — TradingView widget, order book, realtime prices, positions panel, trade history, top movers
 - [ ] **Phase 3: Fundamentals** - P/E, P/B, dividend yield scoring per position with AI fundamental analysis
 - [ ] **Phase 4: Diversification Analysis** - Correlation heatmap, sector/type/performance cohort charts, AI diversification analysis
 - [ ] **Phase 5: Portfolio Optimization** - Markowitz optimal weights, rebalancing recommendations, full portfolio AI analysis
@@ -55,6 +56,20 @@ Plans:
 - [x] 02-03-PLAN.md — AI risk analysis button integration
 **UI hint**: yes
 
+### Phase 2.1: Terminal v2 (INSERTED)
+**Goal**: Users have a professional trading terminal with TradingView charts, order book, realtime prices, open positions, and trade history
+**Depends on**: Phase 1 (existing terminal page, MOEX provider, price-stream-worker)
+**Requirements**: TERM-01, TERM-02, TERM-03, TERM-04, TERM-05, TERM-06
+**Success Criteria** (what must be TRUE):
+  1. User sees TradingView Advanced Chart widget with full indicator/drawing tool set for MOEX instruments
+  2. User sees realtime price bar (ticker, price, change %, H/L, volume, bid/ask) updating live
+  3. User sees order book (стакан) with bid/ask depth and spread next to the chart
+  4. User sees their open positions with realtime P&L below the chart
+  5. User sees trade history for the selected instrument
+  6. User sees top gainers and top losers across all MOEX instruments for the day
+**Plans**: TBD
+**UI hint**: yes
+
 ### Phase 3: Fundamentals
 **Goal**: Users can evaluate the fundamental value of each position in their portfolio with a composite score
 **Depends on**: Phase 1 (MOEXProvider for MOEX ISS fundamentals data)
@@ -91,12 +106,13 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 -> 2 -> 2.1 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Terminal | 5/5 | Complete | 2026-03-23 |
 | 2. Risk Metrics | 3/3 | Complete | 2026-03-24 |
+| 2.1 Terminal v2 (INSERTED) | 0/TBD | Not started | - |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
