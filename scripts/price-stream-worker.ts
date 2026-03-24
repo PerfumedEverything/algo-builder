@@ -42,6 +42,8 @@ const toNumber = (q?: { units: number; nano: number }): number => {
   return q.units + q.nano / 1_000_000_000
 }
 
+const cleanTicker = (ticker: string): string => ticker.replace(/@$/, "")
+
 let subscribedInstruments = new Set<string>()
 let unsubscribeFn: (() => Promise<void>) | null = null
 let lastPriceUpdate = Date.now()
@@ -53,8 +55,8 @@ async function getActiveInstruments(): Promise<string[]> {
   ])
 
   const instruments = new Set<string>()
-  for (const row of signals.data ?? []) instruments.add(row.instrument)
-  for (const row of strategies.data ?? []) instruments.add(row.instrument)
+  for (const row of signals.data ?? []) instruments.add(cleanTicker(row.instrument))
+  for (const row of strategies.data ?? []) instruments.add(cleanTicker(row.instrument))
   return [...instruments]
 }
 
@@ -216,7 +218,8 @@ async function refreshCandles() {
   }
 
   const tasks: Array<{ ticker: string; tf: string; uid: string }> = []
-  for (const [ticker, timeframes] of pairs) {
+  for (const [rawTicker, timeframes] of pairs) {
+    const ticker = cleanTicker(rawTicker)
     const uid = tickerToUidMap.get(ticker)
     if (!uid) continue
     for (const tf of timeframes) {
@@ -308,6 +311,26 @@ async function startSignalListener() {
   })
 }
 
+const CRON_CHECK_INTERVAL = 60_000
+
+async function cronCheck() {
+  try {
+    const url = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/signals/check`
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${process.env.CRON_SECRET}`,
+      },
+    })
+    if (!response.ok) {
+      console.error(`[Worker] Cron check failed: ${response.status}`)
+    }
+  } catch (e) {
+    console.error("[Worker] Cron check error:", e)
+  }
+}
+
 async function main() {
   console.log("[Worker] Starting price stream worker...")
 
@@ -324,8 +347,10 @@ async function main() {
   setInterval(() => refreshInstruments(), INSTRUMENT_REFRESH_INTERVAL)
   setInterval(() => refreshCandles(), CANDLE_REFRESH_INTERVAL)
   setInterval(() => healthCheck(), HEALTH_CHECK_INTERVAL)
+  setInterval(() => cronCheck(), CRON_CHECK_INTERVAL)
 
   await startSignalListener()
+  await cronCheck()
 
   console.log("[Worker] Ready. Listening for price updates...")
 }
