@@ -1,72 +1,96 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-
-import type { BrokerInstrument, PortfolioPosition } from "@/core/types"
-import type { PositionOperation } from "@/core/types"
-import { getOperationsByTickerAction } from "@/server/actions/terminal-actions"
-import { getPortfolioAction } from "@/server/actions/broker-actions"
-import { TradingViewWidget } from "@/components/terminal/tradingview-widget"
-import { PositionsPanel } from "@/components/terminal/positions-panel"
-import { TradeHistoryPanel } from "@/components/terminal/trade-history-panel"
+import dynamic from "next/dynamic"
+import { Skeleton } from "@/components/ui/skeleton"
 import { InstrumentSelect } from "@/components/shared/instrument-select"
-import { cn } from "@/lib/utils"
+import { ChartPeriodSelector, type ChartPeriod } from "@/components/portfolio/chart-period-selector"
+import { AiAnalysisButton } from "@/components/portfolio/ai-analysis-button"
+import { getCandlesForChartAction, getTradeMarkersAction, type ChartMarker } from "@/server/actions/chart-actions"
+import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
+import { getPortfolioAction } from "@/server/actions/broker-actions"
+import type { BrokerInstrument } from "@/core/types"
+import type { CandlestickData, SeriesMarker, Time } from "lightweight-charts"
 
-const TIMEFRAMES = [
-  { label: "1м", value: "1m" },
-  { label: "5м", value: "5m" },
-  { label: "15м", value: "15m" },
-  { label: "1ч", value: "1h" },
-  { label: "1Д", value: "1D" },
-  { label: "1Н", value: "1W" },
-]
+const InstrumentChart = dynamic(
+  () => import("@/components/portfolio/instrument-chart").then((m) => ({ default: m.InstrumentChart })),
+  { ssr: false, loading: () => <Skeleton className="h-[500px] rounded-xl" /> },
+)
+
+const PERIOD_CONFIG: Record<ChartPeriod, { days: number; interval: string }> = {
+  "1d": { days: 1, interval: "1m" },
+  "1w": { days: 7, interval: "15m" },
+  "1m": { days: 30, interval: "1h" },
+  "3m": { days: 90, interval: "1d" },
+  "1y": { days: 365, interval: "1d" },
+}
 
 export default function TerminalPage() {
   const [instrument, setInstrument] = useState<BrokerInstrument | null>(null)
   const [ticker, setTicker] = useState("")
-  const [timeframe, setTimeframe] = useState("1D")
-  const [positions, setPositions] = useState<PortfolioPosition[]>([])
-  const [operations, setOperations] = useState<PositionOperation[]>([])
-  const [operationsLoading, setOperationsLoading] = useState(false)
+  const [period, setPeriod] = useState<ChartPeriod>("3m")
+  const [candles, setCandles] = useState<CandlestickData<Time>[]>([])
+  const [markers, setMarkers] = useState<SeriesMarker<Time>[]>([])
+  const [loading, setLoading] = useState(false)
 
-  const fetchOperations = useCallback(async (t: string) => {
-    setOperationsLoading(true)
+  const fetchCandles = useCallback(async (figi: string, p: ChartPeriod) => {
+    setLoading(true)
     try {
-      const res = await getOperationsByTickerAction(t)
-      if (res.success) setOperations(res.data)
-      else setOperations([])
-    } finally {
-      setOperationsLoading(false)
-    }
-  }, [])
+      const { days, interval } = PERIOD_CONFIG[p]
+      const to = new Date()
+      const from = new Date(to.getTime() - days * 24 * 60 * 60 * 1000)
+      const [res, portfolioRes] = await Promise.all([
+        getCandlesForChartAction(figi, interval, from.toISOString(), to.toISOString()),
+        getPortfolioAction(),
+      ])
+      if (res.success) setCandles(res.data as CandlestickData<Time>[])
 
-  useEffect(() => {
-    const loadPortfolio = async () => {
-      const res = await getPortfolioAction()
-      if (res.success && res.data) {
-        setPositions(res.data.positions)
+      if (portfolioRes.success && portfolioRes.data) {
+        const pos = portfolioRes.data.positions.find((p) => p.instrumentId === figi)
+        if (pos?.operations.length) {
+          const markersRes = await getTradeMarkersAction(figi, pos.operations)
+          if (markersRes.success) setMarkers(markersRes.data as SeriesMarker<Time>[])
+          else setMarkers([])
+        } else {
+          setMarkers([])
+        }
+      } else {
+        setMarkers([])
       }
+    } finally {
+      setLoading(false)
     }
-    void loadPortfolio()
   }, [])
 
   useEffect(() => {
-    if (!instrument) {
-      setOperations([])
-      return
-    }
-    void fetchOperations(instrument.ticker)
-  }, [instrument, fetchOperations])
+    if (instrument?.figi) fetchCandles(instrument.figi, period)
+  }, [instrument, period, fetchCandles])
 
   const handleInstrumentSelect = useCallback((inst: BrokerInstrument) => {
     setInstrument(inst)
-    setOperations([])
+    setCandles([])
+    setMarkers([])
   }, [])
 
+  const handlePeriodChange = useCallback((p: ChartPeriod) => {
+    setPeriod(p)
+  }, [])
+
+  const buildChartMessage = useCallback(() => {
+    if (!instrument) return ""
+    const last30 = candles.slice(-30)
+    const lines = last30.map((c) => `${c.time} O:${c.open} H:${c.high} L:${c.low} C:${c.close}`)
+    return `Инструмент: ${instrument.ticker}\nПериод: ${period}\nДанные OHLCV:\n${lines.join("\n")}`
+  }, [instrument, candles, period])
+
   return (
-    <div className="flex flex-col gap-3 h-full">
-      <div className="flex flex-wrap items-center gap-2">
-        <div className="w-full sm:w-64">
+    <div className="space-y-6 p-6">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-bold">Терминал</h1>
+      </div>
+
+      <div className="flex items-center gap-4">
+        <div className="w-full sm:w-80">
           <InstrumentSelect
             instrumentType="STOCK"
             value={ticker}
@@ -75,40 +99,34 @@ export default function TerminalPage() {
             showPrice={false}
           />
         </div>
+        {instrument && <ChartPeriodSelector value={period} onChange={handlePeriodChange} />}
+        {instrument && candles.length > 0 && (
+          <AiAnalysisButton
+            title={`Тех. анализ ${instrument.ticker}`}
+            triggerLabel="Анализ с ИИ"
+            analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
+            variant="outline"
+            size="sm"
+          />
+        )}
+      </div>
 
-        <div className="flex items-center gap-1 flex-wrap">
-          {TIMEFRAMES.map((tf) => (
-            <button
-              key={tf.value}
-              onClick={() => setTimeframe(tf.value)}
-              className={cn(
-                "px-2.5 py-1 text-xs font-medium rounded-md border transition-colors",
-                timeframe === tf.value
-                  ? "bg-primary text-primary-foreground border-primary"
-                  : "border-border text-muted-foreground hover:text-foreground hover:border-border/80",
-              )}
-            >
-              {tf.label}
-            </button>
-          ))}
+      {!instrument && (
+        <div className="flex h-[500px] items-center justify-center rounded-xl border border-dashed border-border">
+          <p className="text-muted-foreground">Выберите инструмент для просмотра графика</p>
         </div>
-      </div>
+      )}
 
-      <TradingViewWidget
-        key={`${instrument?.ticker ?? "empty"}-${timeframe}`}
-        symbol={instrument ? `MOEX:${instrument.ticker}` : "MOEX:SBER"}
-        theme="dark"
-        interval={timeframe}
-      />
+      {loading && <Skeleton className="h-[500px] rounded-xl" />}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-        <PositionsPanel positions={positions} priceUpdates={new Map()} />
-        <TradeHistoryPanel
-          operations={operations}
-          ticker={instrument?.ticker ?? ""}
-          loading={operationsLoading}
-        />
-      </div>
+      {instrument && !loading && candles.length > 0 && (
+        <div className="rounded-xl border border-border bg-card p-4">
+          <div className="mb-2 text-sm text-muted-foreground">
+            {instrument.name} ({instrument.ticker})
+          </div>
+          <InstrumentChart candles={candles} markers={markers} height={500} />
+        </div>
+      )}
     </div>
   )
 }
