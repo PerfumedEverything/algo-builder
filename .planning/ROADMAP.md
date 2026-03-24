@@ -49,7 +49,7 @@ Plans:
   1. User sees 5 risk metric cards (Sharpe, Beta, VaR, Max Drawdown, Alpha) on the portfolio page with color coding (green/yellow/red)
   2. User can hover over any metric card and see a tooltip explaining what the metric means and how to interpret it
   3. User can click the AI risk analysis button and receive a streaming evaluation of all 5 metrics in context of their positions
-**Plans:** 3 plans
+**Plans:** 3/3 plans complete
 Plans:
 - [x] 02-01-PLAN.md — Risk types, pure math calculations (TDD), RiskService orchestration
 - [x] 02-02-PLAN.md — Server action with Redis cache, risk metric cards UI, portfolio page integration
@@ -114,7 +114,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 3 -> 4 -> 5
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Terminal | 5/5 | Complete | 2026-03-23 |
-| 2. Risk Metrics | 3/3 | Complete | 2026-03-24 |
+| 2. Risk Metrics | 3/3 | Complete   | 2026-03-24 |
 | 2.1 Terminal v2 (REPLANNED) | 0/2 | In progress | - |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
