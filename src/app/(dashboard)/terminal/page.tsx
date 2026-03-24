@@ -171,7 +171,9 @@ export default function TerminalPage() {
   const change = openPrice > 0 ? ((currentPrice - openPrice) / openPrice) * 100 : 0
   const high = candles.length > 0 ? Math.max(...candles.map((c) => c.high as number)) : 0
   const low = candles.length > 0 ? Math.min(...candles.map((c) => c.low as number)) : 0
-  const volume = 0
+  const volume = candles.length > 0
+    ? candles.reduce((sum, c) => sum + ((c as { volume?: number }).volume ?? 0), 0)
+    : 0
   const bestBid = orderBook?.bids?.[0]?.price ?? 0
   const bestAsk = orderBook?.asks?.[0]?.price ?? 0
 

@@ -11,6 +11,7 @@ export type ChartCandle = {
   high: number
   low: number
   close: number
+  volume?: number
 }
 
 export type ChartMarker = {
@@ -52,6 +53,7 @@ export const getCandlesForChartAction = async (
       high: c.high,
       low: c.low,
       close: c.close,
+      volume: c.volume,
     }))
 
     return successResponse(chartCandles)
