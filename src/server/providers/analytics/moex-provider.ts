@@ -1,6 +1,20 @@
-import type { MOEXCandle, DividendData } from "@/core/types"
+import type { MOEXCandle, DividendData, TopMover } from "@/core/types"
 import type { AnalyticsProvider } from "./types"
 import { redis } from "@/lib/redis"
+
+type TopMoverRaw = {
+  SECID: string
+  LAST: number | null
+  LASTCHANGEPRCNT: number | null
+  VOLTODAY: number | null
+  HIGH: number | null
+  LOW: number | null
+}
+
+type TopMoverNameRaw = {
+  SECID: string
+  SHORTNAME: string
+}
 
 const mapColumnsToObject = <T>(columns: string[], row: unknown[]): T => {
   const obj: Record<string, unknown> = {}
@@ -46,6 +60,29 @@ export class MOEXProvider implements AnalyticsProvider {
     return dividends
   }
 
+  async getTopMovers(topN = 5): Promise<{ gainers: TopMover[]; losers: TopMover[] }> {
+    const cacheKey = "moex:top-movers"
+    const cached = await redis.get(cacheKey)
+    if (cached) return JSON.parse(cached) as { gainers: TopMover[]; losers: TopMover[] }
+
+    const url = `${this.baseUrl}/engines/stock/markets/shares/boards/TQBR/securities.json?iss.meta=off&marketdata.columns=SECID,LAST,LASTCHANGEPRCNT,VOLTODAY,HIGH,LOW&securities.columns=SECID,SHORTNAME`
+    const res = await fetch(url)
+    if (!res.ok) throw new Error(`MOEX API error: ${res.status} ${res.statusText}`)
+    const json = await res.json()
+
+    const { columns: mdCols, data: mdData } = json.marketdata as { columns: string[]; data: unknown[][] }
+    const { columns: secCols, data: secData } = json.securities as { columns: string[]; data: unknown[][] }
+
+    const rows = (mdData as unknown[][]).map((row) => mapColumnsToObject<TopMoverRaw>(mdCols, row))
+    const nameRows = (secData as unknown[][]).map((row) => mapColumnsToObject<TopMoverNameRaw>(secCols, row))
+    const nameMap: Record<string, string> = {}
+    for (const n of nameRows) nameMap[n.SECID] = n.SHORTNAME
+
+    const result = buildTopMovers(rows, nameMap, topN)
+    await redis.set(cacheKey, JSON.stringify(result), "EX", 60)
+    return result
+  }
+
   async getHistoryWithPagination(url: string): Promise<unknown[][]> {
     const allRows: unknown[][] = []
     let start = 0
@@ -71,4 +108,27 @@ export class MOEXProvider implements AnalyticsProvider {
 
     return allRows
   }
+}
+
+const MD_COLS = ["SECID", "LAST", "LASTCHANGEPRCNT", "VOLTODAY", "HIGH", "LOW"]
+const SEC_COLS = ["SECID", "SHORTNAME"]
+
+const colsToObj = <T>(columns: string[], row: unknown[]): T => {
+  const obj: Record<string, unknown> = {}
+  columns.forEach((col, i) => { obj[col] = row[i] })
+  return obj as T
+}
+
+const buildTopMovers = (rows: TopMoverRaw[], nameMap: Record<string, string>, topN: number): { gainers: TopMover[]; losers: TopMover[] } => {
+  const valid = rows.filter((r) => r.LAST !== null && r.LASTCHANGEPRCNT !== null)
+  valid.sort((a, b) => (b.LASTCHANGEPRCNT ?? 0) - (a.LASTCHANGEPRCNT ?? 0))
+  const toMover = (r: TopMoverRaw): TopMover => ({ ticker: r.SECID, shortName: nameMap[r.SECID] ?? r.SECID, price: r.LAST!, changePct: r.LASTCHANGEPRCNT!, volume: r.VOLTODAY ?? 0, high: r.HIGH ?? 0, low: r.LOW ?? 0 })
+  return { gainers: valid.slice(0, topN).map(toMover), losers: valid.slice(-topN).reverse().map(toMover) }
+}
+
+export const parseTopMoversResponse = (marketdata: unknown[][], securities: unknown[][], topN: number): { gainers: TopMover[]; losers: TopMover[] } => {
+  const rows = marketdata.map((row) => colsToObj<TopMoverRaw>(MD_COLS, row))
+  const nameMap: Record<string, string> = {}
+  for (const row of securities) { const o = colsToObj<TopMoverNameRaw>(SEC_COLS, row); nameMap[o.SECID] = o.SHORTNAME }
+  return buildTopMovers(rows, nameMap, topN)
 }
