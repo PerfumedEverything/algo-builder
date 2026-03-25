@@ -1,10 +1,8 @@
 import { redis } from "@/lib/redis"
 
 const PRICE_PREFIX = "price:"
-const LAST_PRICE_PREFIX = "lastprice:"
 const CANDLE_PREFIX = "candles:"
-const PRICE_TTL = 600
-const LAST_PRICE_TTL = 604800
+const PRICE_TTL = 120
 const CANDLE_TTL_MAP: Record<string, number> = {
   "1m": 60,
   "5m": 600,
@@ -28,14 +26,11 @@ export class PriceCache {
   async setPrice(instrumentId: string, price: number): Promise<void> {
     const payload = JSON.stringify({ price, updatedAt: Date.now() })
     await redis.set(`${PRICE_PREFIX}${instrumentId}`, payload, "EX", PRICE_TTL)
-    await redis.set(`${LAST_PRICE_PREFIX}${instrumentId}`, payload, "EX", LAST_PRICE_TTL)
   }
 
   async getPrice(instrumentId: string): Promise<number | null> {
     const data = await redis.get(`${PRICE_PREFIX}${instrumentId}`)
     if (data) return (JSON.parse(data) as { price: number }).price
-    const lastData = await redis.get(`${LAST_PRICE_PREFIX}${instrumentId}`)
-    if (lastData) return (JSON.parse(lastData) as { price: number }).price
     return null
   }
 
@@ -76,7 +71,7 @@ export class PriceCache {
 
   async acquireLock(type: "strategy" | "signal", id: string): Promise<boolean> {
     const key = `lock:${type}:${id}`
-    const result = await redis.set(key, "1", "EX", 5, "NX")
+    const result = await redis.set(key, "1", "EX", 10, "NX")
     return result === "OK"
   }
 
