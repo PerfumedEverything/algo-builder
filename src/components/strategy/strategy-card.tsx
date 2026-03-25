@@ -28,6 +28,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { toast } from "sonner"
 import { getOperationsAction } from "@/server/actions/operation-actions"
 
 type StrategyCardProps = {
@@ -114,7 +115,12 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
     }
     setOpsLoading(true)
     const res = await getOperationsAction(strategy.id)
-    if (res.success) setOperations(res.data)
+    if (res.success) {
+      setOperations(res.data)
+    } else {
+      toast.error("Не удалось загрузить операции")
+      setOperations([])
+    }
     setOpsLoading(false)
     setExpanded(true)
   }
