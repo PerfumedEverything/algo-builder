@@ -11,8 +11,8 @@
 - [ ] **AIREV-02**: User sees live strategy preview updating as AI fills parameters during conversation
 - [ ] **AIREV-03**: User can click "Create Strategy from Analysis" after AI technical analysis in terminal
 - [ ] **AIREV-04**: User can click "Create Signal from Analysis" after AI technical analysis in terminal
-- [ ] **AIREV-05**: User can use expanded set of indicators (ATR, Stochastic, VWAP, Williams %R) in strategy conditions
-- [ ] **AIREV-06**: User can use expanded set of conditions (BETWEEN range, percent-based thresholds) in strategy builder
+- [x] **AIREV-05**: User can use expanded set of indicators (ATR, Stochastic, VWAP, Williams %R) in strategy conditions
+- [x] **AIREV-06**: User can use expanded set of conditions (BETWEEN range, percent-based thresholds) in strategy builder
 
 ### Terminal Depth
 
@@ -69,8 +69,8 @@
 | AIREV-02 | Phase 4 | Pending |
 | AIREV-03 | Phase 4 | Pending |
 | AIREV-04 | Phase 4 | Pending |
-| AIREV-05 | Phase 4 | Pending |
-| AIREV-06 | Phase 4 | Pending |
+| AIREV-05 | Phase 4 | Complete |
+| AIREV-06 | Phase 4 | Complete |
 | TERM-01 | Phase 5 | Pending |
 | TERM-02 | Phase 5 | Pending |
 | TERM-03 | Phase 5 | Pending |

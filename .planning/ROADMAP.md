@@ -149,9 +149,9 @@ Plans:
   4. After AI technical analysis, user can click "Create Signal" and have AI suggest matching signal conditions
   5. User can use ATR, Stochastic, VWAP, and Williams %R indicators when building strategy conditions
   6. User can set BETWEEN range conditions and percent-based threshold conditions in the strategy builder
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 Plans:
-- [ ] 04-01-PLAN.md — New indicators (ATR, Stochastic, VWAP, Williams %R) + BETWEEN condition backend
+- [x] 04-01-PLAN.md — New indicators (ATR, Stochastic, VWAP, Williams %R) + BETWEEN condition backend
 - [ ] 04-02-PLAN.md — Free-form AI chat + live strategy preview panel + DeepSeek provider update
 - [ ] 04-03-PLAN.md — Terminal context seeding + BETWEEN UI + visual verification
 **UI hint**: yes
@@ -207,7 +207,7 @@ v1.1: 4 → 5 → 6 → 7
 | 2.3 Strategy & Portfolio Hardening | v1.0 | 4/4 | Complete | 2026-03-25 |
 | 3. MVP Polish + Fundamentals | v1.0 | 5/5 | Complete | 2026-03-25 |
 | 3.1 UX Audit (INSERTED) | v1.0 | 0/TBD | Complete | 2026-03-25 |
-| 4. AI Revolution | v1.1 | 0/3 | In progress | - |
+| 4. AI Revolution | v1.1 | 1/3 | In Progress|  |
 | 5. Terminal Top Movers | v1.1 | 0/TBD | Not started | - |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 0/TBD | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
