@@ -69,7 +69,7 @@ describe("OperationService.getStats", () => {
     expect(stats.holdingQty).toBe(0)
   })
 
-  it("calculates realized P&L for BUY+SELL pair", async () => {
+  it("calculates realized P&L for BUY+SELL pair — currentAmount is 0 when closed", async () => {
     vi.spyOn(service as never, "repo", "get").mockReturnValue({
       getStatsByStrategyId: vi.fn().mockResolvedValue(mockOps),
     } as never)
@@ -81,11 +81,11 @@ describe("OperationService.getStats", () => {
     expect(stats.pnl).toBe(990)
     expect(stats.pnlPercent).toBeCloseTo(10, 0)
     expect(stats.initialAmount).toBe(9900)
-    expect(stats.currentAmount).toBeCloseTo(10890, 0)
+    expect(stats.currentAmount).toBe(0)
     expect(stats.holdingQty).toBe(0)
   })
 
-  it("calculates unrealized P&L for open position", async () => {
+  it("calculates unrealized P&L for open position — currentAmount equals market value", async () => {
     vi.spyOn(service as never, "repo", "get").mockReturnValue({
       getStatsByStrategyId: vi.fn().mockResolvedValue(mockBuyOnly),
     } as never)
@@ -97,6 +97,7 @@ describe("OperationService.getStats", () => {
     expect(stats.pnl).toBe(66 * 180 - 9900)
     expect(stats.pnlPercent).toBeCloseTo(((66 * 180 - 9900) / 9900) * 100, 0)
     expect(stats.holdingQty).toBe(66)
+    expect(stats.currentAmount).toBe(66 * 180)
   })
 
   it("calculates zero unrealized without currentPrice", async () => {
@@ -142,7 +143,7 @@ describe("OperationService.getStats — extended scenarios", () => {
     expect(stats.pnl).toBeCloseTo(expectedRealizedPnl, 2)
   })
 
-  it("all positions closed — holdingQty is 0, pnl is realized only, currentAmount = initialAmount + pnl", async () => {
+  it("all positions closed — holdingQty is 0, currentAmount is 0, pnl is realized only", async () => {
     const ops: StrategyOperation[] = [
       { id: "1", strategyId: "s1", userId: "u1", type: "BUY", instrument: "GAZP", price: 200, quantity: 50, amount: 10000, createdAt: "2026-01-01T00:00:00Z" },
       { id: "2", strategyId: "s1", userId: "u1", type: "SELL", instrument: "GAZP", price: 220, quantity: 50, amount: 11000, createdAt: "2026-01-10T00:00:00Z" },
@@ -156,7 +157,7 @@ describe("OperationService.getStats — extended scenarios", () => {
     expect(stats.holdingQty).toBe(0)
     expect(stats.pnl).toBeCloseTo(1000, 2)
     expect(stats.initialAmount).toBe(10000)
-    expect(stats.currentAmount).toBeCloseTo(11000, 2)
+    expect(stats.currentAmount).toBe(0)
   })
 
   it("partial sell (buy 100, sell 50) — correct holdingQty and unrealized P&L with currentPrice", async () => {

@@ -82,7 +82,7 @@ export class OperationService {
       buyCount: buys.length,
       sellCount: sells.length,
       initialAmount: totalBuyAmount,
-      currentAmount: totalBuyAmount + pnl,
+      currentAmount: holdingQty > 0 && currentPrice ? holdingQty * currentPrice : 0,
       holdingQty,
       pnl,
       pnlPercent,
