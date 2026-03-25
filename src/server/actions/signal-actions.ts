@@ -5,6 +5,7 @@ import type { SignalCondition, SignalChannel, LogicOperator } from "@/core/types
 import { createSignalSchema, updateSignalSchema } from "@/core/schemas"
 import { SignalService } from "@/server/services"
 import { SignalChecker } from "@/server/services/signal-checker"
+import { cleanTicker } from "@/lib/ticker-utils"
 import { getCurrentUserId } from "./helpers"
 
 const getService = () => new SignalService()
@@ -53,7 +54,7 @@ export const createSignalAction = async (
       return errorResponse(parsed.error.issues[0].message)
     }
     const userId = await getCurrentUserId()
-    const signal = await getService().createSignal(userId, data)
+    const signal = await getService().createSignal(userId, { ...data, instrument: cleanTicker(data.instrument) })
     new SignalChecker().checkAll().catch(() => {})
     return successResponse({ id: signal.id })
   } catch (e) {
@@ -83,7 +84,8 @@ export const updateSignalAction = async (
       return errorResponse(parsed.error.issues[0].message)
     }
     const userId = await getCurrentUserId()
-    const signal = await getService().updateSignal(id, userId, data)
+    const cleanedData = data.instrument ? { ...data, instrument: cleanTicker(data.instrument) } : data
+    const signal = await getService().updateSignal(id, userId, cleanedData)
     return successResponse({ id: signal.id })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
