@@ -126,12 +126,12 @@ Plans:
   6. User can expand any portfolio position and see P/E, P/B, dividend yield with color-coded indicators
   7. User sees composite fundamental score (1-10) and can click AI fundamental analysis button
 
-**Plans:** 5 plans
+**Plans:** 2/5 plans executed
 Plans:
 - [ ] 03-01-PLAN.md — Strategy card P&L fix + tooltips + clear labels
-- [ ] 03-02-PLAN.md — Terminal action buttons + signal cleanTicker + mobile polish
+- [x] 03-02-PLAN.md — Terminal action buttons + signal cleanTicker + mobile polish
 - [ ] 03-03-PLAN.md — AI chat mode + portfolio summary + blue AI buttons
-- [ ] 03-04-PLAN.md — Fundamentals data layer (static map + service + scoring)
+- [x] 03-04-PLAN.md — Fundamentals data layer (static map + service + scoring)
 - [ ] 03-05-PLAN.md — Fundamental UI card + portfolio integration + AI analysis
 **UI hint**: yes
 
@@ -184,7 +184,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 -> 4 ->
 | 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
 | 2.2 Strategy Pipeline Fix (CRITICAL) | 3/3 | Complete   | 2026-03-25 |
 | 2.3 Strategy & Portfolio Hardening | 4/4 | Complete   | 2026-03-25 |
-| 3. MVP Polish + Fundamentals | 0/5 | Not started | - |
+| 3. MVP Polish + Fundamentals | 2/5 | In Progress|  |
 | 3.1 UX Audit (INSERTED) | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
