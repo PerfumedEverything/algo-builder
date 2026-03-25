@@ -219,6 +219,7 @@ export const ConditionBuilder = ({
                       <Label className="text-xs text-muted-foreground">{p.label}</Label>
                       <Input
                         type="number"
+                        step="any"
                         value={condition.params[p.name] ?? p.defaultValue}
                         onChange={(e) =>
                           handleParamChange(i, p.name, Number(e.target.value))
