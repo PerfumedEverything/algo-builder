@@ -17,6 +17,7 @@ export type SignalRow = {
   repeatMode: boolean
   lastTriggered: string | null
   triggerCount: number
+  lastIndicatorValues: Record<string, number> | null
   strategyId: string | null
   createdAt: string
   updatedAt: string
