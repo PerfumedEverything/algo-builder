@@ -175,9 +175,9 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="BUY">Покупка (BUY)</SelectItem>
-                <SelectItem value="SELL">Продажа (SELL)</SelectItem>
-                <SelectItem value="ALERT">Уведомление</SelectItem>
+                <SelectItem value="BUY">Покупка — сигнал к покупке</SelectItem>
+                <SelectItem value="SELL">Продажа — сигнал к продаже</SelectItem>
+                <SelectItem value="ALERT">Уведомление — только оповестить</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -199,7 +199,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
 
         <div className="space-y-2">
           <Label className="text-xs text-muted-foreground">Описание</Label>
-          <Textarea {...register("description")} rows={2} placeholder="Описание сигнала" className="resize-none" />
+          <Textarea {...register("description")} rows={2} placeholder="Например: RSI перепроданность на дневном графике Сбера (для ваших заметок)" className="resize-none" />
         </div>
       </section>
 

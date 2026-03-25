@@ -88,8 +88,8 @@ export const AiChat = ({ onGenerated }: AiChatProps) => {
     }
   }, [messages])
 
-  const handleSend = async () => {
-    const text = input.trim()
+  const handleSend = async (overrideText?: string) => {
+    const text = (overrideText ?? input).trim()
     if (!text || loading) return
 
     const userMsg: ChatMessage = { role: "user", content: text }
@@ -144,7 +144,7 @@ export const AiChat = ({ onGenerated }: AiChatProps) => {
         AI Помощник
       </div>
 
-      <ScrollArea className="h-56">
+      <ScrollArea className="h-80">
         <div ref={scrollRef} className="space-y-3 p-4">
           {messages.map((msg, i) => (
             <div
@@ -176,10 +176,7 @@ export const AiChat = ({ onGenerated }: AiChatProps) => {
                   key={qr.label}
                   type="button"
                   className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                  onClick={() => {
-                    setInput(qr.text)
-                    setTimeout(() => inputRef.current?.focus(), 0)
-                  }}
+                  onClick={() => handleSend(qr.text)}}
                 >
                   {qr.label}
                 </button>
