@@ -9,3 +9,4 @@ export { formatSignalNotification, formatStrategyNotification } from "./notifica
 export { OperationService } from "./operation-service"
 export { FifoCalculator } from "./fifo-calculator"
 export { RiskService } from "./risk-service"
+export { FundamentalService } from "./fundamental-service"
