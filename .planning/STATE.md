@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Phase 02.2 plan 02.2-02 complete
-last_updated: "2026-03-25T07:53:47.310Z"
+status: Phase complete — ready for verification
+stopped_at: Phase 02.2 plan 02.2-03 complete — phase done
+last_updated: "2026-03-25T08:01:38.153Z"
 progress:
   total_phases: 8
-  completed_phases: 2
+  completed_phases: 3
   total_plans: 12
-  completed_plans: 8
+  completed_plans: 9
 ---
 
 # Project State
@@ -21,12 +21,12 @@ Professional portfolio analytics, strategy automation, and built-in chart termin
 
 ## Current Position
 
-Phase: 02.2 (strategy-fixes) — EXECUTING
-Plan: 3 of 3
+Phase: 02.2 (strategy-fixes) — COMPLETE
+Plan: 3 of 3 (all done)
 
 ## Progress
 
-[███████░░░] 67% (8/12 plans complete)
+[████████░░] 75% (9/12 plans complete)
 
 ## Completed Phases
 
@@ -50,6 +50,9 @@ Plan: 3 of 3
 - evaluateCrossing/getIndicatorKey extracted to crossing-detector.ts for 150-line compliance (02.2-02)
 - handleTriggered extracted to StrategyTriggerHandler class — strategy-checker.ts is 149 lines (02.2-02)
 - ConditionProgress.current: number | null to propagate null indicator data to UI (02.2-02)
+- SignalChecker delegates to crossing-detector.ts — DRY, single truth for both pipelines (02.2-03)
+- SignalTriggerHandler extracted to signal-trigger-handler.ts — mirrors StrategyTriggerHandler (02.2-03)
+- vitest.config.ts excludes .claude/worktrees — prevents stale agent test files from failing CI (02.2-03)
 
 ## Pending Todos
 
@@ -59,6 +62,6 @@ Plan: 3 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-25T07:53:47.305Z
-Stopped at: Phase 02.2 plan 02.2-02 complete
-Next: After visual verification approval — continue to Phase 3 (Fundamentals)
+Last session: 2026-03-25T08:01:00Z
+Stopped at: Phase 02.2 plan 02.2-03 complete (phase 02.2 fully done)
+Next: Phase 3 (Fundamentals)

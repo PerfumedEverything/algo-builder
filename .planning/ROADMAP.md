@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Infrastructure & Terminal** - MOEX provider, candlestick charts, terminal page, deposit tracker, skeleton loading, ticker bug fix, AI analysis button
 - [x] **Phase 2: Risk Metrics** - Sharpe, Beta, VaR, Max Drawdown, Alpha with color-coded cards and AI analysis
 - [x] **Phase 2.1: Terminal v2** - INSERTED — lightweight-charts terminal with order book, realtime prices, positions panel, trade history
-- [ ] **Phase 2.2: Strategy Pipeline Fix** - INSERTED CRITICAL — fix all 16 bugs in strategy/signal checker pipeline
+- [x] **Phase 2.2: Strategy Pipeline Fix** - INSERTED CRITICAL — fix all 16 bugs in strategy/signal checker pipeline (completed 2026-03-25)
 - [ ] **Phase 3: Fundamentals** - P/E, P/B, dividend yield scoring per position with AI fundamental analysis
 - [ ] **Phase 4: Diversification Analysis** - Correlation heatmap, sector/type/performance cohort charts, AI diversification analysis
 - [ ] **Phase 5: Portfolio Optimization** - Markowitz optimal weights, rebalancing recommendations, full portfolio AI analysis
@@ -85,11 +85,11 @@ Plans:
   4. Operation recording failures roll back state changes
   5. Redis-based dedup lock prevents concurrent cron+realtime double-checks
   6. Unit tests cover every fixed bug scenario
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [x] 02.2-01-PLAN.md — IndicatorCalculator null-safety + DB migrations
 - [x] 02.2-02-PLAN.md — Strategy checker fixes (CROSSES, atomic guard, rollback, Redis lock)
-- [ ] 02.2-03-PLAN.md — Signal checker fixes (CROSSES, null-safety, Redis lock)
+- [x] 02.2-03-PLAN.md — Signal checker fixes (CROSSES, null-safety, Redis lock)
 **UI hint**: no
 
 ### Phase 3: Fundamentals
@@ -135,7 +135,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 3 -> 4 -> 5
 | 1. Infrastructure & Terminal | 5/5 | Complete | 2026-03-23 |
 | 2. Risk Metrics | 3/3 | Complete   | 2026-03-24 |
 | 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
-| 2.2 Strategy Pipeline Fix (CRITICAL) | 1/3 | In Progress|  |
+| 2.2 Strategy Pipeline Fix (CRITICAL) | 3/3 | Complete   | 2026-03-25 |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
