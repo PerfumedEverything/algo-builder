@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { useRouter } from "next/navigation"
+
 import dynamic from "next/dynamic"
 import { Plus, Bell } from "lucide-react"
+import { StrategyDialog } from "@/components/strategy"
+import { SignalDialog } from "@/components/signal"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { InstrumentSelect } from "@/components/shared/instrument-select"
@@ -38,7 +40,6 @@ const PERIOD_CONFIG: Record<ChartPeriod, { days: number; interval: string }> = {
 }
 
 export default function TerminalPage() {
-  const router = useRouter()
   const [instrument, setInstrument] = useState<BrokerInstrument | null>(null)
   const [ticker, setTicker] = useState("")
   const [period, setPeriod] = useState<ChartPeriod>("1d")
@@ -52,6 +53,8 @@ export default function TerminalPage() {
   const [positionsLoading, setPositionsLoading] = useState(false)
   const [operations, setOperations] = useState<PositionOperation[]>([])
   const [operationsLoading, setOperationsLoading] = useState(false)
+  const [strategyDialogOpen, setStrategyDialogOpen] = useState(false)
+  const [signalDialogOpen, setSignalDialogOpen] = useState(false)
 
   const prices = usePriceStream()
 
@@ -205,26 +208,27 @@ export default function TerminalPage() {
           />
         </div>
         {instrument && <ChartPeriodSelector value={period} onChange={handlePeriodChange} />}
+        <div className="flex-1" />
         {instrument && (
-          <>
-            <Button size="sm" variant="outline" onClick={() => router.push(`/strategies?createFor=${instrument.ticker}`)}>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" onClick={() => setStrategyDialogOpen(true)}>
               <Plus className="h-3.5 w-3.5 mr-1.5" />
               Создать стратегию
             </Button>
-            <Button size="sm" variant="outline" onClick={() => router.push(`/signals?createFor=${instrument.ticker}`)}>
+            <Button size="sm" variant="outline" onClick={() => setSignalDialogOpen(true)}>
               <Bell className="h-3.5 w-3.5 mr-1.5" />
               Создать сигнал
             </Button>
-          </>
-        )}
-        {instrument && candles.length > 0 && (
-          <AiAnalysisButton
-            title={`Тех. анализ ${instrument.ticker}`}
-            triggerLabel="Анализ с ИИ"
-            analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
-            variant="default"
-            size="sm"
-          />
+            {candles.length > 0 && (
+              <AiAnalysisButton
+                title={`Тех. анализ ${instrument.ticker}`}
+                triggerLabel="Анализ с ИИ"
+                analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
+                variant="default"
+                size="sm"
+              />
+            )}
+          </div>
         )}
       </div>
 
@@ -294,6 +298,16 @@ export default function TerminalPage() {
           </div>
         </>
       )}
+      <StrategyDialog
+        open={strategyDialogOpen}
+        onOpenChange={setStrategyDialogOpen}
+        onSuccess={() => setStrategyDialogOpen(false)}
+      />
+      <SignalDialog
+        open={signalDialogOpen}
+        onOpenChange={setSignalDialogOpen}
+        onSuccess={() => setSignalDialogOpen(false)}
+      />
     </div>
   )
 }

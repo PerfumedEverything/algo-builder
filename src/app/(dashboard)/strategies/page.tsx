@@ -52,7 +52,7 @@ export default function StrategiesPage() {
   const [pendingLaunchId, setPendingLaunchId] = useState<string | null>(null)
   const [opsStatsMap, setOpsStatsMap] = useState<Record<string, OperationStats>>({})
   const [pricesMap, setPricesMap] = useState<Record<string, number>>({})
-  const [expandedId, setExpandedId] = useState<string | null>(null)
+  const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
@@ -357,9 +357,9 @@ export default function StrategiesPage() {
       )}
 
       {strategies.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2 items-start">
           {strategies.map((strategy) => (
-            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} expanded={expandedId === strategy.id} onToggleExpand={() => setExpandedId(expandedId === strategy.id ? null : strategy.id)} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} expanded={expandedIds.has(strategy.id)} onToggleExpand={() => setExpandedIds((prev) => { const next = new Set(prev); if (next.has(strategy.id)) next.delete(strategy.id); else next.add(strategy.id); return next })} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
           ))}
         </div>
       ) : (
