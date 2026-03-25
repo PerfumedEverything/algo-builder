@@ -46,7 +46,7 @@ export class FundamentalService {
       const dividends = await this.moex.getDividends(ticker)
       const oneYearAgo = new Date()
       oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
-      const recent = dividends.filter((d) => new Date(d.registryCloseDate) >= oneYearAgo)
+      const recent = dividends.filter((d) => new Date(d.registryclosedate) >= oneYearAgo)
       if (recent.length === 0) return null
       const totalDivPerShare = recent.reduce((sum, d) => sum + d.value, 0)
       return (totalDivPerShare / currentPrice) * 100

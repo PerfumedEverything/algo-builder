@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 import { FundamentalService } from "@/server/services/fundamental-service"
 import type { MOEXProvider } from "@/server/providers/analytics/moex-provider"
 
-const makeMockMoex = (dividends: { registryCloseDate: string; value: number }[] = []) =>
+const makeMockMoex = (dividends: { registryclosedate: string; value: number }[] = []) =>
   ({ getDividends: vi.fn().mockResolvedValue(dividends) }) as unknown as MOEXProvider
 
 describe("FundamentalService.calculateScore", () => {
@@ -47,7 +47,7 @@ describe("FundamentalService.getMetrics", () => {
   it("returns hasFundamentals=true with correct P/E for SBER", async () => {
     const recentDate = new Date()
     recentDate.setMonth(recentDate.getMonth() - 3)
-    const dividends = [{ registryCloseDate: recentDate.toISOString().split("T")[0], value: 25 }]
+    const dividends = [{ registryclosedate: recentDate.toISOString().split("T")[0], value: 25 }]
     const service = new FundamentalService(makeMockMoex(dividends))
     const result = await service.getMetrics("SBER", 270)
     expect(result.hasFundamentals).toBe(true)
