@@ -149,11 +149,28 @@ Plans:
   4. After AI technical analysis, user can click "Create Signal" and have AI suggest matching signal conditions
   5. User can use ATR, Stochastic, VWAP, and Williams %R indicators when building strategy conditions
   6. User can set BETWEEN range conditions and percent-based threshold conditions in the strategy builder
-**Plans:** 2/3 plans executed
+**Plans:** 3/3 plans complete
 Plans:
 - [x] 04-01-PLAN.md — New indicators (ATR, Stochastic, VWAP, Williams %R) + BETWEEN condition backend
 - [x] 04-02-PLAN.md — Free-form AI chat + live strategy preview panel + DeepSeek provider update
-- [ ] 04-03-PLAN.md — Terminal context seeding + BETWEEN UI + visual verification
+- [x] 04-03-PLAN.md — Terminal context seeding + BETWEEN UI + visual verification
+**UI hint**: yes
+**Note**: UX polish deferred to Phase 4.1 (wizard flow, timeframe fix, redo analysis, mobile overflow)
+
+### Phase 4.1: AI UX Polish (INSERTED)
+**Goal**: Polish the AI Revolution UX — wizard flow for analysis→strategy, fix timeframe bug, enable redo analysis, fix mobile overflow
+**Depends on**: Phase 4 (core AI features implemented)
+**Requirements**: AIUX-01, AIUX-02, AIUX-03, AIUX-04, AIUX-05
+**Success Criteria** (what must be TRUE):
+  1. User experiences a 3-step wizard flow: Анализ → Стратегия (AI chat + preview) → Настройка (form) in a single dialog
+  2. AI analysis uses the currently selected chart timeframe (not hardcoded 1d)
+  3. User can rerun/redo AI analysis from within the analysis dialog
+  4. Action buttons in analysis dialog do not overflow on mobile viewports
+  5. Transition from analysis result to strategy creation feels seamless (not bolted-on)
+**Plans:** 2 plans
+Plans:
+- [ ] 04.1-01-PLAN.md — AiWizardDialog + WizardStepIndicator components (3-step wizard)
+- [ ] 04.1-02-PLAN.md — Wire wizard into terminal page + visual verification
 **UI hint**: yes
 
 ### Phase 5: Terminal Top Movers
@@ -196,7 +213,7 @@ Plans:
 
 **Execution Order:**
 v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
-v1.1: 4 → 5 → 6 → 7
+v1.1: 4 → 4.1 → 5 → 6 → 7
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -207,7 +224,8 @@ v1.1: 4 → 5 → 6 → 7
 | 2.3 Strategy & Portfolio Hardening | v1.0 | 4/4 | Complete | 2026-03-25 |
 | 3. MVP Polish + Fundamentals | v1.0 | 5/5 | Complete | 2026-03-25 |
 | 3.1 UX Audit (INSERTED) | v1.0 | 0/TBD | Complete | 2026-03-25 |
-| 4. AI Revolution | v1.1 | 2/3 | In Progress|  |
+| 4. AI Revolution | v1.1 | 3/3 | Complete | 2026-03-25 |
+| 4.1 AI UX Polish (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 5. Terminal Top Movers | v1.1 | 0/TBD | Not started | - |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 0/TBD | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
