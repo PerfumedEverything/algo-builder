@@ -1,4 +1,4 @@
-import { RSI, SMA, EMA, MACD, BollingerBands } from "technicalindicators"
+import { RSI, SMA, EMA, MACD, BollingerBands, ATR, Stochastic, VWAP, WilliamsR } from "technicalindicators"
 import type { Candle } from "@/core/types"
 
 export type MACDResult = {
@@ -134,6 +134,53 @@ export class IndicatorCalculator {
       supports: this.clusterLevels(supports),
       resistances: this.clusterLevels(resistances),
     }
+  }
+
+  static calculateATR(candles: Candle[], period = 14): number | null {
+    if (candles.length < period + 1) return null
+    const result = ATR.calculate({
+      high: candles.map((c) => c.high),
+      low: candles.map((c) => c.low),
+      close: candles.map((c) => c.close),
+      period,
+    })
+    return result[result.length - 1] ?? null
+  }
+
+  static calculateStochastic(candles: Candle[], period = 14, signalPeriod = 3): number | null {
+    if (candles.length < period + signalPeriod) return null
+    const result = Stochastic.calculate({
+      high: candles.map((c) => c.high),
+      low: candles.map((c) => c.low),
+      close: candles.map((c) => c.close),
+      period,
+      signalPeriod,
+    })
+    const last = result[result.length - 1]
+    if (!last) return null
+    return last.k ?? null
+  }
+
+  static calculateVWAP(candles: Candle[]): number | null {
+    if (candles.length < 5) return null
+    const result = VWAP.calculate({
+      high: candles.map((c) => c.high),
+      low: candles.map((c) => c.low),
+      close: candles.map((c) => c.close),
+      volume: candles.map((c) => c.volume),
+    })
+    return result[result.length - 1] ?? null
+  }
+
+  static calculateWilliamsR(candles: Candle[], period = 14): number | null {
+    if (candles.length < period + 1) return null
+    const result = WilliamsR.calculate({
+      high: candles.map((c) => c.high),
+      low: candles.map((c) => c.low),
+      close: candles.map((c) => c.close),
+      period,
+    })
+    return result[result.length - 1] ?? null
   }
 
   private static clusterLevels(levels: number[], threshold = 0.01): number[] {

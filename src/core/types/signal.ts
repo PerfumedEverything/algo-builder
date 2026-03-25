@@ -5,6 +5,7 @@ export type SignalCondition = {
   params: Record<string, number>
   condition: ConditionType
   value?: number
+  valueTo?: number
   timeframe?: string
 }
 

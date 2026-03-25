@@ -9,6 +9,10 @@ export type IndicatorType =
   | "PRICE_CHANGE"
   | "SUPPORT"
   | "RESISTANCE"
+  | "ATR"
+  | "STOCHASTIC"
+  | "VWAP"
+  | "WILLIAMS_R"
 
 export type ConditionType =
   | "CROSSES_ABOVE"
@@ -28,6 +32,7 @@ export type StrategyCondition = {
   params: Record<string, number>
   condition: ConditionType
   value?: number
+  valueTo?: number
   timeframe?: string
 }
 

@@ -108,6 +108,41 @@ export const INDICATORS: IndicatorConfig[] = [
     ],
     allowedConditions: ["GREATER_THAN", "CROSSES_ABOVE"],
   },
+  {
+    type: "ATR",
+    label: "ATR (волатильность)",
+    description: "Average True Range — мера волатильности инструмента",
+    params: [
+      { name: "period", label: "Период", defaultValue: 14, min: 2, max: 100 },
+    ],
+    allowedConditions: ["GREATER_THAN", "LESS_THAN"],
+  },
+  {
+    type: "STOCHASTIC",
+    label: "Stochastic",
+    description: "Стохастический осциллятор 0-100. Выше 80 = перекупленность, ниже 20 = перепроданность",
+    params: [
+      { name: "kPeriod", label: "K период", defaultValue: 14, min: 2, max: 100 },
+      { name: "dPeriod", label: "D период", defaultValue: 3, min: 1, max: 50 },
+    ],
+    allowedConditions: ["GREATER_THAN", "LESS_THAN", "CROSSES_ABOVE", "CROSSES_BELOW", "BETWEEN"],
+  },
+  {
+    type: "VWAP",
+    label: "VWAP",
+    description: "Volume Weighted Average Price — средневзвешенная по объёму цена",
+    params: [],
+    allowedConditions: ["GREATER_THAN", "LESS_THAN", "CROSSES_ABOVE", "CROSSES_BELOW"],
+  },
+  {
+    type: "WILLIAMS_R",
+    label: "Williams %R",
+    description: "Осциллятор от -100 до 0. Выше -20 = перекупленность, ниже -80 = перепроданность",
+    params: [
+      { name: "period", label: "Период", defaultValue: 14, min: 2, max: 100 },
+    ],
+    allowedConditions: ["GREATER_THAN", "LESS_THAN", "BETWEEN"],
+  },
 ]
 
 export const getIndicatorConfig = (type: IndicatorType): IndicatorConfig | undefined =>

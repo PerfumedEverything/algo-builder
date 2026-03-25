@@ -11,6 +11,10 @@ export const indicatorTypeSchema = z.enum([
   "PRICE_CHANGE",
   "SUPPORT",
   "RESISTANCE",
+  "ATR",
+  "STOCHASTIC",
+  "VWAP",
+  "WILLIAMS_R",
 ])
 
 export const conditionTypeSchema = z.enum([
@@ -32,6 +36,7 @@ export const strategyConditionSchema = z.object({
   params: z.record(z.string(), z.number()),
   condition: conditionTypeSchema,
   value: z.number().optional(),
+  valueTo: z.number().optional(),
   timeframe: z.string().optional(),
 })
 
