@@ -55,24 +55,33 @@ export class StrategyTriggerHandler {
         })
       } catch (e) {
         console.error(`[StrategyChecker] recordOperation failed, rolling back positionState for strategy ${strategy.id}:`, e)
-        await this.db.from("Strategy").update({ positionState: expectedState, updatedAt: new Date().toISOString() }).eq("id", strategy.id)
+        try {
+          await this.db.from("Strategy").update({ positionState: expectedState, updatedAt: new Date().toISOString() }).eq("id", strategy.id)
+        } catch (rollbackErr) {
+          console.error(`[CRITICAL] Rollback failed for strategy ${strategy.id}, stuck in state ${newPositionState}:`, rollbackErr)
+        }
         return
       }
     }
 
     let message = result.message
     if (!isEntry && result.price) {
+      let buyPrice = 0
       try {
-        const buyPrice = await this.operationService.getLastBuyPrice(strategy.id)
-        if (buyPrice > 0) {
-          const pnl = result.price - buyPrice
-          const pnlPercent = ((pnl / buyPrice) * 100).toFixed(2)
-          const pnlSign = pnl >= 0 ? "+" : ""
-          message += `\n\n💰 *P&L:* ${pnlSign}${pnl.toFixed(2)}₽ (${pnlSign}${pnlPercent}%)`
-          message += `\n📊 Вход: ${buyPrice.toFixed(2)}₽ → Выход: ${result.price.toFixed(2)}₽`
+        buyPrice = await this.operationService.getLastBuyPrice(strategy.id)
+      } catch {
+        try {
+          buyPrice = await this.operationService.getLastBuyPrice(strategy.id)
+        } catch (e) {
+          console.error(`[StrategyChecker] getLastBuyPrice failed after retry for strategy ${strategy.id}:`, e)
         }
-      } catch (e) {
-        console.error(`[StrategyChecker] P&L calc failed for strategy ${strategy.id}:`, e)
+      }
+      if (buyPrice > 0) {
+        const pnl = result.price - buyPrice
+        const pnlPercent = ((pnl / buyPrice) * 100).toFixed(2)
+        const pnlSign = pnl >= 0 ? "+" : ""
+        message += `\n\n💰 *P&L:* ${pnlSign}${pnl.toFixed(2)}₽ (${pnlSign}${pnlPercent}%)`
+        message += `\n📊 Вход: ${buyPrice.toFixed(2)}₽ → Выход: ${result.price.toFixed(2)}₽`
       }
     }
 
