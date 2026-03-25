@@ -107,7 +107,7 @@ export const toggleSignalAction = async (
 
 export type ConditionProgress = {
   indicator: string
-  current: number
+  current: number | null
   target: number
   condition: string
   met: boolean

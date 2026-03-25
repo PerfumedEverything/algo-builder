@@ -189,10 +189,10 @@ export class SignalChecker {
     return signal.conditions.map((c) => {
       const current = this.getIndicatorValue(c, ctx)
       const target = c.value ?? 0
-      const met = this.compare(current, c.condition, target, price)
+      const met = current !== null ? this.compare(current, c.condition, target, price) : false
       return {
         indicator: c.indicator,
-        current: Math.round(current * 100) / 100,
+        current: current !== null ? Math.round(current * 100) / 100 : null,
         target,
         condition: c.condition,
         met,

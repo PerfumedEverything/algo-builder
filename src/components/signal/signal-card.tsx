@@ -70,7 +70,7 @@ const getConditionSummary = (condition: SignalCondition) => {
 
 const getProgressPercent = (p: ConditionProgress): number => {
   if (p.met) return 100
-  if (p.target === 0) return 0
+  if (p.current === null || p.target === 0) return 0
 
   const cond = p.condition
   if (cond === "GREATER_THAN" || cond === "CROSSES_ABOVE") {

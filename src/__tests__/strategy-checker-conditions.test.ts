@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { SignalChecker } from "@/server/services/signal-checker"
+import { evaluateCrossing, getIndicatorKey } from "@/server/services/crossing-detector"
 import type { SignalCondition } from "@/core/types"
 
 type EvalContext = {
@@ -18,7 +19,7 @@ const makeCondition = (
 ): SignalCondition => ({
   indicator: "PRICE",
   params: {},
-  condition,
+  condition: condition as SignalCondition["condition"],
   value,
 })
 
@@ -89,52 +90,72 @@ describe("StrategyChecker compare — EQUALS", () => {
   })
 })
 
-describe("StrategyChecker compare — CROSSES_ABOVE (same as GREATER_THAN)", () => {
-  const checker = new SignalChecker()
-
-  it("14.40 crosses above 14.37 = true", () => {
-    const cond = makeCondition("CROSSES_ABOVE", 14.37)
-    expect(checker.evaluateCondition(cond, makeCtx(14.40))).toBe(true)
+describe("CROSSES_ABOVE crossing detection", () => {
+  it("prev=28, current=32, target=30 -> true (crossed above)", () => {
+    expect(evaluateCrossing("CROSSES_ABOVE", 32, 30, "RSI", { RSI: 28 })).toBe(true)
   })
 
-  it("14.37 does not cross above 14.40 = false", () => {
-    const cond = makeCondition("CROSSES_ABOVE", 14.40)
-    expect(checker.evaluateCondition(cond, makeCtx(14.37))).toBe(false)
+  it("prev=32, current=35, target=30 -> false (stayed above, no crossing)", () => {
+    expect(evaluateCrossing("CROSSES_ABOVE", 35, 30, "RSI", { RSI: 32 })).toBe(false)
   })
 
-  it("equal value does not cross above = false", () => {
-    const cond = makeCondition("CROSSES_ABOVE", 14.37)
-    expect(checker.evaluateCondition(cond, makeCtx(14.37))).toBe(false)
+  it("prev=25, current=28, target=30 -> false (still below)", () => {
+    expect(evaluateCrossing("CROSSES_ABOVE", 28, 30, "RSI", { RSI: 25 })).toBe(false)
+  })
+
+  it("prev=null (first check), current=32, target=30 -> false (no previous data)", () => {
+    expect(evaluateCrossing("CROSSES_ABOVE", 32, 30, "RSI", undefined)).toBe(false)
+  })
+
+  it("prev=30, current=30.01, target=30 -> false (prev is exactly at threshold, not below)", () => {
+    expect(evaluateCrossing("CROSSES_ABOVE", 30.01, 30, "RSI", { RSI: 30 })).toBe(false)
+  })
+
+  it("prev=29.99, current=30, target=30 -> true (exact boundary cross, prev was below)", () => {
+    expect(evaluateCrossing("CROSSES_ABOVE", 30, 30, "RSI", { RSI: 29.99 })).toBe(true)
   })
 })
 
-describe("StrategyChecker compare — CROSSES_BELOW (same as LESS_THAN)", () => {
-  const checker = new SignalChecker()
-
-  it("14.37 crosses below 14.40 = true", () => {
-    const cond = makeCondition("CROSSES_BELOW", 14.40)
-    expect(checker.evaluateCondition(cond, makeCtx(14.37))).toBe(true)
+describe("CROSSES_BELOW crossing detection", () => {
+  it("prev=32, current=28, target=30 -> true (crossed below)", () => {
+    expect(evaluateCrossing("CROSSES_BELOW", 28, 30, "RSI", { RSI: 32 })).toBe(true)
   })
 
-  it("14.40 does not cross below 14.37 = false", () => {
-    const cond = makeCondition("CROSSES_BELOW", 14.37)
-    expect(checker.evaluateCondition(cond, makeCtx(14.40))).toBe(false)
+  it("prev=28, current=25, target=30 -> false (stayed below)", () => {
+    expect(evaluateCrossing("CROSSES_BELOW", 25, 30, "RSI", { RSI: 28 })).toBe(false)
   })
 
-  it("equal value does not cross below = false", () => {
-    const cond = makeCondition("CROSSES_BELOW", 14.40)
-    expect(checker.evaluateCondition(cond, makeCtx(14.40))).toBe(false)
+  it("prev=35, current=32, target=30 -> false (stayed above)", () => {
+    expect(evaluateCrossing("CROSSES_BELOW", 32, 30, "RSI", { RSI: 35 })).toBe(false)
+  })
+
+  it("prev=null, current=28, target=30 -> false (no previous data)", () => {
+    expect(evaluateCrossing("CROSSES_BELOW", 28, 30, "RSI", undefined)).toBe(false)
+  })
+
+  it("prev=30.01, current=30, target=30 -> true (exact boundary cross from above)", () => {
+    expect(evaluateCrossing("CROSSES_BELOW", 30, 30, "RSI", { RSI: 30.01 })).toBe(true)
+  })
+})
+
+describe("getIndicatorKey", () => {
+  it("returns indicator name when no params", () => {
+    const cond: SignalCondition = { indicator: "RSI", params: {}, condition: "GREATER_THAN", value: 70 }
+    expect(getIndicatorKey(cond)).toBe("RSI")
+  })
+
+  it("includes sorted params in key to distinguish same indicator with different periods", () => {
+    const cond20: SignalCondition = { indicator: "SMA", params: { period: 20 }, condition: "GREATER_THAN", value: 0 }
+    const cond50: SignalCondition = { indicator: "SMA", params: { period: 50 }, condition: "GREATER_THAN", value: 0 }
+    expect(getIndicatorKey(cond20)).not.toBe(getIndicatorKey(cond50))
+    expect(getIndicatorKey(cond20)).toBe("SMA:period=20")
+    expect(getIndicatorKey(cond50)).toBe("SMA:period=50")
   })
 })
 
 describe("StrategyChecker compare — ABOVE_BY_PERCENT", () => {
   const checker = new SignalChecker()
 
-  // NOTE: With PRICE indicator, actual === ctx.price === currentPrice in the compare() call.
-  // Formula: ((actual - currentPrice) / currentPrice) * 100 >= target
-  // When indicator is PRICE, actual == currentPrice so the delta is always 0.
-  // ABOVE_BY_PERCENT is designed to compare a different indicator value (e.g. SMA) against currentPrice.
-  // For PRICE indicator, ABOVE_BY_PERCENT will always return false for any positive target.
   it("PRICE indicator with ABOVE_BY_PERCENT — always false (actual == currentPrice, delta = 0)", () => {
     const condition: SignalCondition = {
       indicator: "PRICE",
@@ -159,10 +180,6 @@ describe("StrategyChecker compare — ABOVE_BY_PERCENT", () => {
 describe("StrategyChecker compare — BELOW_BY_PERCENT", () => {
   const checker = new SignalChecker()
 
-  // NOTE: With PRICE indicator, actual === ctx.price === currentPrice in the compare() call.
-  // Formula: ((currentPrice - actual) / currentPrice) * 100 >= target
-  // When indicator is PRICE, actual == currentPrice so delta is always 0.
-  // BELOW_BY_PERCENT with PRICE will always be false for any positive target.
   it("PRICE indicator with BELOW_BY_PERCENT — always false (actual == currentPrice, delta = 0)", () => {
     const condition: SignalCondition = {
       indicator: "PRICE",
@@ -186,7 +203,6 @@ describe("StrategyChecker compare — BELOW_BY_PERCENT", () => {
 
 describe("StrategyChecker compare — ABOVE/BELOW_BY_PERCENT formula verification", () => {
   it("ABOVE_BY_PERCENT formula verified: ((actual - currentPrice) / currentPrice) * 100 >= target", () => {
-    // Testing the formula logic directly with known numbers
     const actual = 110
     const currentPrice = 100
     const target = 5
@@ -199,7 +215,6 @@ describe("StrategyChecker compare — ABOVE/BELOW_BY_PERCENT formula verificatio
   })
 
   it("BELOW_BY_PERCENT formula verified: ((currentPrice - actual) / currentPrice) * 100 >= target", () => {
-    // Testing the formula logic directly with known numbers
     const actual = 90
     const currentPrice = 100
     const target = 5
