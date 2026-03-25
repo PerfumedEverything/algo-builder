@@ -221,8 +221,23 @@ export default function TerminalPage() {
       </div>
 
       {!instrument && (
-        <div className="flex h-[500px] items-center justify-center rounded-xl border border-dashed border-border">
+        <div className="flex flex-col items-center justify-center h-[500px] rounded-xl border border-dashed border-border gap-6">
           <p className="text-muted-foreground">Выберите инструмент для просмотра графика</p>
+          <div className="text-center space-y-3">
+            <p className="text-xs text-muted-foreground">Популярные инструменты</p>
+            <div className="flex flex-wrap justify-center gap-2">
+              {["SBER", "GAZP", "LKOH", "YNDX", "TCSG", "NVTK", "ROSN", "MGNT"].map((t) => (
+                <button
+                  key={t}
+                  type="button"
+                  onClick={() => setTicker(t)}
+                  className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
 

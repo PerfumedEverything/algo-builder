@@ -374,7 +374,10 @@ export const PortfolioView = ({ portfolio, deposits }: PortfolioViewProps) => {
           <p className="text-sm font-medium">Позиции</p>
         </div>
         {portfolio.positions.length === 0 ? (
-          <p className="py-8 text-center text-sm text-muted-foreground">Нет позиций</p>
+          <div className="py-8 text-center space-y-2">
+            <p className="text-sm text-muted-foreground">Нет открытых позиций</p>
+            <p className="text-xs text-muted-foreground">Совершите сделки через брокера — они появятся здесь автоматически</p>
+          </div>
         ) : (
             <div className="overflow-x-auto" style={{ WebkitOverflowScrolling: "touch" }}>
             <div className="sm:min-w-[750px]">

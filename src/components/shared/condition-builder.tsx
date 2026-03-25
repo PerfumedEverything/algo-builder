@@ -263,7 +263,7 @@ export const ConditionBuilder = ({
                     value={condition.timeframe ?? ""}
                     onValueChange={(v) => handleFieldChange(i, { timeframe: v || undefined })}
                   >
-                    <SelectTrigger><SelectValue placeholder="Авто" /></SelectTrigger>
+                    <SelectTrigger><SelectValue placeholder="Как у стратегии" /></SelectTrigger>
                     <SelectContent>
                       {TIMEFRAMES.map((t) => (
                         <SelectItem key={t.value} value={t.value}>

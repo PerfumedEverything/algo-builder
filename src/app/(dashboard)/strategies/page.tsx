@@ -217,7 +217,9 @@ export default function StrategiesPage() {
               Размер портфеля стратегий
             </div>
             <p className="text-lg font-semibold">
-              {portfolioSummary.totalPortfolio.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ₽
+              {portfolioSummary.totalPortfolio > 0
+                ? `${portfolioSummary.totalPortfolio.toLocaleString("ru-RU", { maximumFractionDigits: 0 })} ₽`
+                : "Нет позиций"}
             </p>
           </div>
           <div className="rounded-lg border border-border bg-card px-4 py-3">

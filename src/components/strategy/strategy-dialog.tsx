@@ -50,17 +50,27 @@ export const StrategyDialog = ({
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 overflow-y-auto">
-          {mode === "create" && <AiChat onGenerated={handleGenerated} />}
-          {mode === "create" && (
+          {mode === "create" && !showForm && (
+            <>
+              <AiChat onGenerated={handleGenerated} />
+              <button
+                type="button"
+                onClick={() => setShowForm(true)}
+                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ChevronDown className="h-3.5 w-3.5" />
+                или заполнить вручную
+              </button>
+            </>
+          )}
+          {mode === "create" && showForm && (
             <button
               type="button"
-              onClick={() => setShowForm(!showForm)}
+              onClick={() => setShowForm(false)}
               className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
             >
-              <ChevronDown
-                className={`h-3.5 w-3.5 transition-transform ${showForm ? "rotate-180" : ""}`}
-              />
-              или заполнить вручную
+              <ChevronDown className="h-3.5 w-3.5 rotate-180" />
+              вернуться к AI помощнику
             </button>
           )}
           <div className={mode === "create" && !showForm ? "hidden" : undefined}>
