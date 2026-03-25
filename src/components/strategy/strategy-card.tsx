@@ -1,35 +1,18 @@
 "use client"
 
 import { useState } from "react"
-import {
-  MoreHorizontal,
-  Pencil,
-  Trash2,
-  Play,
-  Pause,
-  Radio,
-  ChevronDown,
-  ArrowUpRight,
-  ArrowDownRight,
-  Activity,
-  TrendingUp,
-  TrendingDown,
-} from "lucide-react"
+import { MoreHorizontal, Pencil, Trash2, Play, Pause, Radio, ChevronDown, Activity, TrendingUp, TrendingDown } from "lucide-react"
 
-import type { StrategyCondition, OperationStats, StrategyOperation } from "@/core/types"
-import { INDICATORS } from "@/core/config/indicators"
+import type { OperationStats, StrategyOperation } from "@/core/types"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { GlowingEffect } from "@/components/ui/glowing-effect"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { getOperationsAction } from "@/server/actions/operation-actions"
+import { StrategyCardConditions } from "./strategy-card-conditions"
+import { StrategyCardOps } from "./strategy-card-ops"
 
 type StrategyCardProps = {
   strategy: StrategyRow
@@ -43,62 +26,14 @@ type StrategyCardProps = {
   onStatusChange: (id: string, status: string) => void
 }
 
-const STATUS_STYLES: Record<string, string> = {
-  ACTIVE: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20",
-  DRAFT: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20",
-  PAUSED: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20",
-  TRIGGERED: "bg-blue-500/10 text-blue-400 border-blue-500/20",
+const STATUS_MAP: Record<string, { style: string; label: string }> = {
+  ACTIVE: { style: "bg-emerald-500/10 text-emerald-400 border-emerald-500/20", label: "Активна" },
+  DRAFT: { style: "bg-zinc-500/10 text-zinc-400 border-zinc-500/20", label: "Черновик" },
+  PAUSED: { style: "bg-yellow-500/10 text-yellow-400 border-yellow-500/20", label: "Пауза" },
+  TRIGGERED: { style: "bg-blue-500/10 text-blue-400 border-blue-500/20", label: "Сработала" },
 }
-
-const STATUS_LABELS: Record<string, string> = {
-  ACTIVE: "Активна",
-  DRAFT: "Черновик",
-  PAUSED: "Пауза",
-  TRIGGERED: "Сработала",
-}
-
-const CONDITION_LABELS_RU: Record<string, string> = {
-  GREATER_THAN: "Больше чем",
-  LESS_THAN: "Меньше чем",
-  CROSSES_ABOVE: "Пересекает вверх",
-  CROSSES_BELOW: "Пересекает вниз",
-  EQUALS: "Равно",
-  ABOVE_BY_PERCENT: "Выше на %",
-  BELOW_BY_PERCENT: "Ниже на %",
-  MULTIPLIED_BY: "Кратно",
-  BETWEEN: "Между",
-}
-
-const LOGIC_LABELS: Record<string, string> = { AND: "И", OR: "ИЛИ" }
-
-const getConditionSummary = (condition: StrategyCondition) => {
-  const indicator = INDICATORS.find((i) => i.type === condition.indicator)
-  const label = indicator?.label ?? condition.indicator
-  const paramStr = Object.values(condition.params).join(",")
-  const indicatorDisplay = paramStr ? `${label}(${paramStr})` : label
-  const conditionLabel = CONDITION_LABELS_RU[condition.condition] ?? condition.condition
-  return `${indicatorDisplay} ${conditionLabel}${condition.value !== undefined ? ` ${condition.value}` : ""}`
-}
-
-const getConditionsDisplay = (conditions: StrategyCondition | StrategyCondition[], logic?: string) => {
-  const arr = Array.isArray(conditions) ? conditions : [conditions]
-  const separator = ` ${LOGIC_LABELS[logic ?? "AND"] ?? logic} `
-  return arr.map(getConditionSummary).join(separator)
-}
-
 const formatAmount = (n: number) =>
   n.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-
-const formatTime = (iso: string) => {
-  const d = new Date(iso)
-  return d.toLocaleString("ru-RU", {
-    timeZone: "Europe/Moscow",
-    day: "2-digit",
-    month: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  })
-}
 
 export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPrice, expanded: controlledExpanded, onToggleExpand, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
   const config = strategy.config
@@ -107,10 +42,8 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
   const expanded = controlledExpanded ?? internalExpanded
   const [operations, setOperations] = useState<StrategyOperation[]>([])
   const [opsLoading, setOpsLoading] = useState(false)
-
   const stats = operationStats
   const hasOps = stats && stats.totalOperations > 0
-
   const handleToggleOps = async () => {
     if (expanded) {
       onToggleExpand ? onToggleExpand() : setInternalExpanded(false)
@@ -118,12 +51,8 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
     }
     setOpsLoading(true)
     const res = await getOperationsAction(strategy.id)
-    if (res.success) {
-      setOperations(res.data)
-    } else {
-      toast.error("Не удалось загрузить операции")
-      setOperations([])
-    }
+    if (res.success) setOperations(res.data)
+    else { toast.error("Не удалось загрузить операции"); setOperations([]) }
     setOpsLoading(false)
     onToggleExpand ? onToggleExpand() : setInternalExpanded(true)
   }
@@ -135,33 +64,24 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <h3 className="truncate text-sm font-semibold">{strategy.name}</h3>
-            <Badge variant="outline" className={`text-[10px] sm:text-xs ${STATUS_STYLES[strategy.status]}`}>
-              {STATUS_LABELS[strategy.status]}
-            </Badge>
+            <Badge variant="outline" className={`text-[10px] sm:text-xs ${STATUS_MAP[strategy.status]?.style}`}>{STATUS_MAP[strategy.status]?.label}</Badge>
             {isActive && strategy.positionState === "OPEN" && (
               <Badge variant="outline" className="text-[10px] sm:text-xs bg-emerald-500/10 text-emerald-400 border-emerald-500/20 gap-1">
-                <Radio className="h-3 w-3 animate-pulse" />
-                Позиция открыта
+                <Radio className="h-3 w-3 animate-pulse" />Позиция открыта
               </Badge>
             )}
             {isActive && strategy.positionState !== "OPEN" && (
               <Badge variant="outline" className="text-[10px] sm:text-xs bg-zinc-500/10 text-zinc-400 border-zinc-500/20 gap-1">
-                <Radio className="h-3 w-3" />
-                Ожидает вход
+                <Radio className="h-3 w-3" />Ожидает вход
               </Badge>
             )}
           </div>
           <div className="mt-1.5 flex flex-wrap items-center gap-1.5 sm:gap-2 text-xs text-muted-foreground">
             <span className="font-mono">{strategy.instrument}</span>
-            <span>·</span>
-            <span>{strategy.timeframe}</span>
-            <span>·</span>
-            <span>{strategy.instrumentType}</span>
+            <span>·</span><span>{strategy.timeframe}</span>
+            <span>·</span><span>{strategy.instrumentType}</span>
             {currentPrice && currentPrice > 0 && (
-              <>
-                <span>·</span>
-                <span className="font-mono text-foreground">Курс: {formatAmount(currentPrice)} ₽</span>
-              </>
+              <><span>·</span><span className="font-mono text-foreground">Курс: {formatAmount(currentPrice)} ₽</span></>
             )}
           </div>
         </div>
@@ -172,59 +92,26 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            {!isActive && (
-              <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "ACTIVE")} className="text-emerald-400">
-                <Play className="mr-2 h-3.5 w-3.5" />
-                Запустить
-              </DropdownMenuItem>
-            )}
-            {isActive && (
-              <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "PAUSED")} className="text-yellow-400">
-                <Pause className="mr-2 h-3.5 w-3.5" />
-                Остановить
-              </DropdownMenuItem>
-            )}
-            <DropdownMenuItem onClick={() => onEdit(strategy.id)}>
-              <Pencil className="mr-2 h-3.5 w-3.5" />
-              Редактировать
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => onDelete(strategy.id)} className="text-red-400">
-              <Trash2 className="mr-2 h-3.5 w-3.5" />
-              Удалить
-            </DropdownMenuItem>
+            {!isActive && <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "ACTIVE")} className="text-emerald-400"><Play className="mr-2 h-3.5 w-3.5" />Запустить</DropdownMenuItem>}
+            {isActive && <DropdownMenuItem onClick={() => onStatusChange(strategy.id, "PAUSED")} className="text-yellow-400"><Pause className="mr-2 h-3.5 w-3.5" />Остановить</DropdownMenuItem>}
+            <DropdownMenuItem onClick={() => onEdit(strategy.id)}><Pencil className="mr-2 h-3.5 w-3.5" />Редактировать</DropdownMenuItem>
+            <DropdownMenuItem onClick={() => onDelete(strategy.id)} className="text-red-400"><Trash2 className="mr-2 h-3.5 w-3.5" />Удалить</DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
 
       <div className="mt-3 space-y-1 text-xs text-muted-foreground break-words">
-        <p>
-          <span className="text-emerald-400">Вход:</span>{" "}
-          {getConditionsDisplay(config.entry, config.entryLogic)}
-        </p>
-        <p>
-          <span className="text-red-400">Выход:</span>{" "}
-          {getConditionsDisplay(config.exit, config.exitLogic)}
-        </p>
+        <StrategyCardConditions conditions={config.entry} logic={config.entryLogic} type="entry" /><StrategyCardConditions conditions={config.exit} logic={config.exitLogic} type="exit" />
       </div>
 
       {isActive && strategy.positionState === "OPEN" && lastBuyPrice && lastBuyPrice > 0 && (
         <div className="mt-2 flex items-center gap-2 text-xs">
-          <span className="text-muted-foreground">Цена входа:</span>
-          <span className="font-mono text-emerald-400">{formatAmount(lastBuyPrice)} ₽</span>
+          <span className="text-muted-foreground">Цена входа:</span><span className="font-mono text-emerald-400">{formatAmount(lastBuyPrice)} ₽</span>
         </div>
       )}
-
       <div className="mt-3 flex flex-wrap gap-2">
-        {config.risks.stopLoss && (
-          <span className="rounded bg-red-500/10 px-2 py-0.5 text-xs text-red-400">
-            SL: {config.risks.stopLoss}%
-          </span>
-        )}
-        {config.risks.takeProfit && (
-          <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">
-            TP: {config.risks.takeProfit}%
-          </span>
-        )}
+        {config.risks.stopLoss && <span className="rounded bg-red-500/10 px-2 py-0.5 text-xs text-red-400">SL: {config.risks.stopLoss}%</span>}
+        {config.risks.takeProfit && <span className="rounded bg-emerald-500/10 px-2 py-0.5 text-xs text-emerald-400">TP: {config.risks.takeProfit}%</span>}
       </div>
 
       {hasOps && (
@@ -233,80 +120,29 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
             <Activity className="h-3 w-3" />
             {stats.totalOperations} {stats.totalOperations === 1 ? "операция" : stats.totalOperations < 5 ? "операции" : "операций"}
           </span>
-          <span className="flex items-center gap-1 rounded px-2 py-0.5 text-xs font-mono">
-            {stats.pnl >= 0 ? (
-              <>
-                <TrendingUp className="h-3 w-3 text-emerald-400" />
-                <span className="text-emerald-400">+{formatAmount(stats.pnl)} ₽</span>
-              </>
-            ) : (
-              <>
-                <TrendingDown className="h-3 w-3 text-red-400" />
-                <span className="text-red-400">{formatAmount(stats.pnl)} ₽</span>
-              </>
-            )}
-          </span>
-          <span className={`rounded px-2 py-0.5 text-xs font-mono ${
-            stats.pnlPercent >= 0
-              ? "bg-emerald-500/10 text-emerald-400"
-              : "bg-red-500/10 text-red-400"
-          }`}>
-            {stats.pnlPercent >= 0 ? "+" : ""}{stats.pnlPercent.toFixed(2)}%
-          </span>
-          {stats.holdingQty > 0 && stats.initialAmount > 0 && (
-            <span className={`text-xs font-mono ${
-              stats.pnl >= 0 ? "text-emerald-400" : "text-red-400"
-            }`}>
-              {formatAmount(stats.currentAmount)} ₽
+          {stats.holdingQty === 0 ? (
+            <span className="flex items-center gap-1 rounded px-2 py-0.5 text-xs font-mono">
+              <span className="text-muted-foreground">Результат:</span>
+              {stats.pnl >= 0 ? <><TrendingUp className="h-3 w-3 text-emerald-400" /><span className="text-emerald-400">+{formatAmount(stats.pnl)} ₽</span></> : <><TrendingDown className="h-3 w-3 text-red-400" /><span className="text-red-400">{formatAmount(stats.pnl)} ₽</span></>}
+              <span className={stats.pnlPercent >= 0 ? "text-emerald-400" : "text-red-400"}>({stats.pnlPercent >= 0 ? "+" : ""}{stats.pnlPercent.toFixed(2)}%)</span>
             </span>
+          ) : (
+            <>
+              <span className="text-xs font-mono text-muted-foreground">Позиция: <span className="text-foreground">{formatAmount(stats.currentAmount)} ₽</span></span>
+              <span className={`rounded px-2 py-0.5 text-xs font-mono ${stats.pnlPercent >= 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
+                {stats.pnl >= 0 ? "+" : ""}{formatAmount(stats.pnl)} ₽ ({stats.pnlPercent >= 0 ? "+" : ""}{stats.pnlPercent.toFixed(2)}%)
+              </span>
+            </>
           )}
-
-          <button
-            type="button"
-            onClick={handleToggleOps}
-            className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Операции
-            <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          <button type="button" onClick={handleToggleOps} className="ml-auto flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors">
+            Операции<ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
           </button>
         </div>
       )}
 
       {expanded && (
         <div className="mt-2 max-h-48 overflow-y-auto rounded border border-border bg-background/50">
-          {opsLoading ? (
-            <div className="py-4 text-center text-xs text-muted-foreground">Загрузка...</div>
-          ) : operations.length === 0 ? (
-            <div className="py-4 text-center text-xs text-muted-foreground">Нет операций</div>
-          ) : (
-            <table className="w-full text-xs">
-              <thead>
-                <tr className="border-b border-border text-muted-foreground">
-                  <th className="px-1.5 py-1.5 text-left font-medium whitespace-nowrap">Тип</th>
-                  <th className="px-1.5 py-1.5 text-right font-medium whitespace-nowrap">Цена</th>
-                  <th className="px-1.5 py-1.5 text-right font-medium whitespace-nowrap">Кол</th>
-                  <th className="px-1.5 py-1.5 text-right font-medium whitespace-nowrap">Сумма</th>
-                  <th className="px-1.5 py-1.5 text-right font-medium whitespace-nowrap">Время</th>
-                </tr>
-              </thead>
-              <tbody>
-                {operations.map((op) => (
-                  <tr key={op.id} className="border-b border-border/50 last:border-0">
-                    <td className="px-1.5 py-1.5">
-                      <span className={`flex items-center gap-1 ${op.type === "BUY" ? "text-emerald-400" : "text-red-400"}`}>
-                        {op.type === "BUY" ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-                        {op.type === "BUY" ? "Покупка" : "Продажа"}
-                      </span>
-                    </td>
-                    <td className="px-1.5 py-1.5 text-right font-mono">{formatAmount(op.price)}</td>
-                    <td className="px-1.5 py-1.5 text-right font-mono">{op.quantity}</td>
-                    <td className="px-1.5 py-1.5 text-right font-mono whitespace-nowrap">{formatAmount(op.amount)} ₽</td>
-                    <td className="px-1.5 py-1.5 text-right text-muted-foreground whitespace-nowrap">{formatTime(op.createdAt)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
+          <StrategyCardOps operations={operations} loading={opsLoading} />
         </div>
       )}
     </div>
