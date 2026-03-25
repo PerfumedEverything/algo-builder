@@ -70,11 +70,7 @@ export const Header = () => {
           </Button>
         </Link>
 
-        <div className="hidden items-center gap-1 rounded-lg border border-border px-3 py-1.5 text-sm md:flex">
-          <span className="font-semibold">0 &#8381;</span>
-          <span className="text-muted-foreground">+0</span>
-          <span className="ml-1 text-xs text-muted-foreground">Объём торгов</span>
-        </div>
+        {/* Volume widget — hidden until real trading data connected */}
 
         <Link href="/pricing">
           <div
