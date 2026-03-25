@@ -1,6 +1,7 @@
 "use client"
 
-import { useRef } from "react"
+import { useRef, useState } from "react"
+import { ChevronDown } from "lucide-react"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
 import type { AiGeneratedStrategy } from "@/core/types"
 import {
@@ -27,6 +28,7 @@ export const StrategyDialog = ({
 }: StrategyDialogProps) => {
   const mode = strategy ? "edit" : "create"
   const formRef = useRef<StrategyFormHandle>(null)
+  const [showForm, setShowForm] = useState(false)
 
   const handleGenerated = (data: AiGeneratedStrategy) => {
     formRef.current?.setGeneralFields({
@@ -36,6 +38,7 @@ export const StrategyDialog = ({
       timeframe: data.timeframe,
       description: data.description,
     })
+    setShowForm(true)
   }
 
   return (
@@ -48,13 +51,27 @@ export const StrategyDialog = ({
         </DialogHeader>
         <div className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 overflow-y-auto">
           {mode === "create" && <AiChat onGenerated={handleGenerated} />}
-          <StrategyForm
-            ref={formRef}
-            mode={mode}
-            strategy={strategy}
-            onClose={() => onOpenChange(false)}
-            onSuccess={onSuccess}
-          />
+          {mode === "create" && (
+            <button
+              type="button"
+              onClick={() => setShowForm(!showForm)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <ChevronDown
+                className={`h-3.5 w-3.5 transition-transform ${showForm ? "rotate-180" : ""}`}
+              />
+              или заполнить вручную
+            </button>
+          )}
+          <div className={mode === "create" && !showForm ? "hidden" : undefined}>
+            <StrategyForm
+              ref={formRef}
+              mode={mode}
+              strategy={strategy}
+              onClose={() => onOpenChange(false)}
+              onSuccess={onSuccess}
+            />
+          </div>
         </div>
       </DialogContent>
     </Dialog>

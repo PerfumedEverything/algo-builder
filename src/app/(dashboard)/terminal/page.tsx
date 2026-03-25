@@ -214,7 +214,7 @@ export default function TerminalPage() {
             title={`Тех. анализ ${instrument.ticker}`}
             triggerLabel="Анализ с ИИ"
             analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
-            variant="outline"
+            variant="default"
             size="sm"
           />
         )}
