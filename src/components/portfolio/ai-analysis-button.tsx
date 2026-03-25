@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Bot, Loader2 } from "lucide-react"
+import { Bot, Loader2, Plus, Bell } from "lucide-react"
 import Markdown from "react-markdown"
 
 import { Button } from "@/components/ui/button"
@@ -20,6 +20,8 @@ type AiAnalysisButtonProps = {
   triggerIcon?: React.ReactNode
   analyzeAction: () => Promise<{ success: boolean; data?: string; error?: string }>
   onResult?: (result: string) => void
+  onCreateStrategy?: () => void
+  onCreateSignal?: () => void
   variant?: "default" | "outline" | "ghost"
   size?: "default" | "sm" | "icon"
 }
@@ -31,6 +33,8 @@ export const AiAnalysisButton = ({
   triggerIcon = <Bot className="h-4 w-4" />,
   analyzeAction,
   onResult,
+  onCreateStrategy,
+  onCreateSignal,
   variant = "default",
   size = "sm",
 }: AiAnalysisButtonProps) => {
@@ -102,12 +106,27 @@ export const AiAnalysisButton = ({
           </div>
         )}
 
-        {result && (
-          <div className="flex justify-end pt-2">
-            <Button variant="outline" size="sm" onClick={handleAnalyze} disabled={loading}>
-              {loading ? <Loader2 className="mr-2 h-3 w-3 animate-spin" /> : null}
-              Пересчитать
-            </Button>
+        {result && (onCreateStrategy || onCreateSignal) && (
+          <div className="flex items-center gap-2 pt-2">
+            {onCreateStrategy && (
+              <Button
+                size="sm"
+                onClick={() => { setOpen(false); onCreateStrategy() }}
+              >
+                <Plus className="h-3.5 w-3.5 mr-1.5" />
+                Создать стратегию
+              </Button>
+            )}
+            {onCreateSignal && (
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => { setOpen(false); onCreateSignal() }}
+              >
+                <Bell className="h-3.5 w-3.5 mr-1.5" />
+                Создать сигнал
+              </Button>
+            )}
           </div>
         )}
       </DialogContent>

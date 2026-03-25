@@ -227,6 +227,8 @@ export default function TerminalPage() {
                 triggerLabelMobile="ИИ"
                 analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
                 onResult={(result) => setAiAnalysisResult(result)}
+                onCreateStrategy={() => setStrategyDialogOpen(true)}
+                onCreateSignal={() => setSignalDialogOpen(true)}
                 variant="default"
                 size="sm"
               />
