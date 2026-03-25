@@ -103,12 +103,12 @@ Plans:
   3. Strategies always use fresh prices (not stale cache)
   4. Strategy card displays correct data after phase 2.2 fixes
   5. Error handling is resilient — one strategy failure doesn't break the whole view
-**Plans:** 4 plans
+**Plans:** 1/4 plans executed
 Plans:
 - [ ] 02.3-01-PLAN.md — Price cache hardening: remove stale fallback, reduce TTL, increase lock TTL
 - [ ] 02.3-02-PLAN.md — Checker hardening: cleanTicker, signal checkAll lock, persist try/catch
 - [ ] 02.3-03-PLAN.md — Paper portfolio resilience, trigger handler CRITICAL logging, strategy card error toast
-- [ ] 02.3-04-PLAN.md — SQL ticker migration script, paper-portfolio-view useCallback fix
+- [x] 02.3-04-PLAN.md — SQL ticker migration script, paper-portfolio-view useCallback fix
 **UI hint**: no
 
 ### Phase 3: Fundamentals
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 4 -> 5
 | 2. Risk Metrics | 3/3 | Complete   | 2026-03-24 |
 | 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
 | 2.2 Strategy Pipeline Fix (CRITICAL) | 3/3 | Complete   | 2026-03-25 |
-| 2.3 Strategy & Portfolio Hardening | 0/4 | Not started | - |
+| 2.3 Strategy & Portfolio Hardening | 1/4 | In Progress|  |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
