@@ -301,31 +301,6 @@ export const PortfolioView = ({ portfolio, deposits }: PortfolioViewProps) => {
 
   return (
     <div className="space-y-4">
-      {portfolio.positions.length > 0 && deposits && (
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-xs text-muted-foreground">Стоимость портфеля</p>
-            <p className="text-lg font-semibold">{formatMoney(totalValue)}</p>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-xs text-muted-foreground">Внесено</p>
-            <p className="text-lg font-semibold">{formatMoney(netDeposited)}</p>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-xs text-muted-foreground">Доход / Убыток</p>
-            <p className={`text-lg font-semibold ${growth >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-              {growth >= 0 ? "+" : ""}{formatMoney(growth)}
-            </p>
-          </div>
-          <div className="rounded-lg border border-border bg-card p-3">
-            <p className="text-xs text-muted-foreground">Рост</p>
-            <p className={`text-lg font-semibold ${growthPercent >= 0 ? "text-emerald-400" : "text-red-400"}`}>
-              {growthPercent >= 0 ? "+" : ""}{growthPercent.toFixed(2)}%
-            </p>
-          </div>
-        </div>
-      )}
-
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <SummaryCard label="Стоимость портфеля" icon={<Wallet className="h-3.5 w-3.5" />}>
           <p className="text-xl font-bold">{formatMoney(portfolio.totalAmount)}</p>
