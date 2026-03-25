@@ -167,9 +167,9 @@ Plans:
   3. User can rerun/redo AI analysis from within the analysis dialog
   4. Action buttons in analysis dialog do not overflow on mobile viewports
   5. Transition from analysis result to strategy creation feels seamless (not bolted-on)
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 04.1-01-PLAN.md — AiWizardDialog + WizardStepIndicator components (3-step wizard)
+- [x] 04.1-01-PLAN.md — AiWizardDialog + WizardStepIndicator components (3-step wizard)
 - [ ] 04.1-02-PLAN.md — Wire wizard into terminal page + visual verification
 **UI hint**: yes
 
@@ -225,7 +225,7 @@ v1.1: 4 → 4.1 → 5 → 6 → 7
 | 3. MVP Polish + Fundamentals | v1.0 | 5/5 | Complete | 2026-03-25 |
 | 3.1 UX Audit (INSERTED) | v1.0 | 0/TBD | Complete | 2026-03-25 |
 | 4. AI Revolution | v1.1 | 3/3 | Complete | 2026-03-25 |
-| 4.1 AI UX Polish (INSERTED) | v1.1 | 0/2 | Not started | - |
+| 4.1 AI UX Polish (INSERTED) | v1.1 | 1/2 | In Progress|  |
 | 5. Terminal Top Movers | v1.1 | 0/TBD | Not started | - |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 0/TBD | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |

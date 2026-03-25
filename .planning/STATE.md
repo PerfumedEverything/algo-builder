@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Ready to execute
-stopped_at: Completed 04-03 Tasks 1-2, at checkpoint Task 3 (human-verify)
-last_updated: "2026-03-25T20:13:47.767Z"
+stopped_at: Completed 04.1-01-PLAN.md — AiWizardDialog + WizardStepIndicator created
+last_updated: "2026-03-25T21:30:48.700Z"
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 6
-  total_plans: 24
-  completed_plans: 21
+  total_plans: 26
+  completed_plans: 22
 ---
 
 # Project State
@@ -19,31 +19,29 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 04 — ai-revolution
+**Current focus:** Phase 04.1 — ai-ux-polish
 
 ## Current Position
 
-Phase: 04 (ai-revolution) — EXECUTING
-Plan: 3 of 3
+Phase: 04.1 (ai-ux-polish) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
 **Velocity:**
 
-- Total plans completed: 0 (v1.1)
-- Average duration: — min
-- Total execution time: — hours
+- Total plans completed: 3 (v1.1)
+- Average duration: ~10 min
+- Total execution time: ~31 min
 
 **By Phase:**
 
-| Phase | Plans | Total | Avg/Plan |
-|-------|-------|-------|----------|
-| - | - | - | - |
-
-*Updated after each plan completion*
-| Phase 04 P01 | 6 | 2 tasks | 8 files |
-| Phase 04-ai-revolution P02 | 15 | 2 tasks | 5 files |
-| Phase 04 P03 | 10 | 2 tasks | 5 files |
+| Phase | Plans | Tasks | Files |
+|-------|-------|-------|-------|
+| Phase 04 P01 | 6 min | 2 tasks | 8 files |
+| Phase 04 P02 | 15 min | 2 tasks | 5 files |
+| Phase 04 P03 | 10 min | 2 tasks | 5 files |
+| Phase 04.1-ai-ux-polish P01 | 8 | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -54,10 +52,14 @@ Plan: 3 of 3
 - v1.1 start: simple-statistics covers Markowitz math, no new math library needed
 - v1.1 start: @nivo/heatmap + recharts are only 2 new packages needed
 - [Phase 04]: BETWEEN condition is inclusive on both bounds; valueTo added to StrategyCondition and SignalCondition
-- [Phase 04-ai-revolution]: Free-form AI chat replaces 4-step quiz: AI calls create_strategy when it has instrument + one indicator/style, asks ONE clarifying question otherwise
-- [Phase 04-ai-revolution]: StrategyPreviewPanel shows live strategy preview via onStrategyExtracted callback before user confirms with Apply
-- [Phase 04-ai-revolution]: AiAnalysisButton fires onResult immediately on success — terminal state stores latest analysis for dialog seeding
-- [Phase 04-ai-revolution]: ConditionBuilder BETWEEN clears valueTo on condition type switch — prevents stale data in strategy config
+- [Phase 04]: Free-form AI chat replaces 4-step quiz
+- [Phase 04]: StrategyPreviewPanel shows live strategy preview via onStrategyExtracted callback
+- [Phase 04]: AiAnalysisButton fires onResult immediately on success
+- [Phase 04]: ConditionBuilder BETWEEN clears valueTo on condition type switch
+- [Phase 4.1]: Wizard flow (3-step) chosen: Анализ → Стратегия → Настройка — Anton decision
+- [Phase 4.1]: Insert phase instead of micro-fixes — batch polish properly
+- [Phase 04.1]: Use hidden class for wizard step panels to prevent AiChat remounting
+- [Phase 04.1]: AiWizardDialog resets all state on open via useEffect([open])
 
 ### Pending Todos
 
@@ -73,7 +75,7 @@ Plan: 3 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-25T20:13:34.121Z
-Stopped at: Completed 04-03 Tasks 1-2, at checkpoint Task 3 (human-verify)
+Last session: 2026-03-25T21:30:48.696Z
+Stopped at: Completed 04.1-01-PLAN.md — AiWizardDialog + WizardStepIndicator created
 Resume file: None
-Next: /gsd:plan-phase 4
+Next: /gsd:discuss-phase 4.1 or /gsd:plan-phase 4.1
