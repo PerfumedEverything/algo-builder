@@ -96,14 +96,19 @@ Plans:
 ### Phase 2.3: Strategy & Portfolio Hardening (INSERTED)
 **Goal**: Fix paper portfolio data reliability, ticker @ cleanup, price freshness validation, and harden all strategy/signal flows for production stability
 **Depends on**: Phase 2.2 (strategy pipeline fixes)
-**Requirements**: TBD
+**Requirements**: HARD-01, HARD-02, HARD-03, HARD-04, HARD-05, HARD-06, HARD-07, HARD-08, HARD-09, HARD-10, HARD-11, HARD-12, HARD-13, HARD-14, HARD-15
 **Success Criteria** (what must be TRUE):
   1. Paper portfolio always shows all active strategies with their P&L (no silently skipped rows)
   2. All tickers in DB are clean (no @ suffix) — strategies and signals
   3. Strategies always use fresh prices (not stale cache)
   4. Strategy card displays correct data after phase 2.2 fixes
   5. Error handling is resilient — one strategy failure doesn't break the whole view
-**Plans**: TBD
+**Plans:** 4 plans
+Plans:
+- [ ] 02.3-01-PLAN.md — Price cache hardening: remove stale fallback, reduce TTL, increase lock TTL
+- [ ] 02.3-02-PLAN.md — Checker hardening: cleanTicker, signal checkAll lock, persist try/catch
+- [ ] 02.3-03-PLAN.md — Paper portfolio resilience, trigger handler CRITICAL logging, strategy card error toast
+- [ ] 02.3-04-PLAN.md — SQL ticker migration script, paper-portfolio-view useCallback fix
 **UI hint**: no
 
 ### Phase 3: Fundamentals
@@ -150,7 +155,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 4 -> 5
 | 2. Risk Metrics | 3/3 | Complete   | 2026-03-24 |
 | 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
 | 2.2 Strategy Pipeline Fix (CRITICAL) | 3/3 | Complete   | 2026-03-25 |
-| 2.3 Strategy & Portfolio Hardening | 0/TBD | Not started | - |
+| 2.3 Strategy & Portfolio Hardening | 0/4 | Not started | - |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
