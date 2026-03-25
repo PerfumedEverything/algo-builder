@@ -14,6 +14,7 @@ export type StrategyRow = {
   instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
   timeframe: string
   config: StrategyConfig
+  lastIndicatorValues: Record<string, number> | null
   createdAt: string
   updatedAt: string
 }
