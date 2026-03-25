@@ -11,7 +11,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 - [x] **INFR-01**: MOEX ISS provider fetches IMOEX benchmark candles with Redis cache (24h TTL)
 - [x] **INFR-02a**: MOEX ISS provider fetches dividend history per ticker with Redis cache (7d TTL)
-- [ ] **INFR-02b**: Security fundamentals P/E, P/B ratios (deferred to Phase 3 — MOEX ISS does not provide these; alternative source needed)
+- [x] **INFR-02b**: Security fundamentals P/E, P/B ratios (deferred to Phase 3 — MOEX ISS does not provide these; alternative source needed)
 - [x] **INFR-03**: MOEX ISS provider handles pagination (100-row limit) automatically
 - [x] **INFR-04**: Deposit tracker shows total deposits/withdrawals and deposit-adjusted real P&L
 - [x] **INFR-05**: Skeleton loading on all dashboard pages (dashboard, strategies, signals, portfolio, settings, admin, terminal)
@@ -39,10 +39,31 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [ ] **RISK-08**: Each metric card has tooltip explaining what it means
 - [ ] **RISK-09**: AI risk analysis button — DeepSeek evaluates all 5 metrics + positions
 
+### MVP Polish
+
+- [ ] **POL-01**: Portfolio summary block — total portfolio value, debit/credit amounts, % growth/decline
+- [ ] **POL-02**: AI analysis buttons → blue background for visual consistency across all pages
+- [x] **POL-03**: Signal actions apply cleanTicker — no @ suffix in saved signals
+- [x] **POL-04**: Terminal tab → second position in sidebar menu (after Dashboard)
+- [x] **POL-05**: Chart timeframes fix — 1D shows daily candles over weeks/months, not 1 day of data
+- [x] **POL-06**: Terminal mobile responsiveness — timeframe selector, AI button fit on small screens, chart full width
+- [ ] **POL-07**: Strategy card: closed position shows only P&L result (not sum of all buys as "portfolio size")
+- [ ] **POL-08**: Strategy card UX — clear labels, tooltips, readable condition display so users don't ask "what is this"
+- [x] **POL-09**: Terminal → Strategy/Signal actions — create strategy or signal for current instrument directly from terminal
+- [ ] **POL-10**: AI chat mode — free-form conversation instead of quiz for strategy creation/discussion
+
+### UX Audit
+
+- [ ] **UXA-01**: Playwright screenshots of every dashboard page (desktop 1440px + mobile 390px)
+- [ ] **UXA-02**: User flow tests — create strategy (manual + AI), create signal, view portfolio, terminal chart, AI analysis
+- [ ] **UXA-03**: Document UX issues — confusing labels, overloaded screens, unclear navigation, dead ends, missing feedback
+- [ ] **UXA-04**: Triage issues into "fix now" vs "backlog" by severity
+- [ ] **UXA-05**: Fix all "fix now" issues (quick wins discovered during audit)
+
 ### Fundamentals
 
-- [ ] **FUND-01**: FundamentalService fetches P/E, P/B, dividend yield per ticker (P/E/P/B source TBD — see INFR-02b)
-- [ ] **FUND-02**: Composite scoring (1-10) with weighted average of P/E, P/B, dividend metrics
+- [x] **FUND-01**: FundamentalService fetches P/E, P/B, dividend yield per ticker (P/E/P/B source TBD — see INFR-02b)
+- [x] **FUND-02**: Composite scoring (1-10) with weighted average of P/E, P/B, dividend metrics
 - [ ] **FUND-03**: Color indication per metric (green=cheap, yellow=normal, red=expensive)
 - [ ] **FUND-04**: Fundamental card appears in portfolio position expand (below chart)
 - [ ] **FUND-05**: AI fundamental analysis button — DeepSeek evaluates multiples + price
@@ -111,7 +132,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 |-------------|-------|--------|
 | INFR-01 | Phase 1 | Complete |
 | INFR-02a | Phase 1 | Complete |
-| INFR-02b | Phase 3 | Pending |
+| INFR-02b | Phase 3 | Complete |
 | INFR-03 | Phase 1 | Complete |
 | INFR-04 | Phase 1 | Complete |
 | INFR-05 | Phase 1 | Complete |
@@ -134,8 +155,23 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RISK-07 | Phase 2 | Pending |
 | RISK-08 | Phase 2 | Pending |
 | RISK-09 | Phase 2 | Pending |
-| FUND-01 | Phase 3 | Pending |
-| FUND-02 | Phase 3 | Pending |
+| POL-01 | Phase 3 | Pending |
+| POL-02 | Phase 3 | Pending |
+| POL-03 | Phase 3 | Complete |
+| POL-04 | Phase 3 | Complete |
+| POL-05 | Phase 3 | Complete |
+| POL-06 | Phase 3 | Complete |
+| POL-07 | Phase 3 | Pending |
+| POL-08 | Phase 3 | Pending |
+| POL-09 | Phase 3 | Complete |
+| POL-10 | Phase 3 | Pending |
+| UXA-01 | Phase 3.1 | Pending |
+| UXA-02 | Phase 3.1 | Pending |
+| UXA-03 | Phase 3.1 | Pending |
+| UXA-04 | Phase 3.1 | Pending |
+| UXA-05 | Phase 3.1 | Pending |
+| FUND-01 | Phase 3 | Complete |
+| FUND-02 | Phase 3 | Complete |
 | FUND-03 | Phase 3 | Pending |
 | FUND-04 | Phase 3 | Pending |
 | FUND-05 | Phase 3 | Pending |
@@ -156,8 +192,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | AIAN-03 | Phase 5 | Pending |
 
 **Coverage:**
-- v1 requirements: 45 total (INFR-02 split into INFR-02a + INFR-02b)
-- Mapped to phases: 45
+- v1 requirements: 60 total (45 original + 10 MVP Polish + 5 UX Audit)
+- Mapped to phases: 60
 - Unmapped: 0
 
 ---
