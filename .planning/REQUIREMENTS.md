@@ -7,10 +7,10 @@
 
 ### AI Revolution
 
-- [ ] **AIREV-01**: User can create strategy through free-form dialog — AI auto-generates strategy params when enough context gathered
-- [ ] **AIREV-02**: User sees live strategy preview updating as AI fills parameters during conversation
-- [ ] **AIREV-03**: User can click "Create Strategy from Analysis" after AI technical analysis in terminal
-- [ ] **AIREV-04**: User can click "Create Signal from Analysis" after AI technical analysis in terminal
+- [x] **AIREV-01**: User can create strategy through free-form dialog — AI auto-generates strategy params when enough context gathered
+- [x] **AIREV-02**: User sees live strategy preview updating as AI fills parameters during conversation
+- [x] **AIREV-03**: User can click "Create Strategy from Analysis" after AI technical analysis in terminal
+- [x] **AIREV-04**: User can click "Create Signal from Analysis" after AI technical analysis in terminal
 - [x] **AIREV-05**: User can use expanded set of indicators (ATR, Stochastic, VWAP, Williams %R) in strategy conditions
 - [x] **AIREV-06**: User can use expanded set of conditions (BETWEEN range, percent-based thresholds) in strategy builder
 
@@ -65,10 +65,10 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AIREV-01 | Phase 4 | Pending |
-| AIREV-02 | Phase 4 | Pending |
-| AIREV-03 | Phase 4 | Pending |
-| AIREV-04 | Phase 4 | Pending |
+| AIREV-01 | Phase 4 | Complete |
+| AIREV-02 | Phase 4 | Complete |
+| AIREV-03 | Phase 4 | Complete |
+| AIREV-04 | Phase 4 | Complete |
 | AIREV-05 | Phase 4 | Complete |
 | AIREV-06 | Phase 4 | Complete |
 | TERM-01 | Phase 5 | Pending |

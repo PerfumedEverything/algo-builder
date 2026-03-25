@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Ready to execute
-stopped_at: Completed 04-02-PLAN.md (free-form AI chat + StrategyPreviewPanel)
-last_updated: "2026-03-25T20:06:34.574Z"
+stopped_at: Completed 04-03 Tasks 1-2, at checkpoint Task 3 (human-verify)
+last_updated: "2026-03-25T20:13:47.767Z"
 progress:
   total_phases: 8
-  completed_phases: 5
+  completed_phases: 6
   total_plans: 24
-  completed_plans: 20
+  completed_plans: 21
 ---
 
 # Project State
@@ -43,6 +43,7 @@ Plan: 3 of 3
 *Updated after each plan completion*
 | Phase 04 P01 | 6 | 2 tasks | 8 files |
 | Phase 04-ai-revolution P02 | 15 | 2 tasks | 5 files |
+| Phase 04 P03 | 10 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -55,6 +56,8 @@ Plan: 3 of 3
 - [Phase 04]: BETWEEN condition is inclusive on both bounds; valueTo added to StrategyCondition and SignalCondition
 - [Phase 04-ai-revolution]: Free-form AI chat replaces 4-step quiz: AI calls create_strategy when it has instrument + one indicator/style, asks ONE clarifying question otherwise
 - [Phase 04-ai-revolution]: StrategyPreviewPanel shows live strategy preview via onStrategyExtracted callback before user confirms with Apply
+- [Phase 04-ai-revolution]: AiAnalysisButton fires onResult immediately on success — terminal state stores latest analysis for dialog seeding
+- [Phase 04-ai-revolution]: ConditionBuilder BETWEEN clears valueTo on condition type switch — prevents stale data in strategy config
 
 ### Pending Todos
 
@@ -70,7 +73,7 @@ Plan: 3 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-25T20:06:34.570Z
-Stopped at: Completed 04-02-PLAN.md (free-form AI chat + StrategyPreviewPanel)
+Last session: 2026-03-25T20:13:34.121Z
+Stopped at: Completed 04-03 Tasks 1-2, at checkpoint Task 3 (human-verify)
 Resume file: None
 Next: /gsd:plan-phase 4
