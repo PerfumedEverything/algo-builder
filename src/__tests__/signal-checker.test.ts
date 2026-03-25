@@ -1,6 +1,7 @@
-import { describe, it, expect } from "vitest"
+import { describe, it, expect, vi } from "vitest"
 import { evaluateCrossing, getIndicatorKey } from "@/server/services/crossing-detector"
 import { SignalChecker } from "@/server/services/signal-checker"
+import { cleanTicker } from "@/lib/ticker-utils"
 import type { SignalCondition } from "@/core/types"
 
 type EvalContext = {
@@ -106,6 +107,16 @@ describe("Signal CheckResult error flag", () => {
 })
 
 const checker = new SignalChecker()
+
+describe("cleanTicker — signal ticker normalization", () => {
+  it("removes trailing @ suffix", () => {
+    expect(cleanTicker("TGLD@")).toBe("TGLD")
+  })
+
+  it("leaves clean ticker unchanged", () => {
+    expect(cleanTicker("SBER")).toBe("SBER")
+  })
+})
 
 describe("SignalChecker.evaluateCondition — basic conditions", () => {
   it("GREATER_THAN: true when price > target", () => {

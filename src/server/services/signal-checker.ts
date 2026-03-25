@@ -8,6 +8,7 @@ import {
   getIndicatorValue, evaluateCondition as coreEval, evaluateConditions, getIndicatorKey, type EvalContext,
 } from "./crossing-detector"
 import type { SignalCondition } from "@/core/types"
+import { cleanTicker } from "@/lib/ticker-utils"
 
 type CheckResult = { signalId: string; signalName: string; instrument: string; triggered: boolean; error?: boolean; message: string }
 
@@ -31,11 +32,14 @@ export class SignalChecker {
     const signals = await this.getActiveSignals()
     const results: CheckResult[] = []
     for (const signal of signals) {
+      const locked = await this.priceCache.acquireLock("signal", signal.id)
+      if (!locked) { results.push(this.skipResult(signal)); continue }
       try {
         const result = await this.checkSignal(signal)
         results.push(result)
         if (result.triggered) await this.triggerHandler.handle(signal, result)
       } catch (e) { results.push(this.errResult(signal, e)) }
+      finally { await this.priceCache.releaseLock("signal", signal.id) }
     }
     return results
   }
@@ -57,33 +61,32 @@ export class SignalChecker {
   }
 
   async checkSignal(signal: SignalRow): Promise<CheckResult> {
-    const locked = await this.priceCache.acquireLock("signal", signal.id)
-    if (!locked) return this.skipResult(signal)
-    try {
-      const cached = await this.priceCache.getPrice(signal.instrument)
-      const price = cached !== null ? cached : await (await this.connectBroker(signal.userId)).getCurrentPrice(signal.instrument)
-      return this.checkSignalWithPrice(signal, price)
-    } finally { await this.priceCache.releaseLock("signal", signal.id) }
+    const instrument = cleanTicker(signal.instrument)
+    const cached = await this.priceCache.getPrice(instrument)
+    const price = cached !== null ? cached : await (await this.connectBroker(signal.userId)).getCurrentPrice(instrument)
+    return this.checkSignalWithPrice(signal, price)
   }
 
   private async checkSignalWithPrice(signal: SignalRow, price: number): Promise<CheckResult> {
+    const instrument = cleanTicker(signal.instrument)
     const candles = await this.fetchCandles(signal)
     const ctx: EvalContext = { price, candles }
     const lastValues = (signal.lastIndicatorValues ?? {}) as Record<string, number>
     const allMet = evaluateConditions(signal.conditions, signal.logicOperator ?? "AND", ctx, lastValues)
     await this.persistIndicatorValues(signal, ctx)
-    const message = allMet ? formatSignalNotification(signal, ctx) : `${signal.instrument}: not met`
-    return { signalId: signal.id, signalName: signal.name, instrument: signal.instrument, triggered: allMet, message }
+    const message = allMet ? formatSignalNotification(signal, ctx) : `${instrument}: not met`
+    return { signalId: signal.id, signalName: signal.name, instrument, triggered: allMet, message }
   }
 
   private async fetchCandles(signal: SignalRow): Promise<EvalContext["candles"]> {
     if (!signal.conditions.some((c) => c.indicator !== "PRICE")) return []
+    const instrument = cleanTicker(signal.instrument)
     const interval = signal.timeframe || "1d"
-    const cached = await this.priceCache.getCandles(signal.instrument, interval)
+    const cached = await this.priceCache.getCandles(instrument, interval)
     if (cached) return cached.map((c) => ({ ...c, time: new Date(c.time) }))
     const broker = await this.connectBroker(signal.userId)
     const now = new Date()
-    const args = { instrumentId: signal.instrument, from: new Date(now.getTime() - candleRangeMs(interval)), to: now, interval }
+    const args = { instrumentId: instrument, from: new Date(now.getTime() - candleRangeMs(interval)), to: now, interval }
     try { return await broker.getCandles(args) }
     catch { await new Promise((r) => setTimeout(r, 1000)); return broker.getCandles(args) }
   }
@@ -94,12 +97,17 @@ export class SignalChecker {
       const val = getIndicatorValue(c, ctx)
       if (val !== null) updated[getIndicatorKey(c)] = val
     }
-    await this.db.from("Signal").update({ lastIndicatorValues: updated, updatedAt: new Date().toISOString() }).eq("id", signal.id)
+    try {
+      await this.db.from("Signal").update({ lastIndicatorValues: updated, updatedAt: new Date().toISOString() }).eq("id", signal.id)
+    } catch (e) {
+      console.error(`[SignalChecker] Failed to persist lastIndicatorValues for signal ${signal.id}:`, e)
+    }
   }
 
   async getConditionProgress(signal: SignalRow) {
-    const cached = await this.priceCache.getPrice(signal.instrument)
-    const price = cached !== null ? cached : await (await this.connectBroker(signal.userId)).getCurrentPrice(signal.instrument)
+    const instrument = cleanTicker(signal.instrument)
+    const cached = await this.priceCache.getPrice(instrument)
+    const price = cached !== null ? cached : await (await this.connectBroker(signal.userId)).getCurrentPrice(instrument)
     const ctx: EvalContext = { price, candles: await this.fetchCandles(signal) }
     return signal.conditions.map((c) => {
       const current = getIndicatorValue(c, ctx)
