@@ -1,15 +1,15 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: milestone
-status: Ready to plan
-stopped_at: Completed 03-03-PLAN.md
-last_updated: "2026-03-25T12:30:15.067Z"
+milestone: v1.1
+milestone_name: AI Revolution + Deep Analytics
+status: Defining requirements
+stopped_at: Milestone v1.1 started
+last_updated: "2026-03-25T21:00:00.000Z"
 progress:
-  total_phases: 10
-  completed_phases: 5
-  total_plans: 21
-  completed_plans: 18
+  total_phases: 0
+  completed_phases: 0
+  total_plans: 0
+  completed_plans: 0
 ---
 
 # Project State
@@ -17,66 +17,37 @@ progress:
 ## Project Reference
 
 **AculaTrade** — algo trading builder platform (aculatrade.com)
-Professional portfolio analytics, strategy automation, and built-in chart terminal.
+AI-powered strategy automation, professional terminal, deep portfolio analytics.
 
 ## Current Position
 
-Phase: 3.1
-Plan: Not started
+Phase: Not started (defining requirements)
+Plan: —
+Status: Defining requirements
+Last activity: 2026-03-25 — Milestone v1.1 started
 
 ## Progress
 
-[████████░░] 81% (17/21 plans complete)
+[░░░░░░░░░░] 0%
 
 ## Completed Phases
 
-1. **Infrastructure & Terminal** — MOEX provider, candlestick charts, terminal page, deposit tracker
-2. **Risk Metrics** — Sharpe, Beta, VaR, Max Drawdown, Alpha with AI analysis
+(v1.0 phases archived — see git history)
 
 ## Recent Decisions
 
-- Security audit completed (2026-03-24): auth fixes, ownership checks, rate limiting
-- Dead code cleanup, planning artifacts removed (restored)
-- Strategy checker: atomic guards against race conditions (duplicate notifications fix)
-- cleanTicker applied on save for @ suffix removal
-- TradingView widget remounts on ticker change via key prop to prevent stale widget state (02.1-02)
-- shadcn table component installed for consistent OrderBook table styling (02.1-02)
-- formatChange uses Math.abs() + manual +/- prefix to avoid Russian locale double-minus (02.1-01)
-- formatVolume K threshold at 10K per plan spec — numbers below 10K use plain Intl format (02.1-01)
-- volume=0 in PriceBar since CandlestickData has no volume field and PriceUpdate SSE also lacks it (02.1-02)
-- Position row click constructs minimal BrokerInstrument stub (type=STOCK, lot=1) for chart display (02.1-02)
-- SUPPORT/RESISTANCE return null (not 0/Infinity) — null propagates to false condition, prevents false triggers (02.2-01)
-- getIndicatorValue returns number | null in both checkers — null = insufficient data, condition returns false (02.2-01)
-- evaluateCrossing/getIndicatorKey extracted to crossing-detector.ts for 150-line compliance (02.2-02)
-- handleTriggered extracted to StrategyTriggerHandler class — strategy-checker.ts is 149 lines (02.2-02)
-- ConditionProgress.current: number | null to propagate null indicator data to UI (02.2-02)
-- SignalChecker delegates to crossing-detector.ts — DRY, single truth for both pipelines (02.2-03)
-- SignalTriggerHandler extracted to signal-trigger-handler.ts — mirrors StrategyTriggerHandler (02.2-03)
-- vitest.config.ts excludes .claude/worktrees — prevents stale agent test files from failing CI (02.2-03)
-- LAST_PRICE_PREFIX removed, PRICE_TTL=120s, lock TTL=10s — no stale 7-day fallback, fresh prices for 1m/5m candle strategies (02.3-01)
-- cleanTicker applied at method entry in both checkers (checkStrategy, checkSignal, fetchCandles, getConditionProgress) — prevents @ suffix lookup misses (02.3-02)
-- Lock ownership moved to callers (checkAll, checkByInstrument) in signal-checker — checkSignal is now a pure fetch+evaluate helper, no double-locking (02.3-02)
-- persistIndicatorValues DB failures are caught and logged, checker continues — prevents DB glitches from crashing full check cycle (02.3-02)
-- Instrument fallback to '—' string keeps paper portfolio rows visible with explicit missing-data indicator (02.3-03)
-- Rollback in StrategyTriggerHandler never throws — CRITICAL log is sufficient, no need to crash checker cycle (02.3-03)
-- scoreLabel boundary <=4 for cheap (not <=3) to match plan spec with sector-relative P/E scoring (03-04)
-- createFor query param cleared from URL after dialog opens — prevents re-open on refresh (03-02)
-- cleanTicker applied at signal server action boundary — mirrors strategy-checker.ts pattern (03-02)
-- currentAmount=0 when holdingQty=0: closed position has no market value, pnl shows realized only (03-01)
-- strategy-card.tsx split into strategy-card-conditions.tsx and strategy-card-ops.tsx for 150-line compliance (03-01)
-- getPeColor uses 15 as default sectorMedianPe fallback — no sector data at FundamentalCard render time (03-05)
-- canExpand extended with hasTicker — any position with valid ticker can expand to show fundamentals (03-05)
-- StrategyForm rendered always (hidden class) so formRef works when AI fills fields before form reveal (03-03)
-- Portfolio growth summary: totalValue - netDeposited, shown only when positions exist and deposits available (03-03)
+- Milestone v1.1 started: AI Revolution + Deep Analytics
+- AI quiz replaced with free-form thinking dialog
+- Terminal: add top movers (gainers/losers)
+- Portfolio: correlations, sector allocation, cohorts, Markowitz optimization
 
 ## Pending Todos
 
 - Anton feedback s34: verify duplicate notifications fix on prod
-- Anton feedback s34: strategy card P&L display FIXED in 03-01
 - TGLD @ ticker issue: may need DB cleanup for existing strategies with @ suffix
 
 ## Session Continuity
 
-Last session: 2026-03-25T12:23:53.257Z
-Stopped at: Completed 03-03-PLAN.md
-Next: Phase 3 (MVP Polish + Fundamentals) — discuss or plan
+Last session: 2026-03-25T21:00:00.000Z
+Stopped at: Milestone v1.1 started, defining requirements
+Next: Define requirements → create roadmap

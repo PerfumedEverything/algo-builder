@@ -1,76 +1,95 @@
-# AculaTrade — Portfolio Analytics & Terminal
+# AculaTrade — AI Revolution + Deep Analytics
 
 ## What This Is
 
-Расширение платформы AculaTrade профессиональной аналитикой портфеля и встроенным терминалом. Раздел "Портфель" превращается в аналитический инструмент с риск-метриками, фундаментальным анализом, корреляциями и оптимизацией Марковица. Новая страница /terminal — свечной график с данными T-Invest. Skeleton loading по всему сайту для UX.
+Платформа AculaTrade для алготрейдинга на MOEX. Автоматизация стратегий, сигналы, профессиональный терминал с графиками, портфельная аналитика с AI. Думающий AI-помощник, который размышляет вместе с пользователем и автоматически создаёт стратегии из диалога.
 
 ## Core Value
 
-Пользователь видит профессиональную аналитику своего портфеля (риски, фундаментал, корреляции, оптимизация) и может анализировать графики инструментов — всё в едином стиле платформы.
+AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
+
+## Current Milestone: v1.1 AI Revolution + Deep Analytics
+
+**Goal:** Сделать продукт глубоким и умным — AI-бот в формате свободного размышления, глубокая аналитика терминала и портфеля.
+
+**Target features:**
+- AI Revolution — свободный диалог вместо квиза, автозаполнение параметров стратегии из разговора, связка анализ→стратегия/сигнал
+- Terminal Depth — топ по росту/падению за день
+- Portfolio Depth — корреляции, секторная аллокация, когорты, оптимизация Марковица
 
 ## Requirements
 
 ### Validated
 
-- ✓ Auth (Supabase, Telegram OTP для forgot-password) — existing
-- ✓ Strategy constructor + AI generation — existing
-- ✓ Signal constructor + checker pipeline — existing
-- ✓ Broker integration (T-Invest) — existing
-- ✓ Portfolio with positions, P&L, FIFO lots — existing
-- ✓ AI Chat (DeepSeek) — existing
-- ✓ Telegram notifications — existing
-- ✓ Admin panel — existing
-- ✓ Docker deploy (VPS, HTTPS, aculatrade.com) — existing
+- ✓ Auth (Supabase, Telegram OTP) — v1.0
+- ✓ Strategy constructor + AI generation — v1.0
+- ✓ Signal constructor + checker pipeline — v1.0
+- ✓ Broker integration (T-Invest/Alor) — v1.0
+- ✓ Portfolio with positions, P&L, FIFO lots — v1.0
+- ✓ AI Chat (DeepSeek) — v1.0
+- ✓ Telegram notifications — v1.0
+- ✓ Admin panel — v1.0
+- ✓ Docker deploy (VPS, aculatrade.com) — v1.0
+- ✓ MOEX ISS provider (benchmark, fundamentals) — v1.0
+- ✓ Terminal (lightweight-charts, order book, positions, trade history) — v1.0
+- ✓ Risk metrics (Sharpe, Beta, VaR, Max Drawdown, Alpha) — v1.0
+- ✓ Fundamental analysis (P/E, P/B, dividends, scoring) — v1.0
+- ✓ Strategy pipeline fix (crossing, null-safety, atomic guards) — v1.0
+- ✓ Strategy & portfolio hardening (cleanTicker, price freshness) — v1.0
+- ✓ MVP Polish (strategy cards, AI chat mode, portfolio summary) — v1.0
+- ✓ Deposit tracker — v1.0
+- ✓ Skeleton loading — v1.0
 
 ### Active
 
-- [ ] MOEX ISS провайдер (IMOEX бенчмарк, P/E, P/B, дивиденды)
-- [ ] Свечной график инструмента (lightweight-charts, T-Invest данные)
-- [ ] Страница /terminal с графиком и поиском тикера
-- [ ] Плашка пополнений (deposit tracker)
-- [ ] Risk metrics (Sharpe, Beta, VaR, Max Drawdown, Alpha)
-- [ ] Фундаментальный анализ (P/E, P/B, дивиденды, скоринг)
-- [ ] Корреляционная матрица (@nivo/heatmap)
+- [ ] AI свободный диалог вместо квиза для создания стратегий
+- [ ] Связка AI анализ в терминале → создание стратегии/сигнала
+- [ ] Расширенные параметры стратегий
+- [ ] Терминал: топ по росту/падению за день
+- [ ] Корреляционная матрица позиций
+- [ ] Секторная аллокация портфеля
 - [ ] Когортный анализ (по секторам, типам, результатам)
 - [ ] Оптимизация портфеля (Марковиц)
-- [ ] AI анализ на каждом блоке аналитики
-- [ ] Skeleton loading по всем страницам dashboard
-- [ ] Баг-фикс: тикеры с @ и неверным регистром в стратегиях
+- [ ] Полный AI-анализ портфеля (все метрики + рекомендации)
 
 ### Out of Scope
 
-- SMTP email — Telegram OTP достаточно для сброса пароля
-- ROE/ROA, PEG, Debt/Equity — нет бесплатного API для бух. отчётности РФ
-- Глубокий терминал (стакан, лента, AlgoPack) — будущие milestone
+- SMTP email — Telegram OTP достаточно
+- ROE/ROA, PEG, Debt/Equity — нет бесплатного API для РФ бух. отчётности
 - Real-time чат — не core value
 - OAuth (Google/GitHub) — email + password достаточно
+- Выставление заявок в терминале — Антон: пока не нужно
+- Активные заявки в терминале — Антон: пока не нужно
+- Скриптовые стратегии (Pine Script) — будущий milestone
+- Новостной конструктор с AI — будущий milestone
 
 ## Context
 
-- **Existing codebase:** 33 сессии разработки, полноценная платформа
-- **Codebase map:** .planning/codebase/ (7 документов)
-- **Plan document:** .claude/docs/PLAN-PORTFOLIO-ANALYTICS.md (детальный план v2)
-- **Anton feedback:** графики — TOP приоритет визуально, risk metrics — TOP-1 по ценности
-- **Anton:** /terminal отдельной вкладкой в sidebar, не внутри портфеля
-- **Баг тикеров:** при выборе инструмента тикер показывается с @ на конце, иногда с неверным регистром, курс кривой
+- **Existing codebase:** 38+ сессий, полноценная платформа в проде (aculatrade.com)
+- **v1.0 completed:** Infrastructure, Terminal v2, Risk Metrics, Strategy Pipeline Fix, Hardening, MVP Polish + Fundamentals
+- **Anton feedback s38:** квиз ограничивает, нужен формат произвольного размышления, портфель глубже Т-Инвест
+- **AI provider:** DeepSeek V3, OpenAI SDK compatible, temperature 0.7-0.8
+- **TopMover type:** уже объявлен в core/types/terminal.ts, компонент не реализован
 
 ## Constraints
 
 - **Stack**: Next.js 15, TypeScript, Tailwind, shadcn/ui, Supabase (auth only), Redis
-- **Data**: T-Invest API (свечи, позиции, операции), MOEX ISS API (бенчмарк, фундаментал) — оба бесплатные
+- **Data**: T-Invest API (свечи, позиции, операции), MOEX ISS API (бенчмарк, фундаментал)
 - **Packages**: lightweight-charts, simple-statistics, @nivo/heatmap
 - **Style**: единая тёмная тема, CSS vars, никаких iframe/чужих виджетов
 - **Deploy**: VPS 5.42.121.212, Docker, aculatrade.com
+- **AI**: DeepSeek V3 primary, fallback, max input 50k chars
 
 ## Key Decisions
 
 | Decision | Rationale | Outcome |
 |----------|-----------|---------|
-| lightweight-charts вместо TradingView виджета | Полный контроль стиля, наложение маркеров, нет iframe | — Pending |
-| simple-statistics вместо portfolio-analytics npm | portfolio-analytics заброшен (47 скач/нед), формулы простые ~200 строк | — Pending |
-| Свой MOEX провайдер вместо moex-api npm | moex-api заброшен (104 скач), ISS API простой REST ~100 строк | — Pending |
-| /terminal отдельная страница | Anton feedback — графики как визуальный приоритет | — Pending |
-| Skeleton loading | UX polish по всем страницам dashboard | — Pending |
+| lightweight-charts вместо TradingView виджета | Полный контроль стиля, наложение маркеров, нет iframe | ✓ Good |
+| simple-statistics вместо portfolio-analytics npm | portfolio-analytics заброшен, формулы простые | ✓ Good |
+| Свой MOEX провайдер | moex-api заброшен, ISS API простой REST | ✓ Good |
+| DeepSeek V3 для AI | Дешёвый, быстрый, OpenAI SDK compatible | ✓ Good |
+| Свободный диалог вместо квиза | Антон: квиз ограничивает, нужно размышление | — Pending |
+| @nivo/heatmap для корреляций | Готовый компонент, хорошая визуализация | — Pending |
 
 ## Evolution
 
@@ -90,4 +109,4 @@ This document evolves at phase transitions and milestone boundaries.
 4. Update Context with current state
 
 ---
-*Last updated: 2026-03-23 after initialization*
+*Last updated: 2026-03-25 after milestone v1.1 start*
