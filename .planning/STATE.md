@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Phase 02.2 plan 02.2-01 complete
-last_updated: "2026-03-25T07:44:13.095Z"
+stopped_at: Phase 02.2 plan 02.2-02 complete
+last_updated: "2026-03-25T07:53:47.310Z"
 progress:
   total_phases: 8
   completed_phases: 2
   total_plans: 12
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -22,11 +22,11 @@ Professional portfolio analytics, strategy automation, and built-in chart termin
 ## Current Position
 
 Phase: 02.2 (strategy-fixes) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Progress
 
-[██████░░░░] 58% (7/12 plans complete)
+[███████░░░] 67% (8/12 plans complete)
 
 ## Completed Phases
 
@@ -47,6 +47,9 @@ Plan: 2 of 3
 - Position row click constructs minimal BrokerInstrument stub (type=STOCK, lot=1) for chart display (02.1-02)
 - SUPPORT/RESISTANCE return null (not 0/Infinity) — null propagates to false condition, prevents false triggers (02.2-01)
 - getIndicatorValue returns number | null in both checkers — null = insufficient data, condition returns false (02.2-01)
+- evaluateCrossing/getIndicatorKey extracted to crossing-detector.ts for 150-line compliance (02.2-02)
+- handleTriggered extracted to StrategyTriggerHandler class — strategy-checker.ts is 149 lines (02.2-02)
+- ConditionProgress.current: number | null to propagate null indicator data to UI (02.2-02)
 
 ## Pending Todos
 
@@ -56,6 +59,6 @@ Plan: 2 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-25T07:44:13.091Z
-Stopped at: Phase 02.2 plan 02.2-01 complete
+Last session: 2026-03-25T07:53:47.305Z
+Stopped at: Phase 02.2 plan 02.2-02 complete
 Next: After visual verification approval — continue to Phase 3 (Fundamentals)

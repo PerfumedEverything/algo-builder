@@ -88,7 +88,7 @@ Plans:
 **Plans:** 1/3 plans executed
 Plans:
 - [x] 02.2-01-PLAN.md — IndicatorCalculator null-safety + DB migrations
-- [ ] 02.2-02-PLAN.md — Strategy checker fixes (CROSSES, atomic guard, rollback, Redis lock)
+- [x] 02.2-02-PLAN.md — Strategy checker fixes (CROSSES, atomic guard, rollback, Redis lock)
 - [ ] 02.2-03-PLAN.md — Signal checker fixes (CROSSES, null-safety, Redis lock)
 **UI hint**: no
 
