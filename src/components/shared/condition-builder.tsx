@@ -21,6 +21,7 @@ type Condition = {
   params: Record<string, number>
   condition: ConditionType
   value?: number
+  valueTo?: number
   timeframe?: string
 }
 
@@ -124,7 +125,16 @@ export const ConditionBuilder = ({
   }
 
   const handleFieldChange = (index: number, field: Partial<Condition>) => {
-    onUpdate(index, { ...conditions[index], ...field })
+    const updated = { ...conditions[index], ...field }
+    if (field.condition && field.condition !== "BETWEEN") {
+      updated.valueTo = undefined
+    }
+    onUpdate(index, updated)
+  }
+
+  const handleValueChange = (index: number, valueField: "value" | "valueTo", raw: string) => {
+    const parsed = raw === "" ? undefined : Number(raw)
+    handleFieldChange(index, { [valueField]: isNaN(parsed as number) ? undefined : parsed })
   }
 
   const handleParamChange = (index: number, name: string, value: number) => {
@@ -244,25 +254,45 @@ export const ConditionBuilder = ({
                   <Label className="text-xs text-muted-foreground">
                     {getValueLabel(condition.indicator, condition.condition)}
                   </Label>
-                  <Input
-                    type="number"
-                    value={condition.value ?? ""}
-                    onChange={(e) =>
-                      handleFieldChange(i, {
-                        value: e.target.value ? Number(e.target.value) : undefined,
-                      })
-                    }
-                    placeholder={
-                      condition.indicator === "PRICE" && currentPrice &&
-                      condition.condition !== "ABOVE_BY_PERCENT" && condition.condition !== "BELOW_BY_PERCENT"
-                        ? `Текущий: ${Math.round(currentPrice * 100) / 100}`
-                        : condition.condition === "ABOVE_BY_PERCENT" || condition.condition === "BELOW_BY_PERCENT"
-                          ? "Например: 5"
-                          : condition.condition === "MULTIPLIED_BY"
-                            ? "Например: 2"
-                            : "Целевое значение"
-                    }
-                  />
+                  {condition.condition === "BETWEEN" ? (
+                    <div className="flex items-center gap-2">
+                      <Input
+                        type="number"
+                        placeholder="От"
+                        value={condition.value ?? ""}
+                        onChange={(e) => handleValueChange(i, "value", e.target.value)}
+                        className="w-24"
+                      />
+                      <span className="text-sm text-muted-foreground">—</span>
+                      <Input
+                        type="number"
+                        placeholder="До"
+                        value={condition.valueTo ?? ""}
+                        onChange={(e) => handleValueChange(i, "valueTo", e.target.value)}
+                        className="w-24"
+                      />
+                    </div>
+                  ) : (
+                    <Input
+                      type="number"
+                      value={condition.value ?? ""}
+                      onChange={(e) =>
+                        handleFieldChange(i, {
+                          value: e.target.value ? Number(e.target.value) : undefined,
+                        })
+                      }
+                      placeholder={
+                        condition.indicator === "PRICE" && currentPrice &&
+                        condition.condition !== "ABOVE_BY_PERCENT" && condition.condition !== "BELOW_BY_PERCENT"
+                          ? `Текущий: ${Math.round(currentPrice * 100) / 100}`
+                          : condition.condition === "ABOVE_BY_PERCENT" || condition.condition === "BELOW_BY_PERCENT"
+                            ? "Например: 5"
+                            : condition.condition === "MULTIPLIED_BY"
+                              ? "Например: 2"
+                              : "Целевое значение"
+                      }
+                    />
+                  )}
                 </div>
                 <div className="space-y-1.5">
                   <Label className="text-xs text-muted-foreground">Таймфрейм условия</Label>
