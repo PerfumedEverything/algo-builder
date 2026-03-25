@@ -106,7 +106,7 @@ Plans:
 **Plans:** 2/4 plans executed
 Plans:
 - [x] 02.3-01-PLAN.md — Price cache hardening: remove stale fallback, reduce TTL, increase lock TTL
-- [ ] 02.3-02-PLAN.md — Checker hardening: cleanTicker, signal checkAll lock, persist try/catch
+- [x] 02.3-02-PLAN.md — Checker hardening: cleanTicker, signal checkAll lock, persist try/catch
 - [ ] 02.3-03-PLAN.md — Paper portfolio resilience, trigger handler CRITICAL logging, strategy card error toast
 - [x] 02.3-04-PLAN.md — SQL ticker migration script, paper-portfolio-view useCallback fix
 **UI hint**: no

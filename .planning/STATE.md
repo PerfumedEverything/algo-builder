@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 02.3-01-PLAN.md
-last_updated: "2026-03-25T08:52:24.856Z"
+stopped_at: Completed 02.3-02-PLAN.md
+last_updated: "2026-03-25T08:53:26.401Z"
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 16
-  completed_plans: 11
+  completed_plans: 12
 ---
 
 # Project State
@@ -22,11 +22,11 @@ Professional portfolio analytics, strategy automation, and built-in chart termin
 ## Current Position
 
 Phase: 02.3 (strategy-portfolio-hardening) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 
 ## Progress
 
-[███████░░░] 69% (11/16 plans complete)
+[████████░░] 75% (12/16 plans complete)
 
 ## Completed Phases
 
@@ -54,6 +54,9 @@ Plan: 3 of 4
 - SignalTriggerHandler extracted to signal-trigger-handler.ts — mirrors StrategyTriggerHandler (02.2-03)
 - vitest.config.ts excludes .claude/worktrees — prevents stale agent test files from failing CI (02.2-03)
 - LAST_PRICE_PREFIX removed, PRICE_TTL=120s, lock TTL=10s — no stale 7-day fallback, fresh prices for 1m/5m candle strategies (02.3-01)
+- cleanTicker applied at method entry in both checkers (checkStrategy, checkSignal, fetchCandles, getConditionProgress) — prevents @ suffix lookup misses (02.3-02)
+- Lock ownership moved to callers (checkAll, checkByInstrument) in signal-checker — checkSignal is now a pure fetch+evaluate helper, no double-locking (02.3-02)
+- persistIndicatorValues DB failures are caught and logged, checker continues — prevents DB glitches from crashing full check cycle (02.3-02)
 
 ## Pending Todos
 
@@ -63,6 +66,6 @@ Plan: 3 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-25T08:52:24.853Z
-Stopped at: Completed 02.3-01-PLAN.md
+Last session: 2026-03-25T08:53:26.398Z
+Stopped at: Completed 02.3-02-PLAN.md
 Next: Phase 3 (Fundamentals)
