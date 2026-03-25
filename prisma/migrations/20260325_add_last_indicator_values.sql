@@ -1,0 +1,2 @@
+ALTER TABLE "Strategy" ADD COLUMN IF NOT EXISTS "lastIndicatorValues" JSONB DEFAULT '{}';
+ALTER TABLE "Signal" ADD COLUMN IF NOT EXISTS "lastIndicatorValues" JSONB DEFAULT '{}';

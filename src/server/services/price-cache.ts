@@ -7,7 +7,7 @@ const PRICE_TTL = 600
 const LAST_PRICE_TTL = 604800
 const CANDLE_TTL_MAP: Record<string, number> = {
   "1m": 60,
-  "5m": 300,
+  "5m": 600,
   "15m": 900,
   "1h": 3600,
   "1d": 86400,
@@ -72,5 +72,16 @@ export class PriceCache {
   async getAllTrackedInstruments(): Promise<string[]> {
     const keys = await redis.keys(`${PRICE_PREFIX}*`)
     return keys.map((k) => k.replace(PRICE_PREFIX, ""))
+  }
+
+  async acquireLock(type: "strategy" | "signal", id: string): Promise<boolean> {
+    const key = `lock:${type}:${id}`
+    const result = await redis.set(key, "1", "EX", 5, "NX")
+    return result === "OK"
+  }
+
+  async releaseLock(type: "strategy" | "signal", id: string): Promise<void> {
+    const key = `lock:${type}:${id}`
+    await redis.del(key)
   }
 }
