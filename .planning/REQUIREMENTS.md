@@ -65,29 +65,29 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| AIREV-01 | TBD | Pending |
-| AIREV-02 | TBD | Pending |
-| AIREV-03 | TBD | Pending |
-| AIREV-04 | TBD | Pending |
-| AIREV-05 | TBD | Pending |
-| AIREV-06 | TBD | Pending |
-| TERM-01 | TBD | Pending |
-| TERM-02 | TBD | Pending |
-| TERM-03 | TBD | Pending |
-| PORT-01 | TBD | Pending |
-| PORT-02 | TBD | Pending |
-| PORT-03 | TBD | Pending |
-| PORT-04 | TBD | Pending |
-| PORT-05 | TBD | Pending |
-| PORT-06 | TBD | Pending |
-| PORT-07 | TBD | Pending |
-| PORT-08 | TBD | Pending |
+| AIREV-01 | Phase 4 | Pending |
+| AIREV-02 | Phase 4 | Pending |
+| AIREV-03 | Phase 4 | Pending |
+| AIREV-04 | Phase 4 | Pending |
+| AIREV-05 | Phase 4 | Pending |
+| AIREV-06 | Phase 4 | Pending |
+| TERM-01 | Phase 5 | Pending |
+| TERM-02 | Phase 5 | Pending |
+| TERM-03 | Phase 5 | Pending |
+| PORT-01 | Phase 6 | Pending |
+| PORT-02 | Phase 6 | Pending |
+| PORT-03 | Phase 6 | Pending |
+| PORT-04 | Phase 6 | Pending |
+| PORT-05 | Phase 6 | Pending |
+| PORT-06 | Phase 7 | Pending |
+| PORT-07 | Phase 7 | Pending |
+| PORT-08 | Phase 7 | Pending |
 
 **Coverage:**
 - v1.1 requirements: 17 total
-- Mapped to phases: 0
-- Unmapped: 17 ⚠️
+- Mapped to phases: 17
+- Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 after initial definition*
+*Last updated: 2026-03-25 — traceability mapped after roadmap creation*

@@ -1,41 +1,26 @@
 # Roadmap: AculaTrade Portfolio Analytics & Terminal
 
-## Overview
+## Milestones
 
-This milestone extends AculaTrade with professional portfolio analytics and a built-in chart terminal. The work progresses from data infrastructure and visual impact (MOEX provider, candlestick charts, skeleton loading) through analytical layers of increasing complexity: risk metrics, fundamentals, diversification analysis, and finally Markowitz portfolio optimization. Each phase delivers a complete, usable capability. MOEXProvider is the critical-path dependency that unlocks benchmark data for all subsequent analytics phases.
+- ✅ **v1.0 Portfolio Analytics & Terminal** - Phases 1-3.1 (shipped 2026-03-25)
+- 🚧 **v1.1 AI Revolution + Deep Analytics** - Phases 4-7 (in progress)
 
 ## Phases
 
-**Phase Numbering:**
-- Integer phases (1, 2, 3): Planned milestone work
-- Decimal phases (2.1, 2.2): Urgent insertions (marked with INSERTED)
-
-Decimal phases appear between their surrounding integers in numeric order.
-
-- [x] **Phase 1: Infrastructure & Terminal** - MOEX provider, candlestick charts, terminal page, deposit tracker, skeleton loading, ticker bug fix, AI analysis button
-- [x] **Phase 2: Risk Metrics** - Sharpe, Beta, VaR, Max Drawdown, Alpha with color-coded cards and AI analysis
-- [x] **Phase 2.1: Terminal v2** - INSERTED — lightweight-charts terminal with order book, realtime prices, positions panel, trade history
-- [x] **Phase 2.2: Strategy Pipeline Fix** - INSERTED CRITICAL — fix all 16 bugs in strategy/signal checker pipeline (completed 2026-03-25)
-- [x] **Phase 2.3: Strategy & Portfolio Hardening** - INSERTED — paper portfolio reliability, ticker cleanup, price freshness, production hardening (completed 2026-03-25)
-- [x] **Phase 3: MVP Polish + Fundamentals** - Strategy card fixes, terminal↔strategies link, AI chat mode, UI polish, mobile + P/E, P/B scoring with AI analysis (completed 2026-03-25)
-- [ ] **Phase 3.1: UX Audit** - INSERTED — Playwright walkthrough of all pages as user, document UX issues (confusing flows, overloaded screens, dead ends)
-- [ ] **Phase 4: Diversification Analysis** - Correlation heatmap, sector/type/performance cohort charts, AI diversification analysis
-- [ ] **Phase 5: Portfolio Optimization** - Markowitz optimal weights, rebalancing recommendations, full portfolio AI analysis
-
-## Phase Details
+<details>
+<summary>✅ v1.0 Portfolio Analytics & Terminal (Phases 1-3.1) - SHIPPED 2026-03-25</summary>
 
 ### Phase 1: Infrastructure & Terminal
 **Goal**: Users can view candlestick charts on a dedicated Terminal page, see deposit-adjusted P&L, and experience smooth loading across all dashboard pages
 **Depends on**: Nothing (first phase)
 **Requirements**: INFR-01, INFR-02a, INFR-03, INFR-04, INFR-05, INFR-06, CHRT-01, CHRT-02, CHRT-03, CHRT-04, CHRT-05, CHRT-06, CHRT-07, AIAN-01, AIAN-02
-**Note**: INFR-02b (P/E, P/B ratios) deferred to Phase 3 — MOEX ISS does not provide these; alternative source needed
 **Success Criteria** (what must be TRUE):
   1. User can open /terminal, search for a ticker, and see a candlestick chart with period switching (1d/1w/1m/3m/1y)
   2. User sees trade entry/exit markers overlaid on the chart for instruments they have traded
   3. User can click an AI analysis button on the chart and receive a streaming technical analysis response
   4. User sees deposit-adjusted real P&L on the portfolio page (deposits/withdrawals tracked separately)
   5. All dashboard pages show skeleton loading states instead of blank screens during data fetch
-**Plans:** 5 plans
+**Plans:** 5/5 plans complete
 Plans:
 - [x] 01-01-PLAN.md — MOEX ISS provider with Redis cache + ticker bug fix
 - [x] 01-02-PLAN.md — Skeleton loading states + deposit tracker
@@ -63,14 +48,13 @@ Plans:
 **Goal**: Users have a professional trading terminal with lightweight-charts candlestick chart, order book, realtime prices, open positions with P&L, and trade history
 **Depends on**: Phase 1 (existing terminal page, MOEX provider, price-stream-worker)
 **Requirements**: TERM-01, TERM-02, TERM-03, TERM-04, TERM-05, TERM-06
-**Note**: TradingView widget abandoned (no MOEX support on free tier). Using lightweight-charts instead. Top movers removed (not in Anton's wireframe).
 **Success Criteria** (what must be TRUE):
   1. User sees lightweight-charts candlestick chart with period switching and trade markers
   2. User sees realtime price bar (ticker, price, change %, H/L, volume, bid/ask) updating live via SSE
   3. User sees order book (стакан) with bid/ask depth and spread next to the chart
   4. User sees their open positions with realtime P&L below the chart
   5. User sees trade history for the selected instrument
-**Plans:** 2 plans
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 02.1-01-PLAN.md — Terminal utilities with tests, PriceBar and OrderBook components
 - [x] 02.1-02-PLAN.md — PositionsPanel, TradeHistoryPanel, terminal page assembly per wireframe
@@ -116,7 +100,6 @@ Plans:
 **Goal**: Product feels polished and professional — strategy cards are clear, terminal links to strategies, AI chat replaces quiz, UI consistent + users see fundamental metrics per position
 **Depends on**: Phase 2.3 (hardened strategy pipeline), Phase 1 (MOEXProvider)
 **Requirements**: POL-01, POL-02, POL-03, POL-04, POL-05, POL-06, POL-07, POL-08, POL-09, POL-10, INFR-02b, FUND-01, FUND-02, FUND-03, FUND-04, FUND-05
-
 **Success Criteria** (what must be TRUE):
   1. Strategy card: closed position shows P&L result only (not sum of buys); all labels are clear with tooltips
   2. Terminal has "Create Strategy" and "Create Signal" buttons for current instrument
@@ -125,7 +108,6 @@ Plans:
   5. All AI buttons blue, signals no @ suffix, terminal 2nd in sidebar, timeframes correct, mobile works
   6. User can expand any portfolio position and see P/E, P/B, dividend yield with color-coded indicators
   7. User sees composite fundamental score (1-10) and can click AI fundamental analysis button
-
 **Plans:** 5/5 plans complete
 Plans:
 - [x] 03-01-PLAN.md — Strategy card P&L fix + tooltips + clear labels
@@ -139,62 +121,89 @@ Plans:
 **Goal**: Playwright walks through every page and user flow as a real user — documents all UX problems: confusing navigation, overloaded screens, unclear labels, dead ends, broken flows, mobile issues
 **Depends on**: Phase 3 (after polish fixes are applied)
 **Requirements**: UXA-01, UXA-02, UXA-03, UXA-04, UXA-05
-
 **Success Criteria** (what must be TRUE):
   1. Every dashboard page screenshotted in desktop + mobile viewport
   2. All critical user flows tested end-to-end (create strategy, create signal, view portfolio, use terminal, AI analysis)
   3. UX issues documented with screenshots, severity, and fix recommendation
   4. Issues triaged into "fix now" (Phase 3.1) vs "backlog"
   5. All "fix now" issues resolved before moving to Phase 4
-
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 4: Diversification Analysis
-**Goal**: Users can visualize portfolio diversification quality through correlation and cohort breakdowns
-**Depends on**: Phase 1 (candle data infrastructure), Phase 2 (daily returns pipeline)
-**Requirements**: CORR-01, CORR-02, CORR-03, CORR-04, COHT-01, COHT-02, COHT-03, COHT-04
+</details>
+
+### 🚧 v1.1 AI Revolution + Deep Analytics (In Progress)
+
+**Milestone Goal:** AI-помощник в формате свободного размышления, глубокая аналитика терминала и портфеля лучше Т-Инвест.
+
+## Phase Details (v1.1)
+
+### Phase 4: AI Revolution
+**Goal**: Users can create strategies through free-form conversation — AI reasons with the user, auto-fills strategy parameters from dialog context, and enables direct strategy/signal creation from terminal analysis
+**Depends on**: Phase 3 (existing AI chat, terminal analysis buttons, strategy builder)
+**Requirements**: AIREV-01, AIREV-02, AIREV-03, AIREV-04, AIREV-05, AIREV-06
 **Success Criteria** (what must be TRUE):
-  1. User sees a correlation heatmap showing how their positions move relative to each other, with high-correlation pairs (>0.7) visually flagged
-  2. User sees cohort breakdowns of their portfolio by asset type, sector, and trade success as pie/donut charts
-  3. Correlation and cohort data loads from server-side cache without long wait times
+  1. User can start a free-form conversation describing their trading idea and AI proposes a complete strategy config without requiring a quiz
+  2. User sees a live strategy preview panel updating in real time as AI extracts parameters from the conversation
+  3. After AI completes technical analysis in terminal, user can click "Create Strategy" and land in AI chat pre-seeded with analysis context
+  4. After AI technical analysis, user can click "Create Signal" and have AI suggest matching signal conditions
+  5. User can use ATR, Stochastic, VWAP, and Williams %R indicators when building strategy conditions
+  6. User can set BETWEEN range conditions and percent-based threshold conditions in the strategy builder
 **Plans**: TBD
 **UI hint**: yes
 
-### Phase 5: Portfolio Optimization
-**Goal**: Users receive actionable rebalancing recommendations based on Markowitz optimization
-**Depends on**: Phase 4 (covariance matrix), Phase 2 (risk metrics for Sharpe target)
-**Requirements**: OPTM-01, OPTM-02, OPTM-03, OPTM-04, OPTM-05, OPTM-06, AIAN-03
+### Phase 5: Terminal Top Movers
+**Goal**: Users see the biggest daily gainers and losers in the terminal and can navigate to any of them with one click
+**Depends on**: Phase 4 (independent — backend getTopMovers() already complete)
+**Requirements**: TERM-01, TERM-02, TERM-03
 **Success Criteria** (what must be TRUE):
-  1. User sees current vs optimal portfolio weight comparison as two side-by-side donut charts
-  2. User sees concrete rebalancing actions ("Sell X lots of TICKER, buy Y lots of TICKER") that account for lot sizes and broker commission
-  3. User can click the full portfolio AI analysis button and receive a comprehensive streaming analysis covering risk, fundamentals, correlations, and optimization together
+  1. User sees a "Top Gainers" panel with the top 5 instruments sorted by daily % change (positive), refreshing every 60 seconds
+  2. User sees a "Top Losers" panel with the top 5 instruments sorted by daily % change (negative), refreshing every 60 seconds
+  3. User can click any instrument in either panel and the terminal chart immediately loads that instrument
+  4. Outside market hours (09:50–18:50 MSK Mon–Fri), panels show a "Биржа закрыта" badge and label data as last session
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 6: Portfolio Analytics — Correlations, Sector & Cohorts
+**Goal**: Users can understand portfolio diversification quality through correlation heatmap, sector allocation chart, and cohort breakdowns by asset type and trade success
+**Depends on**: Phase 4 (candle data infrastructure from Phase 1/2 already in place)
+**Requirements**: PORT-01, PORT-02, PORT-03, PORT-04, PORT-05
+**Success Criteria** (what must be TRUE):
+  1. User sees a correlation heatmap of all their portfolio positions showing how each pair moves relative to each other
+  2. High-correlation pairs (Pearson > 0.7) are visually flagged on the heatmap with a distinct color or border
+  3. User sees a sector allocation donut chart showing what percentage of portfolio value is in each MOEX sector
+  4. User sees a cohort breakdown by asset type (stocks, bonds, ETF, currency) as a chart
+  5. User sees a cohort breakdown by trade success showing profitable vs unprofitable positions by count and value
+**Plans**: TBD
+**UI hint**: yes
+
+### Phase 7: Portfolio Optimization + Full AI Analysis
+**Goal**: Users receive Markowitz-based rebalancing recommendations and a comprehensive AI analysis of their entire portfolio
+**Depends on**: Phase 6 (covariance matrix and sector data from analytics service)
+**Requirements**: PORT-06, PORT-07, PORT-08
+**Success Criteria** (what must be TRUE):
+  1. User sees current vs Markowitz-optimal portfolio weights as a side-by-side comparison (current donut vs optimal donut)
+  2. User sees a concrete rebalancing action list ("Sell X lots of TICKER, buy Y lots of TICKER") derived from the weight delta
+  3. User can click "Full AI Portfolio Analysis" and receive a comprehensive streaming analysis covering risk metrics, fundamentals, correlations, and optimization together
 **Plans**: TBD
 **UI hint**: yes
 
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 -> 4 -> 5
+v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
+v1.1: 4 → 5 → 6 → 7
 
-| Phase | Plans Complete | Status | Completed |
-|-------|----------------|--------|-----------|
-| 1. Infrastructure & Terminal | 5/5 | Complete | 2026-03-23 |
-| 2. Risk Metrics | 3/3 | Complete   | 2026-03-24 |
-| 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
-| 2.2 Strategy Pipeline Fix (CRITICAL) | 3/3 | Complete   | 2026-03-25 |
-| 2.3 Strategy & Portfolio Hardening | 4/4 | Complete   | 2026-03-25 |
-| 3. MVP Polish + Fundamentals | 5/5 | Complete   | 2026-03-25 |
-| 3.1 UX Audit (INSERTED) | 0/TBD | Not started | - |
-| 4. Diversification Analysis | 0/TBD | Not started | - |
-| 5. Portfolio Optimization | 0/TBD | Not started | - |
-
-## Backlog
-
-### Phase 999.1: AI Analysis Flow (BACKLOG)
-**Goal:** After AI technical analysis in Terminal -- actionable flow: create signal from recommendation, create strategy from analysis, add to watchlist. UX: action buttons in analysis dialog, mapping AI recommendations to signal/strategy parameters.
-**Requirements:** TBD
-**Plans:** 0 plans
-
-Plans:
-- [ ] TBD (promote with /gsd:review-backlog when ready)
+| Phase | Milestone | Plans Complete | Status | Completed |
+|-------|-----------|----------------|--------|-----------|
+| 1. Infrastructure & Terminal | v1.0 | 5/5 | Complete | 2026-03-23 |
+| 2. Risk Metrics | v1.0 | 3/3 | Complete | 2026-03-24 |
+| 2.1 Terminal v2 (INSERTED) | v1.0 | 2/2 | Complete | 2026-03-24 |
+| 2.2 Strategy Pipeline Fix (CRITICAL) | v1.0 | 3/3 | Complete | 2026-03-25 |
+| 2.3 Strategy & Portfolio Hardening | v1.0 | 4/4 | Complete | 2026-03-25 |
+| 3. MVP Polish + Fundamentals | v1.0 | 5/5 | Complete | 2026-03-25 |
+| 3.1 UX Audit (INSERTED) | v1.0 | 0/TBD | Complete | 2026-03-25 |
+| 4. AI Revolution | v1.1 | 0/TBD | Not started | - |
+| 5. Terminal Top Movers | v1.1 | 0/TBD | Not started | - |
+| 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 0/TBD | Not started | - |
+| 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
