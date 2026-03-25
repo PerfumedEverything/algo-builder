@@ -100,20 +100,18 @@ export const getPaperPortfolioAction = async (): Promise<ApiResponse<PaperStrate
     const rows: PaperStrategyRow[] = []
 
     for (const s of strategies) {
-      const instrument = (s as Record<string, unknown>).instrument as string | undefined
-      if (!instrument) continue
-
+      const instrument = ((s as Record<string, unknown>).instrument as string | undefined) ?? "—"
       let currentPrice: number | undefined
-      try {
-        const p = await cache.getPrice(instrument)
-        if (p !== null) currentPrice = p
-      } catch {}
-
+      if (instrument !== "—") {
+        try {
+          const p = await cache.getPrice(instrument)
+          if (p !== null) currentPrice = p
+        } catch (e) {
+          console.error(`[PaperPortfolio] Price fetch failed for ${instrument}:`, e)
+        }
+      }
       const stats = await operationService.getStats(s.id, currentPrice)
-      if (stats.totalOperations === 0) continue
-
       const hasOpenPosition = stats.buyCount > stats.sellCount
-
       rows.push({
         strategyId: s.id,
         strategyName: (s as Record<string, unknown>).name as string ?? s.id,
