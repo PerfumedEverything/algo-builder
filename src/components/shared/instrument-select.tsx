@@ -94,9 +94,18 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onInstrument
   }, [open])
 
   const filtered = useMemo(() => {
-    if (!search) return instruments.slice(0, 100)
+    const POPULAR = ["SBER", "GAZP", "LKOH", "YNDX", "TCSG", "NVTK", "ROSN", "MGNT", "GMKN", "MTSS", "ALRS", "VTBR", "OZON", "PLZL", "TATN"]
+    const sorted = [...instruments].sort((a, b) => {
+      const ai = POPULAR.indexOf(a.ticker)
+      const bi = POPULAR.indexOf(b.ticker)
+      if (ai !== -1 && bi !== -1) return ai - bi
+      if (ai !== -1) return -1
+      if (bi !== -1) return 1
+      return a.ticker.localeCompare(b.ticker)
+    })
+    if (!search) return sorted.slice(0, 100)
     const q = search.toLowerCase()
-    return instruments
+    return sorted
       .filter((i) => i.ticker.toLowerCase().includes(q) || i.name.toLowerCase().includes(q))
       .slice(0, 100)
   }, [instruments, search])
