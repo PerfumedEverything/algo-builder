@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 02.3-04-PLAN.md
-last_updated: "2026-03-25T08:51:07.980Z"
+stopped_at: Completed 02.3-01-PLAN.md
+last_updated: "2026-03-25T08:52:24.856Z"
 progress:
   total_phases: 9
   completed_phases: 3
   total_plans: 16
-  completed_plans: 10
+  completed_plans: 11
 ---
 
 # Project State
@@ -22,11 +22,11 @@ Professional portfolio analytics, strategy automation, and built-in chart termin
 ## Current Position
 
 Phase: 02.3 (strategy-portfolio-hardening) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Progress
 
-[████████░░] 75% (9/12 plans complete)
+[███████░░░] 69% (11/16 plans complete)
 
 ## Completed Phases
 
@@ -53,6 +53,7 @@ Plan: 2 of 4
 - SignalChecker delegates to crossing-detector.ts — DRY, single truth for both pipelines (02.2-03)
 - SignalTriggerHandler extracted to signal-trigger-handler.ts — mirrors StrategyTriggerHandler (02.2-03)
 - vitest.config.ts excludes .claude/worktrees — prevents stale agent test files from failing CI (02.2-03)
+- LAST_PRICE_PREFIX removed, PRICE_TTL=120s, lock TTL=10s — no stale 7-day fallback, fresh prices for 1m/5m candle strategies (02.3-01)
 
 ## Pending Todos
 
@@ -62,6 +63,6 @@ Plan: 2 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-25T08:51:07.977Z
-Stopped at: Completed 02.3-04-PLAN.md
+Last session: 2026-03-25T08:52:24.853Z
+Stopped at: Completed 02.3-01-PLAN.md
 Next: Phase 3 (Fundamentals)
