@@ -16,6 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Risk Metrics** - Sharpe, Beta, VaR, Max Drawdown, Alpha with color-coded cards and AI analysis
 - [x] **Phase 2.1: Terminal v2** - INSERTED — lightweight-charts terminal with order book, realtime prices, positions panel, trade history
 - [x] **Phase 2.2: Strategy Pipeline Fix** - INSERTED CRITICAL — fix all 16 bugs in strategy/signal checker pipeline (completed 2026-03-25)
+- [ ] **Phase 2.3: Strategy & Portfolio Hardening** - INSERTED — paper portfolio reliability, ticker cleanup, price freshness, production hardening
 - [ ] **Phase 3: Fundamentals** - P/E, P/B, dividend yield scoring per position with AI fundamental analysis
 - [ ] **Phase 4: Diversification Analysis** - Correlation heatmap, sector/type/performance cohort charts, AI diversification analysis
 - [ ] **Phase 5: Portfolio Optimization** - Markowitz optimal weights, rebalancing recommendations, full portfolio AI analysis
@@ -92,6 +93,19 @@ Plans:
 - [x] 02.2-03-PLAN.md — Signal checker fixes (CROSSES, null-safety, Redis lock)
 **UI hint**: no
 
+### Phase 2.3: Strategy & Portfolio Hardening (INSERTED)
+**Goal**: Fix paper portfolio data reliability, ticker @ cleanup, price freshness validation, and harden all strategy/signal flows for production stability
+**Depends on**: Phase 2.2 (strategy pipeline fixes)
+**Requirements**: TBD
+**Success Criteria** (what must be TRUE):
+  1. Paper portfolio always shows all active strategies with their P&L (no silently skipped rows)
+  2. All tickers in DB are clean (no @ suffix) — strategies and signals
+  3. Strategies always use fresh prices (not stale cache)
+  4. Strategy card displays correct data after phase 2.2 fixes
+  5. Error handling is resilient — one strategy failure doesn't break the whole view
+**Plans**: TBD
+**UI hint**: no
+
 ### Phase 3: Fundamentals
 **Goal**: Users can evaluate the fundamental value of each position in their portfolio with a composite score
 **Depends on**: Phase 1 (MOEXProvider for MOEX ISS fundamentals data)
@@ -128,7 +142,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -136,6 +150,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 3 -> 4 -> 5
 | 2. Risk Metrics | 3/3 | Complete   | 2026-03-24 |
 | 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
 | 2.2 Strategy Pipeline Fix (CRITICAL) | 3/3 | Complete   | 2026-03-25 |
+| 2.3 Strategy & Portfolio Hardening | 0/TBD | Not started | - |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
