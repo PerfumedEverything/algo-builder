@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Phase complete — ready for verification
-stopped_at: Phase 02.1 plan 02.1-02 complete
-last_updated: "2026-03-24T14:23:01.866Z"
+status: Ready to execute
+stopped_at: Phase 02.2 plan 02.2-01 complete
+last_updated: "2026-03-25T07:44:13.095Z"
 progress:
-  total_phases: 7
+  total_phases: 8
   completed_phases: 2
-  total_plans: 9
-  completed_plans: 6
+  total_plans: 12
+  completed_plans: 7
 ---
 
 # Project State
@@ -21,12 +21,12 @@ Professional portfolio analytics, strategy automation, and built-in chart termin
 
 ## Current Position
 
-Phase: 02.1 (terminal-v2) — EXECUTING
-Plan: 2 of 2
+Phase: 02.2 (strategy-fixes) — EXECUTING
+Plan: 2 of 3
 
 ## Progress
 
-[███████░░░] 67% (6/9 plans complete)
+[██████░░░░] 58% (7/12 plans complete)
 
 ## Completed Phases
 
@@ -45,6 +45,8 @@ Plan: 2 of 2
 - formatVolume K threshold at 10K per plan spec — numbers below 10K use plain Intl format (02.1-01)
 - volume=0 in PriceBar since CandlestickData has no volume field and PriceUpdate SSE also lacks it (02.1-02)
 - Position row click constructs minimal BrokerInstrument stub (type=STOCK, lot=1) for chart display (02.1-02)
+- SUPPORT/RESISTANCE return null (not 0/Infinity) — null propagates to false condition, prevents false triggers (02.2-01)
+- getIndicatorValue returns number | null in both checkers — null = insufficient data, condition returns false (02.2-01)
 
 ## Pending Todos
 
@@ -54,6 +56,6 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-24T14:22:53.708Z
-Stopped at: Phase 02.1 plan 02.1-02 complete
+Last session: 2026-03-25T07:44:13.091Z
+Stopped at: Phase 02.2 plan 02.2-01 complete
 Next: After visual verification approval — continue to Phase 3 (Fundamentals)

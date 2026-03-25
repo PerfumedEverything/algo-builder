@@ -85,9 +85,9 @@ Plans:
   4. Operation recording failures roll back state changes
   5. Redis-based dedup lock prevents concurrent cron+realtime double-checks
   6. Unit tests cover every fixed bug scenario
-**Plans:** 3 plans
+**Plans:** 1/3 plans executed
 Plans:
-- [ ] 02.2-01-PLAN.md — IndicatorCalculator null-safety + DB migrations
+- [x] 02.2-01-PLAN.md — IndicatorCalculator null-safety + DB migrations
 - [ ] 02.2-02-PLAN.md — Strategy checker fixes (CROSSES, atomic guard, rollback, Redis lock)
 - [ ] 02.2-03-PLAN.md — Signal checker fixes (CROSSES, null-safety, Redis lock)
 **UI hint**: no
@@ -135,7 +135,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 3 -> 4 -> 5
 | 1. Infrastructure & Terminal | 5/5 | Complete | 2026-03-23 |
 | 2. Risk Metrics | 3/3 | Complete   | 2026-03-24 |
 | 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
-| 2.2 Strategy Pipeline Fix (CRITICAL) | 0/3 | Not started | - |
+| 2.2 Strategy Pipeline Fix (CRITICAL) | 1/3 | In Progress|  |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
