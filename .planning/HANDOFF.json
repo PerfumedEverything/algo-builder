@@ -1,0 +1,27 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-03-25T20:56:45.193Z",
+  "phase": "04",
+  "phase_name": "ai-revolution",
+  "phase_dir": ".planning/phases/04-ai-revolution",
+  "plan": 3,
+  "task": 3,
+  "total_tasks": 3,
+  "status": "paused",
+  "completed_tasks": [
+    {"id": 1, "name": "Terminal context seeding — AiAnalysisButton onResult + SignalDialog initialContext", "status": "done", "commit": "0c7ff83"},
+    {"id": 2, "name": "BETWEEN dual-value UI in condition builder", "status": "done", "commit": "e9f6357"},
+    {"id": 3, "name": "Visual verification of AI Revolution flow", "status": "feedback_received", "progress": "User tested, found UX issues: timeframe bug, no redo, UI overflow, disjointed flow"}
+  ],
+  "remaining_tasks": [],
+  "blockers": [],
+  "human_actions_pending": [],
+  "decisions": [
+    {"decision": "Wizard flow (Variant B) for analysis→strategy UX", "rationale": "3-step flow: Анализ → Стратегия → Настройка. Single dialog, clear progression. Anton chose over inline expansion and auto-generate.", "phase": "04"},
+    {"decision": "Insert Phase 4.1 for AI UX polish", "rationale": "Don't micro-fix and deploy — batch polish issues into proper phase with planning.", "phase": "04"},
+    {"decision": "Remove context percentage from messages", "rationale": "Anton asked to stop showing [Контекст: ~XX%]", "phase": "04"}
+  ],
+  "uncommitted_files": ["package-lock.json", "package.json"],
+  "next_action": "1) Complete Phase 4 verification (mark checkpoint approved with known issues). 2) /gsd:insert-phase 4.1 with wizard flow + timeframe + redo + UI fixes. 3) /gsd:plan-phase 4.1. 4) /gsd:execute-phase 4.1",
+  "context_notes": "Phase 4 core features work: new indicators, BETWEEN condition, free-form AI chat, strategy preview panel, terminal context seeding. But UX polish needed — analysis always uses 1d timeframe, can't redo analysis, action buttons overflow on mobile, analysis→strategy transition is disjointed. Anton chose wizard (3-step) pattern for the flow. Phase 4.1 should be inserted to address all polish items before moving to Phase 5."
+}
