@@ -17,7 +17,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2.1: Terminal v2** - INSERTED — lightweight-charts terminal with order book, realtime prices, positions panel, trade history
 - [x] **Phase 2.2: Strategy Pipeline Fix** - INSERTED CRITICAL — fix all 16 bugs in strategy/signal checker pipeline (completed 2026-03-25)
 - [x] **Phase 2.3: Strategy & Portfolio Hardening** - INSERTED — paper portfolio reliability, ticker cleanup, price freshness, production hardening (completed 2026-03-25)
-- [ ] **Phase 3: Fundamentals** - P/E, P/B, dividend yield scoring per position with AI fundamental analysis
+- [ ] **Phase 3: MVP Polish + Fundamentals** - Strategy card fixes, terminal↔strategies link, AI chat mode, UI polish, mobile + P/E, P/B scoring with AI analysis
+- [ ] **Phase 3.1: UX Audit** - INSERTED — Playwright walkthrough of all pages as user, document UX issues (confusing flows, overloaded screens, dead ends)
 - [ ] **Phase 4: Diversification Analysis** - Correlation heatmap, sector/type/performance cohort charts, AI diversification analysis
 - [ ] **Phase 5: Portfolio Optimization** - Markowitz optimal weights, rebalancing recommendations, full portfolio AI analysis
 
@@ -111,14 +112,41 @@ Plans:
 - [x] 02.3-04-PLAN.md — SQL ticker migration script, paper-portfolio-view useCallback fix
 **UI hint**: no
 
-### Phase 3: Fundamentals
-**Goal**: Users can evaluate the fundamental value of each position in their portfolio with a composite score
-**Depends on**: Phase 1 (MOEXProvider for MOEX ISS fundamentals data)
-**Requirements**: INFR-02b, FUND-01, FUND-02, FUND-03, FUND-04, FUND-05
+### Phase 3: MVP Polish + Fundamentals
+**Goal**: Product feels polished and professional — strategy cards are clear, terminal links to strategies, AI chat replaces quiz, UI consistent + users see fundamental metrics per position
+**Depends on**: Phase 2.3 (hardened strategy pipeline), Phase 1 (MOEXProvider)
+**Requirements**: POL-01, POL-02, POL-03, POL-04, POL-05, POL-06, POL-07, POL-08, POL-09, POL-10, INFR-02b, FUND-01, FUND-02, FUND-03, FUND-04, FUND-05
+
 **Success Criteria** (what must be TRUE):
-  1. User can expand any portfolio position and see P/E, P/B, dividend yield with color-coded cheap/normal/expensive indicators
-  2. User sees a composite fundamental score (1-10) for each position
-  3. User can click the AI fundamental analysis button and receive a streaming evaluation of the position multiples and price
+  1. Strategy card: closed position shows P&L result only (not sum of buys); all labels are clear with tooltips
+  2. Terminal has "Create Strategy" and "Create Signal" buttons for current instrument
+  3. AI strategy creation uses free-form chat mode instead of rigid quiz
+  4. Portfolio page shows summary block: total value, debit/credit, % growth/decline
+  5. All AI buttons blue, signals no @ suffix, terminal 2nd in sidebar, timeframes correct, mobile works
+  6. User can expand any portfolio position and see P/E, P/B, dividend yield with color-coded indicators
+  7. User sees composite fundamental score (1-10) and can click AI fundamental analysis button
+
+**Plans:** 5 plans
+Plans:
+- [ ] 03-01-PLAN.md — Strategy card P&L fix + tooltips + clear labels
+- [ ] 03-02-PLAN.md — Terminal action buttons + signal cleanTicker + mobile polish
+- [ ] 03-03-PLAN.md — AI chat mode + portfolio summary + blue AI buttons
+- [ ] 03-04-PLAN.md — Fundamentals data layer (static map + service + scoring)
+- [ ] 03-05-PLAN.md — Fundamental UI card + portfolio integration + AI analysis
+**UI hint**: yes
+
+### Phase 3.1: UX Audit (INSERTED)
+**Goal**: Playwright walks through every page and user flow as a real user — documents all UX problems: confusing navigation, overloaded screens, unclear labels, dead ends, broken flows, mobile issues
+**Depends on**: Phase 3 (after polish fixes are applied)
+**Requirements**: UXA-01, UXA-02, UXA-03, UXA-04, UXA-05
+
+**Success Criteria** (what must be TRUE):
+  1. Every dashboard page screenshotted in desktop + mobile viewport
+  2. All critical user flows tested end-to-end (create strategy, create signal, view portfolio, use terminal, AI analysis)
+  3. UX issues documented with screenshots, severity, and fix recommendation
+  4. Issues triaged into "fix now" (Phase 3.1) vs "backlog"
+  5. All "fix now" issues resolved before moving to Phase 4
+
 **Plans**: TBD
 **UI hint**: yes
 
@@ -147,7 +175,7 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
@@ -156,7 +184,8 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 4 -> 5
 | 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
 | 2.2 Strategy Pipeline Fix (CRITICAL) | 3/3 | Complete   | 2026-03-25 |
 | 2.3 Strategy & Portfolio Hardening | 4/4 | Complete   | 2026-03-25 |
-| 3. Fundamentals | 0/TBD | Not started | - |
+| 3. MVP Polish + Fundamentals | 0/5 | Not started | - |
+| 3.1 UX Audit (INSERTED) | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
 
