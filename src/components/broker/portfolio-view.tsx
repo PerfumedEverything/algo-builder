@@ -20,6 +20,7 @@ import { DateRangeFilter, getRange } from "@/components/shared/date-range-filter
 import { LotAnalysisDialog } from "@/components/broker/lot-analysis-dialog"
 import { DepositTracker } from "@/components/broker/deposit-tracker"
 import { RiskMetricsSection } from "@/components/portfolio/risk-metrics-section"
+import { FundamentalCard } from "@/components/portfolio/fundamental-card"
 
 type PortfolioViewProps = {
   portfolio: Portfolio
@@ -99,7 +100,8 @@ const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
     [pos.operations, dateFrom],
   )
   const hasLots = (pos.lots?.length ?? 0) > 0
-  const canExpand = pos.operations.length > 0 || hasLots
+  const hasTicker = Boolean(pos.ticker && pos.ticker.trim().length > 0)
+  const canExpand = pos.operations.length > 0 || hasLots || hasTicker
 
   return (
     <div className="border-b border-border/50 last:border-0">
@@ -271,6 +273,13 @@ const PositionRow = ({ pos }: { pos: PortfolioPosition }) => {
             </div>
           )}
         </div>
+      )}
+
+      {expanded && hasTicker && (
+        <FundamentalCard
+          ticker={pos.ticker}
+          currentPrice={pos.currentPrice ?? pos.averagePrice ?? 0}
+        />
       )}
     </div>
   )
