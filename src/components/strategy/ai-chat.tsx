@@ -176,7 +176,7 @@ export const AiChat = ({ onGenerated }: AiChatProps) => {
                   key={qr.label}
                   type="button"
                   className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                  onClick={() => handleSend(qr.text)}}
+                  onClick={() => handleSend(qr.text)}
                 >
                   {qr.label}
                 </button>
