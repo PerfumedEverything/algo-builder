@@ -128,7 +128,7 @@ Plans:
 
 **Plans:** 2/5 plans executed
 Plans:
-- [ ] 03-01-PLAN.md — Strategy card P&L fix + tooltips + clear labels
+- [x] 03-01-PLAN.md — Strategy card P&L fix + tooltips + clear labels
 - [x] 03-02-PLAN.md — Terminal action buttons + signal cleanTicker + mobile polish
 - [ ] 03-03-PLAN.md — AI chat mode + portfolio summary + blue AI buttons
 - [x] 03-04-PLAN.md — Fundamentals data layer (static map + service + scoring)

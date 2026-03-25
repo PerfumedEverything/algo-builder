@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: Ready to execute
-stopped_at: Completed 03-04-PLAN.md
-last_updated: "2026-03-25T12:12:31.893Z"
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-25T12:16:19.297Z"
 progress:
   total_phases: 10
   completed_phases: 4
   total_plans: 21
-  completed_plans: 15
+  completed_plans: 16
 ---
 
 # Project State
@@ -22,7 +22,7 @@ Professional portfolio analytics, strategy automation, and built-in chart termin
 ## Current Position
 
 Phase: 03 (mvp-polish-fundamentals) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 
 ## Progress
 
@@ -62,15 +62,17 @@ Plan: 3 of 5
 - scoreLabel boundary <=4 for cheap (not <=3) to match plan spec with sector-relative P/E scoring (03-04)
 - createFor query param cleared from URL after dialog opens — prevents re-open on refresh (03-02)
 - cleanTicker applied at signal server action boundary — mirrors strategy-checker.ts pattern (03-02)
+- currentAmount=0 when holdingQty=0: closed position has no market value, pnl shows realized only (03-01)
+- strategy-card.tsx split into strategy-card-conditions.tsx and strategy-card-ops.tsx for 150-line compliance (03-01)
 
 ## Pending Todos
 
 - Anton feedback s34: verify duplicate notifications fix on prod
-- Anton feedback s34: verify strategy card P&L display fix
+- Anton feedback s34: strategy card P&L display FIXED in 03-01
 - TGLD @ ticker issue: may need DB cleanup for existing strategies with @ suffix
 
 ## Session Continuity
 
-Last session: 2026-03-25T12:12:31.889Z
-Stopped at: Completed 03-04-PLAN.md
+Last session: 2026-03-25T12:16:19.294Z
+Stopped at: Completed 03-01-PLAN.md
 Next: Phase 3 (MVP Polish + Fundamentals) — discuss or plan
