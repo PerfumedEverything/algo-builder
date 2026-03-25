@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Ready to execute
-stopped_at: Completed 04-01-PLAN.md (new indicators + BETWEEN condition)
-last_updated: "2026-03-25T20:03:56.120Z"
+stopped_at: Completed 04-02-PLAN.md (free-form AI chat + StrategyPreviewPanel)
+last_updated: "2026-03-25T20:06:34.574Z"
 progress:
   total_phases: 8
   completed_phases: 5
   total_plans: 24
-  completed_plans: 19
+  completed_plans: 20
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 04 (ai-revolution) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -42,6 +42,7 @@ Plan: 2 of 3
 
 *Updated after each plan completion*
 | Phase 04 P01 | 6 | 2 tasks | 8 files |
+| Phase 04-ai-revolution P02 | 15 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -52,6 +53,8 @@ Plan: 2 of 3
 - v1.1 start: simple-statistics covers Markowitz math, no new math library needed
 - v1.1 start: @nivo/heatmap + recharts are only 2 new packages needed
 - [Phase 04]: BETWEEN condition is inclusive on both bounds; valueTo added to StrategyCondition and SignalCondition
+- [Phase 04-ai-revolution]: Free-form AI chat replaces 4-step quiz: AI calls create_strategy when it has instrument + one indicator/style, asks ONE clarifying question otherwise
+- [Phase 04-ai-revolution]: StrategyPreviewPanel shows live strategy preview via onStrategyExtracted callback before user confirms with Apply
 
 ### Pending Todos
 
@@ -67,7 +70,7 @@ Plan: 2 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-25T20:03:56.114Z
-Stopped at: Completed 04-01-PLAN.md (new indicators + BETWEEN condition)
+Last session: 2026-03-25T20:06:34.570Z
+Stopped at: Completed 04-02-PLAN.md (free-form AI chat + StrategyPreviewPanel)
 Resume file: None
 Next: /gsd:plan-phase 4
