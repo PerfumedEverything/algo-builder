@@ -63,16 +63,33 @@ export const getIndicatorValue = (condition: SignalCondition, ctx: EvalContext):
       const levels = IndicatorCalculator.detectLevels(candles, params.lookback ?? 50)
       return levels.resistances.filter((r) => r >= price).sort((a, b) => a - b)[0] ?? null
     }
+    case "ATR":
+      return IndicatorCalculator.calculateATR(candles, params.period ?? 14)
+    case "STOCHASTIC":
+      return IndicatorCalculator.calculateStochastic(candles, params.period ?? 14, params.signalPeriod ?? 3)
+    case "VWAP":
+      return IndicatorCalculator.calculateVWAP(candles)
+    case "WILLIAMS_R":
+      return IndicatorCalculator.calculateWilliamsR(candles, params.period ?? 14)
     default:
       return null
   }
 }
 
-export const compareCondition = (actual: number, condition: string, target: number, currentPrice?: number): boolean => {
+export const compareCondition = (
+  actual: number,
+  condition: string,
+  target: number,
+  currentPrice?: number,
+  target2?: number,
+): boolean => {
   switch (condition) {
     case "GREATER_THAN": return actual > target
     case "LESS_THAN": return actual < target
     case "EQUALS": return Math.abs(actual - target) < 0.01
+    case "BETWEEN":
+      if (target2 === undefined) return false
+      return actual >= target && actual <= target2
     case "ABOVE_BY_PERCENT": return currentPrice != null && currentPrice > 0 && ((actual - currentPrice) / currentPrice) * 100 >= target
     case "BELOW_BY_PERCENT": return currentPrice != null && currentPrice > 0 && ((currentPrice - actual) / currentPrice) * 100 >= target
     case "MULTIPLIED_BY": return actual >= target
@@ -88,7 +105,7 @@ export const evaluateCondition = (condition: SignalCondition, ctx: EvalContext, 
   if (condition.condition === "CROSSES_ABOVE" || condition.condition === "CROSSES_BELOW") {
     return evaluateCrossing(condition.condition, actual, target, indicatorKey, lastValues)
   }
-  return compareCondition(actual, condition.condition, target, ctx.price)
+  return compareCondition(actual, condition.condition, target, ctx.price, condition.valueTo)
 }
 
 export const evaluateConditions = (conditions: SignalCondition[], logic: LogicOperator, ctx: EvalContext, lastValues?: Record<string, number>): boolean => {
