@@ -1,8 +1,11 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
+import { useRouter } from "next/navigation"
 import dynamic from "next/dynamic"
+import { Plus, Bell } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
+import { Button } from "@/components/ui/button"
 import { InstrumentSelect } from "@/components/shared/instrument-select"
 import { ChartPeriodSelector, type ChartPeriod } from "@/components/portfolio/chart-period-selector"
 import { AiAnalysisButton } from "@/components/portfolio/ai-analysis-button"
@@ -34,6 +37,7 @@ const PERIOD_CONFIG: Record<ChartPeriod, { days: number; interval: string }> = {
 }
 
 export default function TerminalPage() {
+  const router = useRouter()
   const [instrument, setInstrument] = useState<BrokerInstrument | null>(null)
   const [ticker, setTicker] = useState("")
   const [period, setPeriod] = useState<ChartPeriod>("1d")
@@ -193,6 +197,18 @@ export default function TerminalPage() {
           />
         </div>
         {instrument && <ChartPeriodSelector value={period} onChange={handlePeriodChange} />}
+        {instrument && (
+          <>
+            <Button size="sm" variant="outline" onClick={() => router.push(`/strategies?createFor=${instrument.ticker}`)}>
+              <Plus className="h-3.5 w-3.5 mr-1.5" />
+              Создать стратегию
+            </Button>
+            <Button size="sm" variant="outline" onClick={() => router.push(`/signals?createFor=${instrument.ticker}`)}>
+              <Bell className="h-3.5 w-3.5 mr-1.5" />
+              Создать сигнал
+            </Button>
+          </>
+        )}
         {instrument && candles.length > 0 && (
           <AiAnalysisButton
             title={`Тех. анализ ${instrument.ticker}`}

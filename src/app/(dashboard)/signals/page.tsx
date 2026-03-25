@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { Plus, Signal, SlidersHorizontal, X } from "lucide-react"
 import { toast } from "sonner"
 
@@ -36,6 +37,7 @@ type Filters = { signalType: string; isActive: string; timeframe: string }
 const DEFAULT_FILTERS: Filters = { signalType: "", isActive: "", timeframe: "" }
 
 export default function SignalsPage() {
+  const searchParams = useSearchParams()
   const [signals, setSignals] = useState<SignalRow[]>([])
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, triggered: 0, buy: 0, sell: 0 })
   const [search, setSearch] = useState("")
@@ -70,6 +72,15 @@ export default function SignalsPage() {
   }, [search, filters])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  useEffect(() => {
+    const createFor = searchParams.get("createFor")
+    if (createFor) {
+      setEditSignal(undefined)
+      setDialogOpen(true)
+      window.history.replaceState({}, "", "/signals")
+    }
+  }, [searchParams])
 
   const fetchProgress = useCallback(async () => {
     const res = await getSignalProgressAction()

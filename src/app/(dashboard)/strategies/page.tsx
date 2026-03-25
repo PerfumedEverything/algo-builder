@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState } from "react"
+import { useSearchParams } from "next/navigation"
 import { Plus, TrendingUp, SlidersHorizontal, ShieldCheck, X, Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { toast } from "sonner"
 
@@ -38,6 +39,7 @@ type Filters = { status: string; instrumentType: string; timeframe: string }
 const DEFAULT_FILTERS: Filters = { status: "", instrumentType: "", timeframe: "" }
 
 export default function StrategiesPage() {
+  const searchParams = useSearchParams()
   const [strategies, setStrategies] = useState<Strategy[]>([])
   const [stats, setStats] = useState<Stats>({ total: 0, active: 0, draft: 0, paused: 0 })
   const [search, setSearch] = useState("")
@@ -95,6 +97,15 @@ export default function StrategiesPage() {
   }, [search, filters])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  useEffect(() => {
+    const createFor = searchParams.get("createFor")
+    if (createFor) {
+      setEditStrategy(undefined)
+      setDialogOpen(true)
+      window.history.replaceState({}, "", "/strategies")
+    }
+  }, [searchParams])
 
   useEffect(() => {
     const interval = setInterval(fetchData, 10_000)
