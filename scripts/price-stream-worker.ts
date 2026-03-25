@@ -4,10 +4,8 @@ import Redis from "ioredis"
 import { createClient } from "@supabase/supabase-js"
 
 const PRICE_PREFIX = "price:"
-const LAST_PRICE_PREFIX = "lastprice:"
 const CANDLE_PREFIX = "candles:"
-const PRICE_TTL = 600
-const LAST_PRICE_TTL = 604800
+const PRICE_TTL = 120
 const INSTRUMENT_REFRESH_INTERVAL = 60_000
 const CANDLE_REFRESH_INTERVAL = 60_000
 const HEALTH_CHECK_INTERVAL = 30_000
@@ -120,7 +118,7 @@ async function subscribeToStream(instruments: string[]) {
   console.log(`[Worker] Subscribing to ${figiList.length} instruments...`)
 
   try {
-  unsubscribeFn = await api.stream.market.lastPrice(
+  const streamPromise = api.stream.market.lastPrice(
     { instruments: figiList.map(([, f]) => ({ figi: f, instrumentId: f })) },
     async (lastPrice) => {
       lastPriceUpdate = Date.now()
@@ -134,7 +132,6 @@ async function subscribeToStream(instruments: string[]) {
 
       const payload = JSON.stringify({ price, updatedAt: Date.now() })
       await redis.set(`${PRICE_PREFIX}${ticker}`, payload, "EX", PRICE_TTL)
-      await redis.set(`${LAST_PRICE_PREFIX}${ticker}`, payload, "EX", LAST_PRICE_TTL)
 
       await redis.publish(
         "price-updates",
@@ -144,7 +141,14 @@ async function subscribeToStream(instruments: string[]) {
   )
 
   subscribedInstruments = new Set(instruments)
-  console.log(`[Worker] Subscribed to: ${instruments.join(", ")}`)
+  console.log(`[Worker] Stream subscribed to: ${instruments.join(", ")}`)
+
+  streamPromise.then((unsub) => {
+    unsubscribeFn = unsub
+  }).catch((e) => {
+    console.error("[Worker] Stream ended unexpectedly:", e)
+    unsubscribeFn = null
+  })
   } catch (e) {
     console.error("[Worker] Stream subscription error:", e)
   }
@@ -316,6 +320,7 @@ const CRON_CHECK_INTERVAL = 60_000
 async function cronCheck() {
   try {
     const url = `${process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"}/api/signals/check`
+    console.log("[Worker] Cron check running...")
     const response = await fetch(url, {
       method: "POST",
       headers: {
@@ -325,6 +330,9 @@ async function cronCheck() {
     })
     if (!response.ok) {
       console.error(`[Worker] Cron check failed: ${response.status}`)
+    } else {
+      const data = await response.json()
+      console.log(`[Worker] Cron check done:`, JSON.stringify(data).slice(0, 200))
     }
   } catch (e) {
     console.error("[Worker] Cron check error:", e)
