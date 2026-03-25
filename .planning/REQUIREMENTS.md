@@ -64,9 +64,9 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 - [x] **FUND-01**: FundamentalService fetches P/E, P/B, dividend yield per ticker (P/E/P/B source TBD — see INFR-02b)
 - [x] **FUND-02**: Composite scoring (1-10) with weighted average of P/E, P/B, dividend metrics
-- [ ] **FUND-03**: Color indication per metric (green=cheap, yellow=normal, red=expensive)
-- [ ] **FUND-04**: Fundamental card appears in portfolio position expand (below chart)
-- [ ] **FUND-05**: AI fundamental analysis button — DeepSeek evaluates multiples + price
+- [x] **FUND-03**: Color indication per metric (green=cheap, yellow=normal, red=expensive)
+- [x] **FUND-04**: Fundamental card appears in portfolio position expand (below chart)
+- [x] **FUND-05**: AI fundamental analysis button — DeepSeek evaluates multiples + price
 
 ### Correlations & Cohorts
 
@@ -172,9 +172,9 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UXA-05 | Phase 3.1 | Pending |
 | FUND-01 | Phase 3 | Complete |
 | FUND-02 | Phase 3 | Complete |
-| FUND-03 | Phase 3 | Pending |
-| FUND-04 | Phase 3 | Pending |
-| FUND-05 | Phase 3 | Pending |
+| FUND-03 | Phase 3 | Complete |
+| FUND-04 | Phase 3 | Complete |
+| FUND-05 | Phase 3 | Complete |
 | CORR-01 | Phase 4 | Pending |
 | CORR-02 | Phase 4 | Pending |
 | CORR-03 | Phase 4 | Pending |
