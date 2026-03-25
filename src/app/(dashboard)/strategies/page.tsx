@@ -50,6 +50,7 @@ export default function StrategiesPage() {
   const [pendingLaunchId, setPendingLaunchId] = useState<string | null>(null)
   const [opsStatsMap, setOpsStatsMap] = useState<Record<string, OperationStats>>({})
   const [pricesMap, setPricesMap] = useState<Record<string, number>>({})
+  const [expandedId, setExpandedId] = useState<string | null>(null)
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
@@ -75,8 +76,9 @@ export default function StrategiesPage() {
       getBrokerStatusAction(),
     ])
     if (strategiesRes.success) {
-      setStrategies(strategiesRes.data as Strategy[])
-      const strategies = strategiesRes.data as Strategy[]
+      const sorted = (strategiesRes.data as Strategy[]).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
+      setStrategies(sorted)
+      const strategies = sorted
       const ids = strategies.map((s) => s.id)
       if (ids.length > 0) {
         const instrumentMap: Record<string, string> = {}
@@ -344,7 +346,7 @@ export default function StrategiesPage() {
       {strategies.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2">
           {strategies.map((strategy) => (
-            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} expanded={expandedId === strategy.id} onToggleExpand={() => setExpandedId(expandedId === strategy.id ? null : strategy.id)} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
           ))}
         </div>
       ) : (

@@ -36,6 +36,8 @@ type StrategyCardProps = {
   operationStats?: OperationStats
   lastBuyPrice?: number
   currentPrice?: number
+  expanded?: boolean
+  onToggleExpand?: () => void
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   onStatusChange: (id: string, status: string) => void
@@ -98,10 +100,11 @@ const formatTime = (iso: string) => {
   })
 }
 
-export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPrice, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
+export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPrice, expanded: controlledExpanded, onToggleExpand, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
   const config = strategy.config
   const isActive = strategy.status === "ACTIVE"
-  const [expanded, setExpanded] = useState(false)
+  const [internalExpanded, setInternalExpanded] = useState(false)
+  const expanded = controlledExpanded ?? internalExpanded
   const [operations, setOperations] = useState<StrategyOperation[]>([])
   const [opsLoading, setOpsLoading] = useState(false)
 
@@ -110,7 +113,7 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
 
   const handleToggleOps = async () => {
     if (expanded) {
-      setExpanded(false)
+      onToggleExpand ? onToggleExpand() : setInternalExpanded(false)
       return
     }
     setOpsLoading(true)
@@ -122,7 +125,7 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
       setOperations([])
     }
     setOpsLoading(false)
-    setExpanded(true)
+    onToggleExpand ? onToggleExpand() : setInternalExpanded(true)
   }
 
   return (
