@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import { SignalChecker } from "@/server/services/signal-checker"
 import { evaluateCrossing, getIndicatorKey } from "@/server/services/crossing-detector"
+import { cleanTicker } from "@/lib/ticker-utils"
 import type { SignalCondition } from "@/core/types"
 
 type EvalContext = {
@@ -198,6 +199,20 @@ describe("StrategyChecker compare — BELOW_BY_PERCENT", () => {
       value: 0,
     }
     expect(checker.evaluateCondition(condition, makeCtx(90))).toBe(true)
+  })
+})
+
+describe("cleanTicker — ticker normalization for strategy checker", () => {
+  it("removes trailing @ from ticker", () => {
+    expect(cleanTicker("TGLD@")).toBe("TGLD")
+  })
+
+  it("leaves clean ticker unchanged", () => {
+    expect(cleanTicker("SBER")).toBe("SBER")
+  })
+
+  it("only removes trailing @, not internal @", () => {
+    expect(cleanTicker("TICK@ER")).toBe("TICK@ER")
   })
 })
 

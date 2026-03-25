@@ -6,6 +6,7 @@ import { formatStrategyNotification } from "./notification-templates"
 import { PriceCache } from "./price-cache"
 import { StrategyTriggerHandler } from "./strategy-trigger-handler"
 import { evaluateConditions, getIndicatorValue, getIndicatorKey, type EvalContext } from "./crossing-detector"
+import { cleanTicker } from "@/lib/ticker-utils"
 
 type CheckResult = {
   strategyId: string
@@ -79,12 +80,14 @@ export class StrategyChecker {
   }
 
   private async checkStrategy(strategy: StrategyRow): Promise<CheckResult[]> {
-    const cached = await this.priceCache.getPrice(strategy.instrument)
-    const price = cached !== null ? cached : await (await this.connectBroker(strategy.userId)).getCurrentPrice(strategy.instrument)
+    const instrument = cleanTicker(strategy.instrument)
+    const cached = await this.priceCache.getPrice(instrument)
+    const price = cached !== null ? cached : await (await this.connectBroker(strategy.userId)).getCurrentPrice(instrument)
     return this.checkStrategyWithPrice(strategy, price)
   }
 
   private async checkStrategyWithPrice(strategy: StrategyRow, price: number): Promise<CheckResult[]> {
+    const instrument = cleanTicker(strategy.instrument)
     const config = strategy.config as StrategyConfig
     const side: "entry" | "exit" = (strategy.positionState ?? "NONE") === "OPEN" ? "exit" : "entry"
     const conditions = side === "entry" ? config.entry : config.exit
@@ -94,7 +97,7 @@ export class StrategyChecker {
     let candles: EvalContext["candles"] = []
     if (conditions.some((c) => c.indicator !== "PRICE")) {
       const interval = strategy.timeframe || "1d"
-      const cached = await this.priceCache.getCandles(strategy.instrument, interval)
+      const cached = await this.priceCache.getCandles(instrument, interval)
       if (cached) {
         candles = cached.map((c) => ({ ...c, time: new Date(c.time) }))
       } else {
@@ -102,13 +105,13 @@ export class StrategyChecker {
         const now = new Date()
         const from = new Date(now.getTime() - getCandleRangeMs(interval))
         try {
-          candles = await broker.getCandles({ instrumentId: strategy.instrument, from, to: now, interval })
+          candles = await broker.getCandles({ instrumentId: instrument, from, to: now, interval })
         } catch {
           await new Promise((r) => setTimeout(r, 1000))
-          candles = await broker.getCandles({ instrumentId: strategy.instrument, from, to: now, interval })
+          candles = await broker.getCandles({ instrumentId: instrument, from, to: now, interval })
         }
       }
-      if (!candles.length) return [{ strategyId: strategy.id, strategyName: strategy.name, instrument: strategy.instrument, side, triggered: false, message: `Not enough candle data for ${strategy.instrument}` }]
+      if (!candles.length) return [{ strategyId: strategy.id, strategyName: strategy.name, instrument, side, triggered: false, message: `Not enough candle data for ${instrument}` }]
     }
 
     const ctx: EvalContext = { price, candles }
@@ -117,9 +120,13 @@ export class StrategyChecker {
 
     const updatedValues = { ...lastValues }
     for (const c of conditions) { const v = getIndicatorValue(c, ctx); if (v !== null) updatedValues[getIndicatorKey(c)] = v }
-    await this.db.from("Strategy").update({ lastIndicatorValues: updatedValues, updatedAt: new Date().toISOString() }).eq("id", strategy.id)
+    try {
+      await this.db.from("Strategy").update({ lastIndicatorValues: updatedValues, updatedAt: new Date().toISOString() }).eq("id", strategy.id)
+    } catch (e) {
+      console.error(`[StrategyChecker] Failed to persist lastIndicatorValues for strategy ${strategy.id}:`, e)
+    }
 
-    return [{ strategyId: strategy.id, strategyName: strategy.name, instrument: strategy.instrument, side, triggered: met, price, message: met ? formatStrategyNotification(strategy, side, ctx) : `${strategy.instrument}: ${side} not met` }]
+    return [{ strategyId: strategy.id, strategyName: strategy.name, instrument, side, triggered: met, price, message: met ? formatStrategyNotification(strategy, side, ctx) : `${instrument}: ${side} not met` }]
   }
 
   private async getActiveStrategies(): Promise<StrategyRow[]> {
@@ -135,15 +142,10 @@ export class StrategyChecker {
   }
 
   private async connectBroker(userId: string) {
-    const settings = await this.getBrokerSettings(userId)
-    if (!settings?.brokerToken) throw new Error(`Broker not connected for user ${userId}`)
-    const broker = getBrokerProvider()
-    await broker.connect(settings.brokerToken)
-    return broker
-  }
-
-  private async getBrokerSettings(userId: string) {
     const { data } = await this.db.from("User").select("brokerToken").eq("id", userId).single()
-    return data
+    if (!data?.brokerToken) throw new Error(`Broker not connected for user ${userId}`)
+    const broker = getBrokerProvider()
+    await broker.connect(data.brokerToken)
+    return broker
   }
 }
