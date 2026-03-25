@@ -17,6 +17,7 @@ import { getCandlesForChartAction, getTradeMarkersAction, type ChartMarker } fro
 import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
 import { getPortfolioAction } from "@/server/actions/broker-actions"
 import { getOrderBookAction, getOperationsByTickerAction } from "@/server/actions/terminal-actions"
+import { getInstrumentsAction } from "@/server/actions/broker-actions"
 import { usePriceStream } from "@/hooks/use-price-stream"
 import type { BrokerInstrument, PortfolioPosition, PositionOperation } from "@/core/types"
 import type { OrderBookData } from "@/core/types"
@@ -143,6 +144,13 @@ export default function TerminalPage() {
     setOperations([])
   }, [])
 
+  const handleQuickSelect = useCallback(async (t: string) => {
+    const res = await getInstrumentsAction("STOCK")
+    if (!res.success) return
+    const found = res.data.find((i) => i.ticker.toUpperCase() === t.toUpperCase())
+    if (found) handleInstrumentSelect(found)
+  }, [handleInstrumentSelect])
+
   const handlePositionSelect = useCallback(
     (positionTicker: string, figi: string) => {
       const inst: BrokerInstrument = {
@@ -230,7 +238,7 @@ export default function TerminalPage() {
                 <button
                   key={t}
                   type="button"
-                  onClick={() => setTicker(t)}
+                  onClick={() => handleQuickSelect(t)}
                   className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
                 >
                   {t}

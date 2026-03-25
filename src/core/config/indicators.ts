@@ -22,7 +22,7 @@ export const INDICATORS: IndicatorConfig[] = [
     label: "SMA (скользящая средняя)",
     description: "Среднее значение цены за N свечей. Помогает определить тренд",
     params: [
-      { name: "period", label: "Period", defaultValue: 20, min: 2, max: 500 },
+      { name: "period", label: "Период", defaultValue: 20, min: 2, max: 500 },
     ],
     allowedConditions: ["GREATER_THAN", "LESS_THAN", "CROSSES_ABOVE", "CROSSES_BELOW"],
   },
@@ -31,7 +31,7 @@ export const INDICATORS: IndicatorConfig[] = [
     label: "EMA (экспон. средняя)",
     description: "Скользящая средняя с акцентом на последние цены. Быстрее реагирует на изменения",
     params: [
-      { name: "period", label: "Period", defaultValue: 12, min: 2, max: 500 },
+      { name: "period", label: "Период", defaultValue: 12, min: 2, max: 500 },
     ],
     allowedConditions: ["GREATER_THAN", "LESS_THAN", "CROSSES_ABOVE", "CROSSES_BELOW"],
   },
@@ -40,7 +40,7 @@ export const INDICATORS: IndicatorConfig[] = [
     label: "RSI (индекс силы)",
     description: "Осциллятор 0-100. Выше 70 = перекупленность, ниже 30 = перепроданность",
     params: [
-      { name: "period", label: "Period", defaultValue: 14, min: 2, max: 100 },
+      { name: "period", label: "Период", defaultValue: 14, min: 2, max: 100 },
     ],
     allowedConditions: ["GREATER_THAN", "LESS_THAN", "CROSSES_ABOVE", "CROSSES_BELOW"],
   },
@@ -49,9 +49,9 @@ export const INDICATORS: IndicatorConfig[] = [
     label: "MACD",
     description: "Индикатор тренда и импульса. Пересечение сигнальной линии = сигнал к действию",
     params: [
-      { name: "fastPeriod", label: "Fast Period", defaultValue: 12, min: 2, max: 100 },
-      { name: "slowPeriod", label: "Slow Period", defaultValue: 26, min: 2, max: 200 },
-      { name: "signalPeriod", label: "Signal Period", defaultValue: 9, min: 2, max: 50 },
+      { name: "fastPeriod", label: "Быстрый период", defaultValue: 12, min: 2, max: 100 },
+      { name: "slowPeriod", label: "Медленный период", defaultValue: 26, min: 2, max: 200 },
+      { name: "signalPeriod", label: "Сигнальный период", defaultValue: 9, min: 2, max: 50 },
     ],
     allowedConditions: ["GREATER_THAN", "LESS_THAN", "CROSSES_ABOVE", "CROSSES_BELOW"],
   },
@@ -60,8 +60,8 @@ export const INDICATORS: IndicatorConfig[] = [
     label: "Bollinger Bands",
     description: "Полосы волатильности вокруг средней. Выход за полосу = возможный разворот",
     params: [
-      { name: "period", label: "Period", defaultValue: 20, min: 2, max: 200 },
-      { name: "stdDev", label: "Std Deviation", defaultValue: 2, min: 0.5, max: 5 },
+      { name: "period", label: "Период", defaultValue: 20, min: 2, max: 200 },
+      { name: "stdDev", label: "Отклонение", defaultValue: 2, min: 0.5, max: 5 },
     ],
     allowedConditions: ["GREATER_THAN", "LESS_THAN"],
   },

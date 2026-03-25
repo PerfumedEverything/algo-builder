@@ -175,9 +175,9 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
             >
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="BUY">Покупка — сигнал к покупке</SelectItem>
-                <SelectItem value="SELL">Продажа — сигнал к продаже</SelectItem>
-                <SelectItem value="ALERT">Уведомление — только оповестить</SelectItem>
+                <SelectItem value="BUY">Покупка</SelectItem>
+                <SelectItem value="SELL">Продажа</SelectItem>
+                <SelectItem value="ALERT">Уведомление</SelectItem>
               </SelectContent>
             </Select>
           </div>
