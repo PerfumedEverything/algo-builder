@@ -3,7 +3,10 @@ import type { ChatCompletionTool, ChatCompletionMessageParam } from "openai/reso
 import type { AiGeneratedStrategy, IndicatorType, ConditionType } from "@/core/types"
 import type { AiProvider, AiChatMessage, AiChatResponse } from "./types"
 
-const VALID_INDICATORS: IndicatorType[] = ["SMA", "EMA", "RSI", "MACD", "BOLLINGER", "PRICE", "VOLUME", "PRICE_CHANGE", "SUPPORT", "RESISTANCE"]
+const VALID_INDICATORS: IndicatorType[] = [
+  "SMA", "EMA", "RSI", "MACD", "BOLLINGER", "PRICE", "VOLUME", "PRICE_CHANGE", "SUPPORT", "RESISTANCE",
+  "ATR", "STOCHASTIC", "VWAP", "WILLIAMS_R",
+]
 const VALID_CONDITIONS: ConditionType[] = [
   "CROSSES_ABOVE",
   "CROSSES_BELOW",
@@ -80,6 +83,10 @@ const generateStrategyTool: ChatCompletionTool = {
               type: "number",
               description: "Threshold value (e.g. RSI 30, price 100)",
             },
+            valueTo: {
+              type: "number" as const,
+              description: "Upper bound for BETWEEN condition",
+            },
           },
         },
         exit: {
@@ -100,6 +107,10 @@ const generateStrategyTool: ChatCompletionTool = {
               enum: VALID_CONDITIONS,
             },
             value: { type: "number" },
+            valueTo: {
+              type: "number" as const,
+              description: "Upper bound for BETWEEN condition",
+            },
           },
         },
         risks: {
@@ -164,32 +175,32 @@ Extract the instrument ticker from the user's request (e.g. "Сбер" → "sber
 Choose the appropriate instrumentType and timeframe based on context.
 If the user's request is vague, create a CREATIVE and UNIQUE strategy — avoid repeating standard RSI 30/70 patterns.
 Vary indicator parameters: RSI period 7-21, SMA/EMA periods 5-50, MACD fast 8-16/slow 21-30/signal 5-12, Bollinger period 10-30 stdDev 1.5-2.5.
+Available indicators: SMA, EMA, RSI, MACD, BOLLINGER, PRICE, VOLUME, PRICE_CHANGE, SUPPORT, RESISTANCE, ATR, STOCHASTIC, VWAP, WILLIAMS_R.
+Use ATR for volatility-based strategies, STOCHASTIC and WILLIAMS_R for overbought/oversold, VWAP for intraday mean-reversion.
+For BETWEEN conditions use both value (lower bound) and valueTo (upper bound).
 Always include risk management with varied values based on strategy style.
 For scalping strategies use short timeframes (1m, 5m). For swing trading use longer (1d, 1w).
 Default timeframe is 1d if not specified.
 Respond in Russian for name and description fields.
 Be creative — each strategy should be unique even for similar requests.`
 
-const CHAT_SYSTEM_PROMPT = `Ты — AI-помощник AculaTrade для создания торговых стратегий.
+const CHAT_SYSTEM_PROMPT = `Ты — AI-помощник AculaTrade. Помогай пользователю создать торговую стратегию через свободный диалог.
 
-Твоя задача — помочь пользователю создать стратегию через диалог.
-Пользователь может быть новичком в трейдинге — объясняй просто.
-
-Порядок:
-1. Спроси какой инструмент интересует (акция, валюта, конкретный тикер — Сбер, Газпром и т.д.)
-2. Спроси стиль торговли: скальпинг (минуты), свинг (дни-недели), долгосрок (месяцы)
-3. Спроси про допустимый риск: консервативный (SL 2%), умеренный (SL 3-5%), агрессивный (SL 5-10%)
-4. Когда собрал достаточно информации — вызови функцию create_strategy
+Доступные индикаторы: SMA, EMA, RSI, MACD, Bollinger Bands, ATR, Stochastic, VWAP, Williams %R, а также цена, объём, уровни поддержки/сопротивления.
+Доступные условия: CROSSES_ABOVE, CROSSES_BELOW, GREATER_THAN, LESS_THAN, EQUALS, BETWEEN, ABOVE_BY_PERCENT, BELOW_BY_PERCENT, MULTIPLIED_BY.
+Таймфреймы: 1m, 5m, 15m, 1h, 4h, 1d, 1w.
 
 Правила:
-- Отвечай коротко, 2-3 предложения максимум
-- Задавай по одному вопросу за раз
-- Если пользователь сразу описал конкретную стратегию с деталями — сразу генерируй через create_strategy
-- Используй русский язык
-- Будь дружелюбным и профессиональным
-- Не используй технический жаргон без объяснения
+- Когда у тебя достаточно информации (инструмент + хотя бы один индикатор или стиль торговли), вызови create_strategy
+- Не задавай все вопросы по порядку — реагируй на то, что написал пользователь
+- Если пользователь сразу описал идею с деталями — сразу генерируй через create_strategy
+- Если описание расплывчатое — уточни ОДНО самое важное (не все сразу)
+- Всегда указывай и entry, и exit условия в стратегии
+- Используй новые индикаторы (ATR, Stochastic, VWAP, Williams %R) когда они подходят по контексту
+- Для BETWEEN условий используй value (нижняя граница) и valueTo (верхняя граница)
 - Тикеры: "Сбер" → "sber", "Газпром" → "gazp", "Лукойл" → "lkoh", "Яндекс" → "yndx", "ВТБ" → "vtbr"
-- Риск-менеджмент подбирай по стилю: консервативный (SL 2%, TP 4%), умеренный (SL 3%, TP 6%), агрессивный (SL 5%, TP 10%)`
+- Риск-менеджмент подбирай по стилю: консервативный (SL 2%, TP 4%), умеренный (SL 3%, TP 6%), агрессивный (SL 5%, TP 10%)
+- Отвечай на русском языке`
 
 export class DeepSeekProvider implements AiProvider {
   private client: OpenAI
