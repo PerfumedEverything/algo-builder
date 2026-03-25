@@ -3,14 +3,13 @@
 import { useState, useEffect, useCallback } from "react"
 
 import dynamic from "next/dynamic"
-import { Plus, Bell } from "lucide-react"
-import { StrategyDialog } from "@/components/strategy"
+import { Plus, Bell, Bot } from "lucide-react"
+import { StrategyDialog, AiWizardDialog } from "@/components/strategy"
 import { SignalDialog } from "@/components/signal"
 import { Skeleton } from "@/components/ui/skeleton"
 import { Button } from "@/components/ui/button"
 import { InstrumentSelect } from "@/components/shared/instrument-select"
 import { ChartPeriodSelector, type ChartPeriod } from "@/components/portfolio/chart-period-selector"
-import { AiAnalysisButton } from "@/components/portfolio/ai-analysis-button"
 import { PriceBar } from "@/components/terminal/price-bar"
 import { OrderBook } from "@/components/terminal/order-book"
 import { PositionsPanel } from "@/components/terminal/positions-panel"
@@ -55,7 +54,7 @@ export default function TerminalPage() {
   const [operationsLoading, setOperationsLoading] = useState(false)
   const [strategyDialogOpen, setStrategyDialogOpen] = useState(false)
   const [signalDialogOpen, setSignalDialogOpen] = useState(false)
-  const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null)
+  const [wizardOpen, setWizardOpen] = useState(false)
 
   const prices = usePriceStream()
 
@@ -221,17 +220,15 @@ export default function TerminalPage() {
               <span className="hidden sm:inline">Создать сигнал</span>
             </Button>
             {candles.length > 0 && (
-              <AiAnalysisButton
-                title={`Тех. анализ ${instrument.ticker}`}
-                triggerLabel="Анализ с ИИ"
-                triggerLabelMobile="ИИ"
-                analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
-                onResult={(result) => setAiAnalysisResult(result)}
-                onCreateStrategy={() => setStrategyDialogOpen(true)}
-                onCreateSignal={() => setSignalDialogOpen(true)}
-                variant="default"
+              <Button
                 size="sm"
-              />
+                className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => setWizardOpen(true)}
+              >
+                <Bot className="h-4 w-4" />
+                <span className="hidden sm:inline">Анализ с ИИ</span>
+                <span className="sm:hidden">ИИ</span>
+              </Button>
             )}
           </div>
         )}
@@ -307,15 +304,22 @@ export default function TerminalPage() {
         open={strategyDialogOpen}
         onOpenChange={setStrategyDialogOpen}
         onSuccess={() => setStrategyDialogOpen(false)}
-        initialContext={aiAnalysisResult ?? undefined}
         initialInstrument={instrument?.ticker}
       />
       <SignalDialog
         open={signalDialogOpen}
         onOpenChange={setSignalDialogOpen}
         onSuccess={() => setSignalDialogOpen(false)}
-        initialContext={aiAnalysisResult ?? undefined}
         initialInstrument={instrument?.ticker}
+      />
+      <AiWizardDialog
+        open={wizardOpen}
+        onOpenChange={setWizardOpen}
+        title={`Тех. анализ ${instrument?.ticker ?? ''}`}
+        analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
+        initialInstrument={instrument?.ticker}
+        onSuccess={() => { setWizardOpen(false) }}
+        onCreateSignal={() => setSignalDialogOpen(true)}
       />
     </div>
   )
