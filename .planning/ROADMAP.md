@@ -16,7 +16,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 2: Risk Metrics** - Sharpe, Beta, VaR, Max Drawdown, Alpha with color-coded cards and AI analysis
 - [x] **Phase 2.1: Terminal v2** - INSERTED — lightweight-charts terminal with order book, realtime prices, positions panel, trade history
 - [x] **Phase 2.2: Strategy Pipeline Fix** - INSERTED CRITICAL — fix all 16 bugs in strategy/signal checker pipeline (completed 2026-03-25)
-- [ ] **Phase 2.3: Strategy & Portfolio Hardening** - INSERTED — paper portfolio reliability, ticker cleanup, price freshness, production hardening
+- [x] **Phase 2.3: Strategy & Portfolio Hardening** - INSERTED — paper portfolio reliability, ticker cleanup, price freshness, production hardening (completed 2026-03-25)
 - [ ] **Phase 3: Fundamentals** - P/E, P/B, dividend yield scoring per position with AI fundamental analysis
 - [ ] **Phase 4: Diversification Analysis** - Correlation heatmap, sector/type/performance cohort charts, AI diversification analysis
 - [ ] **Phase 5: Portfolio Optimization** - Markowitz optimal weights, rebalancing recommendations, full portfolio AI analysis
@@ -103,11 +103,11 @@ Plans:
   3. Strategies always use fresh prices (not stale cache)
   4. Strategy card displays correct data after phase 2.2 fixes
   5. Error handling is resilient — one strategy failure doesn't break the whole view
-**Plans:** 2/4 plans executed
+**Plans:** 4/4 plans complete
 Plans:
 - [x] 02.3-01-PLAN.md — Price cache hardening: remove stale fallback, reduce TTL, increase lock TTL
 - [x] 02.3-02-PLAN.md — Checker hardening: cleanTicker, signal checkAll lock, persist try/catch
-- [ ] 02.3-03-PLAN.md — Paper portfolio resilience, trigger handler CRITICAL logging, strategy card error toast
+- [x] 02.3-03-PLAN.md — Paper portfolio resilience, trigger handler CRITICAL logging, strategy card error toast
 - [x] 02.3-04-PLAN.md — SQL ticker migration script, paper-portfolio-view useCallback fix
 **UI hint**: no
 
@@ -155,7 +155,7 @@ Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 4 -> 5
 | 2. Risk Metrics | 3/3 | Complete   | 2026-03-24 |
 | 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
 | 2.2 Strategy Pipeline Fix (CRITICAL) | 3/3 | Complete   | 2026-03-25 |
-| 2.3 Strategy & Portfolio Hardening | 2/4 | In Progress|  |
+| 2.3 Strategy & Portfolio Hardening | 4/4 | Complete   | 2026-03-25 |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |

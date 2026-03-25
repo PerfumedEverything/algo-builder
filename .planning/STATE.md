@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: Ready to execute
-stopped_at: Completed 02.3-02-PLAN.md
-last_updated: "2026-03-25T08:53:26.401Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 02.3-03-PLAN.md
+last_updated: "2026-03-25T12:00:00.000Z"
 progress:
   total_phases: 9
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 16
-  completed_plans: 12
+  completed_plans: 13
 ---
 
 # Project State
@@ -26,7 +26,7 @@ Plan: 4 of 4
 
 ## Progress
 
-[████████░░] 75% (12/16 plans complete)
+[████████░░] 81% (13/16 plans complete)
 
 ## Completed Phases
 
@@ -57,6 +57,8 @@ Plan: 4 of 4
 - cleanTicker applied at method entry in both checkers (checkStrategy, checkSignal, fetchCandles, getConditionProgress) — prevents @ suffix lookup misses (02.3-02)
 - Lock ownership moved to callers (checkAll, checkByInstrument) in signal-checker — checkSignal is now a pure fetch+evaluate helper, no double-locking (02.3-02)
 - persistIndicatorValues DB failures are caught and logged, checker continues — prevents DB glitches from crashing full check cycle (02.3-02)
+- Instrument fallback to '—' string keeps paper portfolio rows visible with explicit missing-data indicator (02.3-03)
+- Rollback in StrategyTriggerHandler never throws — CRITICAL log is sufficient, no need to crash checker cycle (02.3-03)
 
 ## Pending Todos
 
@@ -66,6 +68,6 @@ Plan: 4 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-25T08:53:26.398Z
-Stopped at: Completed 02.3-02-PLAN.md
-Next: Phase 3 (Fundamentals)
+Last session: 2026-03-25T12:00:00.000Z
+Stopped at: Completed 02.3-03-PLAN.md
+Next: Phase 02.3 Plan 04 (final plan in phase) or Phase 3 (Fundamentals)
