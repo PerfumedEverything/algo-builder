@@ -29,8 +29,7 @@ const INITIAL_MESSAGE: ChatMessage = {
 const getInitialMessages = (initialContext?: string): ChatMessage[] => {
   if (initialContext) {
     return [
-      { role: "assistant", content: `Анализ из терминала:\n\n${initialContext}` },
-      { role: "assistant", content: "На основе этого анализа я могу создать стратегию. Опишите, какую стратегию хотите — или я предложу варианты на основе анализа." },
+      { role: "assistant", content: "Анализирую данные из терминала и подбираю стратегию..." },
     ]
   }
   return [INITIAL_MESSAGE]
@@ -94,11 +93,20 @@ export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext }: AiC
   const inputRef = useRef<HTMLInputElement>(null)
   const { setFromAI, setIsGenerating } = useStrategyStore()
 
+  const autoSentRef = useRef(false)
+
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
   }, [messages])
+
+  useEffect(() => {
+    if (initialContext && !autoSentRef.current) {
+      autoSentRef.current = true
+      handleSend(`Вот результат технического анализа инструмента. Предложи 1-2 конкретные стратегии на его основе и сразу создай лучшую через create_strategy:\n\n${initialContext}`)
+    }
+  }, [])
 
   const handleSend = async (overrideText?: string) => {
     const text = (overrideText ?? input).trim()
@@ -184,7 +192,7 @@ export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext }: AiC
               </div>
             </div>
           ))}
-          {messages.length === 1 && !loading && (
+          {messages.length === 1 && !loading && !initialContext && (
             <div className="flex flex-wrap gap-1.5 px-1">
               {QUICK_REPLIES.map((qr) => (
                 <button

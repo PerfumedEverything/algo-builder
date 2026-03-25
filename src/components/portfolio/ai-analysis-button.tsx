@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react"
-import { Bot, Loader2, Plus, Bell } from "lucide-react"
+import { Bot, Loader2, Sparkles, Zap } from "lucide-react"
 import Markdown from "react-markdown"
 
 import { Button } from "@/components/ui/button"
@@ -107,26 +107,31 @@ export const AiAnalysisButton = ({
         )}
 
         {result && (onCreateStrategy || onCreateSignal) && (
-          <div className="flex items-center gap-2 pt-2">
-            {onCreateStrategy && (
-              <Button
-                size="sm"
-                onClick={() => { setOpen(false); onCreateStrategy() }}
-              >
-                <Plus className="h-3.5 w-3.5 mr-1.5" />
-                Создать стратегию
-              </Button>
-            )}
-            {onCreateSignal && (
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={() => { setOpen(false); onCreateSignal() }}
-              >
-                <Bell className="h-3.5 w-3.5 mr-1.5" />
-                Создать сигнал
-              </Button>
-            )}
+          <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
+            <p className="text-xs font-medium text-muted-foreground">Что дальше?</p>
+            <div className="flex flex-col sm:flex-row gap-2">
+              {onCreateStrategy && (
+                <Button
+                  size="sm"
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                  onClick={() => { setOpen(false); onCreateStrategy() }}
+                >
+                  <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                  Построить стратегию по анализу
+                </Button>
+              )}
+              {onCreateSignal && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="flex-1"
+                  onClick={() => { setOpen(false); onCreateSignal() }}
+                >
+                  <Zap className="h-3.5 w-3.5 mr-1.5" />
+                  Настроить сигнал по анализу
+                </Button>
+              )}
+            </div>
           </div>
         )}
       </DialogContent>
