@@ -19,22 +19,25 @@ export type DetectedLevels = {
 }
 
 export class IndicatorCalculator {
-  static calculateRSI(candles: Candle[], period = 14): number {
+  static calculateRSI(candles: Candle[], period = 14): number | null {
+    if (candles.length < period + 1) return null
     const closes = candles.map((c) => c.close)
     const result = RSI.calculate({ values: closes, period })
-    return result[result.length - 1] ?? 0
+    return result[result.length - 1] ?? null
   }
 
-  static calculateSMA(candles: Candle[], period = 20): number {
+  static calculateSMA(candles: Candle[], period = 20): number | null {
+    if (candles.length < period) return null
     const closes = candles.map((c) => c.close)
     const result = SMA.calculate({ values: closes, period })
-    return result[result.length - 1] ?? 0
+    return result[result.length - 1] ?? null
   }
 
-  static calculateEMA(candles: Candle[], period = 20): number {
+  static calculateEMA(candles: Candle[], period = 20): number | null {
+    if (candles.length < period) return null
     const closes = candles.map((c) => c.close)
     const result = EMA.calculate({ values: closes, period })
-    return result[result.length - 1] ?? 0
+    return result[result.length - 1] ?? null
   }
 
   static calculateMACD(
@@ -42,7 +45,8 @@ export class IndicatorCalculator {
     fastPeriod = 12,
     slowPeriod = 26,
     signalPeriod = 9,
-  ): MACDResult {
+  ): MACDResult | null {
+    if (candles.length < slowPeriod + signalPeriod - 1) return null
     const closes = candles.map((c) => c.close)
     const result = MACD.calculate({
       values: closes,
@@ -54,10 +58,11 @@ export class IndicatorCalculator {
     })
 
     const last = result[result.length - 1]
+    if (!last) return null
     return {
-      macd: last?.MACD ?? 0,
-      signal: last?.signal ?? 0,
-      histogram: last?.histogram ?? 0,
+      macd: last.MACD ?? 0,
+      signal: last.signal ?? 0,
+      histogram: last.histogram ?? 0,
     }
   }
 
@@ -65,7 +70,8 @@ export class IndicatorCalculator {
     candles: Candle[],
     period = 20,
     stdDev = 2,
-  ): BollingerResult {
+  ): BollingerResult | null {
+    if (candles.length < period) return null
     const closes = candles.map((c) => c.close)
     const result = BollingerBands.calculate({
       values: closes,
@@ -74,10 +80,11 @@ export class IndicatorCalculator {
     })
 
     const last = result[result.length - 1]
+    if (!last) return null
     return {
-      upper: last?.upper ?? 0,
-      middle: last?.middle ?? 0,
-      lower: last?.lower ?? 0,
+      upper: last.upper ?? 0,
+      middle: last.middle ?? 0,
+      lower: last.lower ?? 0,
     }
   }
 

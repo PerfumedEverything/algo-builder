@@ -152,36 +152,46 @@ const formatIndicator = (
   switch (indicator) {
     case "RSI": {
       const val = IndicatorCalculator.calculateRSI(ctx.candles, params.period ?? 14)
-      indicatorValue = `RSI (${params.period ?? 14}): ${val.toFixed(1)}`
-      if (val > 70) interpretation = "перекупленность"
-      else if (val < 30) interpretation = "перепроданность"
-      else interpretation = "нейтрально"
+      if (val !== null) {
+        indicatorValue = `RSI (${params.period ?? 14}): ${val.toFixed(1)}`
+        if (val > 70) interpretation = "перекупленность"
+        else if (val < 30) interpretation = "перепроданность"
+        else interpretation = "нейтрально"
+      }
       break
     }
     case "SMA": {
       const val = IndicatorCalculator.calculateSMA(ctx.candles, params.period ?? 20)
-      indicatorValue = `SMA (${params.period ?? 20}): ${val.toFixed(2)}`
-      interpretation = ctx.price > val ? "цена выше SMA" : "цена ниже SMA"
+      if (val !== null) {
+        indicatorValue = `SMA (${params.period ?? 20}): ${val.toFixed(2)}`
+        interpretation = ctx.price > val ? "цена выше SMA" : "цена ниже SMA"
+      }
       break
     }
     case "EMA": {
       const val = IndicatorCalculator.calculateEMA(ctx.candles, params.period ?? 20)
-      indicatorValue = `EMA (${params.period ?? 20}): ${val.toFixed(2)}`
-      interpretation = ctx.price > val ? "цена выше EMA" : "цена ниже EMA"
+      if (val !== null) {
+        indicatorValue = `EMA (${params.period ?? 20}): ${val.toFixed(2)}`
+        interpretation = ctx.price > val ? "цена выше EMA" : "цена ниже EMA"
+      }
       break
     }
     case "MACD": {
       const val = IndicatorCalculator.calculateMACD(ctx.candles)
-      indicatorValue = `MACD: ${val.macd.toFixed(2)} / Signal: ${val.signal.toFixed(2)}`
-      interpretation = val.histogram > 0 ? "бычий импульс" : "медвежий импульс"
+      if (val !== null) {
+        indicatorValue = `MACD: ${val.macd.toFixed(2)} / Signal: ${val.signal.toFixed(2)}`
+        interpretation = val.histogram > 0 ? "бычий импульс" : "медвежий импульс"
+      }
       break
     }
     case "BOLLINGER": {
       const val = IndicatorCalculator.calculateBollinger(ctx.candles, params.period ?? 20)
-      indicatorValue = `BB (${params.period ?? 20}): ${val.lower.toFixed(2)} — ${val.upper.toFixed(2)}`
-      if (ctx.price > val.upper) interpretation = "выше верхней полосы"
-      else if (ctx.price < val.lower) interpretation = "ниже нижней полосы"
-      else interpretation = "внутри канала"
+      if (val !== null) {
+        indicatorValue = `BB (${params.period ?? 20}): ${val.lower.toFixed(2)} — ${val.upper.toFixed(2)}`
+        if (ctx.price > val.upper) interpretation = "выше верхней полосы"
+        else if (ctx.price < val.lower) interpretation = "ниже нижней полосы"
+        else interpretation = "внутри канала"
+      }
       break
     }
   }
@@ -237,19 +247,25 @@ const getIndicatorDisplayValue = (
   switch (c.indicator) {
     case "PRICE":
       return ctx.price.toFixed(2)
-    case "RSI":
-      return IndicatorCalculator.calculateRSI(ctx.candles, p.period ?? 14).toFixed(1)
-    case "SMA":
-      return IndicatorCalculator.calculateSMA(ctx.candles, p.period ?? 20).toFixed(2)
-    case "EMA":
-      return IndicatorCalculator.calculateEMA(ctx.candles, p.period ?? 20).toFixed(2)
+    case "RSI": {
+      const rsi = IndicatorCalculator.calculateRSI(ctx.candles, p.period ?? 14)
+      return rsi !== null ? rsi.toFixed(1) : "—"
+    }
+    case "SMA": {
+      const sma = IndicatorCalculator.calculateSMA(ctx.candles, p.period ?? 20)
+      return sma !== null ? sma.toFixed(2) : "—"
+    }
+    case "EMA": {
+      const ema = IndicatorCalculator.calculateEMA(ctx.candles, p.period ?? 20)
+      return ema !== null ? ema.toFixed(2) : "—"
+    }
     case "MACD": {
       const m = IndicatorCalculator.calculateMACD(ctx.candles)
-      return `${m.macd.toFixed(2)}/${m.signal.toFixed(2)}`
+      return m !== null ? `${m.macd.toFixed(2)}/${m.signal.toFixed(2)}` : "—"
     }
     case "BOLLINGER": {
       const bb = IndicatorCalculator.calculateBollinger(ctx.candles, p.period ?? 20)
-      return `${bb.lower.toFixed(0)}-${bb.upper.toFixed(0)}`
+      return bb !== null ? `${bb.lower.toFixed(0)}-${bb.upper.toFixed(0)}` : "—"
     }
     case "VOLUME": {
       const avg = IndicatorCalculator.getAverageVolume(ctx.candles, p.period ?? 20)

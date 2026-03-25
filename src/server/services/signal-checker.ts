@@ -202,12 +202,13 @@ export class SignalChecker {
 
   evaluateCondition(condition: SignalCondition, ctx: EvalContext): boolean {
     const actual = this.getIndicatorValue(condition, ctx)
+    if (actual === null) return false
     const target = condition.value ?? 0
 
     return this.compare(actual, condition.condition, target, ctx.price)
   }
 
-  private getIndicatorValue(condition: SignalCondition, ctx: EvalContext): number {
+  private getIndicatorValue(condition: SignalCondition, ctx: EvalContext): number | null {
     const { indicator, params } = condition
     const { price, candles } = ctx
 
@@ -231,7 +232,7 @@ export class SignalChecker {
           params.slow ?? 26,
           params.signal ?? 9,
         )
-        return macd.macd
+        return macd?.macd ?? null
       }
 
       case "BOLLINGER": {
@@ -240,7 +241,7 @@ export class SignalChecker {
           params.period ?? 20,
           params.stdDev ?? 2,
         )
-        return bb.upper
+        return bb?.upper ?? null
       }
 
       case "VOLUME": {
@@ -257,7 +258,7 @@ export class SignalChecker {
         const nearestSupport = levels.supports
           .filter((s) => s <= price)
           .sort((a, b) => b - a)[0]
-        return nearestSupport ?? 0
+        return nearestSupport ?? null
       }
 
       case "RESISTANCE": {
@@ -265,11 +266,11 @@ export class SignalChecker {
         const nearestResistance = levels.resistances
           .filter((r) => r >= price)
           .sort((a, b) => a - b)[0]
-        return nearestResistance ?? Infinity
+        return nearestResistance ?? null
       }
 
       default:
-        return 0
+        return null
     }
   }
 

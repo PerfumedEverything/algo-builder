@@ -207,11 +207,12 @@ export class StrategyChecker {
 
   private evaluateCondition(condition: SignalCondition, ctx: EvalContext): boolean {
     const actual = this.getIndicatorValue(condition, ctx)
+    if (actual === null) return false
     const target = condition.value ?? 0
     return this.compare(actual, condition.condition, target, ctx.price)
   }
 
-  private getIndicatorValue(condition: SignalCondition, ctx: EvalContext): number {
+  private getIndicatorValue(condition: SignalCondition, ctx: EvalContext): number | null {
     const { indicator, params } = condition
     const { price, candles } = ctx
 
@@ -228,11 +229,11 @@ export class StrategyChecker {
         const macd = IndicatorCalculator.calculateMACD(
           candles, params.fast ?? 12, params.slow ?? 26, params.signal ?? 9,
         )
-        return macd.macd
+        return macd?.macd ?? null
       }
       case "BOLLINGER": {
         const bb = IndicatorCalculator.calculateBollinger(candles, params.period ?? 20, params.stdDev ?? 2)
-        return bb.upper
+        return bb?.upper ?? null
       }
       case "VOLUME": {
         const avgVol = IndicatorCalculator.getAverageVolume(candles, params.period ?? 20)
@@ -250,7 +251,7 @@ export class StrategyChecker {
         return levels.resistances.filter((r) => r >= price).sort((a, b) => a - b)[0] ?? Infinity
       }
       default:
-        return 0
+        return null
     }
   }
 
