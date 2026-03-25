@@ -19,8 +19,8 @@ export type IndicatorConfig = {
 export const INDICATORS: IndicatorConfig[] = [
   {
     type: "SMA",
-    label: "Simple Moving Average",
-    description: "Average price over N periods",
+    label: "SMA (скользящая средняя)",
+    description: "Среднее значение цены за N свечей. Помогает определить тренд",
     params: [
       { name: "period", label: "Period", defaultValue: 20, min: 2, max: 500 },
     ],
@@ -28,8 +28,8 @@ export const INDICATORS: IndicatorConfig[] = [
   },
   {
     type: "EMA",
-    label: "Exponential Moving Average",
-    description: "Weighted average giving more weight to recent prices",
+    label: "EMA (экспон. средняя)",
+    description: "Скользящая средняя с акцентом на последние цены. Быстрее реагирует на изменения",
     params: [
       { name: "period", label: "Period", defaultValue: 12, min: 2, max: 500 },
     ],
@@ -37,8 +37,8 @@ export const INDICATORS: IndicatorConfig[] = [
   },
   {
     type: "RSI",
-    label: "Relative Strength Index",
-    description: "Momentum oscillator (0-100)",
+    label: "RSI (индекс силы)",
+    description: "Осциллятор 0-100. Выше 70 = перекупленность, ниже 30 = перепроданность",
     params: [
       { name: "period", label: "Period", defaultValue: 14, min: 2, max: 100 },
     ],
@@ -47,7 +47,7 @@ export const INDICATORS: IndicatorConfig[] = [
   {
     type: "MACD",
     label: "MACD",
-    description: "Trend-following momentum indicator",
+    description: "Индикатор тренда и импульса. Пересечение сигнальной линии = сигнал к действию",
     params: [
       { name: "fastPeriod", label: "Fast Period", defaultValue: 12, min: 2, max: 100 },
       { name: "slowPeriod", label: "Slow Period", defaultValue: 26, min: 2, max: 200 },
@@ -58,7 +58,7 @@ export const INDICATORS: IndicatorConfig[] = [
   {
     type: "BOLLINGER",
     label: "Bollinger Bands",
-    description: "Volatility bands around moving average",
+    description: "Полосы волатильности вокруг средней. Выход за полосу = возможный разворот",
     params: [
       { name: "period", label: "Period", defaultValue: 20, min: 2, max: 200 },
       { name: "stdDev", label: "Std Deviation", defaultValue: 2, min: 0.5, max: 5 },

@@ -141,19 +141,21 @@ export const ConditionBuilder = ({
         return (
           <div key={i}>
             {i > 0 && (
-              <div className="flex items-center justify-center py-2">
+              <div className="flex items-center justify-center py-2 gap-2">
+                <div className="h-px flex-1 bg-border" />
                 <Select
                   value={logicOperator}
                   onValueChange={(v) => onLogicChange(v as LogicOperator)}
                 >
-                  <SelectTrigger className="w-20 h-7 text-xs">
+                  <SelectTrigger className="w-24 h-7 text-xs font-medium">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="AND">И</SelectItem>
-                    <SelectItem value="OR">ИЛИ</SelectItem>
+                    <SelectItem value="AND">И (оба)</SelectItem>
+                    <SelectItem value="OR">ИЛИ (любое)</SelectItem>
                   </SelectContent>
                 </Select>
+                <div className="h-px flex-1 bg-border" />
               </div>
             )}
 
@@ -174,6 +176,10 @@ export const ConditionBuilder = ({
                   </Button>
                 )}
               </div>
+
+              {indicatorConfig && indicatorConfig.description && (
+                <p className="text-xs text-muted-foreground/70 -mt-1">{indicatorConfig.description}</p>
+              )}
 
               <div className="grid gap-3 sm:grid-cols-2">
                 <div className="space-y-1.5">
@@ -216,7 +222,7 @@ export const ConditionBuilder = ({
                 <div className="grid gap-3 sm:grid-cols-3">
                   {indicatorConfig.params.map((p) => (
                     <div key={p.name} className="space-y-1.5">
-                      <Label className="text-xs text-muted-foreground">{p.label}</Label>
+                      <Label className="text-xs text-muted-foreground">{p.label} ({p.min}–{p.max})</Label>
                       <Input
                         type="number"
                         step="any"
@@ -226,6 +232,7 @@ export const ConditionBuilder = ({
                         }
                         min={p.min}
                         max={p.max}
+                        placeholder={`По умолчанию: ${p.defaultValue}`}
                       />
                     </div>
                   ))}
