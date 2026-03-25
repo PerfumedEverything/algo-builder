@@ -14,6 +14,8 @@ type SignalDialogProps = {
   onOpenChange: (open: boolean) => void
   signal?: SignalRow
   onSuccess: () => void
+  initialContext?: string
+  initialInstrument?: string
 }
 
 export const SignalDialog = ({
@@ -21,6 +23,8 @@ export const SignalDialog = ({
   onOpenChange,
   signal,
   onSuccess,
+  initialContext,
+  initialInstrument,
 }: SignalDialogProps) => {
   const mode = signal ? "edit" : "create"
 
@@ -33,11 +37,18 @@ export const SignalDialog = ({
           </DialogTitle>
         </DialogHeader>
         <div className="px-6 pb-6 overflow-y-auto">
+          {initialContext && (
+            <div className="rounded-lg border bg-muted/50 p-3 text-sm mb-4">
+              <p className="font-medium mb-1">Контекст из анализа:</p>
+              <p className="text-muted-foreground line-clamp-4">{initialContext}</p>
+            </div>
+          )}
           <SignalForm
             mode={mode}
             signal={signal}
             onClose={() => onOpenChange(false)}
             onSuccess={onSuccess}
+            initialInstrument={initialInstrument}
           />
         </div>
       </DialogContent>

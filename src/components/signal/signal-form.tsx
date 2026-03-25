@@ -46,9 +46,10 @@ type SignalFormProps = {
   signal?: SignalRow
   onClose: () => void
   onSuccess: () => void
+  initialInstrument?: string
 }
 
-export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps) => {
+export const SignalForm = ({ mode, signal, onClose, onSuccess, initialInstrument }: SignalFormProps) => {
   const [currentPrice, setCurrentPrice] = useState<number | null>(null)
   const [telegramConnected, setTelegramConnected] = useState(true)
 
@@ -85,7 +86,7 @@ export const SignalForm = ({ mode, signal, onClose, onSuccess }: SignalFormProps
     defaultValues: {
       name: signal?.name ?? "",
       description: signal?.description ?? "",
-      instrument: signal?.instrument ?? "",
+      instrument: signal?.instrument ?? initialInstrument ?? "",
       instrumentType: (signal?.instrumentType as GeneralFormData["instrumentType"]) ?? "STOCK",
       timeframe: signal?.timeframe ?? "1d",
       signalType: (signal?.signalType as GeneralFormData["signalType"]) ?? "ALERT",

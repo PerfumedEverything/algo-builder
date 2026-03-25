@@ -16,8 +16,10 @@ import {
 type AiAnalysisButtonProps = {
   title: string
   triggerLabel?: string
+  triggerLabelMobile?: string
   triggerIcon?: React.ReactNode
   analyzeAction: () => Promise<{ success: boolean; data?: string; error?: string }>
+  onResult?: (result: string) => void
   variant?: "default" | "outline" | "ghost"
   size?: "default" | "sm" | "icon"
 }
@@ -25,8 +27,10 @@ type AiAnalysisButtonProps = {
 export const AiAnalysisButton = ({
   title,
   triggerLabel = "Анализ с ИИ",
+  triggerLabelMobile,
   triggerIcon = <Bot className="h-4 w-4" />,
   analyzeAction,
+  onResult,
   variant = "default",
   size = "sm",
 }: AiAnalysisButtonProps) => {
@@ -43,6 +47,7 @@ export const AiAnalysisButton = ({
     const res = await analyzeAction()
     if (res.success && res.data) {
       setResult(res.data)
+      onResult?.(res.data)
     } else {
       setError(res.error ?? "Ошибка анализа")
     }
@@ -65,7 +70,12 @@ export const AiAnalysisButton = ({
           className={variant === "default" ? "gap-1.5 bg-blue-600 hover:bg-blue-700 text-white" : "gap-1.5"}
         >
           {triggerIcon}
-          {triggerLabel}
+          {triggerLabelMobile ? (
+            <>
+              <span className="hidden sm:inline">{triggerLabel}</span>
+              <span className="sm:hidden">{triggerLabelMobile}</span>
+            </>
+          ) : triggerLabel}
         </Button>
       </DialogTrigger>
       <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">

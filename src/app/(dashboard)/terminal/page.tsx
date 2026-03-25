@@ -55,6 +55,7 @@ export default function TerminalPage() {
   const [operationsLoading, setOperationsLoading] = useState(false)
   const [strategyDialogOpen, setStrategyDialogOpen] = useState(false)
   const [signalDialogOpen, setSignalDialogOpen] = useState(false)
+  const [aiAnalysisResult, setAiAnalysisResult] = useState<string | null>(null)
 
   const prices = usePriceStream()
 
@@ -225,6 +226,7 @@ export default function TerminalPage() {
                 triggerLabel="Анализ с ИИ"
                 triggerLabelMobile="ИИ"
                 analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
+                onResult={(result) => setAiAnalysisResult(result)}
                 variant="default"
                 size="sm"
               />
@@ -303,11 +305,15 @@ export default function TerminalPage() {
         open={strategyDialogOpen}
         onOpenChange={setStrategyDialogOpen}
         onSuccess={() => setStrategyDialogOpen(false)}
+        initialContext={aiAnalysisResult ?? undefined}
+        initialInstrument={instrument?.ticker}
       />
       <SignalDialog
         open={signalDialogOpen}
         onOpenChange={setSignalDialogOpen}
         onSuccess={() => setSignalDialogOpen(false)}
+        initialContext={aiAnalysisResult ?? undefined}
+        initialInstrument={instrument?.ticker}
       />
     </div>
   )
