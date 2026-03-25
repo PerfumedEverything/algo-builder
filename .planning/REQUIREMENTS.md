@@ -41,8 +41,8 @@ Requirements for this milestone. Each maps to roadmap phases.
 
 ### MVP Polish
 
-- [ ] **POL-01**: Portfolio summary block — total portfolio value, debit/credit amounts, % growth/decline
-- [ ] **POL-02**: AI analysis buttons → blue background for visual consistency across all pages
+- [x] **POL-01**: Portfolio summary block — total portfolio value, debit/credit amounts, % growth/decline
+- [x] **POL-02**: AI analysis buttons → blue background for visual consistency across all pages
 - [x] **POL-03**: Signal actions apply cleanTicker — no @ suffix in saved signals
 - [x] **POL-04**: Terminal tab → second position in sidebar menu (after Dashboard)
 - [x] **POL-05**: Chart timeframes fix — 1D shows daily candles over weeks/months, not 1 day of data
@@ -50,7 +50,7 @@ Requirements for this milestone. Each maps to roadmap phases.
 - [x] **POL-07**: Strategy card: closed position shows only P&L result (not sum of all buys as "portfolio size")
 - [x] **POL-08**: Strategy card UX — clear labels, tooltips, readable condition display so users don't ask "what is this"
 - [x] **POL-09**: Terminal → Strategy/Signal actions — create strategy or signal for current instrument directly from terminal
-- [ ] **POL-10**: AI chat mode — free-form conversation instead of quiz for strategy creation/discussion
+- [x] **POL-10**: AI chat mode — free-form conversation instead of quiz for strategy creation/discussion
 
 ### UX Audit
 
@@ -155,8 +155,8 @@ Which phases cover which requirements. Updated during roadmap creation.
 | RISK-07 | Phase 2 | Pending |
 | RISK-08 | Phase 2 | Pending |
 | RISK-09 | Phase 2 | Pending |
-| POL-01 | Phase 3 | Pending |
-| POL-02 | Phase 3 | Pending |
+| POL-01 | Phase 3 | Complete |
+| POL-02 | Phase 3 | Complete |
 | POL-03 | Phase 3 | Complete |
 | POL-04 | Phase 3 | Complete |
 | POL-05 | Phase 3 | Complete |
@@ -164,7 +164,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | POL-07 | Phase 3 | Complete |
 | POL-08 | Phase 3 | Complete |
 | POL-09 | Phase 3 | Complete |
-| POL-10 | Phase 3 | Pending |
+| POL-10 | Phase 3 | Complete |
 | UXA-01 | Phase 3.1 | Pending |
 | UXA-02 | Phase 3.1 | Pending |
 | UXA-03 | Phase 3.1 | Pending |
