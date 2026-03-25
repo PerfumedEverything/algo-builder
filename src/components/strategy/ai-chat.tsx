@@ -13,6 +13,8 @@ import { chatStrategyAction } from "@/server/actions/strategy-actions"
 
 type AiChatProps = {
   onGenerated: (strategy: AiGeneratedStrategy) => void
+  onStrategyExtracted?: (strategy: AiGeneratedStrategy) => void
+  initialContext?: string
 }
 
 type ChatMessage = AiChatMessage & {
@@ -21,7 +23,17 @@ type ChatMessage = AiChatMessage & {
 
 const INITIAL_MESSAGE: ChatMessage = {
   role: "assistant",
-  content: "Привет! Давайте создадим торговую стратегию. Какой инструмент вас интересует? Например, акции Сбера, Газпрома или что-то другое?",
+  content: "Привет! Опишите свою торговую идею — какой инструмент, какая логика входа и выхода. Я помогу собрать из неё стратегию. Можете описать подробно или начать с общей идеи — я уточню детали.",
+}
+
+const getInitialMessages = (initialContext?: string): ChatMessage[] => {
+  if (initialContext) {
+    return [
+      { role: "assistant", content: `Анализ из терминала:\n\n${initialContext}` },
+      { role: "assistant", content: "На основе этого анализа я могу создать стратегию. Опишите, какую стратегию хотите — или я предложу варианты на основе анализа." },
+    ]
+  }
+  return [INITIAL_MESSAGE]
 }
 
 const QUICK_REPLIES = [
@@ -73,8 +85,8 @@ const StrategyPreview = ({
   )
 }
 
-export const AiChat = ({ onGenerated }: AiChatProps) => {
-  const [messages, setMessages] = useState<ChatMessage[]>([INITIAL_MESSAGE])
+export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext }: AiChatProps) => {
+  const [messages, setMessages] = useState<ChatMessage[]>(() => getInitialMessages(initialContext))
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [applied, setApplied] = useState(false)
@@ -111,6 +123,9 @@ export const AiChat = ({ onGenerated }: AiChatProps) => {
           role: "assistant",
           content: result.data.message,
           strategy: result.data.strategy,
+        }
+        if (result.data.strategy) {
+          onStrategyExtracted?.(result.data.strategy)
         }
         setMessages([...newMessages, assistantMsg])
       } else {

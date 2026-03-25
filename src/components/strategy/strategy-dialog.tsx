@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { ChevronDown } from "lucide-react"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
 import type { AiGeneratedStrategy } from "@/core/types"
@@ -12,12 +12,15 @@ import {
 } from "@/components/ui/dialog"
 import { AiChat } from "./ai-chat"
 import { StrategyForm, type StrategyFormHandle } from "./strategy-form"
+import { StrategyPreviewPanel } from "./strategy-preview-panel"
 
 type StrategyDialogProps = {
   open: boolean
   onOpenChange: (open: boolean) => void
   strategy?: StrategyRow
   onSuccess: () => void
+  initialContext?: string
+  initialInstrument?: string
 }
 
 export const StrategyDialog = ({
@@ -25,15 +28,24 @@ export const StrategyDialog = ({
   onOpenChange,
   strategy,
   onSuccess,
+  initialContext,
+  initialInstrument,
 }: StrategyDialogProps) => {
   const mode = strategy ? "edit" : "create"
   const formRef = useRef<StrategyFormHandle>(null)
   const [showForm, setShowForm] = useState(false)
+  const [extractedStrategy, setExtractedStrategy] = useState<AiGeneratedStrategy | null>(null)
+
+  useEffect(() => {
+    if (open) {
+      setExtractedStrategy(null)
+    }
+  }, [open])
 
   const handleGenerated = (data: AiGeneratedStrategy) => {
     formRef.current?.setGeneralFields({
       name: data.name,
-      instrument: data.instrument,
+      instrument: initialInstrument ?? data.instrument,
       instrumentType: data.instrumentType,
       timeframe: data.timeframe,
       description: data.description,
@@ -52,7 +64,12 @@ export const StrategyDialog = ({
         <div className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 overflow-y-auto">
           {mode === "create" && !showForm && (
             <>
-              <AiChat onGenerated={handleGenerated} />
+              <AiChat
+                onGenerated={handleGenerated}
+                onStrategyExtracted={setExtractedStrategy}
+                initialContext={initialContext}
+              />
+              {extractedStrategy && <StrategyPreviewPanel strategy={extractedStrategy} />}
               <button
                 type="button"
                 onClick={() => setShowForm(true)}
