@@ -211,18 +211,19 @@ export default function TerminalPage() {
         <div className="flex-1" />
         {instrument && (
           <div className="flex items-center gap-2">
-            <Button size="sm" variant="outline" onClick={() => setStrategyDialogOpen(true)}>
-              <Plus className="h-3.5 w-3.5 mr-1.5" />
-              Создать стратегию
+            <Button size="sm" variant="outline" onClick={() => setStrategyDialogOpen(true)} title="Создать стратегию">
+              <Plus className="h-3.5 w-3.5 sm:mr-1.5" />
+              <span className="hidden sm:inline">Создать стратегию</span>
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setSignalDialogOpen(true)}>
-              <Bell className="h-3.5 w-3.5 mr-1.5" />
-              Создать сигнал
+            <Button size="sm" variant="outline" onClick={() => setSignalDialogOpen(true)} title="Создать сигнал">
+              <Bell className="h-3.5 w-3.5 sm:mr-1.5" />
+              <span className="hidden sm:inline">Создать сигнал</span>
             </Button>
             {candles.length > 0 && (
               <AiAnalysisButton
                 title={`Тех. анализ ${instrument.ticker}`}
                 triggerLabel="Анализ с ИИ"
+                triggerLabelMobile="ИИ"
                 analyzeAction={() => analyzeWithAiAction("chart", buildChartMessage())}
                 variant="default"
                 size="sm"
