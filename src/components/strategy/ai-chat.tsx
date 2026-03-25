@@ -206,7 +206,7 @@ export const AiChat = ({ onGenerated }: AiChatProps) => {
         />
         <Button
           size="icon"
-          onClick={handleSend}
+          onClick={() => handleSend()}
           disabled={!input.trim() || loading}
           className="shrink-0"
         >
