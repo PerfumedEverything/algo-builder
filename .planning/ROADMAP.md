@@ -74,6 +74,24 @@ Plans:
 - [x] 02.1-02-PLAN.md — PositionsPanel, TradeHistoryPanel, terminal page assembly per wireframe
 **UI hint**: yes
 
+### Phase 2.2: Strategy Pipeline Fix (INSERTED CRITICAL)
+**Goal**: All 16 bugs in strategy/signal checker pipeline are fixed so automated strategies work reliably with any condition type
+**Depends on**: Phase 1 (MOEX provider, candle infrastructure)
+**Requirements**: STFIX-01, STFIX-02, STFIX-03, STFIX-04, STFIX-05, STFIX-06, STFIX-07, STFIX-08, STFIX-09, STFIX-10
+**Success Criteria** (what must be TRUE):
+  1. CROSSES_ABOVE/CROSSES_BELOW triggers only on actual value crossing (not simple comparison)
+  2. All indicators return null (not 0) when insufficient candle data — callers skip evaluation
+  3. Race conditions in signal triggerCount and strategy positionState are eliminated via atomic operations
+  4. Operation recording failures roll back state changes
+  5. Redis-based dedup lock prevents concurrent cron+realtime double-checks
+  6. Unit tests cover every fixed bug scenario
+**Plans:** 3 plans
+Plans:
+- [ ] 02.2-01-PLAN.md — IndicatorCalculator null-safety + DB migrations
+- [ ] 02.2-02-PLAN.md — Strategy checker fixes (CROSSES, atomic guard, rollback, Redis lock)
+- [ ] 02.2-03-PLAN.md — Signal checker fixes (CROSSES, null-safety, Redis lock)
+**UI hint**: no
+
 ### Phase 3: Fundamentals
 **Goal**: Users can evaluate the fundamental value of each position in their portfolio with a composite score
 **Depends on**: Phase 1 (MOEXProvider for MOEX ISS fundamentals data)
@@ -110,13 +128,14 @@ Plans:
 ## Progress
 
 **Execution Order:**
-Phases execute in numeric order: 1 -> 2 -> 2.1 -> 3 -> 4 -> 5
+Phases execute in numeric order: 1 -> 2 -> 2.1 -> 2.2 -> 3 -> 4 -> 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Infrastructure & Terminal | 5/5 | Complete | 2026-03-23 |
 | 2. Risk Metrics | 3/3 | Complete   | 2026-03-24 |
-| 2.1 Terminal v2 (REPLANNED) | 0/2 | In progress | - |
+| 2.1 Terminal v2 (REPLANNED) | 2/2 | Complete | 2026-03-24 |
+| 2.2 Strategy Pipeline Fix (CRITICAL) | 0/3 | Not started | - |
 | 3. Fundamentals | 0/TBD | Not started | - |
 | 4. Diversification Analysis | 0/TBD | Not started | - |
 | 5. Portfolio Optimization | 0/TBD | Not started | - |
