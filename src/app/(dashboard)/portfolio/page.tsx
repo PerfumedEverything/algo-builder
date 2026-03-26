@@ -27,6 +27,10 @@ import { CorrelationHeatmap } from "@/components/portfolio/correlation-heatmap"
 import { SectorDonut } from "@/components/portfolio/sector-donut"
 import { AssetTypeChart } from "@/components/portfolio/asset-type-chart"
 import { TradeSuccessChart } from "@/components/portfolio/trade-success-chart"
+import { ConcentrationCard } from "@/components/portfolio/concentration-card"
+import { BenchmarkCard } from "@/components/portfolio/benchmark-card"
+import { DividendYieldCard } from "@/components/portfolio/dividend-yield-card"
+import { InstrumentPnlTable } from "@/components/portfolio/instrument-pnl-table"
 import type { Portfolio, CorrelationMatrix, PortfolioAnalytics } from "@/core/types"
 
 export default function PortfolioPage() {
@@ -38,6 +42,7 @@ export default function PortfolioPage() {
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [correlationMatrix, setCorrelationMatrix] = useState<CorrelationMatrix | null>(null)
   const [portfolioAnalytics, setPortfolioAnalytics] = useState<PortfolioAnalytics | null>(null)
+  const [correlationPeriod, setCorrelationPeriod] = useState(90)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -67,7 +72,7 @@ export default function PortfolioPage() {
     setAnalyticsLoading(true)
     try {
       const [corrRes, analyticsRes] = await Promise.all([
-        getCorrelationMatrixAction(),
+        getCorrelationMatrixAction(correlationPeriod),
         getPortfolioAnalyticsAction(),
       ])
       if (corrRes.success && corrRes.data) {
@@ -76,6 +81,17 @@ export default function PortfolioPage() {
       if (analyticsRes.success && analyticsRes.data) {
         setPortfolioAnalytics(analyticsRes.data)
       }
+    } finally {
+      setAnalyticsLoading(false)
+    }
+  }, [correlationPeriod])
+
+  const handleCorrelationPeriodChange = useCallback(async (days: number) => {
+    setCorrelationPeriod(days)
+    setAnalyticsLoading(true)
+    try {
+      const res = await getCorrelationMatrixAction(days)
+      if (res.success && res.data) setCorrelationMatrix(res.data)
     } finally {
       setAnalyticsLoading(false)
     }
@@ -164,16 +180,31 @@ export default function PortfolioPage() {
         </TabsContent>
 
         {connected && (
-          <TabsContent value="analytics" className="mt-4">
+          <TabsContent value="analytics" className="mt-4 space-y-4">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <ConcentrationCard
+                data={portfolioAnalytics?.concentration ?? { hhi: 0, level: "diversified", dominantPositions: [] }}
+                loading={analyticsLoading}
+              />
+              <BenchmarkCard
+                data={portfolioAnalytics?.benchmarkComparison ?? null}
+                loading={analyticsLoading}
+              />
+              <DividendYieldCard
+                data={portfolioAnalytics?.aggregateDividendYield ?? { weightedYield: 0, positionYields: [] }}
+                loading={analyticsLoading}
+              />
+            </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div className="lg:col-span-1">
-                <h3 className="mb-2 text-sm font-semibold">Корреляционная матрица</h3>
+              <div>
                 <CorrelationHeatmap
                   matrix={correlationMatrix ?? { tickers: [], matrix: [], highPairs: [] }}
                   loading={analyticsLoading}
+                  period={correlationPeriod}
+                  onPeriodChange={handleCorrelationPeriodChange}
                 />
               </div>
-              <div className="flex flex-col gap-4 lg:col-span-1">
+              <div className="flex flex-col gap-4">
                 <SectorDonut
                   data={portfolioAnalytics?.sectorAllocation ?? []}
                   loading={analyticsLoading}
@@ -183,12 +214,16 @@ export default function PortfolioPage() {
                   loading={analyticsLoading}
                 />
               </div>
-              <div className="lg:col-span-2">
-                <TradeSuccessChart
-                  data={portfolioAnalytics?.tradeSuccessBreakdown ?? { profitable: { count: 0, totalPnl: 0 }, unprofitable: { count: 0, totalPnl: 0 }, breakEven: { count: 0 }, byInstrument: [] }}
-                  loading={analyticsLoading}
-                />
-              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <TradeSuccessChart
+                data={portfolioAnalytics?.tradeSuccessBreakdown ?? { profitable: { count: 0, totalPnl: 0 }, unprofitable: { count: 0, totalPnl: 0 }, breakEven: { count: 0 }, byInstrument: [] }}
+                loading={analyticsLoading}
+              />
+              <InstrumentPnlTable
+                data={portfolioAnalytics?.tradeSuccessBreakdown?.byInstrument ?? []}
+                loading={analyticsLoading}
+              />
             </div>
           </TabsContent>
         )}

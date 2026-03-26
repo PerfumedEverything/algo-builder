@@ -1,7 +1,7 @@
 "use client"
 
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts"
-import { TrendingUp, TrendingDown } from "lucide-react"
+import { TrendingUp, TrendingDown, Minus } from "lucide-react"
 import type { TradeSuccessBreakdown } from "@/core/types"
 
 type TradeSuccessChartProps = {
@@ -21,8 +21,8 @@ export const TradeSuccessChart = ({ data, loading }: TradeSuccessChartProps) => 
     )
   }
 
-  const { profitable, unprofitable } = data
-  const total = profitable.count + unprofitable.count
+  const { profitable, unprofitable, breakEven } = data
+  const total = profitable.count + unprofitable.count + breakEven.count
 
   if (!total) {
     return (
@@ -35,6 +35,7 @@ export const TradeSuccessChart = ({ data, loading }: TradeSuccessChartProps) => 
   const chartData = [
     { name: "Прибыльные", value: profitable.count, color: "#10b981" },
     { name: "Убыточные", value: unprofitable.count, color: "#ef4444" },
+    ...(breakEven.count > 0 ? [{ name: "Безубыточные", value: breakEven.count, color: "#94a3b8" }] : []),
   ]
 
   return (
@@ -77,6 +78,15 @@ export const TradeSuccessChart = ({ data, loading }: TradeSuccessChartProps) => 
               <p className="text-xs text-red-500 font-medium">{formatRub(unprofitable.totalPnl)}</p>
             </div>
           </div>
+          {breakEven.count > 0 && (
+            <div className="flex items-start gap-2 rounded-lg bg-muted/50 p-3">
+              <Minus className="mt-0.5 h-4 w-4 text-muted-foreground" />
+              <div>
+                <p className="text-xs text-muted-foreground">Безубыточные</p>
+                <p className="text-sm font-semibold">{breakEven.count} сделок</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
