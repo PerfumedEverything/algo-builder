@@ -167,10 +167,10 @@ Plans:
   3. User can rerun/redo AI analysis from within the analysis dialog
   4. Action buttons in analysis dialog do not overflow on mobile viewports
   5. Transition from analysis result to strategy creation feels seamless (not bolted-on)
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 04.1-01-PLAN.md — AiWizardDialog + WizardStepIndicator components (3-step wizard)
-- [ ] 04.1-02-PLAN.md — Wire wizard into terminal page + visual verification
+- [x] 04.1-02-PLAN.md — Wire wizard into terminal page + AI context fix + visual verification
 **UI hint**: yes
 
 ### Phase 5: Terminal Top Movers
@@ -209,11 +209,28 @@ Plans:
 **Plans**: TBD
 **UI hint**: yes
 
+### Phase 8: AI Assistant Deep Upgrade
+**Goal**: Transform AI assistant from basic prompt-response into intelligent trading advisor with thinking mode, rich context, streaming, and portfolio awareness
+**Depends on**: Phase 4.1 (wizard flow), Phase 6 (portfolio analytics for correlation data)
+**Requirements**: AIUP-01, AIUP-02, AIUP-03, AIUP-04, AIUP-05, AIUP-06, AIUP-07, AIUP-08, AIUP-09
+**Success Criteria** (what must be TRUE):
+  1. AI uses thinking/reasoning step before responding — produces deeper, more contextual analysis
+  2. AI receives volume, order book data, and current positions alongside OHLC candles
+  3. AI can analyze senior timeframe for multi-timeframe confirmation
+  4. After AI proposes strategies, user sees quick action buttons ("Create this", "Show others", "Change risks")
+  5. AI responses stream character by character (not wait for full response)
+  6. AI sees current portfolio positions and warns about concentration/correlation risks
+  7. AI has access to fundamental data (P/E, dividends) when discussing instruments
+  8. After strategy creation, user sees a backtest preview on historical data
+  9. User can continue conversation after strategy creation ("now make one for GAZP")
+**Plans**: TBD
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
 v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
-v1.1: 4 → 4.1 → 5 → 6 → 7
+v1.1: 4 → 4.1 → 5 → 6 → 7 → 8
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -225,7 +242,9 @@ v1.1: 4 → 4.1 → 5 → 6 → 7
 | 3. MVP Polish + Fundamentals | v1.0 | 5/5 | Complete | 2026-03-25 |
 | 3.1 UX Audit (INSERTED) | v1.0 | 0/TBD | Complete | 2026-03-25 |
 | 4. AI Revolution | v1.1 | 3/3 | Complete | 2026-03-25 |
-| 4.1 AI UX Polish (INSERTED) | v1.1 | 1/2 | In Progress|  |
+| 4.1 AI UX Polish (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 5. Terminal Top Movers | v1.1 | 0/TBD | Not started | - |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 0/TBD | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
+| 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
+

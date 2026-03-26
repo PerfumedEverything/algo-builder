@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
-status: Ready to execute
-stopped_at: 04.1-02 Task 1 complete — awaiting human-verify checkpoint at Task 2
-last_updated: "2026-03-25T21:33:21.805Z"
+status: Phase 4.1 complete, advancing to Phase 5
+stopped_at: Phase 4.1 complete — moving to Phase 5 Terminal Top Movers
+last_updated: "2026-03-26T11:00:00Z"
 progress:
-  total_phases: 9
-  completed_phases: 6
-  total_plans: 26
-  completed_plans: 22
+  total_phases: 10
+  completed_phases: 7
+  total_plans: 27
+  completed_plans: 24
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 04.1 — ai-ux-polish
+**Current focus:** Phase 05 — terminal-top-movers
 
 ## Current Position
 
-Phase: 04.1 (ai-ux-polish) — EXECUTING
-Plan: 2 of 2
+Phase: 05 (terminal-top-movers) — READY TO PLAN
+Plan: 0 of TBD
 
 ## Performance Metrics
 
@@ -60,6 +60,10 @@ Plan: 2 of 2
 - [Phase 4.1]: Insert phase instead of micro-fixes — batch polish properly
 - [Phase 04.1]: Use hidden class for wizard step panels to prevent AiChat remounting
 - [Phase 04.1]: AiWizardDialog resets all state on open via useEffect([open])
+
+### Roadmap Evolution
+
+- Phase 8 added: AI Assistant Deep Upgrade (thinking mode, rich context, streaming, portfolio awareness, backtest)
 
 ### Pending Todos
 
