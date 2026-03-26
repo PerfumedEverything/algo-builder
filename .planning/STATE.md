@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Phase complete — ready for verification
-stopped_at: Completed 07-02-PLAN.md
-last_updated: "2026-03-26T20:13:37.319Z"
+stopped_at: Completed 07.1-02-PLAN.md
+last_updated: "2026-03-26T21:18:09.229Z"
 progress:
-  total_phases: 16
-  completed_phases: 12
-  total_plans: 37
-  completed_plans: 33
+  total_phases: 17
+  completed_phases: 13
+  total_plans: 39
+  completed_plans: 35
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 07 — portfolio-optimization
+**Current focus:** Phase 07.1 — analytics-polish-data-integrity
 
 ## Current Position
 
-Phase: 07 (portfolio-optimization) — EXECUTING
+Phase: 07.1 (analytics-polish-data-integrity) — EXECUTING
 Plan: 2 of 2
 
 ## Performance Metrics
@@ -53,6 +53,8 @@ Plan: 2 of 2
 | Phase 06.2 P02 | 5 | 2 tasks | 4 files |
 | Phase 07 P01 | 4 | 1 tasks | 3 files |
 | Phase 07 P02 | 10 | 2 tasks | 5 files |
+| Phase 07.1 P01 | 5 | 2 tasks | 7 files |
+| Phase 07.1 P02 | 372 | 2 tasks | 10 files |
 
 ## Accumulated Context
 
@@ -89,6 +91,10 @@ Plan: 2 of 2
 - [Phase 06.2]: Hide parent grid wrapper when both PositionsPanel and TradeHistoryPanel are empty
 - [Phase 07]: RF rate 0.16 (CBR key rate) for Sharpe, 10k Monte Carlo iterations, multi-pass concentration cap at 0.4
 - [Phase 07]: Shared color palette across both donuts; HOLD actions filtered from rebalancing display; AI context assembles all analytics into single prompt
+- [Phase 07.1]: PortfolioHealthService uses static pure methods; Markowitz types kept as deprecated stubs for Plan 02 cleanup
+- [Phase 07.1]: Promise.allSettled for per-metric error isolation in analytics actions
+- [Phase 07.1]: PortfolioHealthService imported client-side (pure data deps, no server-only)
+- [Phase 07.1]: Health score card replaces Markowitz donuts in analytics tab first position
 
 ### Roadmap Evolution
 
@@ -111,7 +117,7 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-26T20:13:37.315Z
-Stopped at: Completed 07-02-PLAN.md
+Last session: 2026-03-26T21:18:09.225Z
+Stopped at: Completed 07.1-02-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2

@@ -287,8 +287,8 @@ Plans:
   7. Unit tests cover health score calculation, diversification rules, benchmark comparison
 **Plans**: 2 plans
 Plans:
-- [ ] 07.1-01-PLAN.md — Types + constants + PortfolioHealthService + unit tests
-- [ ] 07.1-02-PLAN.md — Server actions + AI prompt + UI components + portfolio page rewire
+- [x] 07.1-01-PLAN.md — Types + constants + PortfolioHealthService + unit tests
+- [x] 07.1-02-PLAN.md — Server actions + AI prompt + UI components + portfolio page rewire
 **UI hint**: yes
 
 ### Phase 8: AI Assistant Deep Upgrade
