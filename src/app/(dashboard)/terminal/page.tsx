@@ -18,7 +18,6 @@ import { getCandlesForChartAction, getTradeMarkersAction, type ChartMarker } fro
 import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
 import { getPortfolioAction } from "@/server/actions/broker-actions"
 import { getOrderBookAction, getOperationsByTickerAction, getTopMoversAction } from "@/server/actions/terminal-actions"
-import { getInstrumentsAction } from "@/server/actions/broker-actions"
 import { TopMoversPanel } from "@/components/terminal/top-movers-panel"
 import { isMarketOpen } from "@/lib/market-hours"
 import { usePriceStream } from "@/hooks/use-price-stream"
@@ -169,11 +168,16 @@ export default function TerminalPage() {
     setOperations([])
   }, [])
 
-  const handleQuickSelect = useCallback(async (t: string) => {
-    const res = await getInstrumentsAction("STOCK")
-    if (!res.success) return
-    const found = res.data.find((i) => i.ticker.toUpperCase() === t.toUpperCase())
-    if (found) handleInstrumentSelect(found)
+  const handleQuickSelect = useCallback((t: string) => {
+    const inst: BrokerInstrument = {
+      figi: "",
+      ticker: t,
+      name: t,
+      type: "STOCK",
+      currency: "rub",
+      lot: 1,
+    }
+    handleInstrumentSelect(inst)
   }, [handleInstrumentSelect])
 
   const handlePositionSelect = useCallback(
