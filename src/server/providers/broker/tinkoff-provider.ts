@@ -292,7 +292,7 @@ export class TinkoffProvider implements BrokerProvider {
     const { lastPrices } = await client.marketdata.getLastPrices({
       figi: [],
       instrumentId: [resolvedId],
-      lastPriceType: LastPriceType.LAST_PRICE_EXCHANGE,
+      lastPriceType: LastPriceType.LAST_PRICE_DEALER,
     })
 
     if (!lastPrices.length || !lastPrices[0].price) {
@@ -308,13 +308,19 @@ export class TinkoffProvider implements BrokerProvider {
       query: ticker.toUpperCase(),
     })
 
+    const upperTicker = ticker.toUpperCase()
+    const exact = instruments.filter((i) => i.ticker.toUpperCase() === upperTicker)
+
+    const PREFERRED_CLASS_CODES = ["TQBR", "TQTF", "TQOB", "TQCB", "TQIF"]
+
     const match =
-      instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.classCode === "TQBR") ??
-      instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.instrumentKind === 1)
+      exact.find((i) => PREFERRED_CLASS_CODES.includes(i.classCode) && i.apiTradeAvailableFlag) ??
+      exact.find((i) => PREFERRED_CLASS_CODES.includes(i.classCode)) ??
+      exact.find((i) => i.apiTradeAvailableFlag) ??
+      exact[0] ??
+      instruments[0]
 
     if (match) return match.uid
-
-    if (instruments.length > 0) return instruments[0].uid
 
     throw new Error(`Инструмент "${ticker}" не найден`)
   }

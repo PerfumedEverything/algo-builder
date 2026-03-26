@@ -58,6 +58,8 @@ async function getActiveInstruments(): Promise<string[]> {
   return [...instruments]
 }
 
+const PREFERRED_CLASS_CODES = ["TQBR", "TQTF", "TQOB", "TQCB", "TQIF"]
+
 async function resolveTickerToUid(ticker: string): Promise<string> {
   if (ticker.includes("-") && ticker.length > 20) return ticker
 
@@ -65,12 +67,17 @@ async function resolveTickerToUid(ticker: string): Promise<string> {
     query: ticker.toUpperCase(),
   })
 
+  const upperTicker = ticker.toUpperCase()
+  const exact = instruments.filter((i) => i.ticker.toUpperCase() === upperTicker)
+
   const match =
-    instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.classCode === "TQBR") ??
-    instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase() && i.instrumentKind === 1)
+    exact.find((i) => PREFERRED_CLASS_CODES.includes(i.classCode) && i.apiTradeAvailableFlag) ??
+    exact.find((i) => PREFERRED_CLASS_CODES.includes(i.classCode)) ??
+    exact.find((i) => i.apiTradeAvailableFlag) ??
+    exact[0] ??
+    instruments[0]
 
   if (match) return match.uid
-  if (instruments.length > 0) return instruments[0].uid
   throw new Error(`Instrument "${ticker}" not found`)
 }
 
@@ -83,9 +90,14 @@ async function resolveAll(tickers: string[]): Promise<Map<string, string>> {
       try {
         const apiQuery = stripTickerSuffix(ticker)
         const { instruments } = await api.instruments.findInstrument({ query: apiQuery.toUpperCase() })
+        const upperQuery = apiQuery.toUpperCase()
+        const exact = instruments.filter((i) => stripTickerSuffix(i.ticker).toUpperCase() === upperQuery)
+
         const match =
-          instruments.find((i) => stripTickerSuffix(i.ticker).toUpperCase() === apiQuery.toUpperCase() && i.classCode === "TQBR") ??
-          instruments.find((i) => stripTickerSuffix(i.ticker).toUpperCase() === apiQuery.toUpperCase() && i.instrumentKind === 1) ??
+          exact.find((i) => PREFERRED_CLASS_CODES.includes(i.classCode) && i.apiTradeAvailableFlag) ??
+          exact.find((i) => PREFERRED_CLASS_CODES.includes(i.classCode)) ??
+          exact.find((i) => i.apiTradeAvailableFlag) ??
+          exact[0] ??
           instruments[0]
 
         if (match) {
