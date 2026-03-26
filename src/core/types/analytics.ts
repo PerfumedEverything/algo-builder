@@ -79,6 +79,7 @@ export type PortfolioAnalytics = {
   aggregateDividendYield: AggregateDividendYield
 }
 
+/** @deprecated Temporary placeholder — removed in Plan 02 */
 export type MarkowitzWeights = {
   ticker: string
   currentWeight: number
@@ -86,6 +87,7 @@ export type MarkowitzWeights = {
   currentValue: number
 }[]
 
+/** @deprecated Temporary placeholder — removed in Plan 02 */
 export type RebalancingAction = {
   ticker: string
   action: "BUY" | "SELL" | "HOLD"
@@ -93,6 +95,7 @@ export type RebalancingAction = {
   valueRub: number
 }
 
+/** @deprecated Temporary placeholder — removed in Plan 02 */
 export type MarkowitzResult = {
   weights: MarkowitzWeights
   rebalancingActions: RebalancingAction[]
@@ -100,4 +103,41 @@ export type MarkowitzResult = {
   expectedVolatility: number
   sharpe: number
   insufficientData: boolean
+}
+
+export type HealthScoreLevel = "excellent" | "good" | "warning" | "danger" | "insufficient_data"
+
+export type HealthSubScore = {
+  score: number
+  details: string[]
+}
+
+export type HealthScore = {
+  total: number
+  level: HealthScoreLevel
+  diversification: HealthSubScore
+  risk: HealthSubScore
+  performance: HealthSubScore
+}
+
+export type DiversificationAdvice = {
+  level: "success" | "warning" | "danger"
+  icon: "check" | "alert-triangle" | "x-circle"
+  text: string
+}
+
+export type CorrelationWarning = {
+  tickers: [string, string]
+  corr: number
+  text: string
+  isPositive: boolean
+}
+
+export type BenchmarkVerdict = "beats_market" | "beats_deposit" | "loses_to_deposit"
+
+export type EnhancedBenchmarkComparison = BenchmarkComparison & {
+  depositRateForPeriod: number
+  depositDelta: number
+  verdict: BenchmarkVerdict
+  verdictText: string
 }
