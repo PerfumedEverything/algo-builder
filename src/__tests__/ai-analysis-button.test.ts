@@ -7,8 +7,8 @@ const EXPECTED_BLOCKS: AiAnalysisBlock[] = [
   "chart",
   "risk",
   "fundamental",
-  "optimization",
   "portfolio",
+  "fullPortfolio",
 ]
 
 describe("AI_PROMPTS config", () => {

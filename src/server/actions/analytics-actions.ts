@@ -1,10 +1,18 @@
 "use server"
 
-import type { ApiResponse, MOEXCandle, DividendData, CorrelationMatrix, PortfolioAnalytics, MarkowitzResult } from "@/core/types"
+import type {
+  ApiResponse,
+  MOEXCandle,
+  DividendData,
+  CorrelationMatrix,
+  PortfolioAnalytics,
+  HealthScore,
+} from "@/core/types"
 import { successResponse, errorResponse } from "@/core/types"
 import { MOEXProvider } from "@/server/providers/analytics"
 import { BrokerService } from "@/server/services/broker-service"
 import { PortfolioAnalyticsService } from "@/server/services/portfolio-analytics-service"
+import { PortfolioHealthService } from "@/server/services/portfolio-health-service"
 import { getCurrentUserId } from "./helpers"
 import { analyzeWithAiAction } from "./ai-analysis-actions"
 
@@ -53,7 +61,7 @@ export const getPortfolioAnalyticsAction = async (): Promise<ApiResponse<Portfol
     const portfolio = await brokerService.getPortfolio(userId)
     const positions = portfolio?.positions ?? []
 
-    const [sectorAllocation, assetTypeBreakdown, tradeSuccessBreakdown, benchmarkComparison, aggregateDividendYield] = await Promise.all([
+    const results = await Promise.allSettled([
       Promise.resolve(analyticsService.getSectorAllocation(positions)),
       Promise.resolve(analyticsService.getAssetTypeBreakdown(positions)),
       analyticsService.getTradeSuccessBreakdown(userId),
@@ -61,19 +69,58 @@ export const getPortfolioAnalyticsAction = async (): Promise<ApiResponse<Portfol
       analyticsService.getAggregateDividendYield(positions),
     ])
 
+    const sectorAllocation = results[0].status === "fulfilled" ? results[0].value : []
+    const assetTypeBreakdown = results[1].status === "fulfilled" ? results[1].value : []
+    const tradeSuccessBreakdown = results[2].status === "fulfilled"
+      ? results[2].value
+      : { profitable: { count: 0, totalPnl: 0 }, unprofitable: { count: 0, totalPnl: 0 }, breakEven: { count: 0 }, byInstrument: [] }
+    const benchmarkComparison = results[3].status === "fulfilled" ? results[3].value : null
+    const aggregateDividendYield = results[4].status === "fulfilled"
+      ? results[4].value
+      : { weightedYield: 0, positionYields: [] }
+
     const concentration = analyticsService.getConcentrationIndex(positions)
 
-    return successResponse({ sectorAllocation, assetTypeBreakdown, tradeSuccessBreakdown, concentration, benchmarkComparison, aggregateDividendYield })
+    return successResponse({
+      sectorAllocation,
+      assetTypeBreakdown,
+      tradeSuccessBreakdown,
+      concentration,
+      benchmarkComparison,
+      aggregateDividendYield,
+    })
   } catch (e) {
     return errorResponse((e as Error).message)
   }
 }
 
-export const getMarkowitzOptimizationAction = async (): Promise<ApiResponse<MarkowitzResult | null>> => {
+export const getHealthScoreAction = async (): Promise<ApiResponse<HealthScore>> => {
   try {
     const userId = await getCurrentUserId()
-    const result = await analyticsService.getMarkowitzOptimization(userId)
-    return successResponse(result)
+    const portfolio = await brokerService.getPortfolio(userId)
+    const positions = portfolio?.positions ?? []
+
+    const [analyticsRes, corrRes] = await Promise.allSettled([
+      getPortfolioAnalyticsAction(),
+      getCorrelationMatrixAction(),
+    ])
+
+    const analytics = analyticsRes.status === "fulfilled" && analyticsRes.value.success
+      ? analyticsRes.value.data
+      : null
+    const correlation = corrRes.status === "fulfilled" && corrRes.value.success
+      ? corrRes.value.data
+      : null
+
+    const healthScore = PortfolioHealthService.computeHealthScore({
+      concentration: analytics?.concentration ?? { hhi: 0, level: "diversified", dominantPositions: [] },
+      sectorAllocation: analytics?.sectorAllocation ?? [],
+      benchmark: analytics?.benchmarkComparison ?? null,
+      highCorrelationCount: correlation?.highPairs?.length ?? 0,
+      positionCount: positions.length,
+    })
+
+    return successResponse(healthScore)
   } catch (e) {
     return errorResponse((e as Error).message)
   }
@@ -85,61 +132,84 @@ export const getFullPortfolioAiAnalysisAction = async (): Promise<ApiResponse<st
     const portfolio = await brokerService.getPortfolio(userId)
     const positions = portfolio?.positions ?? []
 
-    const [analytics, correlation, optimization] = await Promise.all([
+    const [analyticsRes, corrRes] = await Promise.allSettled([
       getPortfolioAnalyticsAction(),
       getCorrelationMatrixAction(),
-      getMarkowitzOptimizationAction(),
     ])
+
+    const analytics = analyticsRes.status === "fulfilled" && analyticsRes.value.success
+      ? analyticsRes.value.data
+      : null
+    const correlation = corrRes.status === "fulfilled" && corrRes.value.success
+      ? corrRes.value.data
+      : null
+
+    const healthScore = PortfolioHealthService.computeHealthScore({
+      concentration: analytics?.concentration ?? { hhi: 0, level: "diversified", dominantPositions: [] },
+      sectorAllocation: analytics?.sectorAllocation ?? [],
+      benchmark: analytics?.benchmarkComparison ?? null,
+      highCorrelationCount: correlation?.highPairs?.length ?? 0,
+      positionCount: positions.length,
+    })
+
+    const advice = analytics
+      ? PortfolioHealthService.generateDiversificationAdvice(
+          positions,
+          analytics.concentration,
+          analytics.sectorAllocation,
+        )
+      : []
+
+    const warnings = correlation
+      ? PortfolioHealthService.generateCorrelationWarnings(correlation.highPairs)
+      : []
+
+    const enhanced = analytics?.benchmarkComparison
+      ? PortfolioHealthService.enhanceBenchmark(analytics.benchmarkComparison)
+      : null
 
     const lines: string[] = []
     lines.push(`Портфель: ${positions.length} позиций`)
 
-    if (analytics.success && analytics.data) {
-      const sectors = analytics.data.sectorAllocation.slice(0, 5)
-      lines.push(`\nСекторы: ${sectors.map(s => `${s.sector} ${s.percent.toFixed(1)}%`).join(", ")}`)
-      const conc = analytics.data.concentration
-      lines.push(`Концентрация (HHI): ${conc.hhi.toFixed(4)} — ${conc.level}`)
-      if (analytics.data.benchmarkComparison) {
-        const b = analytics.data.benchmarkComparison
-        lines.push(`Доходность портфеля: ${b.portfolioReturn}%, IMOEX: ${b.benchmarkReturn}%, дельта: ${b.delta}%`)
-      }
-      lines.push(`Дивидендная доходность (взвеш.): ${analytics.data.aggregateDividendYield.weightedYield}%`)
+    lines.push(`\nВсе позиции:`)
+    const totalValue = positions.reduce((sum, p) => sum + p.quantity * p.currentPrice, 0)
+    for (const p of positions) {
+      const weight = totalValue > 0 ? ((p.quantity * p.currentPrice) / totalValue * 100).toFixed(1) : "0"
+      lines.push(`  ${p.ticker} (${p.name}): ${p.quantity} шт., цена ${p.currentPrice}₽, доходность ${p.expectedYield.toFixed(1)}%, вес ${weight}%`)
     }
 
-    if (correlation.success && correlation.data && correlation.data.highPairs.length > 0) {
-      lines.push(`\nВысокие корреляции (>0.7):`)
-      for (const p of correlation.data.highPairs.slice(0, 10)) {
-        lines.push(`  ${p.a} — ${p.b}: ${p.corr}`)
-      }
+    lines.push(`\nЗдоровье портфеля: ${healthScore.total}/100 (${healthScore.level})`)
+    lines.push(`  Диверсификация: ${healthScore.diversification.score}/100`)
+    for (const d of healthScore.diversification.details) lines.push(`    - ${d}`)
+    lines.push(`  Риск: ${healthScore.risk.score}/100`)
+    for (const d of healthScore.risk.details) lines.push(`    - ${d}`)
+    lines.push(`  Доходность: ${healthScore.performance.score}/100`)
+    for (const d of healthScore.performance.details) lines.push(`    - ${d}`)
+
+    if (advice.length > 0) {
+      lines.push(`\nРекомендации по диверсификации:`)
+      for (const a of advice) lines.push(`  [${a.level}] ${a.text}`)
     }
 
-    if (optimization.success && optimization.data) {
-      const opt = optimization.data
-      lines.push(`\nОптимизация Марковица:`)
-      lines.push(`| Тикер | Текущий вес | Оптимальный вес |`)
-      lines.push(`|-------|-------------|-----------------|`)
-      for (const w of opt.weights) {
-        lines.push(`| ${w.ticker} | ${(w.currentWeight * 100).toFixed(1)}% | ${(w.optimalWeight * 100).toFixed(1)}% |`)
-      }
-      lines.push(`Ожидаемая доходность: ${(opt.expectedReturn * 100).toFixed(1)}%`)
-      lines.push(`Волатильность: ${(opt.expectedVolatility * 100).toFixed(1)}%`)
-      lines.push(`Sharpe: ${opt.sharpe.toFixed(2)}`)
+    if (enhanced) {
+      lines.push(`\nСравнение с бенчмарком: ${enhanced.verdictText}`)
+      lines.push(`  Портфель: ${enhanced.portfolioReturn.toFixed(1)}%, IMOEX: ${enhanced.benchmarkReturn.toFixed(1)}%, Депозит: ${(enhanced.depositRateForPeriod * 100).toFixed(1)}%`)
+    }
 
-      const nonHold = opt.rebalancingActions.filter(a => a.action !== "HOLD")
-      if (nonHold.length > 0) {
-        lines.push(`\nРебалансировка:`)
-        for (const a of nonHold) {
-          lines.push(`  ${a.action} ${a.ticker}: ${a.lots} лотов (~${Math.round(a.valueRub)}₽)`)
-        }
+    if (warnings.length > 0) {
+      lines.push(`\nКорреляционные предупреждения:`)
+      for (const w of warnings) lines.push(`  ${w.tickers[0]}-${w.tickers[1]} (${w.corr.toFixed(2)}): ${w.text}`)
+    }
+
+    if (analytics?.sectorAllocation && analytics.sectorAllocation.length > 0) {
+      lines.push(`\nСекторы:`)
+      for (const s of analytics.sectorAllocation) {
+        lines.push(`  ${s.sector}: ${s.percent.toFixed(1)}% (${s.tickers.join(", ")})`)
       }
     }
 
-    const top5 = positions.slice(0, 5)
-    if (top5.length > 0) {
-      lines.push(`\nТоп-5 позиций:`)
-      for (const p of top5) {
-        lines.push(`  ${p.ticker} (${p.name}): ${p.quantity} шт., цена ${p.currentPrice}₽, доходность ${p.expectedYield.toFixed(1)}%`)
-      }
+    if (analytics?.aggregateDividendYield) {
+      lines.push(`\nДивидендная доходность (взвеш.): ${analytics.aggregateDividendYield.weightedYield}%`)
     }
 
     const message = lines.join("\n")
