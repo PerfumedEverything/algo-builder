@@ -26,7 +26,7 @@ const INTERVAL_MAP: Record<string, CandleInterval> = {
 
 const toNumber = (q?: { units: number; nano: number }): number => {
   if (!q) return 0
-  return q.units + q.nano / 1_000_000_000
+  return Number((q.units + q.nano / 1_000_000_000).toFixed(9))
 }
 
 const mapInstrumentType = (type: string): "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF" => {
