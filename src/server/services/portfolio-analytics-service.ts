@@ -185,13 +185,33 @@ export class PortfolioAnalyticsService {
       const portfolio = await this.broker.getPortfolio(userId)
       if (!portfolio || portfolio.positions.length === 0) return null
 
-      const totalValue = portfolio.positions.reduce((sum, p) => sum + p.quantity * p.currentPrice, 0)
-      const totalInvested = portfolio.positions.reduce((sum, p) => sum + p.quantity * p.averagePrice, 0)
-      const portfolioReturn = totalInvested > 0 ? ((totalValue - totalInvested) / totalInvested) * 100 : 0
-
       const moex = new MOEXProvider()
-      const imoexCandles = await moex.getImoexCandles(fromStr, tillStr)
+      const positions = portfolio.positions.filter(
+        (p) => p.instrumentType === "STOCK" || p.instrumentType === "ETF"
+      )
+      if (positions.length === 0) return null
+
+      const [imoexCandles, ...positionCandles] = await Promise.all([
+        moex.getImoexCandles(fromStr, tillStr),
+        ...positions.slice(0, 10).map((p) =>
+          this.broker.getCandles(userId, { instrumentId: p.instrumentId, from, to: now, interval: "day" })
+            .catch(() => [])
+        ),
+      ])
+
       if (imoexCandles.length < 2) return null
+
+      let pastValue = 0
+      let currentValue = 0
+      for (let i = 0; i < Math.min(positions.length, 10); i++) {
+        const pos = positions[i]
+        const candles = positionCandles[i]
+        const startClose = candles.length > 0 ? candles[0].close : pos.currentPrice
+        pastValue += pos.quantity * startClose
+        currentValue += pos.quantity * pos.currentPrice
+      }
+
+      const portfolioReturn = pastValue > 0 ? ((currentValue - pastValue) / pastValue) * 100 : 0
 
       const startPrice = imoexCandles[0].close
       const endPrice = imoexCandles[imoexCandles.length - 1].close
@@ -213,25 +233,30 @@ export class PortfolioAnalyticsService {
     if (totalValue <= 0) return { weightedYield: 0, positionYields: [] }
 
     const moex = new MOEXProvider()
-    const results = await Promise.all(
-      positions.map(async (pos) => {
-        const weight = (pos.quantity * pos.currentPrice) / totalValue
-        try {
-          const dividends = await moex.getDividends(pos.ticker)
-          const oneYearAgo = new Date()
-          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
-          const recent = dividends.filter(d => new Date(d.registryclosedate) >= oneYearAgo)
-          if (recent.length === 0 || pos.currentPrice <= 0) {
+    const results: { ticker: string; weight: number; dividendYield: number | null }[] = []
+    for (let i = 0; i < positions.length; i += 5) {
+      const batch = positions.slice(i, i + 5)
+      const batchResults = await Promise.all(
+        batch.map(async (pos) => {
+          const weight = (pos.quantity * pos.currentPrice) / totalValue
+          try {
+            const dividends = await moex.getDividends(pos.ticker)
+            const oneYearAgo = new Date()
+            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+            const recent = dividends.filter(d => new Date(d.registryclosedate) >= oneYearAgo)
+            if (recent.length === 0 || pos.currentPrice <= 0) {
+              return { ticker: pos.ticker, weight, dividendYield: null as number | null }
+            }
+            const totalDiv = recent.reduce((sum, d) => sum + d.value, 0)
+            const dy = (totalDiv / pos.currentPrice) * 100
+            return { ticker: pos.ticker, weight, dividendYield: Math.round(dy * 100) / 100 }
+          } catch {
             return { ticker: pos.ticker, weight, dividendYield: null as number | null }
           }
-          const totalDiv = recent.reduce((sum, d) => sum + d.value, 0)
-          const dy = (totalDiv / pos.currentPrice) * 100
-          return { ticker: pos.ticker, weight, dividendYield: Math.round(dy * 100) / 100 }
-        } catch {
-          return { ticker: pos.ticker, weight, dividendYield: null as number | null }
-        }
-      })
-    )
+        })
+      )
+      results.push(...batchResults)
+    }
 
     let weightedYield = 0
     for (const r of results) {

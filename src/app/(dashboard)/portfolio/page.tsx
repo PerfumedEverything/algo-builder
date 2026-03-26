@@ -40,6 +40,7 @@ export default function PortfolioPage() {
   const [deposits, setDeposits] = useState<DepositData | null>(null)
 
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [correlationLoading, setCorrelationLoading] = useState(false)
   const [correlationMatrix, setCorrelationMatrix] = useState<CorrelationMatrix | null>(null)
   const [portfolioAnalytics, setPortfolioAnalytics] = useState<PortfolioAnalytics | null>(null)
   const [correlationPeriod, setCorrelationPeriod] = useState(90)
@@ -88,12 +89,12 @@ export default function PortfolioPage() {
 
   const handleCorrelationPeriodChange = useCallback(async (days: number) => {
     setCorrelationPeriod(days)
-    setAnalyticsLoading(true)
+    setCorrelationLoading(true)
     try {
       const res = await getCorrelationMatrixAction(days)
       if (res.success && res.data) setCorrelationMatrix(res.data)
     } finally {
-      setAnalyticsLoading(false)
+      setCorrelationLoading(false)
     }
   }, [])
 
@@ -199,7 +200,7 @@ export default function PortfolioPage() {
               <div>
                 <CorrelationHeatmap
                   matrix={correlationMatrix ?? { tickers: [], matrix: [], highPairs: [] }}
-                  loading={analyticsLoading}
+                  loading={analyticsLoading || correlationLoading}
                   period={correlationPeriod}
                   onPeriodChange={handleCorrelationPeriodChange}
                 />

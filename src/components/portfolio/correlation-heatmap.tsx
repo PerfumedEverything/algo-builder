@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Fragment, useState } from "react"
 import type { CorrelationMatrix } from "@/core/types"
 
 type CorrelationHeatmapProps = {
@@ -80,8 +80,8 @@ export const CorrelationHeatmap = ({ matrix, loading, period, onPeriodChange }: 
           </div>
         ))}
         {tickers.map((rowTicker, ri) => (
-          <>
-            <div key={`label-${rowTicker}`} className="flex items-center pr-2 text-xs font-medium text-muted-foreground whitespace-nowrap">
+          <Fragment key={rowTicker}>
+            <div className="flex items-center pr-2 text-xs font-medium text-muted-foreground whitespace-nowrap">
               {rowTicker}
             </div>
             {tickers.map((colTicker, ci) => {
@@ -99,7 +99,7 @@ export const CorrelationHeatmap = ({ matrix, loading, period, onPeriodChange }: 
                 </div>
               )
             })}
-          </>
+          </Fragment>
         ))}
       </div>
     </div>
