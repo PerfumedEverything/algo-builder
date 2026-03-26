@@ -38,6 +38,17 @@
 - [ ] **PORT-07**: User sees concrete rebalancing actions ("Sell X lots of TICKER, buy Y lots of TICKER")
 - [ ] **PORT-08**: User can click full portfolio AI analysis button and receive comprehensive streaming analysis covering risk, fundamentals, correlations, and optimization
 
+### Analytics Data Quality & Depth
+
+- [x] **AQFIX-01**: Asset type chart correctly maps STOCK/ETF/BOND/CURRENCY/FUTURES to Russian labels and colors (no case mismatch)
+- [x] **AQFIX-02**: Break-even strategies (pnl === 0) counted separately in trade success breakdown
+- [x] **AQFIX-03**: Trade success breakdown uses batch query instead of N+1 per-strategy queries
+- [x] **AQFIX-04**: Portfolio shows Herfindahl concentration index with warning when single position > 40% of portfolio
+- [x] **AQFIX-05**: Portfolio shows return vs IMOEX benchmark for matching period (30/90/180 days)
+- [x] **AQFIX-06**: Portfolio shows aggregate dividend yield based on position weights and fundamentals data
+- [x] **AQFIX-07**: Trade success shows P&L breakdown by individual instrument (not just strategy-level)
+- [x] **AQFIX-08**: User can switch correlation period between 30/60/90/180 days
+
 ## v2 Requirements
 
 ### AI Advanced
@@ -89,10 +100,18 @@
 | PORT-06 | Phase 7 | Pending |
 | PORT-07 | Phase 7 | Pending |
 | PORT-08 | Phase 7 | Pending |
+| AQFIX-01 | Phase 6.1 | Complete |
+| AQFIX-02 | Phase 6.1 | Complete |
+| AQFIX-03 | Phase 6.1 | Complete |
+| AQFIX-04 | Phase 6.1 | Complete |
+| AQFIX-05 | Phase 6.1 | Complete |
+| AQFIX-06 | Phase 6.1 | Complete |
+| AQFIX-07 | Phase 6.1 | Complete |
+| AQFIX-08 | Phase 6.1 | Complete |
 
 **Coverage:**
-- v1.1 requirements: 17 total
-- Mapped to phases: 17
+- v1.1 requirements: 25 total
+- Mapped to phases: 25
 - Unmapped: 0 ✓
 
 ---

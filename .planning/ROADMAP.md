@@ -231,9 +231,9 @@ Plans:
   6. Portfolio page shows aggregate dividend yield based on position weights and FUNDAMENTALS_MAP data
   7. Trade success section shows P&L breakdown by individual instrument (not just strategy-level)
   8. User can switch correlation period between 30/60/90/180 days
-**Plans:** 2 plans
+**Plans:** 1/2 plans executed
 Plans:
-- [ ] 06.1-01-PLAN.md — Fix bugs (asset type, break-even, N+1) + add service methods (HHI, IMOEX, dividends, instrument P&L, correlation period)
+- [x] 06.1-01-PLAN.md — Fix bugs (asset type, break-even, N+1) + add service methods (HHI, IMOEX, dividends, instrument P&L, correlation period)
 - [ ] 06.1-02-PLAN.md — Server actions + UI components (cards, table, period selector) + portfolio page integration
 **UI hint**: yes
 
@@ -285,6 +285,6 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 7 → 8
 | 5. Terminal Top Movers | v1.1 | 1/1 | Complete   | 2026-03-26 |
 | 5.1 Data Consistency & UX Fixes (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 2/2 | Complete   | 2026-03-26 |
-| 6.1 Analytics Data Quality & Depth (INSERTED) | v1.1 | 0/2 | In progress | - |
+| 6.1 Analytics Data Quality & Depth (INSERTED) | v1.1 | 1/2 | In Progress|  |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |

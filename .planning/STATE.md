@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
-status: Ready to plan
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-03-26T12:58:01.344Z"
+status: Ready to execute
+stopped_at: Completed 06.1-01-PLAN.md
+last_updated: "2026-03-26T13:24:05.757Z"
 progress:
-  total_phases: 13
+  total_phases: 14
   completed_phases: 10
-  total_plans: 31
-  completed_plans: 28
+  total_plans: 33
+  completed_plans: 29
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 06 — portfolio-analytics
+**Current focus:** Phase 06.1 — analytics-data-quality
 
 ## Current Position
 
-Phase: 08
-Plan: Not started
+Phase: 06.1 (analytics-data-quality) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -47,6 +47,7 @@ Plan: Not started
 | Phase 05.1 P02 | 4 | 5 tasks | 2 files |
 | Phase 06 P01 | 4 | 5 tasks | 4 files |
 | Phase 06 P02 | 7 | 5 tasks | 5 files |
+| Phase 06.1 P01 | 5 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -72,10 +73,14 @@ Plan: Not started
 - [Phase 06]: recharts was pre-installed; FUNDAMENTALS_MAP used for static sector lookup over MOEX ISS API (medium confidence)
 - [Phase 06]: Analytics lazy-loaded on tab click to avoid slowing portfolio initial load
 - [Phase 06]: Correlation heatmap uses Tailwind grid (not charting lib) for full cell customization
+- [Phase 06.1]: TYPE_COLORS keys use lowercase strings matching PortfolioPosition.instrumentType.toLowerCase() output: stock, etf, bond, currency, futures
+- [Phase 06.1]: getBenchmarkComparison returns null on error/no-data — UI must handle gracefully
+- [Phase 06.1]: getStatsForStrategies batch replaces per-strategy await loop — eliminates N+1 in trade success
 
 ### Roadmap Evolution
 
 - Phase 8 added: AI Assistant Deep Upgrade (thinking mode, rich context, streaming, portfolio awareness, backtest)
+- Phase 6.1 inserted after Phase 6: Analytics Data Quality & Depth — fix correctness bugs + deeper metrics (URGENT)
 
 ### Pending Todos
 
@@ -91,7 +96,7 @@ Plan: Not started
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:52:15.879Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-03-26T13:24:05.754Z
+Stopped at: Completed 06.1-01-PLAN.md
 Resume file: None
 Next: /gsd:discuss-phase 4.1 or /gsd:plan-phase 4.1
