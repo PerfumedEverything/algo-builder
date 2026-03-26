@@ -12,6 +12,7 @@ import type {
   PositionOperation,
 } from "@/core/types"
 import { FifoCalculator } from "@/server/services/fifo-calculator"
+import { PREFERRED_CLASS_CODES } from "@/lib/shared-constants"
 import type { BrokerProvider } from "./types"
 
 const INTERVAL_MAP: Record<string, CandleInterval> = {
@@ -310,8 +311,6 @@ export class TinkoffProvider implements BrokerProvider {
 
     const upperTicker = ticker.toUpperCase()
     const exact = instruments.filter((i) => i.ticker.toUpperCase() === upperTicker)
-
-    const PREFERRED_CLASS_CODES = ["TQBR", "TQTF", "TQOB", "TQCB", "TQIF", "TQGD", "TQTD"]
 
     const match =
       exact.find((i) => PREFERRED_CLASS_CODES.includes(i.classCode) && i.apiTradeAvailableFlag) ??
