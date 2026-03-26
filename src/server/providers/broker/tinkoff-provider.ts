@@ -292,7 +292,7 @@ export class TinkoffProvider implements BrokerProvider {
     const { lastPrices } = await client.marketdata.getLastPrices({
       figi: [],
       instrumentId: [resolvedId],
-      lastPriceType: LastPriceType.LAST_PRICE_DEALER,
+      lastPriceType: LastPriceType.LAST_PRICE_EXCHANGE,
     })
 
     if (!lastPrices.length || !lastPrices[0].price) {
@@ -311,7 +311,7 @@ export class TinkoffProvider implements BrokerProvider {
     const upperTicker = ticker.toUpperCase()
     const exact = instruments.filter((i) => i.ticker.toUpperCase() === upperTicker)
 
-    const PREFERRED_CLASS_CODES = ["TQBR", "TQTF", "TQOB", "TQCB", "TQIF"]
+    const PREFERRED_CLASS_CODES = ["TQBR", "TQTF", "TQOB", "TQCB", "TQIF", "TQGD", "TQTD"]
 
     const match =
       exact.find((i) => PREFERRED_CLASS_CODES.includes(i.classCode) && i.apiTradeAvailableFlag) ??

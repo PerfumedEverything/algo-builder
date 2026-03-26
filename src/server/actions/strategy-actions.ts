@@ -7,6 +7,7 @@ import { createStrategySchema, updateStrategySchema } from "@/core/schemas"
 import { StrategyService } from "@/server/services"
 import { getAiProvider } from "@/server/providers/ai"
 import { StrategyChecker } from "@/server/services/strategy-checker"
+import { cleanTicker } from "@/lib/ticker-utils"
 import { getCurrentUserId } from "./helpers"
 
 const getService = () => new StrategyService(undefined, getAiProvider())
@@ -51,7 +52,7 @@ export const createStrategyAction = async (
       return errorResponse(parsed.error.issues[0].message)
     }
     const userId = await getCurrentUserId()
-    const strategy = await getService().createStrategy(userId, data)
+    const strategy = await getService().createStrategy(userId, { ...data, instrument: cleanTicker(data.instrument).toUpperCase() })
     return successResponse({ id: strategy.id })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
@@ -76,7 +77,8 @@ export const updateStrategyAction = async (
       return errorResponse(parsed.error.issues[0].message)
     }
     const userId = await getCurrentUserId()
-    const strategy = await getService().updateStrategy(id, userId, data)
+    const cleanedData = data.instrument ? { ...data, instrument: cleanTicker(data.instrument).toUpperCase() } : data
+    const strategy = await getService().updateStrategy(id, userId, cleanedData)
     return successResponse({ id: strategy.id })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")

@@ -54,7 +54,7 @@ export const createSignalAction = async (
       return errorResponse(parsed.error.issues[0].message)
     }
     const userId = await getCurrentUserId()
-    const signal = await getService().createSignal(userId, { ...data, instrument: cleanTicker(data.instrument) })
+    const signal = await getService().createSignal(userId, { ...data, instrument: cleanTicker(data.instrument).toUpperCase() })
     new SignalChecker().checkAll().catch(() => {})
     return successResponse({ id: signal.id })
   } catch (e) {
@@ -84,7 +84,7 @@ export const updateSignalAction = async (
       return errorResponse(parsed.error.issues[0].message)
     }
     const userId = await getCurrentUserId()
-    const cleanedData = data.instrument ? { ...data, instrument: cleanTicker(data.instrument) } : data
+    const cleanedData = data.instrument ? { ...data, instrument: cleanTicker(data.instrument).toUpperCase() } : data
     const signal = await getService().updateSignal(id, userId, cleanedData)
     return successResponse({ id: signal.id })
   } catch (e) {

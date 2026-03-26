@@ -58,6 +58,7 @@ export default function TerminalPage() {
   const [wizardOpen, setWizardOpen] = useState(false)
   const [topMovers, setTopMovers] = useState<{ gainers: TopMover[]; losers: TopMover[] } | null>(null)
   const [topMoversLoading, setTopMoversLoading] = useState(false)
+  const [todayOpen, setTodayOpen] = useState(0)
   const [marketOpen, setMarketOpen] = useState(true)
 
   const prices = usePriceStream()
@@ -159,6 +160,19 @@ export default function TerminalPage() {
     return () => clearInterval(id)
   }, [fetchTopMovers])
 
+  const fetchTodayOpen = useCallback(async (figi: string) => {
+    try {
+      const to = new Date()
+      const from = new Date(to.getTime() - 24 * 60 * 60 * 1000)
+      const res = await getCandlesForChartAction(figi, "1d", from.toISOString(), to.toISOString())
+      if (res.success && res.data.length > 0) {
+        setTodayOpen(res.data[res.data.length - 1].open as number)
+      }
+    } catch {
+      setTodayOpen(0)
+    }
+  }, [])
+
   const handleInstrumentSelect = useCallback((inst: BrokerInstrument) => {
     setInstrument(inst)
     setTicker(inst.ticker)
@@ -166,7 +180,9 @@ export default function TerminalPage() {
     setMarkers([])
     setOrderBook(null)
     setOperations([])
-  }, [])
+    setTodayOpen(0)
+    fetchTodayOpen(inst.figi)
+  }, [fetchTodayOpen])
 
   const handleQuickSelect = useCallback(async (t: string) => {
     const res = await findInstrumentByTickerAction(t)
@@ -210,8 +226,7 @@ export default function TerminalPage() {
     : undefined
 
   const currentPrice = livePrice?.price ?? (candles.length > 0 ? (candles[candles.length - 1].close as number) : 0)
-  const openPrice = candles.length > 0 ? (candles[0].open as number) : 0
-  const change = openPrice > 0 ? ((currentPrice - openPrice) / openPrice) * 100 : 0
+  const change = todayOpen > 0 ? ((currentPrice - todayOpen) / todayOpen) * 100 : 0
   const high = candles.length > 0 ? Math.max(...candles.map((c) => c.high as number)) : 0
   const low = candles.length > 0 ? Math.min(...candles.map((c) => c.low as number)) : 0
   const volume = candles.length > 0
