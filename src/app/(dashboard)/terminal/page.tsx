@@ -17,10 +17,12 @@ import { TradeHistoryPanel } from "@/components/terminal/trade-history-panel"
 import { getCandlesForChartAction, getTradeMarkersAction, type ChartMarker } from "@/server/actions/chart-actions"
 import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
 import { getPortfolioAction } from "@/server/actions/broker-actions"
-import { getOrderBookAction, getOperationsByTickerAction } from "@/server/actions/terminal-actions"
+import { getOrderBookAction, getOperationsByTickerAction, getTopMoversAction } from "@/server/actions/terminal-actions"
 import { getInstrumentsAction } from "@/server/actions/broker-actions"
+import { TopMoversPanel } from "@/components/terminal/top-movers-panel"
+import { isMarketOpen } from "@/lib/market-hours"
 import { usePriceStream } from "@/hooks/use-price-stream"
-import type { BrokerInstrument, PortfolioPosition, PositionOperation } from "@/core/types"
+import type { BrokerInstrument, PortfolioPosition, PositionOperation, TopMover } from "@/core/types"
 import type { OrderBookData } from "@/core/types"
 import type { CandlestickData, SeriesMarker, Time } from "lightweight-charts"
 
@@ -55,6 +57,9 @@ export default function TerminalPage() {
   const [strategyDialogOpen, setStrategyDialogOpen] = useState(false)
   const [signalDialogOpen, setSignalDialogOpen] = useState(false)
   const [wizardOpen, setWizardOpen] = useState(false)
+  const [topMovers, setTopMovers] = useState<{ gainers: TopMover[]; losers: TopMover[] } | null>(null)
+  const [topMoversLoading, setTopMoversLoading] = useState(false)
+  const [marketOpen, setMarketOpen] = useState(true)
 
   const prices = usePriceStream()
 
@@ -118,6 +123,17 @@ export default function TerminalPage() {
     }
   }, [])
 
+  const fetchTopMovers = useCallback(async () => {
+    if (!topMovers) setTopMoversLoading(true)
+    try {
+      const res = await getTopMoversAction()
+      if (res.success) setTopMovers(res.data)
+      setMarketOpen(isMarketOpen())
+    } finally {
+      setTopMoversLoading(false)
+    }
+  }, [topMovers])
+
   useEffect(() => {
     if (instrument?.figi) fetchCandles(instrument.figi, period)
   }, [instrument, period, fetchCandles])
@@ -137,6 +153,12 @@ export default function TerminalPage() {
     if (ticker) fetchOperations(ticker)
     else setOperations([])
   }, [ticker, fetchOperations])
+
+  useEffect(() => {
+    fetchTopMovers()
+    const id = setInterval(fetchTopMovers, 60_000)
+    return () => clearInterval(id)
+  }, [fetchTopMovers])
 
   const handleInstrumentSelect = useCallback((inst: BrokerInstrument) => {
     setInstrument(inst)
@@ -239,24 +261,33 @@ export default function TerminalPage() {
       </div>
 
       {!instrument && (
-        <div className="flex flex-col items-center justify-center h-[500px] rounded-xl border border-dashed border-border gap-6">
-          <p className="text-muted-foreground">Выберите инструмент для просмотра графика</p>
-          <div className="text-center space-y-3">
-            <p className="text-xs text-muted-foreground">Популярные инструменты</p>
-            <div className="flex flex-wrap justify-center gap-2">
-              {["SBER", "GAZP", "LKOH", "YNDX", "TCSG", "NVTK", "ROSN", "MGNT"].map((t) => (
-                <button
-                  key={t}
-                  type="button"
-                  onClick={() => handleQuickSelect(t)}
-                  className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
-                >
-                  {t}
-                </button>
-              ))}
+        <>
+          <div className="flex flex-col items-center justify-center h-[300px] rounded-xl border border-dashed border-border gap-6">
+            <p className="text-muted-foreground">Выберите инструмент для просмотра графика</p>
+            <div className="text-center space-y-3">
+              <p className="text-xs text-muted-foreground">Популярные инструменты</p>
+              <div className="flex flex-wrap justify-center gap-2">
+                {["SBER", "GAZP", "LKOH", "YNDX", "TCSG", "NVTK", "ROSN", "MGNT"].map((t) => (
+                  <button
+                    key={t}
+                    type="button"
+                    onClick={() => handleQuickSelect(t)}
+                    className="rounded-md border border-border px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+                  >
+                    {t}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
+          <TopMoversPanel
+            gainers={topMovers?.gainers ?? []}
+            losers={topMovers?.losers ?? []}
+            loading={topMoversLoading && !topMovers}
+            onSelect={handleQuickSelect}
+            isMarketOpen={marketOpen}
+          />
+        </>
       )}
 
       {instrument && (
@@ -289,6 +320,14 @@ export default function TerminalPage() {
               <OrderBook data={orderBook} loading={orderBookLoading && !orderBook} />
             </div>
           </div>
+
+          <TopMoversPanel
+            gainers={topMovers?.gainers ?? []}
+            losers={topMovers?.losers ?? []}
+            loading={topMoversLoading && !topMovers}
+            onSelect={handleQuickSelect}
+            isMarketOpen={marketOpen}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <PositionsPanel
