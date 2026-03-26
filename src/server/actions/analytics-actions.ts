@@ -36,10 +36,10 @@ export const getDividendsAction = async (
   }
 }
 
-export const getCorrelationMatrixAction = async (): Promise<ApiResponse<CorrelationMatrix>> => {
+export const getCorrelationMatrixAction = async (days = 90): Promise<ApiResponse<CorrelationMatrix>> => {
   try {
     const userId = await getCurrentUserId()
-    const matrix = await analyticsService.getCorrelationMatrix(userId)
+    const matrix = await analyticsService.getCorrelationMatrix(userId, days)
     return successResponse(matrix)
   } catch (e) {
     return errorResponse((e as Error).message)
@@ -52,13 +52,17 @@ export const getPortfolioAnalyticsAction = async (): Promise<ApiResponse<Portfol
     const portfolio = await brokerService.getPortfolio(userId)
     const positions = portfolio?.positions ?? []
 
-    const [sectorAllocation, assetTypeBreakdown, tradeSuccessBreakdown] = await Promise.all([
+    const [sectorAllocation, assetTypeBreakdown, tradeSuccessBreakdown, benchmarkComparison, aggregateDividendYield] = await Promise.all([
       Promise.resolve(analyticsService.getSectorAllocation(positions)),
       Promise.resolve(analyticsService.getAssetTypeBreakdown(positions)),
       analyticsService.getTradeSuccessBreakdown(userId),
+      analyticsService.getBenchmarkComparison(userId),
+      analyticsService.getAggregateDividendYield(positions),
     ])
 
-    return successResponse({ sectorAllocation, assetTypeBreakdown, tradeSuccessBreakdown })
+    const concentration = analyticsService.getConcentrationIndex(positions)
+
+    return successResponse({ sectorAllocation, assetTypeBreakdown, tradeSuccessBreakdown, concentration, benchmarkComparison, aggregateDividendYield })
   } catch (e) {
     return errorResponse((e as Error).message)
   }

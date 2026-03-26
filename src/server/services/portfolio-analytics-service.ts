@@ -1,7 +1,18 @@
 import { sampleCorrelation } from "simple-statistics"
 import { FUNDAMENTALS_MAP } from "@/core/data/fundamentals-map"
-import type { CorrelationMatrix, SectorAllocation, AssetTypeBreakdown, TradeSuccessBreakdown, PortfolioPosition } from "@/core/types"
+import type {
+  CorrelationMatrix,
+  SectorAllocation,
+  AssetTypeBreakdown,
+  TradeSuccessBreakdown,
+  PortfolioPosition,
+  ConcentrationIndex,
+  BenchmarkComparison,
+  AggregateDividendYield,
+  InstrumentPnl,
+} from "@/core/types"
 import { AppError } from "@/core/errors/app-error"
+import { MOEXProvider } from "@/server/providers/analytics/moex-provider"
 import { BrokerService } from "./broker-service"
 import { OperationService } from "./operation-service"
 import { StrategyRepository } from "@/server/repositories/strategy-repository"
@@ -17,7 +28,7 @@ export class PortfolioAnalyticsService {
   private operationService = new OperationService()
   private strategyRepo = new StrategyRepository()
 
-  async getCorrelationMatrix(userId: string): Promise<CorrelationMatrix> {
+  async getCorrelationMatrix(userId: string, days = 90): Promise<CorrelationMatrix> {
     const portfolio = await this.broker.getPortfolio(userId)
     if (!portfolio) throw AppError.badRequest("Портфель не найден")
 
@@ -27,7 +38,7 @@ export class PortfolioAnalyticsService {
     if (positions.length < 2) return { tickers: positions.map((p) => p.ticker), matrix: [], highPairs: [] }
 
     const now = new Date()
-    const from = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000)
+    const from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
     const returnsArr: number[][] = []
 
     for (let i = 0; i < positions.length; i += 3) {
@@ -105,15 +116,128 @@ export class PortfolioAnalyticsService {
     const result: TradeSuccessBreakdown = {
       profitable: { count: 0, totalPnl: 0 },
       unprofitable: { count: 0, totalPnl: 0 },
+      breakEven: { count: 0 },
+      byInstrument: [],
     }
+
+    const strategyIds = strategies.map(s => s.id)
+    const allStats = await this.operationService.getStatsForStrategies(strategyIds)
+
+    const instrumentMap = new Map<string, { name: string; totalPnl: number; strategyCount: number }>()
 
     for (const strategy of strategies) {
-      const stats = await this.operationService.getStats(strategy.id)
-      if (stats.totalOperations === 0) continue
-      if (stats.pnl > 0) { result.profitable.count += 1; result.profitable.totalPnl += stats.pnl }
-      else if (stats.pnl < 0) { result.unprofitable.count += 1; result.unprofitable.totalPnl += stats.pnl }
+      const stats = allStats[strategy.id]
+      if (!stats || stats.totalOperations === 0) continue
+
+      if (stats.pnl > 0) {
+        result.profitable.count += 1
+        result.profitable.totalPnl += stats.pnl
+      } else if (stats.pnl < 0) {
+        result.unprofitable.count += 1
+        result.unprofitable.totalPnl += stats.pnl
+      } else {
+        result.breakEven.count += 1
+      }
+
+      const ticker = strategy.instrument
+      const existing = instrumentMap.get(ticker)
+      if (existing) {
+        existing.totalPnl += stats.pnl
+        existing.strategyCount += 1
+      } else {
+        instrumentMap.set(ticker, { name: strategy.name ?? ticker, totalPnl: stats.pnl, strategyCount: 1 })
+      }
     }
 
+    const byInstrument: InstrumentPnl[] = Array.from(instrumentMap.entries())
+      .map(([ticker, data]) => ({ ticker, name: data.name, totalPnl: data.totalPnl, strategyCount: data.strategyCount }))
+      .sort((a, b) => b.totalPnl - a.totalPnl)
+
+    result.byInstrument = byInstrument
     return result
+  }
+
+  getConcentrationIndex(positions: PortfolioPosition[]): ConcentrationIndex {
+    const totalValue = positions.reduce((sum, p) => sum + p.quantity * p.currentPrice, 0)
+    if (totalValue <= 0) return { hhi: 0, level: "diversified", dominantPositions: [] }
+
+    let hhi = 0
+    const dominantPositions: { ticker: string; weight: number }[] = []
+
+    for (const pos of positions) {
+      const weight = (pos.quantity * pos.currentPrice) / totalValue
+      hhi += weight * weight
+      if (weight > 0.4) dominantPositions.push({ ticker: pos.ticker, weight })
+    }
+
+    hhi = Math.round(hhi * 10000) / 10000
+    const level = hhi < 0.15 ? "diversified" : hhi < 0.25 ? "moderate" : "concentrated"
+    return { hhi, level, dominantPositions }
+  }
+
+  async getBenchmarkComparison(userId: string, days = 90): Promise<BenchmarkComparison | null> {
+    try {
+      const now = new Date()
+      const from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
+      const fromStr = from.toISOString().slice(0, 10)
+      const tillStr = now.toISOString().slice(0, 10)
+
+      const portfolio = await this.broker.getPortfolio(userId)
+      if (!portfolio || portfolio.positions.length === 0) return null
+
+      const totalValue = portfolio.positions.reduce((sum, p) => sum + p.quantity * p.currentPrice, 0)
+      const totalInvested = portfolio.positions.reduce((sum, p) => sum + p.quantity * p.averagePrice, 0)
+      const portfolioReturn = totalInvested > 0 ? ((totalValue - totalInvested) / totalInvested) * 100 : 0
+
+      const moex = new MOEXProvider()
+      const imoexCandles = await moex.getImoexCandles(fromStr, tillStr)
+      if (imoexCandles.length < 2) return null
+
+      const startPrice = imoexCandles[0].close
+      const endPrice = imoexCandles[imoexCandles.length - 1].close
+      const benchmarkReturn = ((endPrice - startPrice) / startPrice) * 100
+
+      return {
+        portfolioReturn: Math.round(portfolioReturn * 100) / 100,
+        benchmarkReturn: Math.round(benchmarkReturn * 100) / 100,
+        delta: Math.round((portfolioReturn - benchmarkReturn) * 100) / 100,
+        period: days,
+      }
+    } catch {
+      return null
+    }
+  }
+
+  async getAggregateDividendYield(positions: PortfolioPosition[]): Promise<AggregateDividendYield> {
+    const totalValue = positions.reduce((sum, p) => sum + p.quantity * p.currentPrice, 0)
+    if (totalValue <= 0) return { weightedYield: 0, positionYields: [] }
+
+    const moex = new MOEXProvider()
+    const results = await Promise.all(
+      positions.map(async (pos) => {
+        const weight = (pos.quantity * pos.currentPrice) / totalValue
+        try {
+          const dividends = await moex.getDividends(pos.ticker)
+          const oneYearAgo = new Date()
+          oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
+          const recent = dividends.filter(d => new Date(d.registryclosedate) >= oneYearAgo)
+          if (recent.length === 0 || pos.currentPrice <= 0) {
+            return { ticker: pos.ticker, weight, dividendYield: null as number | null }
+          }
+          const totalDiv = recent.reduce((sum, d) => sum + d.value, 0)
+          const dy = (totalDiv / pos.currentPrice) * 100
+          return { ticker: pos.ticker, weight, dividendYield: Math.round(dy * 100) / 100 }
+        } catch {
+          return { ticker: pos.ticker, weight, dividendYield: null as number | null }
+        }
+      })
+    )
+
+    let weightedYield = 0
+    for (const r of results) {
+      if (r.dividendYield !== null) weightedYield += r.weight * r.dividendYield
+    }
+
+    return { weightedYield: Math.round(weightedYield * 100) / 100, positionYields: results }
   }
 }
