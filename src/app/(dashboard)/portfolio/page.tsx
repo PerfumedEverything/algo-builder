@@ -185,7 +185,7 @@ export default function PortfolioPage() {
               </div>
               <div className="lg:col-span-2">
                 <TradeSuccessChart
-                  data={portfolioAnalytics?.tradeSuccessBreakdown ?? { profitable: { count: 0, totalPnl: 0 }, unprofitable: { count: 0, totalPnl: 0 } }}
+                  data={portfolioAnalytics?.tradeSuccessBreakdown ?? { profitable: { count: 0, totalPnl: 0 }, unprofitable: { count: 0, totalPnl: 0 }, breakEven: { count: 0 }, byInstrument: [] }}
                   loading={analyticsLoading}
                 />
               </div>

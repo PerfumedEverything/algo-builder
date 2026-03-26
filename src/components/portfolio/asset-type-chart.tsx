@@ -18,10 +18,11 @@ type AssetTypeChartProps = {
 }
 
 const TYPE_COLORS: Record<string, string> = {
-  share: "#3b82f6",
+  stock: "#3b82f6",
   etf: "#8b5cf6",
   bond: "#10b981",
   currency: "#f59e0b",
+  futures: "#ef4444",
 }
 
 const getColor = (type: string) => TYPE_COLORS[type.toLowerCase()] ?? "#94a3b8"

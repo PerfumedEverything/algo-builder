@@ -38,13 +38,43 @@ export type AssetTypeBreakdown = {
   count: number
 }
 
+export type ConcentrationIndex = {
+  hhi: number
+  level: "diversified" | "moderate" | "concentrated"
+  dominantPositions: { ticker: string; weight: number }[]
+}
+
+export type BenchmarkComparison = {
+  portfolioReturn: number
+  benchmarkReturn: number
+  delta: number
+  period: number
+}
+
+export type AggregateDividendYield = {
+  weightedYield: number
+  positionYields: { ticker: string; weight: number; dividendYield: number | null }[]
+}
+
+export type InstrumentPnl = {
+  ticker: string
+  name: string
+  totalPnl: number
+  strategyCount: number
+}
+
 export type TradeSuccessBreakdown = {
   profitable: { count: number; totalPnl: number }
   unprofitable: { count: number; totalPnl: number }
+  breakEven: { count: number }
+  byInstrument: InstrumentPnl[]
 }
 
 export type PortfolioAnalytics = {
   sectorAllocation: SectorAllocation[]
   assetTypeBreakdown: AssetTypeBreakdown[]
   tradeSuccessBreakdown: TradeSuccessBreakdown
+  concentration: ConcentrationIndex
+  benchmarkComparison: BenchmarkComparison | null
+  aggregateDividendYield: AggregateDividendYield
 }
