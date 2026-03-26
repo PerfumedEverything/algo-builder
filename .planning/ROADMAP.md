@@ -187,6 +187,21 @@ Plans:
 - [x] 05-01-PLAN.md — TopMoversPanel component + market hours utility + terminal page integration
 **UI hint**: yes
 
+### Phase 5.1: Data Consistency & UX Fixes (INSERTED)
+**Goal**: Fix P&L mismatch, TopMovers navigation, portfolio table info, duplicate notifications, and algovist ticker consistency
+**Depends on**: Phase 5 (TopMovers panel)
+**Requirements**: DFIX-01, DFIX-02, DFIX-03, DFIX-04
+**Success Criteria** (what must be TRUE):
+  1. Paper portfolio P&L matches strategy page P&L for the same strategy (same price source)
+  2. Clicking any TopMover navigates to that instrument's chart immediately
+  3. Paper portfolio table shows strategy name, instrument, and operations breakdown (profitable/unprofitable)
+  4. All instruments use algovist ticker variant — prices match T-Invest app exactly
+**Plans:** 0/2 plans
+Plans:
+- [x] 05.1-01-PLAN.md — Fix P&L, TopMovers click, portfolio table
+- [ ] 05.1-02-PLAN.md — Fix duplicate notifications + algovist ticker
+**UI hint**: yes
+
 ### Phase 6: Portfolio Analytics — Correlations, Sector & Cohorts
 **Goal**: Users can understand portfolio diversification quality through correlation heatmap, sector allocation chart, and cohort breakdowns by asset type and trade success
 **Depends on**: Phase 4 (candle data infrastructure from Phase 1/2 already in place)
@@ -232,7 +247,7 @@ Plans:
 
 **Execution Order:**
 v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
-v1.1: 4 → 4.1 → 5 → 6 → 7 → 8
+v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 7 → 8
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -246,6 +261,7 @@ v1.1: 4 → 4.1 → 5 → 6 → 7 → 8
 | 4. AI Revolution | v1.1 | 3/3 | Complete | 2026-03-25 |
 | 4.1 AI UX Polish (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 5. Terminal Top Movers | v1.1 | 1/1 | Complete   | 2026-03-26 |
+| 5.1 Data Consistency & UX Fixes (INSERTED) | v1.1 | 0/2 | Planned | - |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 0/TBD | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |

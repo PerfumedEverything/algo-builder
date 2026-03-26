@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Ready to plan
-stopped_at: Completed 05-01-PLAN.md
-last_updated: "2026-03-26T09:20:32.532Z"
+stopped_at: Completed 05.1-01-PLAN.md
+last_updated: "2026-03-26T12:05:37.542Z"
 progress:
-  total_phases: 11
+  total_phases: 13
   completed_phases: 8
-  total_plans: 27
-  completed_plans: 24
+  total_plans: 29
+  completed_plans: 25
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 05 — terminal-top-movers
+**Current focus:** Phase 5.1 — data-consistency
 
 ## Current Position
 
-Phase: 08
-Plan: Not started
+Phase: 5.1
+Plan: 05.1-01-PLAN.md (planned)
 
 ## Performance Metrics
 
@@ -43,6 +43,7 @@ Plan: Not started
 | Phase 04 P03 | 10 min | 2 tasks | 5 files |
 | Phase 04.1-ai-ux-polish P01 | 8 | 1 tasks | 3 files |
 | Phase 05 P01 | 381 | 2 tasks | 6 files |
+| Phase 05.1 P01 | 3 | 4 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -63,6 +64,7 @@ Plan: Not started
 - [Phase 04.1]: AiWizardDialog resets all state on open via useEffect([open])
 - [Phase 05]: Added @vitejs/plugin-react + jsdom to enable React component testing with vitest
 - [Phase 05]: TopMoversPanel shown in both terminal states: no-instrument (discovery) and instrument-selected
+- [Phase 05.1]: BrokerService + PriceCache fallback reused for paper portfolio pricing
 
 ### Roadmap Evolution
 
@@ -82,7 +84,7 @@ Plan: Not started
 
 ## Session Continuity
 
-Last session: 2026-03-26T09:16:23.685Z
-Stopped at: Completed 05-01-PLAN.md
+Last session: 2026-03-26T12:05:37.539Z
+Stopped at: Completed 05.1-01-PLAN.md
 Resume file: None
 Next: /gsd:discuss-phase 4.1 or /gsd:plan-phase 4.1
