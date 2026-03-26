@@ -245,7 +245,10 @@ Plans:
   1. User sees current vs Markowitz-optimal portfolio weights as a side-by-side comparison (current donut vs optimal donut)
   2. User sees a concrete rebalancing action list ("Sell X lots of TICKER, buy Y lots of TICKER") derived from the weight delta
   3. User can click "Full AI Portfolio Analysis" and receive a comprehensive streaming analysis covering risk metrics, fundamentals, correlations, and optimization together
-**Plans**: TBD
+**Plans:** 2 plans
+Plans:
+- [ ] 07-01-PLAN.md — Markowitz types + Monte Carlo optimizer + rebalancing lot math + tests
+- [ ] 07-02-PLAN.md — Server actions + AI prompt + UI components (donuts, rebalancing table) + portfolio page wiring
 **UI hint**: yes
 
 ### Phase 8: AI Assistant Deep Upgrade
@@ -286,5 +289,5 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 7 → 8
 | 5.1 Data Consistency & UX Fixes (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 2/2 | Complete   | 2026-03-26 |
 | 6.1 Analytics Data Quality & Depth (INSERTED) | v1.1 | 1/2 | In Progress|  |
-| 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
+| 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
