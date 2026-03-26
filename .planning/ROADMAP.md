@@ -212,10 +212,10 @@ Plans:
   3. User sees a sector allocation donut chart showing what percentage of portfolio value is in each MOEX sector
   4. User sees a cohort breakdown by asset type (stocks, bonds, ETF, currency) as a chart
   5. User sees a cohort breakdown by trade success showing profitable vs unprofitable positions by count and value
-**Plans:** 1/2 plans executed
+**Plans:** 2/2 plans complete
 Plans:
 - [x] 06-01-PLAN.md — Analytics service + server actions (correlation, sector, cohorts)
-- [ ] 06-02-PLAN.md — UI components (heatmap, donut, charts) + portfolio page integration
+- [x] 06-02-PLAN.md — UI components (heatmap, donut, charts) + portfolio page integration
 **UI hint**: yes
 
 ### Phase 7: Portfolio Optimization + Full AI Analysis
@@ -265,6 +265,6 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 7 → 8
 | 4.1 AI UX Polish (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 5. Terminal Top Movers | v1.1 | 1/1 | Complete   | 2026-03-26 |
 | 5.1 Data Consistency & UX Fixes (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
-| 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 1/2 | In Progress|  |
+| 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 2/2 | Complete   | 2026-03-26 |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
