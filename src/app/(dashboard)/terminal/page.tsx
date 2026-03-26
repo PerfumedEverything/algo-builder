@@ -17,7 +17,7 @@ import { TradeHistoryPanel } from "@/components/terminal/trade-history-panel"
 import { getCandlesForChartAction, getTradeMarkersAction, type ChartMarker } from "@/server/actions/chart-actions"
 import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
 import { getPortfolioAction, findInstrumentByTickerAction, getInstrumentPriceAction } from "@/server/actions/broker-actions"
-import { getOrderBookAction, getOperationsByTickerAction, getTopMoversAction } from "@/server/actions/terminal-actions"
+import { getOrderBookAction, getOperationsByTickerAction, getTopMoversAction, subscribeInstrumentAction } from "@/server/actions/terminal-actions"
 import { TopMoversPanel } from "@/components/terminal/top-movers-panel"
 import { isMarketOpen } from "@/lib/market-hours"
 import { usePriceStream } from "@/hooks/use-price-stream"
@@ -198,6 +198,7 @@ export default function TerminalPage() {
     setTodayOpen(0)
     setApiPrice(null)
     fetchTodayOpen(inst.figi)
+    subscribeInstrumentAction(inst.ticker)
   }, [fetchTodayOpen])
 
   const handleQuickSelect = useCallback(async (t: string) => {
