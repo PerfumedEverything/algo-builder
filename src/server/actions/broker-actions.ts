@@ -99,6 +99,23 @@ export const getInstrumentsAction = async (
   }
 }
 
+export const findInstrumentByTickerAction = async (
+  ticker: string,
+): Promise<ApiResponse<BrokerInstrument | null>> => {
+  try {
+    const userId = await getCurrentUserId()
+    const types = ["STOCK", "ETF", "BOND", "CURRENCY"]
+    for (const type of types) {
+      const instruments = await getService().getInstruments(userId, type)
+      const found = instruments.find((i) => i.ticker.toUpperCase() === ticker.toUpperCase())
+      if (found) return successResponse(found)
+    }
+    return successResponse(null)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
 export const getInstrumentPriceAction = async (
   ticker: string,
 ): Promise<ApiResponse<{ price: number }>> => {
