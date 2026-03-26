@@ -283,7 +283,7 @@ export default function TerminalPage() {
               >
                 <Bot className="h-4 w-4" />
                 <span className="hidden sm:inline">Анализ с ИИ</span>
-                <span className="sm:hidden">ИИ</span>
+                <span className="sm:hidden">Анализ с ИИ</span>
               </Button>
             )}
           </div>
@@ -359,18 +359,24 @@ export default function TerminalPage() {
             isMarketOpen={marketOpen}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <PositionsPanel
-              positions={positions}
-              loading={positionsLoading}
-              onSelectTicker={handlePositionSelect}
-            />
-            <TradeHistoryPanel
-              operations={operations}
-              ticker={ticker}
-              loading={operationsLoading}
-            />
-          </div>
+          {(positionsLoading || positions.length > 0 || operationsLoading || operations.length > 0) && (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              {(positionsLoading || positions.length > 0) && (
+                <PositionsPanel
+                  positions={positions}
+                  loading={positionsLoading}
+                  onSelectTicker={handlePositionSelect}
+                />
+              )}
+              {(operationsLoading || operations.length > 0) && (
+                <TradeHistoryPanel
+                  operations={operations}
+                  ticker={ticker}
+                  loading={operationsLoading}
+                />
+              )}
+            </div>
+          )}
         </>
       )}
       <StrategyDialog
