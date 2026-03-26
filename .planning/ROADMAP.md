@@ -127,7 +127,10 @@ Plans:
   3. UX issues documented with screenshots, severity, and fix recommendation
   4. Issues triaged into "fix now" (Phase 3.1) vs "backlog"
   5. All "fix now" issues resolved before moving to Phase 4
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
+- [ ] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
 **UI hint**: yes
 
 </details>
@@ -237,6 +240,25 @@ Plans:
 - [x] 06.1-02-PLAN.md — Server actions + UI components (cards, table, period selector) + portfolio page integration
 **UI hint**: yes
 
+### Phase 6.2: Realtime Prices & Anton UX Fixes (INSERTED)
+**Goal**: Real-time price streaming via Tinkoff MarketDataStream gRPC, accurate prices matching T-Invest across all components, plus UX fixes from Anton's feedback: date filters in test portfolio, hide empty terminal blocks, TopMovers as clickable links, mobile AI button, show actual purchase amounts
+**Depends on**: Phase 6.1 (analytics complete, price system needs overhaul)
+**Requirements**: RTPRICE-01, RTPRICE-02, RTPRICE-03, RTPRICE-04, RTPRICE-05, RTPRICE-06, RTPRICE-07, RTPRICE-08
+**Success Criteria** (what must be TRUE):
+  1. Terminal price updates in real-time (< 1s delay) matching T-Invest to the kopeck via Tinkoff MarketDataStream
+  2. All price displays across the app (terminal, portfolio, strategies, signals) use the same real-time price source
+  3. Test portfolio has date filter (Все время/сегодня/вчера/7 дней/30 дней/произвольная дата)
+  4. Terminal hides empty "Открытые позиции" and "История сделок" blocks when no data
+  5. TopMovers tickers are clickable links that navigate to the instrument chart
+  6. Mobile AI button has full label text
+  7. Test portfolio shows actual purchase amounts (not strategy settings amounts)
+  8. All tickers are consistently uppercase across the entire system
+**Plans**: 2 plans
+Plans:
+- [ ] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
+- [ ] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
+**UI hint**: yes
+
 ### Phase 7: Portfolio Optimization + Full AI Analysis
 **Goal**: Users receive Markowitz-based rebalancing recommendations and a comprehensive AI analysis of their entire portfolio
 **Depends on**: Phase 6 (covariance matrix and sector data from analytics service)
@@ -265,14 +287,17 @@ Plans:
   7. AI has access to fundamental data (P/E, dividends) when discussing instruments
   8. After strategy creation, user sees a backtest preview on historical data
   9. User can continue conversation after strategy creation ("now make one for GAZP")
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
+- [ ] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
 **UI hint**: yes
 
 ## Progress
 
 **Execution Order:**
 v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
-v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 7 → 8
+v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 8
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -288,6 +313,7 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 7 → 8
 | 5. Terminal Top Movers | v1.1 | 1/1 | Complete   | 2026-03-26 |
 | 5.1 Data Consistency & UX Fixes (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 2/2 | Complete   | 2026-03-26 |
-| 6.1 Analytics Data Quality & Depth (INSERTED) | v1.1 | 1/2 | In Progress|  |
+| 6.1 Analytics Data Quality & Depth (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
+| 6.2 Realtime Prices & Anton UX Fixes (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |

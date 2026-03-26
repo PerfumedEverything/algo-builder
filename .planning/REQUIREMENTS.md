@@ -49,6 +49,17 @@
 - [x] **AQFIX-07**: Trade success shows P&L breakdown by individual instrument (not just strategy-level)
 - [x] **AQFIX-08**: User can switch correlation period between 30/60/90/180 days
 
+### Realtime Prices & UX Fixes
+
+- [ ] **RTPRICE-01**: Terminal price updates in real-time (<1s delay) matching T-Invest to the kopeck via Tinkoff MarketDataStream
+- [ ] **RTPRICE-02**: All price displays across the app use the same real-time price source (worker as authority)
+- [ ] **RTPRICE-03**: Paper portfolio has date filter (Все время/Сегодня/Вчера/7 дней/30 дней)
+- [ ] **RTPRICE-04**: Terminal hides empty "Открытые позиции" and "История сделок" blocks when no data
+- [ ] **RTPRICE-05**: TopMovers tickers are clickable links that navigate to the instrument chart
+- [ ] **RTPRICE-06**: Mobile AI button has full label text
+- [ ] **RTPRICE-07**: Paper portfolio shows actual purchase amounts (not strategy settings amounts)
+- [ ] **RTPRICE-08**: All tickers are consistently uppercase across the entire system
+
 ## v2 Requirements
 
 ### AI Advanced
@@ -108,12 +119,20 @@
 | AQFIX-06 | Phase 6.1 | Complete |
 | AQFIX-07 | Phase 6.1 | Complete |
 | AQFIX-08 | Phase 6.1 | Complete |
+| RTPRICE-01 | Phase 6.2 | Pending |
+| RTPRICE-02 | Phase 6.2 | Pending |
+| RTPRICE-03 | Phase 6.2 | Pending |
+| RTPRICE-04 | Phase 6.2 | Pending |
+| RTPRICE-05 | Phase 6.2 | Pending |
+| RTPRICE-06 | Phase 6.2 | Pending |
+| RTPRICE-07 | Phase 6.2 | Pending |
+| RTPRICE-08 | Phase 6.2 | Pending |
 
 **Coverage:**
-- v1.1 requirements: 25 total
-- Mapped to phases: 25
-- Unmapped: 0 ✓
+- v1.1 requirements: 33 total
+- Mapped to phases: 33
+- Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-25 — traceability mapped after roadmap creation*
+*Last updated: 2026-03-26 — added RTPRICE requirements for Phase 6.2*
