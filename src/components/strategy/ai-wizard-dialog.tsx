@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Loader2, RefreshCw, Sparkles, Zap } from "lucide-react"
+import { ArrowLeft, Loader2, RefreshCw, Sparkles, Zap } from "lucide-react"
 import Markdown from "react-markdown"
 
 import type { AiGeneratedStrategy } from "@/core/types"
@@ -51,6 +51,7 @@ export const AiWizardDialog = ({
   const [analysisLoading, setAnalysisLoading] = useState(false)
   const [analysisError, setAnalysisError] = useState<string | null>(null)
   const [extractedStrategy, setExtractedStrategy] = useState<AiGeneratedStrategy | null>(null)
+  const [chatKey, setChatKey] = useState(0)
   const formRef = useRef<StrategyFormHandle>(null)
 
   const handleAnalyze = async () => {
@@ -83,7 +84,13 @@ export const AiWizardDialog = ({
   }
 
   const handleProceedToStrategy = () => {
+    setChatKey((k) => k + 1)
+    setExtractedStrategy(null)
     setStep("strategy")
+  }
+
+  const handleBackToAnalysis = () => {
+    setStep("analysis")
   }
 
   const handleStrategyGenerated = (strategy: AiGeneratedStrategy) => {
@@ -103,12 +110,19 @@ export const AiWizardDialog = ({
         <DialogHeader className="px-4 pt-4 sm:px-6 sm:pt-6 shrink-0">
           <DialogTitle>{title}</DialogTitle>
           <div className="mt-3">
-            <WizardStepIndicator steps={STEPS} current={STEP_INDEX[step]} />
+            <WizardStepIndicator
+              steps={STEPS}
+              current={STEP_INDEX[step]}
+              onStepClick={(i) => {
+                if (i === 0) setStep("analysis")
+                else if (i === 1 && analysisResult) handleProceedToStrategy()
+              }}
+            />
           </div>
         </DialogHeader>
 
-        <div className="overflow-y-auto min-h-[400px]">
-          <div className={step !== "analysis" ? "hidden" : undefined}>
+        <div className="overflow-y-auto overflow-x-hidden min-h-[400px]">
+          {step === "analysis" && (
             <div className="px-4 py-4 sm:px-6 sm:py-6 space-y-4">
               {analysisLoading && (
                 <div className="flex items-center justify-center py-12">
@@ -125,7 +139,7 @@ export const AiWizardDialog = ({
 
               {analysisResult && (
                 <>
-                  <div className="prose prose-sm dark:prose-invert max-w-none [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-border/50 [&_td]:px-2 [&_td]:py-1 [&_td]:text-xs [&_th]:border [&_th]:border-border/50 [&_th]:bg-muted/30 [&_th]:px-2 [&_th]:py-1 [&_th]:text-xs [&_th]:font-medium">
+                  <div className="prose prose-sm dark:prose-invert max-w-none break-words [&_table]:w-full [&_table]:border-collapse [&_table]:table-fixed [&_td]:border [&_td]:border-border/50 [&_td]:px-2 [&_td]:py-1 [&_td]:text-xs [&_td]:break-words [&_th]:border [&_th]:border-border/50 [&_th]:bg-muted/30 [&_th]:px-2 [&_th]:py-1 [&_th]:text-xs [&_th]:font-medium [&_th]:break-words [&_p]:break-words [&_strong]:break-words">
                     <Markdown>{analysisResult}</Markdown>
                   </div>
 
@@ -142,26 +156,26 @@ export const AiWizardDialog = ({
 
                   <div className="rounded-lg border border-primary/20 bg-primary/5 p-3 space-y-2">
                     <p className="text-xs font-medium text-muted-foreground">Что дальше?</p>
-                    <div className="flex flex-col sm:flex-row gap-2">
+                    <div className="flex flex-col gap-2">
                       <Button
                         size="sm"
-                        className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                        className="w-full bg-blue-600 hover:bg-blue-700 text-white"
                         onClick={handleProceedToStrategy}
                       >
-                        <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                        <Sparkles className="h-3.5 w-3.5 mr-1.5 shrink-0" />
                         Построить стратегию по анализу
                       </Button>
                       {onCreateSignal && (
                         <Button
                           size="sm"
                           variant="outline"
-                          className="flex-1"
+                          className="w-full"
                           onClick={() => {
                             onOpenChange(false)
                             onCreateSignal()
                           }}
                         >
-                          <Zap className="h-3.5 w-3.5 mr-1.5" />
+                          <Zap className="h-3.5 w-3.5 mr-1.5 shrink-0" />
                           Настроить сигнал по анализу
                         </Button>
                       )}
@@ -170,27 +184,37 @@ export const AiWizardDialog = ({
                 </>
               )}
             </div>
-          </div>
+          )}
 
-          <div className={step !== "strategy" ? "hidden" : undefined}>
+          {step === "strategy" && (
             <div className="px-4 py-4 sm:px-6 sm:py-6 space-y-4">
+              <button
+                type="button"
+                onClick={handleBackToAnalysis}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              >
+                <ArrowLeft className="h-3 w-3" />
+                Вернуться к анализу
+              </button>
               <AiChat
+                key={chatKey}
                 onGenerated={handleStrategyGenerated}
                 onStrategyExtracted={setExtractedStrategy}
-                initialContext={analysisResult ?? undefined}
+                analysisContext={analysisResult ?? undefined}
               />
               {extractedStrategy && <StrategyPreviewPanel strategy={extractedStrategy} />}
             </div>
-          </div>
+          )}
 
-          <div className={step !== "form" ? "hidden" : undefined}>
+          {step === "form" && (
             <div className="px-4 py-4 sm:px-6 sm:py-6 space-y-4">
               <button
                 type="button"
                 onClick={() => setStep("strategy")}
-                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
               >
-                вернуться к AI помощнику
+                <ArrowLeft className="h-3 w-3" />
+                Вернуться к AI помощнику
               </button>
               <StrategyForm
                 ref={formRef}
@@ -199,7 +223,7 @@ export const AiWizardDialog = ({
                 onSuccess={onSuccess}
               />
             </div>
-          </div>
+          )}
         </div>
       </DialogContent>
     </Dialog>

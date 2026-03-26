@@ -15,10 +15,12 @@ type AiChatProps = {
   onGenerated: (strategy: AiGeneratedStrategy) => void
   onStrategyExtracted?: (strategy: AiGeneratedStrategy) => void
   initialContext?: string
+  analysisContext?: string
 }
 
 type ChatMessage = AiChatMessage & {
   strategy?: AiGeneratedStrategy
+  hidden?: boolean
 }
 
 const INITIAL_MESSAGE: ChatMessage = {
@@ -84,8 +86,9 @@ const StrategyPreview = ({
   )
 }
 
-export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext }: AiChatProps) => {
-  const [messages, setMessages] = useState<ChatMessage[]>(() => getInitialMessages(initialContext))
+export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext, analysisContext }: AiChatProps) => {
+  const context = analysisContext ?? initialContext
+  const [messages, setMessages] = useState<ChatMessage[]>(() => getInitialMessages(context))
   const [input, setInput] = useState("")
   const [loading, setLoading] = useState(false)
   const [applied, setApplied] = useState(false)
@@ -102,17 +105,21 @@ export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext }: AiC
   }, [messages])
 
   useEffect(() => {
-    if (initialContext && !autoSentRef.current) {
+    if (context && !autoSentRef.current) {
       autoSentRef.current = true
-      handleSend(`Вот результат технического анализа инструмента. Предложи 1-2 конкретные стратегии на его основе и сразу создай лучшую через create_strategy:\n\n${initialContext}`)
+      handleSend(
+        `Я только что провёл технический анализ инструмента. Вот его результаты:\n\n${context}\n\nНа основе этого анализа, какие стратегии ты видишь? Предложи лучший вариант и сразу создай стратегию через create_strategy.`,
+        true,
+      )
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleSend = async (overrideText?: string) => {
+  const handleSend = async (overrideText?: string, hideUserMessage?: boolean) => {
     const text = (overrideText ?? input).trim()
     if (!text || loading) return
 
-    const userMsg: ChatMessage = { role: "user", content: text }
+    const userMsg: ChatMessage = { role: "user", content: text, hidden: hideUserMessage }
     const newMessages = [...messages, userMsg]
     setMessages(newMessages)
     setInput("")
@@ -169,7 +176,7 @@ export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext }: AiC
 
       <ScrollArea className="h-80">
         <div ref={scrollRef} className="space-y-3 p-4">
-          {messages.map((msg, i) => (
+          {messages.filter((m) => !m.hidden).map((msg, i) => (
             <div
               key={i}
               className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
@@ -192,7 +199,7 @@ export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext }: AiC
               </div>
             </div>
           ))}
-          {messages.length === 1 && !loading && !initialContext && (
+          {messages.length === 1 && !loading && !context && (
             <div className="flex flex-wrap gap-1.5 px-1">
               {QUICK_REPLIES.map((qr) => (
                 <button
