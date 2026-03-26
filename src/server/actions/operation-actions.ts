@@ -90,7 +90,10 @@ export const getOperationStatsForStrategiesAction = async (
   }
 }
 
-export const getPaperPortfolioAction = async (): Promise<ApiResponse<PaperStrategyRow[]>> => {
+export const getPaperPortfolioAction = async (
+  from?: string,
+  to?: string,
+): Promise<ApiResponse<PaperStrategyRow[]>> => {
   try {
     const userId = await getCurrentUserId()
     const strategyService = new StrategyService()
@@ -124,8 +127,43 @@ export const getPaperPortfolioAction = async (): Promise<ApiResponse<PaperStrate
     for (const s of strategies) {
       const instrument = ((s as Record<string, unknown>).instrument as string | undefined) ?? "—"
       const currentPrice = instrument !== "—" ? prices[instrument] : undefined
-      const ops = await operationService.getOperations(s.id)
-      const stats = await operationService.getStats(s.id, currentPrice)
+      let ops = await operationService.getOperations(s.id)
+      const hasDateFilter = Boolean(from || to)
+      if (from) {
+        const fromDate = new Date(from)
+        ops = ops.filter((o) => new Date(o.createdAt) >= fromDate)
+      }
+      if (to) {
+        const toDate = new Date(to)
+        ops = ops.filter((o) => new Date(o.createdAt) <= toDate)
+      }
+
+      let stats: OperationStats
+      if (hasDateFilter) {
+        const buysFiltered = ops.filter((o) => o.type === "BUY")
+        const sellsFiltered = ops.filter((o) => o.type === "SELL")
+        const buyQty = buysFiltered.reduce((s, o) => s + o.quantity, 0)
+        const sellQty = sellsFiltered.reduce((s, o) => s + o.quantity, 0)
+        const buyAmount = buysFiltered.reduce((s, o) => s + o.amount, 0)
+        const sellAmount = sellsFiltered.reduce((s, o) => s + o.amount, 0)
+        const holdingQty = buyQty - sellQty
+        const holdingValue = holdingQty > 0 && currentPrice ? holdingQty * currentPrice : 0
+        const pnl = sellAmount - buyAmount + holdingValue
+        const lastBuy = buysFiltered.length > 0 ? buysFiltered[buysFiltered.length - 1].price : 0
+        stats = {
+          totalOperations: ops.length,
+          buyCount: buysFiltered.length,
+          sellCount: sellsFiltered.length,
+          initialAmount: buyAmount,
+          currentAmount: sellAmount + holdingValue,
+          holdingQty,
+          pnl,
+          pnlPercent: buyAmount > 0 ? (pnl / buyAmount) * 100 : 0,
+          lastBuyPrice: lastBuy,
+        }
+      } else {
+        stats = await operationService.getStats(s.id, currentPrice)
+      }
       const hasOpenPosition = stats.buyCount > stats.sellCount
 
       let profitableOps = 0
