@@ -269,14 +269,16 @@ export class TinkoffProvider implements BrokerProvider {
       interval,
     })
 
-    return candles.map((c) => ({
-      open: toNumber(c.open),
-      high: toNumber(c.high),
-      low: toNumber(c.low),
-      close: toNumber(c.close),
-      volume: Number(c.volume),
-      time: c.time ?? new Date(),
-    }))
+    return candles
+      .filter((c) => c.isComplete)
+      .map((c) => ({
+        open: toNumber(c.open),
+        high: toNumber(c.high),
+        low: toNumber(c.low),
+        close: toNumber(c.close),
+        volume: Number(c.volume),
+        time: c.time ?? new Date(),
+      }))
   }
 
   async getCurrentPrice(instrumentId: string): Promise<number> {

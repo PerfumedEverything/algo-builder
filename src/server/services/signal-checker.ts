@@ -62,8 +62,8 @@ export class SignalChecker {
 
   async checkSignal(signal: SignalRow): Promise<CheckResult> {
     const instrument = cleanTicker(signal.instrument)
-    const cached = await this.priceCache.getPrice(instrument)
-    const price = cached !== null ? cached : await (await this.connectBroker(signal.userId)).getCurrentPrice(instrument)
+    const broker = await this.connectBroker(signal.userId)
+    const price = await broker.getCurrentPrice(instrument)
     return this.checkSignalWithPrice(signal, price)
   }
 
@@ -81,7 +81,7 @@ export class SignalChecker {
   private async fetchCandles(signal: SignalRow): Promise<EvalContext["candles"]> {
     if (!signal.conditions.some((c) => c.indicator !== "PRICE")) return []
     const instrument = cleanTicker(signal.instrument)
-    const interval = signal.timeframe || "1d"
+    const interval = signal.timeframe || "5m"
     const cached = await this.priceCache.getCandles(instrument, interval)
     if (cached) return cached.map((c) => ({ ...c, time: new Date(c.time) }))
     const broker = await this.connectBroker(signal.userId)
@@ -106,8 +106,8 @@ export class SignalChecker {
 
   async getConditionProgress(signal: SignalRow) {
     const instrument = cleanTicker(signal.instrument)
-    const cached = await this.priceCache.getPrice(instrument)
-    const price = cached !== null ? cached : await (await this.connectBroker(signal.userId)).getCurrentPrice(instrument)
+    const broker = await this.connectBroker(signal.userId)
+    const price = await broker.getCurrentPrice(instrument)
     const ctx: EvalContext = { price, candles: await this.fetchCandles(signal) }
     return signal.conditions.map((c) => {
       const current = getIndicatorValue(c, ctx)

@@ -81,8 +81,8 @@ export class StrategyChecker {
 
   private async checkStrategy(strategy: StrategyRow): Promise<CheckResult[]> {
     const instrument = cleanTicker(strategy.instrument)
-    const cached = await this.priceCache.getPrice(instrument)
-    const price = cached !== null ? cached : await (await this.connectBroker(strategy.userId)).getCurrentPrice(instrument)
+    const broker = await this.connectBroker(strategy.userId)
+    const price = await broker.getCurrentPrice(instrument)
     return this.checkStrategyWithPrice(strategy, price)
   }
 
@@ -96,7 +96,7 @@ export class StrategyChecker {
 
     let candles: EvalContext["candles"] = []
     if (conditions.some((c) => c.indicator !== "PRICE")) {
-      const interval = strategy.timeframe || "1d"
+      const interval = strategy.timeframe || "5m"
       const cached = await this.priceCache.getCandles(instrument, interval)
       if (cached) {
         candles = cached.map((c) => ({ ...c, time: new Date(c.time) }))
