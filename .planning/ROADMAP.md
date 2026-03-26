@@ -234,7 +234,7 @@ Plans:
 **Plans:** 1/2 plans executed
 Plans:
 - [x] 06.1-01-PLAN.md — Fix bugs (asset type, break-even, N+1) + add service methods (HHI, IMOEX, dividends, instrument P&L, correlation period)
-- [ ] 06.1-02-PLAN.md — Server actions + UI components (cards, table, period selector) + portfolio page integration
+- [x] 06.1-02-PLAN.md — Server actions + UI components (cards, table, period selector) + portfolio page integration
 **UI hint**: yes
 
 ### Phase 7: Portfolio Optimization + Full AI Analysis

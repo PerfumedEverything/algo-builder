@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
-status: Ready to execute
-stopped_at: Completed 06.1-01-PLAN.md
-last_updated: "2026-03-26T13:24:05.757Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 06.1-02-PLAN.md
+last_updated: "2026-03-26T13:29:48.061Z"
 progress:
   total_phases: 14
-  completed_phases: 10
+  completed_phases: 11
   total_plans: 33
-  completed_plans: 29
+  completed_plans: 30
 ---
 
 # Project State
@@ -48,6 +48,7 @@ Plan: 2 of 2
 | Phase 06 P01 | 4 | 5 tasks | 4 files |
 | Phase 06 P02 | 7 | 5 tasks | 5 files |
 | Phase 06.1 P01 | 5 | 2 tasks | 5 files |
+| Phase 06.1 P02 | 3 | 2 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -76,6 +77,8 @@ Plan: 2 of 2
 - [Phase 06.1]: TYPE_COLORS keys use lowercase strings matching PortfolioPosition.instrumentType.toLowerCase() output: stock, etf, bond, currency, futures
 - [Phase 06.1]: getBenchmarkComparison returns null on error/no-data — UI must handle gracefully
 - [Phase 06.1]: getStatsForStrategies batch replaces per-strategy await loop — eliminates N+1 in trade success
+- [Phase 06.1]: handleCorrelationPeriodChange only refetches correlation (not full analytics) — faster period change UX
+- [Phase 06.1]: InstrumentPnlTable reads from tradeSuccessBreakdown.byInstrument — no separate action needed
 
 ### Roadmap Evolution
 
@@ -96,7 +99,7 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-26T13:24:05.754Z
-Stopped at: Completed 06.1-01-PLAN.md
+Last session: 2026-03-26T13:29:48.058Z
+Stopped at: Completed 06.1-02-PLAN.md
 Resume file: None
 Next: /gsd:discuss-phase 4.1 or /gsd:plan-phase 4.1
