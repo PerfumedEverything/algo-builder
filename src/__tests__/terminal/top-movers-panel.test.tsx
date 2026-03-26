@@ -1,7 +1,6 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi } from "vitest"
-import { render, screen } from "@testing-library/react"
-import userEvent from "@testing-library/user-event"
+import { render, screen, fireEvent } from "@testing-library/react"
 import { TopMoversPanel } from "@/components/terminal/top-movers-panel"
 import type { TopMover } from "@/core/types/terminal"
 
@@ -59,7 +58,7 @@ describe("TopMoversPanel", () => {
     }
   })
 
-  it("calls onSelect with correct ticker when a gainer row is clicked", async () => {
+  it("calls onSelect with correct ticker when a gainer row is clicked", () => {
     const onSelect = vi.fn()
     render(
       <TopMoversPanel
@@ -73,11 +72,11 @@ describe("TopMoversPanel", () => {
     const buttons = screen.getAllByRole("button")
     const gainerButton = buttons.find((b) => b.textContent?.includes("GAIN0"))
     expect(gainerButton).toBeTruthy()
-    await userEvent.click(gainerButton!)
+    fireEvent.click(gainerButton!)
     expect(onSelect).toHaveBeenCalledWith("GAIN0")
   })
 
-  it("calls onSelect with correct ticker when a loser row is clicked", async () => {
+  it("calls onSelect with correct ticker when a loser row is clicked", () => {
     const onSelect = vi.fn()
     render(
       <TopMoversPanel
@@ -91,7 +90,7 @@ describe("TopMoversPanel", () => {
     const buttons = screen.getAllByRole("button")
     const loserButton = buttons.find((b) => b.textContent?.includes("LOSE0"))
     expect(loserButton).toBeTruthy()
-    await userEvent.click(loserButton!)
+    fireEvent.click(loserButton!)
     expect(onSelect).toHaveBeenCalledWith("LOSE0")
   })
 
