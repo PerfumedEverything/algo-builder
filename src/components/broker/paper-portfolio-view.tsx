@@ -6,6 +6,31 @@ import { Loader2, TrendingUp, TrendingDown, FlaskConical } from "lucide-react"
 import type { PaperStrategyRow } from "@/server/actions/operation-actions"
 import { getPaperPortfolioAction } from "@/server/actions/operation-actions"
 
+type DatePreset = "all" | "today" | "yesterday" | "7d" | "30d"
+
+const DATE_PRESETS: { value: DatePreset; label: string }[] = [
+  { value: "all", label: "Все время" },
+  { value: "today", label: "Сегодня" },
+  { value: "yesterday", label: "Вчера" },
+  { value: "7d", label: "7 дней" },
+  { value: "30d", label: "30 дней" },
+]
+
+const getDateRange = (preset: DatePreset): { from: string; to: string } | null => {
+  if (preset === "all") return null
+  const now = new Date()
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  switch (preset) {
+    case "today": return { from: today.toISOString(), to: now.toISOString() }
+    case "yesterday": {
+      const y = new Date(today.getTime() - 86400000)
+      return { from: y.toISOString(), to: today.toISOString() }
+    }
+    case "7d": return { from: new Date(now.getTime() - 7 * 86400000).toISOString(), to: now.toISOString() }
+    case "30d": return { from: new Date(now.getTime() - 30 * 86400000).toISOString(), to: now.toISOString() }
+  }
+}
+
 const formatMoney = (n: number) =>
   new Intl.NumberFormat("ru-RU", {
     style: "currency",
@@ -26,16 +51,18 @@ const yieldColor = (n: number) =>
 export const PaperPortfolioView = () => {
   const [rows, setRows] = useState<PaperStrategyRow[]>([])
   const [loading, setLoading] = useState(true)
+  const [datePreset, setDatePreset] = useState<DatePreset>("all")
 
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getPaperPortfolioAction()
+      const range = getDateRange(datePreset)
+      const res = await getPaperPortfolioAction(range?.from, range?.to)
       if (res.success) setRows(res.data ?? [])
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [datePreset])
 
   useEffect(() => { fetchData() }, [fetchData])
 
@@ -85,15 +112,33 @@ export const PaperPortfolioView = () => {
         </div>
       </div>
 
+      <div className="flex gap-2 flex-wrap">
+        {DATE_PRESETS.map((p) => (
+          <button
+            key={p.value}
+            type="button"
+            onClick={() => setDatePreset(p.value)}
+            className={`rounded-md px-3 py-1.5 text-sm border transition-colors ${
+              datePreset === p.value
+                ? "bg-primary text-primary-foreground border-primary"
+                : "border-border hover:bg-accent"
+            }`}
+          >
+            {p.label}
+          </button>
+        ))}
+      </div>
+
       <div className="max-w-full overflow-hidden rounded-xl border border-border bg-card p-4">
         <div className="overflow-x-auto"
             style={{ WebkitOverflowScrolling: "touch" }}
           >
           <div className="min-w-[600px]">
-            <div className="grid grid-cols-7 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
+            <div className="grid grid-cols-8 gap-2 border-b border-border pb-2 text-xs text-muted-foreground">
               <span className="col-span-2">Стратегия</span>
               <span>Инструмент</span>
               <span className="text-right">Операций</span>
+              <span className="text-right">Вложено</span>
               <span className="text-right">P&L ₽</span>
               <span className="text-right">P&L %</span>
               <span className="text-right">Статус</span>
@@ -101,7 +146,7 @@ export const PaperPortfolioView = () => {
             {rows.map((row) => (
               <div
                 key={row.strategyId}
-                className="grid grid-cols-7 gap-2 border-b border-border/50 py-2.5 text-sm last:border-0"
+                className="grid grid-cols-8 gap-2 border-b border-border/50 py-2.5 text-sm last:border-0"
               >
                 <span className="col-span-2 truncate font-medium">{row.strategyName}</span>
                 <span className="text-muted-foreground">{row.instrument}</span>
@@ -115,6 +160,9 @@ export const PaperPortfolioView = () => {
                     </span>
                   )}
                 </div>
+                <span className="text-right tabular-nums text-muted-foreground">
+                  {formatMoney(row.stats.initialAmount)}
+                </span>
                 <div className="flex items-center justify-end gap-1">
                   {row.stats.pnl >= 0
                     ? <TrendingUp className="h-3 w-3 text-emerald-400" />
