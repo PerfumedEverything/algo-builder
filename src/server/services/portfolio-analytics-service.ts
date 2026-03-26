@@ -1,4 +1,4 @@
-import { sampleCorrelation } from "simple-statistics"
+import { sampleCorrelation, sampleCovariance, mean } from "simple-statistics"
 import { FUNDAMENTALS_MAP } from "@/core/data/fundamentals-map"
 import type {
   CorrelationMatrix,
@@ -10,6 +10,8 @@ import type {
   BenchmarkComparison,
   AggregateDividendYield,
   InstrumentPnl,
+  MarkowitzResult,
+  RebalancingAction,
 } from "@/core/types"
 import { AppError } from "@/core/errors/app-error"
 import { MOEXProvider } from "@/server/providers/analytics/moex-provider"
@@ -264,5 +266,145 @@ export class PortfolioAnalyticsService {
     }
 
     return { weightedYield: Math.round(weightedYield * 100) / 100, positionYields: results }
+  }
+
+  async _buildReturnSeries(userId: string, positions: PortfolioPosition[], days: number): Promise<number[][]> {
+    const now = new Date()
+    const from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
+    const returnsArr: number[][] = []
+
+    for (let i = 0; i < positions.length; i += 3) {
+      const batch = positions.slice(i, i + 3)
+      const results = await Promise.all(
+        batch.map((p) => this.broker.getCandles(userId, { instrumentId: p.instrumentId, from, to: now, interval: "day" }))
+      )
+      for (const candles of results) {
+        returnsArr.push(candles.length < 2 ? [] : toReturns(candles.map((c) => c.close)))
+      }
+    }
+    return returnsArr
+  }
+
+  async getMarkowitzOptimization(userId: string, days = 90): Promise<MarkowitzResult | null> {
+    const portfolio = await this.broker.getPortfolio(userId)
+    if (!portfolio) return null
+
+    const positions = portfolio.positions.filter(
+      (p) => p.instrumentType === "STOCK" || p.instrumentType === "ETF"
+    )
+    if (positions.length < 2) return null
+
+    const returnsArr = await this._buildReturnSeries(userId, positions, days)
+    const validReturns = returnsArr.filter((r) => r.length >= 20)
+    if (validReturns.length < 2) return null
+
+    const n = positions.length
+    const validFlags = returnsArr.map((r) => r.length >= 20)
+    const minLen = Math.min(...returnsArr.filter((r) => r.length >= 20).map((r) => r.length))
+    const trimmed = returnsArr.map((r) => r.slice(0, minLen))
+
+    const meanReturns = trimmed.map((r) => (r.length > 0 ? mean(r) * 252 : 0))
+    const covMatrix: number[][] = Array.from({ length: n }, (_, i) =>
+      Array.from({ length: n }, (_, j) => {
+        if (trimmed[i].length < 2 || trimmed[j].length < 2) return 0
+        return sampleCovariance(trimmed[i], trimmed[j]) * 252
+      })
+    )
+
+    const RF_RATE = 0.16
+    let bestSharpe = -Infinity
+    let bestWeights: number[] = Array(n).fill(1 / n)
+    let bestReturn = 0
+    let bestVol = 0
+
+    for (let iter = 0; iter < 10000; iter++) {
+      const raw = positions.map((_, idx) => (validFlags[idx] ? Math.random() : 0))
+      const rawSum = raw.reduce((s, v) => s + v, 0)
+      if (rawSum === 0) continue
+      const w = raw.map((v) => v / rawSum)
+
+      for (let pass = 0; pass < 10; pass++) {
+        let capped = false
+        for (let k = 0; k < n; k++) {
+          if (w[k] > 0.4) {
+            const excess = w[k] - 0.4
+            w[k] = 0.4
+            const others = w.reduce((s, v, idx) => s + (idx !== k && v < 0.4 ? v : 0), 0)
+            if (others > 0) {
+              for (let j = 0; j < n; j++) {
+                if (j !== k && w[j] < 0.4) w[j] += (w[j] / others) * excess
+              }
+            }
+            capped = true
+          }
+        }
+        if (!capped) break
+      }
+
+      const wSum = w.reduce((s, v) => s + v, 0)
+      for (let k = 0; k < n; k++) w[k] /= wSum
+      if (w.some((v) => v > 0.4 + 1e-9)) continue
+
+      let portReturn = 0
+      for (let k = 0; k < n; k++) portReturn += w[k] * meanReturns[k]
+
+      let portVar = 0
+      for (let i = 0; i < n; i++) {
+        for (let j = 0; j < n; j++) {
+          portVar += w[i] * w[j] * covMatrix[i][j]
+        }
+      }
+      const portVol = Math.sqrt(Math.max(portVar, 0))
+      if (portVol === 0) continue
+
+      const sharpe = (portReturn - RF_RATE) / portVol
+      if (sharpe > bestSharpe) {
+        bestSharpe = sharpe
+        bestWeights = [...w]
+        bestReturn = portReturn
+        bestVol = portVol
+      }
+    }
+
+    const totalValue = positions.reduce((s, p) => s + p.quantity * p.currentPrice, 0)
+    const weights = positions.map((p, i) => ({
+      ticker: p.ticker,
+      currentWeight: totalValue > 0 ? (p.quantity * p.currentPrice) / totalValue : 0,
+      optimalWeight: bestWeights[i],
+      currentValue: p.quantity * p.currentPrice,
+    }))
+
+    const [stockInstruments, etfInstruments] = await Promise.all([
+      this.broker.getInstruments(userId, "STOCK"),
+      this.broker.getInstruments(userId, "ETF"),
+    ])
+    const lotMap = new Map<string, number>()
+    for (const inst of [...stockInstruments, ...etfInstruments]) {
+      lotMap.set(inst.ticker, inst.lot)
+    }
+
+    const rebalancingActions: RebalancingAction[] = positions.map((p, i) => {
+      const targetValue = bestWeights[i] * totalValue
+      const currentVal = p.quantity * p.currentPrice
+      const delta = targetValue - currentVal
+      const lotSize = lotMap.get(p.ticker) ?? 1
+      const lotsNeeded = Math.round(delta / (p.currentPrice * lotSize))
+      const action: "BUY" | "SELL" | "HOLD" = lotsNeeded > 0 ? "BUY" : lotsNeeded < 0 ? "SELL" : "HOLD"
+      return {
+        ticker: p.ticker,
+        action,
+        lots: Math.abs(lotsNeeded),
+        valueRub: Math.abs(lotsNeeded) * p.currentPrice * lotSize,
+      }
+    })
+
+    return {
+      weights,
+      rebalancingActions,
+      expectedReturn: Math.round(bestReturn * 10000) / 10000,
+      expectedVolatility: Math.round(bestVol * 10000) / 10000,
+      sharpe: Math.round(bestSharpe * 100) / 100,
+      insufficientData: validReturns.length < positions.length,
+    }
   }
 }
