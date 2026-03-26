@@ -16,9 +16,16 @@
 
 ### Terminal Depth
 
-- [ ] **TERM-01**: User sees "Top Gainers" block with instruments sorted by daily % change (positive)
-- [ ] **TERM-02**: User sees "Top Losers" block with instruments sorted by daily % change (negative)
-- [ ] **TERM-03**: User can click any top mover to load its chart in terminal
+- [x] **TERM-01**: User sees "Top Gainers" block with instruments sorted by daily % change (positive)
+- [x] **TERM-02**: User sees "Top Losers" block with instruments sorted by daily % change (negative)
+- [x] **TERM-03**: User can click any top mover to load its chart in terminal
+
+### Data Consistency & UX Fixes
+
+- [ ] **DFIX-01**: Paper portfolio P&L matches strategy page P&L for the same strategy
+- [ ] **DFIX-02**: TopMovers click navigates to instrument chart immediately
+- [ ] **DFIX-03**: Paper portfolio shows strategy name, instrument, operations breakdown (profitable/unprofitable count)
+- [ ] **DFIX-04**: All instruments always use algovist ticker variant matching T-Invest prices
 
 ### Portfolio Analytics
 
@@ -71,9 +78,9 @@
 | AIREV-04 | Phase 4 | Complete |
 | AIREV-05 | Phase 4 | Complete |
 | AIREV-06 | Phase 4 | Complete |
-| TERM-01 | Phase 5 | Pending |
-| TERM-02 | Phase 5 | Pending |
-| TERM-03 | Phase 5 | Pending |
+| TERM-01 | Phase 5 | Complete |
+| TERM-02 | Phase 5 | Complete |
+| TERM-03 | Phase 5 | Complete |
 | PORT-01 | Phase 6 | Pending |
 | PORT-02 | Phase 6 | Pending |
 | PORT-03 | Phase 6 | Pending |

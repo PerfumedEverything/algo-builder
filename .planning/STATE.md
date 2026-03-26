@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Ready to plan
-stopped_at: Completed 05.1-01-PLAN.md
-last_updated: "2026-03-26T12:05:37.542Z"
+stopped_at: Completed 05.1-02-PLAN.md
+last_updated: "2026-03-26T12:06:17.890Z"
 progress:
   total_phases: 13
-  completed_phases: 8
+  completed_phases: 9
   total_plans: 29
-  completed_plans: 25
+  completed_plans: 26
 ---
 
 # Project State
@@ -44,6 +44,7 @@ Plan: 05.1-01-PLAN.md (planned)
 | Phase 04.1-ai-ux-polish P01 | 8 | 1 tasks | 3 files |
 | Phase 05 P01 | 381 | 2 tasks | 6 files |
 | Phase 05.1 P01 | 3 | 4 tasks | 4 files |
+| Phase 05.1 P02 | 4 | 5 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Plan: 05.1-01-PLAN.md (planned)
 - [Phase 05]: Added @vitejs/plugin-react + jsdom to enable React component testing with vitest
 - [Phase 05]: TopMoversPanel shown in both terminal states: no-instrument (discovery) and instrument-selected
 - [Phase 05.1]: BrokerService + PriceCache fallback reused for paper portfolio pricing
+- [Phase 05.1]: LAST_PRICE_DEALER for T-Invest app price parity, expanded classCode preference list
 
 ### Roadmap Evolution
 
@@ -84,7 +86,7 @@ Plan: 05.1-01-PLAN.md (planned)
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:05:37.539Z
-Stopped at: Completed 05.1-01-PLAN.md
+Last session: 2026-03-26T12:06:17.887Z
+Stopped at: Completed 05.1-02-PLAN.md
 Resume file: None
 Next: /gsd:discuss-phase 4.1 or /gsd:plan-phase 4.1

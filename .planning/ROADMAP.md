@@ -199,7 +199,7 @@ Plans:
 **Plans:** 0/2 plans
 Plans:
 - [x] 05.1-01-PLAN.md — Fix P&L, TopMovers click, portfolio table
-- [ ] 05.1-02-PLAN.md — Fix duplicate notifications + algovist ticker
+- [x] 05.1-02-PLAN.md — Fix duplicate notifications + algovist ticker
 **UI hint**: yes
 
 ### Phase 6: Portfolio Analytics — Correlations, Sector & Cohorts
