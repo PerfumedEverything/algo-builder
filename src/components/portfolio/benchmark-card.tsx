@@ -1,14 +1,21 @@
 "use client"
 
 import { TrendingUp, TrendingDown, Minus } from "lucide-react"
-import type { BenchmarkComparison } from "@/core/types"
+import type { BenchmarkComparison, EnhancedBenchmarkComparison } from "@/core/types"
 
 type BenchmarkCardProps = {
   data: BenchmarkComparison | null
+  enhancedData?: EnhancedBenchmarkComparison | null
   loading: boolean
 }
 
-export const BenchmarkCard = ({ data, loading }: BenchmarkCardProps) => {
+const VERDICT_COLOR: Record<string, string> = {
+  beats_market: "text-emerald-500",
+  beats_deposit: "text-amber-500",
+  loses_to_deposit: "text-red-500",
+}
+
+export const BenchmarkCard = ({ data, enhancedData, loading }: BenchmarkCardProps) => {
   if (loading) {
     return (
       <div className="flex h-28 items-center justify-center rounded-xl border border-border bg-card">
@@ -51,6 +58,19 @@ export const BenchmarkCard = ({ data, loading }: BenchmarkCardProps) => {
           </p>
         </div>
       </div>
+      {enhancedData && (
+        <div className="mt-3 space-y-1 border-t border-border pt-2">
+          <p className={`text-sm font-semibold ${VERDICT_COLOR[enhancedData.verdict] ?? ""}`}>
+            {enhancedData.verdictText}
+          </p>
+          <p className="text-xs text-muted-foreground">
+            vs Депозит ({(enhancedData.depositRateForPeriod * 100).toFixed(1)}%): {enhancedData.depositDelta > 0 ? "+" : ""}{enhancedData.depositDelta.toFixed(1)}%
+          </p>
+          <p className="text-[10px] text-muted-foreground/60">
+            Ценовая доходность без учёта дивидендов
+          </p>
+        </div>
+      )}
     </div>
   )
 }

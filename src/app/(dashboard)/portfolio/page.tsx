@@ -22,10 +22,12 @@ import { getDepositsAction, type DepositData } from "@/server/actions/deposit-ac
 import {
   getCorrelationMatrixAction,
   getPortfolioAnalyticsAction,
-  getMarkowitzOptimizationAction,
+  getHealthScoreAction,
   getFullPortfolioAiAnalysisAction,
 } from "@/server/actions/analytics-actions"
+import { PortfolioHealthService } from "@/server/services/portfolio-health-service"
 import { CorrelationHeatmap } from "@/components/portfolio/correlation-heatmap"
+import { CorrelationWarnings } from "@/components/portfolio/correlation-warnings"
 import { SectorDonut } from "@/components/portfolio/sector-donut"
 import { AssetTypeChart } from "@/components/portfolio/asset-type-chart"
 import { TradeSuccessChart } from "@/components/portfolio/trade-success-chart"
@@ -33,10 +35,18 @@ import { ConcentrationCard } from "@/components/portfolio/concentration-card"
 import { BenchmarkCard } from "@/components/portfolio/benchmark-card"
 import { DividendYieldCard } from "@/components/portfolio/dividend-yield-card"
 import { InstrumentPnlTable } from "@/components/portfolio/instrument-pnl-table"
-import { MarkowitzComparison } from "@/components/portfolio/markowitz-comparison"
-import { RebalancingActions } from "@/components/portfolio/rebalancing-actions"
+import { HealthScoreCard } from "@/components/portfolio/health-score-card"
+import { DiversificationAdviceList } from "@/components/portfolio/diversification-advice"
 import { AiAnalysisButton } from "@/components/portfolio/ai-analysis-button"
-import type { Portfolio, CorrelationMatrix, PortfolioAnalytics, MarkowitzResult } from "@/core/types"
+import type {
+  Portfolio,
+  CorrelationMatrix,
+  PortfolioAnalytics,
+  HealthScore,
+  DiversificationAdvice,
+  CorrelationWarning,
+  EnhancedBenchmarkComparison,
+} from "@/core/types"
 
 export default function PortfolioPage() {
   const [connected, setConnected] = useState(false)
@@ -49,8 +59,10 @@ export default function PortfolioPage() {
   const [correlationMatrix, setCorrelationMatrix] = useState<CorrelationMatrix | null>(null)
   const [portfolioAnalytics, setPortfolioAnalytics] = useState<PortfolioAnalytics | null>(null)
   const [correlationPeriod, setCorrelationPeriod] = useState(90)
-  const [markowitzResult, setMarkowitzResult] = useState<MarkowitzResult | null>(null)
-  const [markowitzLoading, setMarkowitzLoading] = useState(false)
+  const [healthScore, setHealthScore] = useState<HealthScore | null>(null)
+  const [diversificationAdvice, setDiversificationAdvice] = useState<DiversificationAdvice[]>([])
+  const [correlationWarnings, setCorrelationWarnings] = useState<CorrelationWarning[]>([])
+  const [enhancedBenchmark, setEnhancedBenchmark] = useState<EnhancedBenchmarkComparison | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -78,28 +90,59 @@ export default function PortfolioPage() {
 
   const fetchAnalytics = useCallback(async () => {
     setAnalyticsLoading(true)
-    setMarkowitzLoading(true)
     try {
-      const [corrRes, analyticsRes, markowitzRes] = await Promise.all([
+      const [corrRes, analyticsRes, healthRes] = await Promise.all([
         getCorrelationMatrixAction(correlationPeriod),
         getPortfolioAnalyticsAction(),
-        getMarkowitzOptimizationAction(),
+        getHealthScoreAction(),
       ])
-      if (corrRes.success && corrRes.data) setCorrelationMatrix(corrRes.data)
-      if (analyticsRes.success && analyticsRes.data) setPortfolioAnalytics(analyticsRes.data)
-      if (markowitzRes.success) setMarkowitzResult(markowitzRes.data ?? null)
+
+      if (corrRes.success && corrRes.data) {
+        setCorrelationMatrix(corrRes.data)
+        setCorrelationWarnings(
+          PortfolioHealthService.generateCorrelationWarnings(corrRes.data.highPairs),
+        )
+      }
+
+      if (analyticsRes.success && analyticsRes.data) {
+        setPortfolioAnalytics(analyticsRes.data)
+
+        if (portfolio?.positions) {
+          setDiversificationAdvice(
+            PortfolioHealthService.generateDiversificationAdvice(
+              portfolio.positions,
+              analyticsRes.data.concentration,
+              analyticsRes.data.sectorAllocation,
+            ),
+          )
+        }
+
+        if (analyticsRes.data.benchmarkComparison) {
+          setEnhancedBenchmark(
+            PortfolioHealthService.enhanceBenchmark(analyticsRes.data.benchmarkComparison),
+          )
+        }
+      }
+
+      if (healthRes.success && healthRes.data) {
+        setHealthScore(healthRes.data)
+      }
     } finally {
       setAnalyticsLoading(false)
-      setMarkowitzLoading(false)
     }
-  }, [correlationPeriod])
+  }, [correlationPeriod, portfolio?.positions])
 
   const handleCorrelationPeriodChange = useCallback(async (days: number) => {
     setCorrelationPeriod(days)
     setCorrelationLoading(true)
     try {
       const res = await getCorrelationMatrixAction(days)
-      if (res.success && res.data) setCorrelationMatrix(res.data)
+      if (res.success && res.data) {
+        setCorrelationMatrix(res.data)
+        setCorrelationWarnings(
+          PortfolioHealthService.generateCorrelationWarnings(res.data.highPairs),
+        )
+      }
     } finally {
       setCorrelationLoading(false)
     }
@@ -190,12 +233,10 @@ export default function PortfolioPage() {
         {connected && (
           <TabsContent value="analytics" className="mt-4 space-y-4">
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              <ConcentrationCard
-                data={portfolioAnalytics?.concentration ?? { hhi: 0, level: "diversified", dominantPositions: [] }}
-                loading={analyticsLoading}
-              />
+              <HealthScoreCard data={healthScore} loading={analyticsLoading} />
               <BenchmarkCard
                 data={portfolioAnalytics?.benchmarkComparison ?? null}
+                enhancedData={enhancedBenchmark}
                 loading={analyticsLoading}
               />
               <DividendYieldCard
@@ -204,12 +245,16 @@ export default function PortfolioPage() {
               />
             </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <div>
+              <div className="space-y-4">
                 <CorrelationHeatmap
                   matrix={correlationMatrix ?? { tickers: [], matrix: [], highPairs: [] }}
                   loading={analyticsLoading || correlationLoading}
                   period={correlationPeriod}
                   onPeriodChange={handleCorrelationPeriodChange}
+                />
+                <CorrelationWarnings
+                  warnings={correlationWarnings}
+                  loading={analyticsLoading || correlationLoading}
                 />
               </div>
               <div className="flex flex-col gap-4">
@@ -224,24 +269,26 @@ export default function PortfolioPage() {
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <TradeSuccessChart
-                data={portfolioAnalytics?.tradeSuccessBreakdown ?? { profitable: { count: 0, totalPnl: 0 }, unprofitable: { count: 0, totalPnl: 0 }, breakEven: { count: 0 }, byInstrument: [] }}
-                loading={analyticsLoading}
-              />
-              <InstrumentPnlTable
-                data={portfolioAnalytics?.tradeSuccessBreakdown?.byInstrument ?? []}
-                loading={analyticsLoading}
-              />
-            </div>
-            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-              <MarkowitzComparison
-                data={markowitzResult}
-                loading={analyticsLoading || markowitzLoading}
-              />
-              <RebalancingActions
-                actions={markowitzResult?.rebalancingActions ?? []}
-                loading={analyticsLoading || markowitzLoading}
-              />
+              <div className="space-y-4">
+                <ConcentrationCard
+                  data={portfolioAnalytics?.concentration ?? { hhi: 0, level: "diversified", dominantPositions: [] }}
+                  loading={analyticsLoading}
+                />
+                <DiversificationAdviceList
+                  advice={diversificationAdvice}
+                  loading={analyticsLoading}
+                />
+              </div>
+              <div className="space-y-4">
+                <TradeSuccessChart
+                  data={portfolioAnalytics?.tradeSuccessBreakdown ?? { profitable: { count: 0, totalPnl: 0 }, unprofitable: { count: 0, totalPnl: 0 }, breakEven: { count: 0 }, byInstrument: [] }}
+                  loading={analyticsLoading}
+                />
+                <InstrumentPnlTable
+                  data={portfolioAnalytics?.tradeSuccessBreakdown?.byInstrument ?? []}
+                  loading={analyticsLoading}
+                />
+              </div>
             </div>
             <div className="flex justify-center">
               <AiAnalysisButton
