@@ -5,6 +5,7 @@ import { type ApiResponse, errorResponse, successResponse } from "@/core/types/a
 import type { OrderBookData, TopMover } from "@/core/types"
 import type { PositionOperation } from "@/core/types"
 import { mapOrderBookResponse } from "@/lib/order-book-utils"
+import { redis } from "@/lib/redis"
 import { MOEXProvider } from "@/server/providers/analytics"
 import { BrokerService } from "@/server/services"
 import { getCurrentUserId } from "./helpers"
@@ -46,6 +47,20 @@ export const getOperationsByTickerAction = async (
     const portfolio = await new BrokerService().getPortfolio(userId)
     const position = portfolio?.positions.find((p) => p.ticker === ticker)
     return successResponse(position?.operations ?? [])
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
+export const subscribeInstrumentAction = async (
+  ticker: string,
+): Promise<ApiResponse<void>> => {
+  try {
+    await getCurrentUserId()
+    const cleanTicker = ticker.replace(/@$/, "").toUpperCase()
+    await redis.sadd("requested-instruments", cleanTicker)
+    await redis.expire("requested-instruments", 300)
+    return successResponse(undefined)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
   }

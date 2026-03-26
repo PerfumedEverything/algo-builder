@@ -2,6 +2,7 @@ import "dotenv/config"
 import { TinkoffInvestApi } from "tinkoff-invest-api"
 import Redis from "ioredis"
 import { createClient } from "@supabase/supabase-js"
+import { PREFERRED_CLASS_CODES } from "../src/lib/shared-constants"
 
 const PRICE_PREFIX = "price:"
 const CANDLE_PREFIX = "candles:"
@@ -37,7 +38,7 @@ const api = new TinkoffInvestApi({ token: systemToken })
 
 const toNumber = (q?: { units: number; nano: number }): number => {
   if (!q) return 0
-  return q.units + q.nano / 1_000_000_000
+  return Number((q.units + q.nano / 1_000_000_000).toFixed(9))
 }
 
 const stripTickerSuffix = (ticker: string): string => ticker.replace(/@$/, "")
@@ -47,18 +48,18 @@ let unsubscribeFn: (() => Promise<void>) | null = null
 let lastPriceUpdate = Date.now()
 
 async function getActiveInstruments(): Promise<string[]> {
-  const [signals, strategies] = await Promise.all([
+  const [signals, strategies, requested] = await Promise.all([
     db.from("Signal").select("instrument").eq("isActive", true),
     db.from("Strategy").select("instrument").eq("status", "ACTIVE"),
+    redis.smembers("requested-instruments"),
   ])
 
   const instruments = new Set<string>()
   for (const row of signals.data ?? []) instruments.add(row.instrument)
   for (const row of strategies.data ?? []) instruments.add(row.instrument)
+  for (const ticker of requested) instruments.add(ticker)
   return [...instruments]
 }
-
-const PREFERRED_CLASS_CODES = ["TQBR", "TQTF", "TQOB", "TQCB", "TQIF"]
 
 async function resolveTickerToUid(ticker: string): Promise<string> {
   if (ticker.includes("-") && ticker.length > 20) return ticker
