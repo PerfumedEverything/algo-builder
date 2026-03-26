@@ -19,13 +19,25 @@ import {
   getPortfolioAction,
 } from "@/server/actions/broker-actions"
 import { getDepositsAction, type DepositData } from "@/server/actions/deposit-actions"
-import type { Portfolio } from "@/core/types"
+import {
+  getCorrelationMatrixAction,
+  getPortfolioAnalyticsAction,
+} from "@/server/actions/analytics-actions"
+import { CorrelationHeatmap } from "@/components/portfolio/correlation-heatmap"
+import { SectorDonut } from "@/components/portfolio/sector-donut"
+import { AssetTypeChart } from "@/components/portfolio/asset-type-chart"
+import { TradeSuccessChart } from "@/components/portfolio/trade-success-chart"
+import type { Portfolio, CorrelationMatrix, PortfolioAnalytics } from "@/core/types"
 
 export default function PortfolioPage() {
   const [connected, setConnected] = useState(false)
   const [loading, setLoading] = useState(true)
   const [portfolio, setPortfolio] = useState<Portfolio | null>(null)
   const [deposits, setDeposits] = useState<DepositData | null>(null)
+
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [correlationMatrix, setCorrelationMatrix] = useState<CorrelationMatrix | null>(null)
+  const [portfolioAnalytics, setPortfolioAnalytics] = useState<PortfolioAnalytics | null>(null)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -48,6 +60,24 @@ export default function PortfolioPage() {
       }
     } finally {
       setLoading(false)
+    }
+  }, [])
+
+  const fetchAnalytics = useCallback(async () => {
+    setAnalyticsLoading(true)
+    try {
+      const [corrRes, analyticsRes] = await Promise.all([
+        getCorrelationMatrixAction(),
+        getPortfolioAnalyticsAction(),
+      ])
+      if (corrRes.success && corrRes.data) {
+        setCorrelationMatrix(corrRes.data)
+      }
+      if (analyticsRes.success && analyticsRes.data) {
+        setPortfolioAnalytics(analyticsRes.data)
+      }
+    } finally {
+      setAnalyticsLoading(false)
     }
   }, [])
 
@@ -94,6 +124,11 @@ export default function PortfolioPage() {
         <TabsList>
           <TabsTrigger value="broker">Брокерский портфель</TabsTrigger>
           <TabsTrigger value="paper">Тестовая торговля</TabsTrigger>
+          {connected && (
+            <TabsTrigger value="analytics" onClick={() => { if (!correlationMatrix && !portfolioAnalytics) fetchAnalytics() }}>
+              Аналитика
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="broker" className="mt-4">
@@ -127,6 +162,36 @@ export default function PortfolioPage() {
         <TabsContent value="paper" className="mt-4">
           <PaperPortfolioView />
         </TabsContent>
+
+        {connected && (
+          <TabsContent value="analytics" className="mt-4">
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="lg:col-span-1">
+                <h3 className="mb-2 text-sm font-semibold">Корреляционная матрица</h3>
+                <CorrelationHeatmap
+                  matrix={correlationMatrix ?? { tickers: [], matrix: [], highPairs: [] }}
+                  loading={analyticsLoading}
+                />
+              </div>
+              <div className="flex flex-col gap-4 lg:col-span-1">
+                <SectorDonut
+                  data={portfolioAnalytics?.sectorAllocation ?? []}
+                  loading={analyticsLoading}
+                />
+                <AssetTypeChart
+                  data={portfolioAnalytics?.assetTypeBreakdown ?? []}
+                  loading={analyticsLoading}
+                />
+              </div>
+              <div className="lg:col-span-2">
+                <TradeSuccessChart
+                  data={portfolioAnalytics?.tradeSuccessBreakdown ?? { profitable: { count: 0, totalPnl: 0 }, unprofitable: { count: 0, totalPnl: 0 } }}
+                  loading={analyticsLoading}
+                />
+              </div>
+            </div>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   )
