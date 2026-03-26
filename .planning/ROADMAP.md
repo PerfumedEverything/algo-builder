@@ -181,8 +181,10 @@ Plans:
   1. User sees a "Top Gainers" panel with the top 5 instruments sorted by daily % change (positive), refreshing every 60 seconds
   2. User sees a "Top Losers" panel with the top 5 instruments sorted by daily % change (negative), refreshing every 60 seconds
   3. User can click any instrument in either panel and the terminal chart immediately loads that instrument
-  4. Outside market hours (09:50–18:50 MSK Mon–Fri), panels show a "Биржа закрыта" badge and label data as last session
-**Plans**: TBD
+  4. Outside market hours (09:50-18:50 MSK Mon-Fri), panels show a "Биржа закрыта" badge and label data as last session
+**Plans:** 1 plan
+Plans:
+- [ ] 05-01-PLAN.md — TopMoversPanel component + market hours utility + terminal page integration
 **UI hint**: yes
 
 ### Phase 6: Portfolio Analytics — Correlations, Sector & Cohorts
@@ -243,8 +245,7 @@ v1.1: 4 → 4.1 → 5 → 6 → 7 → 8
 | 3.1 UX Audit (INSERTED) | v1.0 | 0/TBD | Complete | 2026-03-25 |
 | 4. AI Revolution | v1.1 | 3/3 | Complete | 2026-03-25 |
 | 4.1 AI UX Polish (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
-| 5. Terminal Top Movers | v1.1 | 0/TBD | Not started | - |
+| 5. Terminal Top Movers | v1.1 | 0/1 | Planning complete | - |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 0/TBD | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
-
