@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
-status: Ready to plan
-stopped_at: Completed 05.1-02-PLAN.md
-last_updated: "2026-03-26T12:06:17.890Z"
+status: Ready to execute
+stopped_at: Completed 06-01-PLAN.md
+last_updated: "2026-03-26T12:51:33.204Z"
 progress:
   total_phases: 13
   completed_phases: 9
-  total_plans: 29
-  completed_plans: 26
+  total_plans: 31
+  completed_plans: 27
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 5.1 — data-consistency
+**Current focus:** Phase 06 — portfolio-analytics
 
 ## Current Position
 
-Phase: 5.1
-Plan: 05.1-01-PLAN.md (planned)
+Phase: 06 (portfolio-analytics) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -45,6 +45,7 @@ Plan: 05.1-01-PLAN.md (planned)
 | Phase 05 P01 | 381 | 2 tasks | 6 files |
 | Phase 05.1 P01 | 3 | 4 tasks | 4 files |
 | Phase 05.1 P02 | 4 | 5 tasks | 2 files |
+| Phase 06 P01 | 4 | 5 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -67,6 +68,7 @@ Plan: 05.1-01-PLAN.md (planned)
 - [Phase 05]: TopMoversPanel shown in both terminal states: no-instrument (discovery) and instrument-selected
 - [Phase 05.1]: BrokerService + PriceCache fallback reused for paper portfolio pricing
 - [Phase 05.1]: LAST_PRICE_DEALER for T-Invest app price parity, expanded classCode preference list
+- [Phase 06]: recharts was pre-installed; FUNDAMENTALS_MAP used for static sector lookup over MOEX ISS API (medium confidence)
 
 ### Roadmap Evolution
 
@@ -86,7 +88,7 @@ Plan: 05.1-01-PLAN.md (planned)
 
 ## Session Continuity
 
-Last session: 2026-03-26T12:06:17.887Z
-Stopped at: Completed 05.1-02-PLAN.md
+Last session: 2026-03-26T12:51:33.201Z
+Stopped at: Completed 06-01-PLAN.md
 Resume file: None
 Next: /gsd:discuss-phase 4.1 or /gsd:plan-phase 4.1
