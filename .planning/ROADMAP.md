@@ -218,6 +218,25 @@ Plans:
 - [x] 06-02-PLAN.md — UI components (heatmap, donut, charts) + portfolio page integration
 **UI hint**: yes
 
+### Phase 6.1: Analytics Data Quality & Depth (INSERTED)
+**Goal**: Fix data correctness issues in Phase 6 analytics (asset type mapping, break-even trades, N+1 queries), add portfolio concentration metrics (Herfindahl index), IMOEX benchmark comparison, dividend yield aggregation, instrument-level P&L breakdown, and configurable correlation period — making analytics deeper and more accurate than T-Invest
+**Depends on**: Phase 6 (analytics service and UI components)
+**Requirements**: AQFIX-01, AQFIX-02, AQFIX-03, AQFIX-04, AQFIX-05, AQFIX-06, AQFIX-07, AQFIX-08
+**Success Criteria** (what must be TRUE):
+  1. Asset type chart correctly maps STOCK/ETF/BOND/CURRENCY/FUTURES types to Russian labels and colors (no case mismatch)
+  2. Break-even strategies (pnl === 0) are counted separately in trade success breakdown, not silently dropped
+  3. Trade success breakdown uses batch query instead of N+1 per-strategy queries
+  4. Portfolio page shows Herfindahl concentration index with warning when single position exceeds 40% of portfolio value
+  5. Portfolio page shows portfolio return vs IMOEX benchmark return for matching period (30/90/180 days)
+  6. Portfolio page shows aggregate dividend yield based on position weights and FUNDAMENTALS_MAP data
+  7. Trade success section shows P&L breakdown by individual instrument (not just strategy-level)
+  8. User can switch correlation period between 30/60/90/180 days
+**Plans:** 2 plans
+Plans:
+- [ ] 06.1-01-PLAN.md — Fix bugs (asset type, break-even, N+1) + add service methods (HHI, IMOEX, dividends, instrument P&L, correlation period)
+- [ ] 06.1-02-PLAN.md — Server actions + UI components (cards, table, period selector) + portfolio page integration
+**UI hint**: yes
+
 ### Phase 7: Portfolio Optimization + Full AI Analysis
 **Goal**: Users receive Markowitz-based rebalancing recommendations and a comprehensive AI analysis of their entire portfolio
 **Depends on**: Phase 6 (covariance matrix and sector data from analytics service)
@@ -250,7 +269,7 @@ Plans:
 
 **Execution Order:**
 v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
-v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 7 → 8
+v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 7 → 8
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -266,5 +285,6 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 7 → 8
 | 5. Terminal Top Movers | v1.1 | 1/1 | Complete   | 2026-03-26 |
 | 5.1 Data Consistency & UX Fixes (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 2/2 | Complete   | 2026-03-26 |
+| 6.1 Analytics Data Quality & Depth (INSERTED) | v1.1 | 0/2 | In progress | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/TBD | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
