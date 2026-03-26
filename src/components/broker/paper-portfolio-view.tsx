@@ -105,7 +105,16 @@ export const PaperPortfolioView = () => {
               >
                 <span className="col-span-2 truncate font-medium">{row.strategyName}</span>
                 <span className="text-muted-foreground">{row.instrument}</span>
-                <span className="text-right tabular-nums">{row.stats.totalOperations}</span>
+                <div className="text-right tabular-nums">
+                  <span>{row.stats.totalOperations}</span>
+                  {(row.profitableOps > 0 || row.unprofitableOps > 0) && (
+                    <span className="ml-1 text-xs">
+                      (<span className="text-emerald-400">{row.profitableOps}</span>
+                      /
+                      <span className="text-red-400">{row.unprofitableOps}</span>)
+                    </span>
+                  )}
+                </div>
                 <div className="flex items-center justify-end gap-1">
                   {row.stats.pnl >= 0
                     ? <TrendingUp className="h-3 w-3 text-emerald-400" />
