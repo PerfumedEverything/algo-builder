@@ -78,3 +78,26 @@ export type PortfolioAnalytics = {
   benchmarkComparison: BenchmarkComparison | null
   aggregateDividendYield: AggregateDividendYield
 }
+
+export type MarkowitzWeights = {
+  ticker: string
+  currentWeight: number
+  optimalWeight: number
+  currentValue: number
+}[]
+
+export type RebalancingAction = {
+  ticker: string
+  action: "BUY" | "SELL" | "HOLD"
+  lots: number
+  valueRub: number
+}
+
+export type MarkowitzResult = {
+  weights: MarkowitzWeights
+  rebalancingActions: RebalancingAction[]
+  expectedReturn: number
+  expectedVolatility: number
+  sharpe: number
+  insufficientData: boolean
+}
