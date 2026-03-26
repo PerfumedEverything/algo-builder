@@ -22,6 +22,8 @@ import { getDepositsAction, type DepositData } from "@/server/actions/deposit-ac
 import {
   getCorrelationMatrixAction,
   getPortfolioAnalyticsAction,
+  getMarkowitzOptimizationAction,
+  getFullPortfolioAiAnalysisAction,
 } from "@/server/actions/analytics-actions"
 import { CorrelationHeatmap } from "@/components/portfolio/correlation-heatmap"
 import { SectorDonut } from "@/components/portfolio/sector-donut"
@@ -31,7 +33,10 @@ import { ConcentrationCard } from "@/components/portfolio/concentration-card"
 import { BenchmarkCard } from "@/components/portfolio/benchmark-card"
 import { DividendYieldCard } from "@/components/portfolio/dividend-yield-card"
 import { InstrumentPnlTable } from "@/components/portfolio/instrument-pnl-table"
-import type { Portfolio, CorrelationMatrix, PortfolioAnalytics } from "@/core/types"
+import { MarkowitzComparison } from "@/components/portfolio/markowitz-comparison"
+import { RebalancingActions } from "@/components/portfolio/rebalancing-actions"
+import { AiAnalysisButton } from "@/components/portfolio/ai-analysis-button"
+import type { Portfolio, CorrelationMatrix, PortfolioAnalytics, MarkowitzResult } from "@/core/types"
 
 export default function PortfolioPage() {
   const [connected, setConnected] = useState(false)
@@ -44,6 +49,8 @@ export default function PortfolioPage() {
   const [correlationMatrix, setCorrelationMatrix] = useState<CorrelationMatrix | null>(null)
   const [portfolioAnalytics, setPortfolioAnalytics] = useState<PortfolioAnalytics | null>(null)
   const [correlationPeriod, setCorrelationPeriod] = useState(90)
+  const [markowitzResult, setMarkowitzResult] = useState<MarkowitzResult | null>(null)
+  const [markowitzLoading, setMarkowitzLoading] = useState(false)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
@@ -71,19 +78,19 @@ export default function PortfolioPage() {
 
   const fetchAnalytics = useCallback(async () => {
     setAnalyticsLoading(true)
+    setMarkowitzLoading(true)
     try {
-      const [corrRes, analyticsRes] = await Promise.all([
+      const [corrRes, analyticsRes, markowitzRes] = await Promise.all([
         getCorrelationMatrixAction(correlationPeriod),
         getPortfolioAnalyticsAction(),
+        getMarkowitzOptimizationAction(),
       ])
-      if (corrRes.success && corrRes.data) {
-        setCorrelationMatrix(corrRes.data)
-      }
-      if (analyticsRes.success && analyticsRes.data) {
-        setPortfolioAnalytics(analyticsRes.data)
-      }
+      if (corrRes.success && corrRes.data) setCorrelationMatrix(corrRes.data)
+      if (analyticsRes.success && analyticsRes.data) setPortfolioAnalytics(analyticsRes.data)
+      if (markowitzRes.success) setMarkowitzResult(markowitzRes.data ?? null)
     } finally {
       setAnalyticsLoading(false)
+      setMarkowitzLoading(false)
     }
   }, [correlationPeriod])
 
@@ -224,6 +231,24 @@ export default function PortfolioPage() {
               <InstrumentPnlTable
                 data={portfolioAnalytics?.tradeSuccessBreakdown?.byInstrument ?? []}
                 loading={analyticsLoading}
+              />
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <MarkowitzComparison
+                data={markowitzResult}
+                loading={analyticsLoading || markowitzLoading}
+              />
+              <RebalancingActions
+                actions={markowitzResult?.rebalancingActions ?? []}
+                loading={analyticsLoading || markowitzLoading}
+              />
+            </div>
+            <div className="flex justify-center">
+              <AiAnalysisButton
+                title="Комплексный анализ портфеля"
+                triggerLabel="Полный AI-анализ портфеля"
+                triggerLabelMobile="AI-анализ"
+                analyzeAction={getFullPortfolioAiAnalysisAction}
               />
             </div>
           </TabsContent>
