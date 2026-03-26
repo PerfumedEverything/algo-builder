@@ -34,9 +34,9 @@
 - [ ] **PORT-03**: User sees sector allocation as donut/pie chart
 - [ ] **PORT-04**: User sees cohort breakdown by asset type (stocks, bonds, ETF, currency)
 - [ ] **PORT-05**: User sees cohort breakdown by trade success (profitable vs unprofitable positions)
-- [ ] **PORT-06**: User sees current vs optimal portfolio weights (Markowitz) as side-by-side comparison
-- [ ] **PORT-07**: User sees concrete rebalancing actions ("Sell X lots of TICKER, buy Y lots of TICKER")
-- [ ] **PORT-08**: User can click full portfolio AI analysis button and receive comprehensive streaming analysis covering risk, fundamentals, correlations, and optimization
+- [x] **PORT-06**: User sees current vs optimal portfolio weights (Markowitz) as side-by-side comparison
+- [x] **PORT-07**: User sees concrete rebalancing actions ("Sell X lots of TICKER, buy Y lots of TICKER")
+- [x] **PORT-08**: User can click full portfolio AI analysis button and receive comprehensive streaming analysis covering risk, fundamentals, correlations, and optimization
 
 ### Analytics Data Quality & Depth
 
@@ -108,9 +108,9 @@
 | PORT-03 | Phase 6 | Pending |
 | PORT-04 | Phase 6 | Pending |
 | PORT-05 | Phase 6 | Pending |
-| PORT-06 | Phase 7 | Pending |
-| PORT-07 | Phase 7 | Pending |
-| PORT-08 | Phase 7 | Pending |
+| PORT-06 | Phase 7 | Complete |
+| PORT-07 | Phase 7 | Complete |
+| PORT-08 | Phase 7 | Complete |
 | AQFIX-01 | Phase 6.1 | Complete |
 | AQFIX-02 | Phase 6.1 | Complete |
 | AQFIX-03 | Phase 6.1 | Complete |

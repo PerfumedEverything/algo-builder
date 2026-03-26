@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Phase complete — ready for verification
-stopped_at: Completed 06.2-02-PLAN.md
-last_updated: "2026-03-26T19:32:33.059Z"
+stopped_at: Completed 07-02-PLAN.md
+last_updated: "2026-03-26T20:13:37.319Z"
 progress:
   total_phases: 16
-  completed_phases: 11
+  completed_phases: 12
   total_plans: 37
-  completed_plans: 31
+  completed_plans: 33
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 06.2 — realtime-prices-ux-fixes
+**Current focus:** Phase 07 — portfolio-optimization
 
 ## Current Position
 
-Phase: 06.2 (realtime-prices-ux-fixes) — EXECUTING
+Phase: 07 (portfolio-optimization) — EXECUTING
 Plan: 2 of 2
 
 ## Performance Metrics
@@ -51,6 +51,8 @@ Plan: 2 of 2
 | Phase 06.1 P02 | 3 | 2 tasks | 7 files |
 | Phase 06.2 P01 | 5 | 2 tasks | 5 files |
 | Phase 06.2 P02 | 5 | 2 tasks | 4 files |
+| Phase 07 P01 | 4 | 1 tasks | 3 files |
+| Phase 07 P02 | 10 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -85,6 +87,8 @@ Plan: 2 of 2
 - [Phase 06.2]: Redis set requested-instruments with 5min TTL for dynamic terminal subscription signaling
 - [Phase 06.2]: Compute stats manually from filtered ops when date filter active (getStats queries all ops internally)
 - [Phase 06.2]: Hide parent grid wrapper when both PositionsPanel and TradeHistoryPanel are empty
+- [Phase 07]: RF rate 0.16 (CBR key rate) for Sharpe, 10k Monte Carlo iterations, multi-pass concentration cap at 0.4
+- [Phase 07]: Shared color palette across both donuts; HOLD actions filtered from rebalancing display; AI context assembles all analytics into single prompt
 
 ### Roadmap Evolution
 
@@ -106,7 +110,7 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-26T19:32:33.054Z
-Stopped at: Completed 06.2-02-PLAN.md
+Last session: 2026-03-26T20:13:37.315Z
+Stopped at: Completed 07-02-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2

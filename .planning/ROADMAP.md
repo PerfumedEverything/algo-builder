@@ -269,8 +269,8 @@ Plans:
   3. User can click "Full AI Portfolio Analysis" and receive a comprehensive streaming analysis covering risk metrics, fundamentals, correlations, and optimization together
 **Plans:** 2 plans
 Plans:
-- [ ] 07-01-PLAN.md — Markowitz types + Monte Carlo optimizer + rebalancing lot math + tests
-- [ ] 07-02-PLAN.md — Server actions + AI prompt + UI components (donuts, rebalancing table) + portfolio page wiring
+- [x] 07-01-PLAN.md — Markowitz types + Monte Carlo optimizer + rebalancing lot math + tests
+- [x] 07-02-PLAN.md — Server actions + AI prompt + UI components (donuts, rebalancing table) + portfolio page wiring
 **UI hint**: yes
 
 ### Phase 8: AI Assistant Deep Upgrade
