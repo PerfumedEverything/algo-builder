@@ -52,6 +52,7 @@ export const AiWizardDialog = ({
   const [analysisError, setAnalysisError] = useState<string | null>(null)
   const [extractedStrategy, setExtractedStrategy] = useState<AiGeneratedStrategy | null>(null)
   const [chatKey, setChatKey] = useState(0)
+  const [pendingFormData, setPendingFormData] = useState<AiGeneratedStrategy | null>(null)
   const formRef = useRef<StrategyFormHandle>(null)
 
   const handleAnalyze = async () => {
@@ -94,15 +95,22 @@ export const AiWizardDialog = ({
   }
 
   const handleStrategyGenerated = (strategy: AiGeneratedStrategy) => {
-    formRef.current?.setGeneralFields({
-      name: strategy.name,
-      instrument: initialInstrument ?? strategy.instrument,
-      instrumentType: strategy.instrumentType as "STOCK" | "BOND" | "CURRENCY" | "FUTURES",
-      timeframe: strategy.timeframe,
-      description: strategy.description,
-    })
+    setPendingFormData(strategy)
     setStep("form")
   }
+
+  useEffect(() => {
+    if (step === "form" && pendingFormData && formRef.current) {
+      formRef.current.setGeneralFields({
+        name: pendingFormData.name,
+        instrument: initialInstrument ?? pendingFormData.instrument,
+        instrumentType: pendingFormData.instrumentType as "STOCK" | "BOND" | "CURRENCY" | "FUTURES",
+        timeframe: pendingFormData.timeframe,
+        description: pendingFormData.description,
+      })
+      setPendingFormData(null)
+    }
+  }, [step, pendingFormData, initialInstrument])
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

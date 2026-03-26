@@ -108,7 +108,7 @@ export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext, analy
     if (context && !autoSentRef.current) {
       autoSentRef.current = true
       handleSend(
-        `Я только что провёл технический анализ инструмента. Вот его результаты:\n\n${context}\n\nНа основе этого анализа, какие стратегии ты видишь? Предложи лучший вариант и сразу создай стратегию через create_strategy.`,
+        `Я только что провёл технический анализ инструмента. Вот результаты:\n\n${context}\n\nКакие стратегии ты видишь на основе этого анализа? Предложи 2-3 варианта с объяснением логики.`,
         true,
       )
     }
