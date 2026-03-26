@@ -282,10 +282,13 @@ Plans:
   2. Markowitz donuts REPLACED with simple diversification advice: "⚠️ SBER 45% — снизьте до 25%", "💡 Нет IT-сектора", "✅ Хорошая диверсификация"
   3. Benchmark section shows "Вы обгоняете рынок на X%" or "Депозит выгоднее на X%" with clear labels (price return, without dividends)
   4. Correlation warnings in human language: "SBER и VTBR движутся вместе (оба банки)" instead of raw matrix numbers
-  5. Risk-free rate = 7% (OFZ proxy), all analytics use per-metric try/catch (one failure doesn't break all)
+  5. Risk-free rate = 15% (CBR key rate), all analytics use per-metric try/catch (one failure doesn't break all)
   6. AI portfolio analysis receives ALL positions, health score, specific problems — no truncation, no phantom metrics
   7. Unit tests cover health score calculation, diversification rules, benchmark comparison
-**Plans**: TBD
+**Plans**: 2 plans
+Plans:
+- [ ] 07.1-01-PLAN.md — Types + constants + PortfolioHealthService + unit tests
+- [ ] 07.1-02-PLAN.md — Server actions + AI prompt + UI components + portfolio page rewire
 **UI hint**: yes
 
 ### Phase 8: AI Assistant Deep Upgrade
@@ -331,5 +334,5 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 8
 | 6.1 Analytics Data Quality & Depth (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 6.2 Realtime Prices & Anton UX Fixes (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 2/2 | Complete | 2026-03-26 |
-| 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/TBD | Not started | - |
+| 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
