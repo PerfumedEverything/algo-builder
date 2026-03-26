@@ -129,8 +129,8 @@ Plans:
   5. All "fix now" issues resolved before moving to Phase 4
 **Plans**: 2 plans
 Plans:
-- [ ] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
-- [ ] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
+- [x] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
+- [x] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
 **UI hint**: yes
 
 </details>
@@ -255,8 +255,8 @@ Plans:
   8. All tickers are consistently uppercase across the entire system
 **Plans**: 2 plans
 Plans:
-- [ ] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
-- [ ] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
+- [x] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
+- [x] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
 **UI hint**: yes
 
 ### Phase 7: Portfolio Optimization + Full AI Analysis
@@ -289,7 +289,7 @@ Plans:
   9. User can continue conversation after strategy creation ("now make one for GAZP")
 **Plans**: 2 plans
 Plans:
-- [ ] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
+- [x] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
 - [ ] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
 **UI hint**: yes
 

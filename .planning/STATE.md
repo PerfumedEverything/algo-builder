@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Phase complete — ready for verification
-stopped_at: Completed 06.1-02-PLAN.md
-last_updated: "2026-03-26T13:29:48.061Z"
+stopped_at: Completed 06.2-02-PLAN.md
+last_updated: "2026-03-26T19:32:33.059Z"
 progress:
-  total_phases: 14
+  total_phases: 16
   completed_phases: 11
-  total_plans: 33
-  completed_plans: 30
+  total_plans: 37
+  completed_plans: 31
 ---
 
 # Project State
@@ -19,11 +19,11 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 06.1 — analytics-data-quality
+**Current focus:** Phase 06.2 — realtime-prices-ux-fixes
 
 ## Current Position
 
-Phase: 06.1 (analytics-data-quality) — EXECUTING
+Phase: 06.2 (realtime-prices-ux-fixes) — EXECUTING
 Plan: 2 of 2
 
 ## Performance Metrics
@@ -49,6 +49,8 @@ Plan: 2 of 2
 | Phase 06 P02 | 7 | 5 tasks | 5 files |
 | Phase 06.1 P01 | 5 | 2 tasks | 5 files |
 | Phase 06.1 P02 | 3 | 2 tasks | 7 files |
+| Phase 06.2 P01 | 5 | 2 tasks | 5 files |
+| Phase 06.2 P02 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -79,11 +81,16 @@ Plan: 2 of 2
 - [Phase 06.1]: getStatsForStrategies batch replaces per-strategy await loop — eliminates N+1 in trade success
 - [Phase 06.1]: handleCorrelationPeriodChange only refetches correlation (not full analytics) — faster period change UX
 - [Phase 06.1]: InstrumentPnlTable reads from tradeSuccessBreakdown.byInstrument — no separate action needed
+- [Phase 06.2]: shared-constants.ts for cross-process PREFERRED_CLASS_CODES between worker and Next.js
+- [Phase 06.2]: Redis set requested-instruments with 5min TTL for dynamic terminal subscription signaling
+- [Phase 06.2]: Compute stats manually from filtered ops when date filter active (getStats queries all ops internally)
+- [Phase 06.2]: Hide parent grid wrapper when both PositionsPanel and TradeHistoryPanel are empty
 
 ### Roadmap Evolution
 
 - Phase 8 added: AI Assistant Deep Upgrade (thinking mode, rich context, streaming, portfolio awareness, backtest)
 - Phase 6.1 inserted after Phase 6: Analytics Data Quality & Depth — fix correctness bugs + deeper metrics (URGENT)
+- Phase 6.2 inserted after Phase 6.1: Realtime Prices & Anton UX Fixes — gRPC streaming prices, UX fixes from Anton doc (URGENT)
 
 ### Pending Todos
 
@@ -99,7 +106,7 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-26T13:29:48.058Z
-Stopped at: Completed 06.1-02-PLAN.md
+Last session: 2026-03-26T19:32:33.054Z
+Stopped at: Completed 06.2-02-PLAN.md
 Resume file: None
-Next: /gsd:discuss-phase 4.1 or /gsd:plan-phase 4.1
+Next: /gsd:plan-phase 6.2

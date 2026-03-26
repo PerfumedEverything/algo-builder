@@ -51,14 +51,14 @@
 
 ### Realtime Prices & UX Fixes
 
-- [ ] **RTPRICE-01**: Terminal price updates in real-time (<1s delay) matching T-Invest to the kopeck via Tinkoff MarketDataStream
-- [ ] **RTPRICE-02**: All price displays across the app use the same real-time price source (worker as authority)
-- [ ] **RTPRICE-03**: Paper portfolio has date filter (Все время/Сегодня/Вчера/7 дней/30 дней)
-- [ ] **RTPRICE-04**: Terminal hides empty "Открытые позиции" and "История сделок" blocks when no data
-- [ ] **RTPRICE-05**: TopMovers tickers are clickable links that navigate to the instrument chart
-- [ ] **RTPRICE-06**: Mobile AI button has full label text
-- [ ] **RTPRICE-07**: Paper portfolio shows actual purchase amounts (not strategy settings amounts)
-- [ ] **RTPRICE-08**: All tickers are consistently uppercase across the entire system
+- [x] **RTPRICE-01**: Terminal price updates in real-time (<1s delay) matching T-Invest to the kopeck via Tinkoff MarketDataStream
+- [x] **RTPRICE-02**: All price displays across the app use the same real-time price source (worker as authority)
+- [x] **RTPRICE-03**: Paper portfolio has date filter (Все время/Сегодня/Вчера/7 дней/30 дней)
+- [x] **RTPRICE-04**: Terminal hides empty "Открытые позиции" and "История сделок" blocks when no data
+- [x] **RTPRICE-05**: TopMovers tickers are clickable links that navigate to the instrument chart
+- [x] **RTPRICE-06**: Mobile AI button has full label text
+- [x] **RTPRICE-07**: Paper portfolio shows actual purchase amounts (not strategy settings amounts)
+- [x] **RTPRICE-08**: All tickers are consistently uppercase across the entire system
 
 ## v2 Requirements
 
@@ -119,14 +119,14 @@
 | AQFIX-06 | Phase 6.1 | Complete |
 | AQFIX-07 | Phase 6.1 | Complete |
 | AQFIX-08 | Phase 6.1 | Complete |
-| RTPRICE-01 | Phase 6.2 | Pending |
-| RTPRICE-02 | Phase 6.2 | Pending |
-| RTPRICE-03 | Phase 6.2 | Pending |
-| RTPRICE-04 | Phase 6.2 | Pending |
-| RTPRICE-05 | Phase 6.2 | Pending |
-| RTPRICE-06 | Phase 6.2 | Pending |
-| RTPRICE-07 | Phase 6.2 | Pending |
-| RTPRICE-08 | Phase 6.2 | Pending |
+| RTPRICE-01 | Phase 6.2 | Complete |
+| RTPRICE-02 | Phase 6.2 | Complete |
+| RTPRICE-03 | Phase 6.2 | Complete |
+| RTPRICE-04 | Phase 6.2 | Complete |
+| RTPRICE-05 | Phase 6.2 | Complete |
+| RTPRICE-06 | Phase 6.2 | Complete |
+| RTPRICE-07 | Phase 6.2 | Complete |
+| RTPRICE-08 | Phase 6.2 | Complete |
 
 **Coverage:**
 - v1.1 requirements: 33 total
