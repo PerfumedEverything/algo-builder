@@ -95,6 +95,7 @@ Plan: 2 of 2
 - Phase 8 added: AI Assistant Deep Upgrade (thinking mode, rich context, streaming, portfolio awareness, backtest)
 - Phase 6.1 inserted after Phase 6: Analytics Data Quality & Depth — fix correctness bugs + deeper metrics (URGENT)
 - Phase 6.2 inserted after Phase 6.1: Realtime Prices & Anton UX Fixes — gRPC streaming prices, UX fixes from Anton doc (URGENT)
+- Phase 7.1 inserted after Phase 7: Analytics Polish & Data Integrity — fix statistical validity, RF rate, data warnings (URGENT)
 
 ### Pending Todos
 

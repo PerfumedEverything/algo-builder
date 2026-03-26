@@ -273,6 +273,22 @@ Plans:
 - [x] 07-02-PLAN.md — Server actions + AI prompt + UI components (donuts, rebalancing table) + portfolio page wiring
 **UI hint**: yes
 
+### Phase 7.1: Analytics Polish & Data Integrity (INSERTED)
+**Goal**: Replace academic analytics with actionable trader tools — Portfolio Health Score (1-100), honest benchmark comparison ("обгоняете рынок" / "депозит выгоднее"), simple diversification recommendations instead of Markowitz, human-readable correlation warnings, dividend calendar with projected income, partial error handling, complete AI analysis data
+**Depends on**: Phase 7 (analytics features exist but produce unreliable/meaningless data)
+**Requirements**: APOL-01, APOL-02, APOL-03, APOL-04, APOL-05, APOL-06, APOL-07, APOL-08
+**Success Criteria** (what must be TRUE):
+  1. Portfolio Health Score card (1-100) with color-coded breakdown: diversification, risk, performance, dividends — with plain-language explanations (not "Sharpe 0.74")
+  2. Markowitz donuts REPLACED with simple diversification advice: "⚠️ SBER 45% — снизьте до 25%", "💡 Нет IT-сектора", "✅ Хорошая диверсификация"
+  3. Benchmark section shows "Вы обгоняете рынок на X%" or "Депозит выгоднее на X%" with clear labels (price return, without dividends)
+  4. Correlation warnings in human language: "SBER и VTBR движутся вместе (оба банки)" instead of raw matrix numbers
+  5. Dividend calendar: upcoming payments with dates and amounts, projected annual dividend income per position and total
+  6. Risk-free rate = 7% (OFZ proxy), all analytics use per-metric try/catch (one failure doesn't break all)
+  7. AI portfolio analysis receives ALL positions, health score, specific problems — no truncation, no phantom metrics
+  8. Unit tests cover health score calculation, diversification rules, dividend projection, benchmark comparison
+**Plans**: TBD
+**UI hint**: yes
+
 ### Phase 8: AI Assistant Deep Upgrade
 **Goal**: Transform AI assistant from basic prompt-response into intelligent trading advisor with thinking mode, rich context, streaming, and portfolio awareness
 **Depends on**: Phase 4.1 (wizard flow), Phase 6 (portfolio analytics for correlation data)
@@ -297,7 +313,7 @@ Plans:
 
 **Execution Order:**
 v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
-v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 8
+v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 8
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -315,5 +331,6 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 8
 | 6. Portfolio Analytics — Correlations, Sector & Cohorts | v1.1 | 2/2 | Complete   | 2026-03-26 |
 | 6.1 Analytics Data Quality & Depth (INSERTED) | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 6.2 Realtime Prices & Anton UX Fixes (INSERTED) | v1.1 | 0/2 | Not started | - |
-| 7. Portfolio Optimization + Full AI Analysis | v1.1 | 0/2 | Not started | - |
+| 7. Portfolio Optimization + Full AI Analysis | v1.1 | 2/2 | Complete | 2026-03-26 |
+| 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/TBD | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
