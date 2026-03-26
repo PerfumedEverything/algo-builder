@@ -62,7 +62,7 @@ const TopMoversSection = ({ title, icon, movers, loading, onSelect, isMarketOpen
           key={mover.ticker}
           type="button"
           onClick={() => onSelect(mover.ticker)}
-          className="w-full flex items-center justify-between px-3 py-2 hover:bg-muted/50 transition-colors"
+          className="w-full flex items-center justify-between px-3 py-2 cursor-pointer hover:bg-muted transition-colors"
         >
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-sm font-semibold font-mono">{mover.ticker}</span>
