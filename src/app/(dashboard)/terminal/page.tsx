@@ -16,7 +16,7 @@ import { PositionsPanel } from "@/components/terminal/positions-panel"
 import { TradeHistoryPanel } from "@/components/terminal/trade-history-panel"
 import { getCandlesForChartAction, getTradeMarkersAction, type ChartMarker } from "@/server/actions/chart-actions"
 import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
-import { getPortfolioAction, findInstrumentByTickerAction } from "@/server/actions/broker-actions"
+import { getPortfolioAction, findInstrumentByTickerAction, getInstrumentPriceAction } from "@/server/actions/broker-actions"
 import { getOrderBookAction, getOperationsByTickerAction, getTopMoversAction } from "@/server/actions/terminal-actions"
 import { TopMoversPanel } from "@/components/terminal/top-movers-panel"
 import { isMarketOpen } from "@/lib/market-hours"
@@ -59,6 +59,7 @@ export default function TerminalPage() {
   const [topMovers, setTopMovers] = useState<{ gainers: TopMover[]; losers: TopMover[] } | null>(null)
   const [topMoversLoading, setTopMoversLoading] = useState(false)
   const [todayOpen, setTodayOpen] = useState(0)
+  const [apiPrice, setApiPrice] = useState<number | null>(null)
   const [marketOpen, setMarketOpen] = useState(true)
 
   const prices = usePriceStream()
@@ -160,6 +161,20 @@ export default function TerminalPage() {
     return () => clearInterval(id)
   }, [fetchTopMovers])
 
+  const fetchApiPrice = useCallback(async (t: string) => {
+    try {
+      const res = await getInstrumentPriceAction(t)
+      if (res.success) setApiPrice(res.data.price)
+    } catch {}
+  }, [])
+
+  useEffect(() => {
+    if (!ticker) return
+    fetchApiPrice(ticker)
+    const interval = setInterval(() => fetchApiPrice(ticker), 10_000)
+    return () => clearInterval(interval)
+  }, [ticker, fetchApiPrice])
+
   const fetchTodayOpen = useCallback(async (figi: string) => {
     try {
       const to = new Date()
@@ -181,6 +196,7 @@ export default function TerminalPage() {
     setOrderBook(null)
     setOperations([])
     setTodayOpen(0)
+    setApiPrice(null)
     fetchTodayOpen(inst.figi)
   }, [fetchTodayOpen])
 
@@ -225,7 +241,7 @@ export default function TerminalPage() {
     ? (prices.get(instrument.ticker) ?? prices.get(instrument.figi))
     : undefined
 
-  const currentPrice = livePrice?.price ?? (candles.length > 0 ? (candles[candles.length - 1].close as number) : 0)
+  const currentPrice = livePrice?.price ?? apiPrice ?? (candles.length > 0 ? (candles[candles.length - 1].close as number) : 0)
   const change = todayOpen > 0 ? ((currentPrice - todayOpen) / todayOpen) * 100 : 0
   const high = candles.length > 0 ? Math.max(...candles.map((c) => c.high as number)) : 0
   const low = candles.length > 0 ? Math.min(...candles.map((c) => c.low as number)) : 0
