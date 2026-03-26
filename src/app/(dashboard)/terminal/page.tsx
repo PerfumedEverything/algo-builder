@@ -176,7 +176,11 @@ export default function TerminalPage() {
   const buildChartMessage = useCallback(() => {
     if (!instrument) return ""
     const last30 = candles.slice(-30)
-    const lines = last30.map((c) => `${c.time} O:${c.open} H:${c.high} L:${c.low} C:${c.close}`)
+    const formatTime = (t: unknown) => {
+      const ts = typeof t === "number" ? (t < 1e12 ? t * 1000 : t) : 0
+      return new Date(ts).toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })
+    }
+    const lines = last30.map((c) => `${formatTime(c.time)} O:${c.open} H:${c.high} L:${c.low} C:${c.close}`)
     return `Инструмент: ${instrument.ticker}\nПериод: ${period}\nДанные OHLCV:\n${lines.join("\n")}`
   }, [instrument, candles, period])
 
