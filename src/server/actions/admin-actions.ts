@@ -1,6 +1,12 @@
 "use server"
 
 import { AppError } from "@/core/errors/app-error"
+
+const MIME_TO_EXT: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+}
 import { successResponse, errorResponse } from "@/core/types/api"
 import type { ApiResponse } from "@/core/types/api"
 import { getCurrentUser, getCurrentUserId } from "./helpers"
@@ -144,7 +150,7 @@ export const uploadBrokerLogoAction = async (
     }
 
     const buffer = Buffer.from(await file.arrayBuffer())
-    const ext = file.name.split(".").pop() ?? "png"
+    const ext = MIME_TO_EXT[file.type] ?? "png"
     const fileName = `logo-${Date.now()}.${ext}`
 
     const repo = new BrokerCatalogRepository()
