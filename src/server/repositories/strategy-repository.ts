@@ -51,14 +51,11 @@ export class StrategyRepository {
     return (data ?? []) as StrategyRow[]
   }
 
-  async findById(id: string) {
+  async findById(id: string, userId?: string) {
     const supabase = await this.db()
-    const { data, error } = await supabase
-      .from("Strategy")
-      .select("*")
-      .eq("id", id)
-      .single()
-
+    let query = supabase.from("Strategy").select("*").eq("id", id)
+    if (userId) query = query.eq("userId", userId)
+    const { data, error } = await query.single()
     if (error) return null
     return data as StrategyRow
   }
