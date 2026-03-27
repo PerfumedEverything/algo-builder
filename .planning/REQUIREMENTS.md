@@ -68,8 +68,8 @@
 - [x] **DPIPE-04**: Terminal price bar shows daily session values: % change from session open, daily H/L, daily volume
 - [x] **DPIPE-05**: MOEX candle normalization utility handles UTC→MSK, session boundaries (main + evening), weekend filtering
 - [x] **DPIPE-06**: Historical candles cached in Redis with incremental updates and warmup-appropriate TTLs
-- [ ] **DPIPE-07**: Comprehensive test suite: indicator accuracy, candle normalization edge cases, cache hit/miss
-- [ ] **DPIPE-08**: Audit report documenting before/after indicator values vs TradingView for top instruments
+- [x] **DPIPE-07**: Comprehensive test suite: indicator accuracy, candle normalization edge cases, cache hit/miss
+- [x] **DPIPE-08**: Audit report documenting before/after indicator values vs TradingView for top instruments
 ## v2 Requirements
 
 ### AI Advanced
@@ -143,8 +143,8 @@
 | DPIPE-04 | Phase 9 | Complete |
 | DPIPE-05 | Phase 9 | Complete |
 | DPIPE-06 | Phase 9 | Complete |
-| DPIPE-07 | Phase 9 | Pending |
-| DPIPE-08 | Phase 9 | Pending |
+| DPIPE-07 | Phase 9 | Complete |
+| DPIPE-08 | Phase 9 | Complete |
 **Coverage:**
 - v1.1 requirements: 41 total
 - Mapped to phases: 41
