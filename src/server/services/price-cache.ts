@@ -4,16 +4,16 @@ const PRICE_PREFIX = "price:"
 const CANDLE_PREFIX = "candles:"
 const PRICE_TTL = 120
 const CANDLE_TTL_MAP: Record<string, number> = {
-  "1m": 60,
-  "5m": 600,
-  "15m": 900,
-  "1h": 3600,
-  "1d": 86400,
+  "1m": 14400,
+  "5m": 43200,
+  "15m": 86400,
+  "1h": 172800,
+  "1d": 604800,
   "1w": 604800,
   "1M": 2592000,
 }
 
-type CachedCandle = {
+export type CachedCandle = {
   open: number
   high: number
   low: number
@@ -78,5 +78,17 @@ export class PriceCache {
   async releaseLock(type: "strategy" | "signal", id: string): Promise<void> {
     const key = `lock:${type}:${id}`
     await redis.del(key)
+  }
+
+  async appendCandles(
+    instrumentId: string,
+    interval: string,
+    newCandles: CachedCandle[],
+  ): Promise<void> {
+    const existing = (await this.getCandles(instrumentId, interval)) ?? []
+    const lastTime = existing.at(-1)?.time ?? null
+    const fresh = lastTime ? newCandles.filter((c) => c.time > lastTime) : newCandles
+    if (fresh.length === 0) return
+    await this.setCandles(instrumentId, interval, [...existing, ...fresh])
   }
 }
