@@ -332,7 +332,7 @@ Plans:
 - [x] 09-04-PLAN.md — backtest-kit integration as BacktestService with MOEX exchange schema
 - [x] 09-05-PLAN.md — Indicator accuracy test suite + audit report script
 - [ ] 09-06-PLAN.md — Gap closure: implement BacktestService.runBacktest() + wire strategy conditions
-- [ ] 09-07-PLAN.md — Gap closure: hardcode TradingView reference values in SBER_FIXTURE tests
+- [x] 09-07-PLAN.md — Gap closure: hardcode TradingView reference values in SBER_FIXTURE tests
 **UI hint**: yes
 ## Progress
 
@@ -359,5 +359,5 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 9 → 8
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
-| 9. Data Pipeline Overhaul | v1.1 | 5/5 | Complete   | 2026-03-27 |
+| 9. Data Pipeline Overhaul | v1.1 | 6/7 | In Progress|  |
 
