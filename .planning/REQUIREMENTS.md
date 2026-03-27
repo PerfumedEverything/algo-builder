@@ -76,12 +76,12 @@
 - [x] **AIUP-01**: AI uses thinking/reasoning step before responding — produces deeper, more contextual analysis
 - [x] **AIUP-02**: AI receives volume, order book data, and current positions alongside OHLC candles
 - [x] **AIUP-03**: AI can analyze senior timeframe for multi-timeframe confirmation
-- [ ] **AIUP-04**: After AI proposes strategies, user sees quick action buttons (Create, Show others, Change risks)
+- [x] **AIUP-04**: After AI proposes strategies, user sees quick action buttons (Create, Show others, Change risks)
 - [x] **AIUP-05**: AI responses stream character by character (not wait for full response)
 - [x] **AIUP-06**: AI sees current portfolio positions and warns about concentration/correlation risks
 - [x] **AIUP-07**: AI has access to fundamental data (P/E, dividends) when discussing instruments
 - [ ] **AIUP-08**: After strategy creation, user sees a backtest preview on historical data
-- [ ] **AIUP-09**: User can continue conversation after strategy creation
+- [x] **AIUP-09**: User can continue conversation after strategy creation
 ## v2 Requirements
 
 ### AI Advanced
@@ -160,12 +160,12 @@
 | AIUP-01 | Phase 8 | Complete |
 | AIUP-02 | Phase 8 | Complete |
 | AIUP-03 | Phase 8 | Complete |
-| AIUP-04 | Phase 8 | Pending |
+| AIUP-04 | Phase 8 | Complete |
 | AIUP-05 | Phase 8 | Complete |
 | AIUP-06 | Phase 8 | Complete |
 | AIUP-07 | Phase 8 | Complete |
 | AIUP-08 | Phase 8 | Pending |
-| AIUP-09 | Phase 8 | Pending |
+| AIUP-09 | Phase 8 | Complete |
 **Coverage:**
 - v1.1 requirements: 50 total
 - Mapped to phases: 50
