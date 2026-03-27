@@ -7,8 +7,6 @@ import { MSK_OFFSET_MS } from "@/server/services/candle-normalizer"
 import { aggregateSessionStats, type DailySessionStats } from "@/server/services/session-stats"
 import { getCurrentUserId } from "./helpers"
 
-export type { DailySessionStats }
-
 export type ChartCandle = {
   time: string | number
   open: number
