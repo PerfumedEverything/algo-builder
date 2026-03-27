@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Ready to execute
-stopped_at: Completed 08-01-PLAN.md
-last_updated: "2026-03-27T10:10:57.227Z"
+stopped_at: Completed 08-03-PLAN.md
+last_updated: "2026-03-27T10:15:34.904Z"
 progress:
   total_phases: 18
   completed_phases: 15
   total_plans: 50
-  completed_plans: 44
+  completed_plans: 46
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 08 (ai-assistant-deep-upgrade) — EXECUTING
-Plan: 2 of 4
+Plan: 4 of 4
 
 ## Performance Metrics
 
@@ -63,6 +63,8 @@ Plan: 2 of 4
 | Phase 09 P07 | 5 | 1 tasks | 1 files |
 | Phase 09 P06 | 5 | 2 tasks | 4 files |
 | Phase 08 P01 | 3 | 1 tasks | 4 files |
+| Phase 08 P02 | 5 | 2 tasks | 2 files |
+| Phase 08 P03 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -118,6 +120,11 @@ Plan: 2 of 4
 - [Phase 09]: entryConditions JSON carries risks for getSignal TP/SL computation — full indicator evaluation deferred to AI backtest preview phase
 - [Phase 08]: AiContextService uses static assembleContext with Promise.allSettled for parallel fetch and partial failure isolation
 - [Phase 08]: SENIOR_TIMEFRAME exported as named constant: 1m->5m, 5m->15m, 15m->1h, 1h->4h, 4h->1d, 1d->1w
+- [Phase 08]: deepseek-reasoner for analysis streaming, deepseek-chat for strategy creation with tool_calls
+- [Phase 08]: reasoning_content stripped from apiMessages to prevent DeepSeek API 400 errors
+- [Phase 08]: useAiStream hook encapsulates all SSE logic — AiChat stays presentational
+- [Phase 08]: ThinkingIndicator and QuickActionButtons extracted to keep ai-chat.tsx under 150 lines
+- [Phase 08]: Conversation NOT reset after strategy creation — addSystemMessage used for continuity
 
 ### Roadmap Evolution
 
@@ -141,7 +148,7 @@ Plan: 2 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-27T10:10:57.220Z
-Stopped at: Completed 08-01-PLAN.md
+Last session: 2026-03-27T10:15:34.899Z
+Stopped at: Completed 08-03-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2

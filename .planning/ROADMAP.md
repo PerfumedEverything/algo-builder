@@ -308,8 +308,8 @@ Plans:
 **Plans**: 4 plans
 Plans:
 - [x] 08-01-PLAN.md — AI types + AiContextService (market data, portfolio, fundamentals, senior TF)
-- [ ] 08-02-PLAN.md — DeepSeekProvider thinking mode + SSE streaming Route Handler
-- [ ] 08-03-PLAN.md — AiChat streaming client + quick actions + conversation continuity
+- [x] 08-02-PLAN.md — DeepSeekProvider thinking mode + SSE streaming Route Handler
+- [x] 08-03-PLAN.md — AiChat streaming client + quick actions + conversation continuity
 - [ ] 08-04-PLAN.md — Backtest preview in wizard + final wiring + human verification
 
 **UI hint**: yes 
@@ -361,6 +361,6 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 9 → 8
 | 6.2 Realtime Prices & Anton UX Fixes (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
-| 8. AI Assistant Deep Upgrade | v1.1 | 1/4 | In Progress|  |
+| 8. AI Assistant Deep Upgrade | v1.1 | 3/4 | In Progress|  |
 | 9. Data Pipeline Overhaul | v1.1 | 7/7 | Complete   | 2026-03-27 |
 
