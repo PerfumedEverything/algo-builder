@@ -1,7 +1,7 @@
 import OpenAI from "openai"
 import type { ChatCompletionTool, ChatCompletionMessageParam } from "openai/resources/chat/completions"
 import type { AiGeneratedStrategy, IndicatorType, ConditionType } from "@/core/types"
-import type { AiProvider, AiChatMessage, AiChatResponse } from "./types"
+import type { AiProvider, AiChatMessage, AiChatResponse, AiStreamChunk } from "./types"
 
 const VALID_INDICATORS: IndicatorType[] = [
   "SMA", "EMA", "RSI", "MACD", "BOLLINGER", "PRICE", "VOLUME", "PRICE_CHANGE", "SUPPORT", "RESISTANCE",
@@ -184,7 +184,11 @@ Default timeframe is 1d if not specified.
 Respond in Russian for name and description fields.
 Be creative — each strategy should be unique even for similar requests.`
 
-const CHAT_SYSTEM_PROMPT = `Ты — AI-помощник AculaTrade для создания торговых стратегий через диалог с трейдером.
+const CHAT_SYSTEM_PROMPT = `Ты теперь используешь режим "мышления" — перед ответом ты глубоко анализируешь данные.
+Если тебе передан контекст с рыночными данными, портфелем или фундаменталом — используй их в анализе.
+Если видишь проблемы в портфеле (концентрация >40%, высокая корреляция) — предупреди пользователя.
+
+Ты — AI-помощник AculaTrade для создания торговых стратегий через диалог с трейдером.
 
 Доступные индикаторы: SMA, EMA, RSI, MACD, Bollinger Bands, ATR, Stochastic, VWAP, Williams %R, а также цена, объём, уровни поддержки/сопротивления.
 Доступные условия: CROSSES_ABOVE, CROSSES_BELOW, GREATER_THAN, LESS_THAN, EQUALS, BETWEEN, ABOVE_BY_PERCENT, BELOW_BY_PERCENT, MULTIPLIED_BY.
@@ -281,6 +285,71 @@ export class DeepSeekProvider implements AiProvider {
     return {
       message: choice.content || "Не удалось получить ответ",
     }
+  }
+
+  async *chatWithThinking(
+    messages: AiChatMessage[],
+    forceCreate?: boolean,
+  ): AsyncGenerator<AiStreamChunk> {
+    const apiMessages: ChatCompletionMessageParam[] = [
+      { role: "system", content: CHAT_SYSTEM_PROMPT },
+      ...messages.map((m) => ({
+        role: m.role as "user" | "assistant",
+        content: m.content,
+      })),
+    ]
+
+    if (this.needsToolCall(messages, forceCreate)) {
+      const response = await this.client.chat.completions.create({
+        model: "deepseek-chat",
+        messages: apiMessages,
+        tools: [generateStrategyTool],
+        temperature: 0.7,
+      })
+
+      const choice = response.choices[0]?.message
+      const toolCall = choice?.tool_calls?.[0]
+
+      if (toolCall && toolCall.type === "function" && toolCall.function.name === "create_strategy") {
+        const parsed = JSON.parse(toolCall.function.arguments) as AiGeneratedStrategy
+        this.validateConfig(parsed)
+        yield { type: "strategy", content: JSON.stringify(parsed) }
+      } else {
+        yield { type: "content", content: choice?.content ?? "Не удалось получить ответ" }
+      }
+
+      yield { type: "done", content: "" }
+      return
+    }
+
+    const stream = await this.client.chat.completions.create({
+      model: "deepseek-reasoner",
+      messages: apiMessages,
+      stream: true,
+    })
+
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta as Record<string, unknown>
+      if (!delta) continue
+
+      if (typeof delta.reasoning_content === "string" && delta.reasoning_content) {
+        yield { type: "thinking", content: delta.reasoning_content }
+      }
+      if (typeof delta.content === "string" && delta.content) {
+        yield { type: "content", content: delta.content }
+      }
+    }
+
+    yield { type: "done", content: "" }
+  }
+
+  private needsToolCall(messages: AiChatMessage[], forceCreate?: boolean): boolean {
+    if (forceCreate) return true
+    const last = messages.filter((m) => m.role === "user").pop()
+    if (!last) return false
+    const text = last.content.toLowerCase()
+    const keywords = ["создай", "применить", "давай", "да, создай", "окей, создавай", "создавай"]
+    return keywords.some((kw) => text.includes(kw))
   }
 
   private validateConfig(strategy: AiGeneratedStrategy): void {
