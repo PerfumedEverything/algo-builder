@@ -14,7 +14,7 @@ import { PriceBar } from "@/components/terminal/price-bar"
 import { OrderBook } from "@/components/terminal/order-book"
 import { PositionsPanel } from "@/components/terminal/positions-panel"
 import { TradeHistoryPanel } from "@/components/terminal/trade-history-panel"
-import { getCandlesForChartAction, getTradeMarkersAction, type ChartMarker } from "@/server/actions/chart-actions"
+import { getCandlesForChartAction, getTradeMarkersAction, getDailySessionStatsAction, type ChartMarker, type DailySessionStats } from "@/server/actions/chart-actions"
 import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
 import { getPortfolioAction, findInstrumentByTickerAction, getInstrumentPriceAction } from "@/server/actions/broker-actions"
 import { getOrderBookAction, getOperationsByTickerAction, getTopMoversAction, subscribeInstrumentAction } from "@/server/actions/terminal-actions"
@@ -58,7 +58,7 @@ export default function TerminalPage() {
   const [wizardOpen, setWizardOpen] = useState(false)
   const [topMovers, setTopMovers] = useState<{ gainers: TopMover[]; losers: TopMover[] } | null>(null)
   const [topMoversLoading, setTopMoversLoading] = useState(false)
-  const [todayOpen, setTodayOpen] = useState(0)
+  const [dailyStats, setDailyStats] = useState<DailySessionStats | null>(null)
   const [apiPrice, setApiPrice] = useState<number | null>(null)
   const [marketOpen, setMarketOpen] = useState(true)
 
@@ -175,16 +175,14 @@ export default function TerminalPage() {
     return () => clearInterval(interval)
   }, [ticker, fetchApiPrice])
 
-  const fetchTodayOpen = useCallback(async (figi: string) => {
+  const fetchDailyStats = useCallback(async (figi: string) => {
     try {
-      const to = new Date()
-      const from = new Date(to.getTime() - 24 * 60 * 60 * 1000)
-      const res = await getCandlesForChartAction(figi, "1d", from.toISOString(), to.toISOString())
-      if (res.success && res.data.length > 0) {
-        setTodayOpen(res.data[res.data.length - 1].open as number)
+      const res = await getDailySessionStatsAction(figi)
+      if (res.success) {
+        setDailyStats(res.data)
       }
     } catch {
-      setTodayOpen(0)
+      setDailyStats(null)
     }
   }, [])
 
@@ -195,11 +193,11 @@ export default function TerminalPage() {
     setMarkers([])
     setOrderBook(null)
     setOperations([])
-    setTodayOpen(0)
+    setDailyStats(null)
     setApiPrice(null)
-    fetchTodayOpen(inst.figi)
+    fetchDailyStats(inst.figi)
     subscribeInstrumentAction(inst.ticker)
-  }, [fetchTodayOpen])
+  }, [fetchDailyStats])
 
   const handleQuickSelect = useCallback(async (t: string) => {
     const res = await findInstrumentByTickerAction(t)
@@ -243,11 +241,11 @@ export default function TerminalPage() {
     : undefined
 
   const currentPrice = livePrice?.price ?? apiPrice ?? (candles.length > 0 ? (candles[candles.length - 1].close as number) : 0)
-  const change = todayOpen > 0 ? ((currentPrice - todayOpen) / todayOpen) * 100 : 0
-  const lastCandle = candles.length > 0 ? candles[candles.length - 1] : null
-  const high = lastCandle ? (lastCandle.high as number) : 0
-  const low = lastCandle ? (lastCandle.low as number) : 0
-  const volume = lastCandle ? ((lastCandle as { volume?: number }).volume ?? 0) : 0
+  const sessionOpen = dailyStats?.sessionOpen ?? 0
+  const change = sessionOpen > 0 ? ((currentPrice - sessionOpen) / sessionOpen) * 100 : 0
+  const high = dailyStats?.high ?? 0
+  const low = dailyStats?.low ?? 0
+  const volume = dailyStats?.volume ?? 0
   const bestBid = orderBook?.bids?.[0]?.price ?? 0
   const bestAsk = orderBook?.asks?.[0]?.price ?? 0
 
