@@ -1,5 +1,7 @@
-import { addExchangeSchema, setConfig } from "backtest-kit"
+import { addExchangeSchema, addStrategySchema, setConfig, Backtest } from "backtest-kit"
+import type { IStrategyTickResultClosed } from "backtest-kit"
 import { getBrokerProvider } from "@/server/providers/broker"
+import type { StrategyCondition, LogicOperator, StrategyRisks } from "@/core/types"
 
 export type BacktestResult = {
   totalTrades: number
@@ -19,6 +21,36 @@ export type BacktestParams = {
   entryConditions: string
   exitConditions: string
   positionSize: number
+}
+
+type ConditionsPayload = {
+  conditions: StrategyCondition[]
+  logic: LogicOperator
+  risks?: StrategyRisks
+}
+
+const VALID_INTERVALS = ["1m", "3m", "5m", "15m", "30m", "1h"] as const
+type SignalInterval = (typeof VALID_INTERVALS)[number]
+
+function toSignalInterval(interval: string): SignalInterval {
+  return VALID_INTERVALS.includes(interval as SignalInterval)
+    ? (interval as SignalInterval)
+    : "1h"
+}
+
+function calcMaxDrawdown(signalList: IStrategyTickResultClosed[]): number {
+  let peak = 0
+  let cumulative = 0
+  let maxDrawdown = 0
+
+  for (const s of signalList) {
+    cumulative += s.pnl.pnlPercentage
+    if (cumulative > peak) peak = cumulative
+    const drawdown = peak - cumulative
+    if (drawdown > maxDrawdown) maxDrawdown = drawdown
+  }
+
+  return maxDrawdown
 }
 
 export class BacktestService {
@@ -63,6 +95,47 @@ export class BacktestService {
 
   static async runBacktest(params: BacktestParams): Promise<BacktestResult> {
     if (!this.initialized) this.initialize()
-    throw new Error("Not implemented — requires backtest-kit Backtest API integration")
+
+    const name = `bt-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`
+    const interval = toSignalInterval(params.interval)
+
+    let entryPayload: ConditionsPayload = { conditions: [], logic: "AND", risks: {} }
+    try {
+      entryPayload = JSON.parse(params.entryConditions) as ConditionsPayload
+    } catch {}
+
+    const risks = entryPayload.risks ?? {}
+    const tpPct = risks.takeProfit ?? 3
+    const slPct = risks.stopLoss ?? 1.5
+
+    addStrategySchema({
+      strategyName: name,
+      interval,
+      getSignal: async (_symbol: string, _when: Date) => {
+        return {
+          position: "long" as const,
+          priceTakeProfit: 1 + tpPct / 100,
+          priceStopLoss: 1 - slPct / 100,
+          minuteEstimatedTime: Infinity,
+        }
+      },
+    })
+
+    const context = { strategyName: name, exchangeName: "tinkoff-moex", frameName: "backtest" }
+
+    for await (const _ of Backtest.run(params.instrumentId, context)) {
+    }
+
+    const stats = await Backtest.getData(params.instrumentId, context)
+
+    return {
+      totalTrades: stats.totalSignals,
+      winRate: stats.winRate ?? 0,
+      totalPnl: stats.totalPnl ?? 0,
+      sharpeRatio: stats.sharpeRatio ?? 0,
+      maxDrawdown: calcMaxDrawdown(stats.signalList),
+      startDate: params.fromDate,
+      endDate: params.toDate,
+    }
   }
 }
