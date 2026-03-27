@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
-status: Phase complete — ready for verification
-stopped_at: Completed 07.1-02-PLAN.md
-last_updated: "2026-03-26T21:18:09.229Z"
+status: Ready to execute
+stopped_at: Completed 09-02-PLAN.md
+last_updated: "2026-03-27T07:29:28.511Z"
 progress:
-  total_phases: 17
-  completed_phases: 13
-  total_plans: 39
-  completed_plans: 35
+  total_phases: 18
+  completed_phases: 14
+  total_plans: 44
+  completed_plans: 37
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 07.1 — analytics-polish-data-integrity
+**Current focus:** Phase 09 — data-pipeline-overhaul
 
 ## Current Position
 
-Phase: 07.1 (analytics-polish-data-integrity) — EXECUTING
-Plan: 2 of 2
+Phase: 09 (data-pipeline-overhaul) — EXECUTING
+Plan: 2 of 5
 
 ## Performance Metrics
 
@@ -55,6 +55,7 @@ Plan: 2 of 2
 | Phase 07 P02 | 10 | 2 tasks | 5 files |
 | Phase 07.1 P01 | 5 | 2 tasks | 7 files |
 | Phase 07.1 P02 | 372 | 2 tasks | 10 files |
+| Phase 09 P02 | 2 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -95,6 +96,8 @@ Plan: 2 of 2
 - [Phase 07.1]: Promise.allSettled for per-metric error isolation in analytics actions
 - [Phase 07.1]: PortfolioHealthService imported client-side (pure data deps, no server-only)
 - [Phase 07.1]: Health score card replaces Markowitz donuts in analytics tab first position
+- [Phase 09]: MSK_OFFSET_MS exported as named constant to avoid hardcoding UTC+3 across modules
+- [Phase 09]: CANDLE_TTL_MAP 1m raised 60s->4h, 5m->12h, 15m->24h, 1h->48h for 500+ candle warmup
 
 ### Roadmap Evolution
 
@@ -118,7 +121,7 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-03-26T21:18:09.225Z
-Stopped at: Completed 07.1-02-PLAN.md
+Last session: 2026-03-27T07:29:28.506Z
+Stopped at: Completed 09-02-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2

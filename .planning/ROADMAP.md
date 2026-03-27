@@ -327,7 +327,7 @@ Plans:
 **Plans**: 5 plans
 Plans:
 - [ ] 09-01-PLAN.md — Indicator migration: technicalindicators → trading-signals + 500+ warmup
-- [ ] 09-02-PLAN.md — MOEX candle normalizer + Redis cache incremental append + warmup TTLs
+- [x] 09-02-PLAN.md — MOEX candle normalizer + Redis cache incremental append + warmup TTLs
 - [ ] 09-03-PLAN.md — Terminal price bar fix: daily session stats instead of lastCandle
 - [ ] 09-04-PLAN.md — backtest-kit integration as BacktestService with MOEX exchange schema
 - [ ] 09-05-PLAN.md — Indicator accuracy test suite + audit report script
@@ -357,5 +357,5 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 9 → 8
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
-| 9. Data Pipeline Overhaul | v1.1 | 0/5 | Planned | - |
+| 9. Data Pipeline Overhaul | v1.1 | 1/5 | In Progress|  |
 
