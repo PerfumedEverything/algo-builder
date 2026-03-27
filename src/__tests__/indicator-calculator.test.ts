@@ -81,12 +81,12 @@ describe("IndicatorCalculator — null safety", () => {
   })
 
   describe("calculateBollinger", () => {
-    it("returns null when candles.length < period (5 < 20)", () => {
+    it("returns null when candles.length < period + 1 (5 < 21)", () => {
       expect(IndicatorCalculator.calculateBollinger(makeCandles(5), 20, 2)).toBeNull()
     })
 
-    it("returns BollingerResult when candles.length >= period (20 >= 20)", () => {
-      const result = IndicatorCalculator.calculateBollinger(makeCandles(20), 20, 2)
+    it("returns BollingerResult when candles.length >= period + 1 (21 >= 21)", () => {
+      const result = IndicatorCalculator.calculateBollinger(makeCandles(21), 20, 2)
       expect(result).not.toBeNull()
       expect(result).toHaveProperty("upper")
       expect(result).toHaveProperty("middle")

@@ -1,4 +1,4 @@
-import { RSI, SMA, EMA, MACD, BollingerBands, ATR, Stochastic, VWAP, WilliamsR } from "technicalindicators"
+import { RSI, SMA, EMA, MACD, BollingerBands, ATR, StochasticOscillator, VWAP, WilliamsR } from "trading-signals"
 import type { Candle } from "@/core/types"
 
 export type MACDResult = {
@@ -21,23 +21,23 @@ export type DetectedLevels = {
 export class IndicatorCalculator {
   static calculateRSI(candles: Candle[], period = 14): number | null {
     if (candles.length < period + 1) return null
-    const closes = candles.map((c) => c.close)
-    const result = RSI.calculate({ values: closes, period })
-    return result[result.length - 1] ?? null
+    const rsi = new RSI(period)
+    candles.forEach((c) => rsi.add(c.close))
+    return rsi.isStable ? Number(rsi.getResult()) : null
   }
 
   static calculateSMA(candles: Candle[], period = 20): number | null {
     if (candles.length < period) return null
-    const closes = candles.map((c) => c.close)
-    const result = SMA.calculate({ values: closes, period })
-    return result[result.length - 1] ?? null
+    const sma = new SMA(period)
+    candles.forEach((c) => sma.add(c.close))
+    return sma.isStable ? Number(sma.getResult()) : null
   }
 
   static calculateEMA(candles: Candle[], period = 20): number | null {
     if (candles.length < period) return null
-    const closes = candles.map((c) => c.close)
-    const result = EMA.calculate({ values: closes, period })
-    return result[result.length - 1] ?? null
+    const ema = new EMA(period)
+    candles.forEach((c) => ema.add(c.close))
+    return ema.isStable ? Number(ema.getResult()) : null
   }
 
   static calculateMACD(
@@ -47,22 +47,14 @@ export class IndicatorCalculator {
     signalPeriod = 9,
   ): MACDResult | null {
     if (candles.length < slowPeriod + signalPeriod - 1) return null
-    const closes = candles.map((c) => c.close)
-    const result = MACD.calculate({
-      values: closes,
-      fastPeriod,
-      slowPeriod,
-      signalPeriod,
-      SimpleMAOscillator: false,
-      SimpleMASignal: false,
-    })
-
-    const last = result[result.length - 1]
-    if (!last) return null
+    const macd = new MACD(new EMA(fastPeriod), new EMA(slowPeriod), new EMA(signalPeriod))
+    candles.forEach((c) => macd.add(c.close))
+    if (!macd.isStable) return null
+    const r = macd.getResult()
     return {
-      macd: last.MACD ?? 0,
-      signal: last.signal ?? 0,
-      histogram: last.histogram ?? 0,
+      macd: Number(r.macd),
+      signal: Number(r.signal),
+      histogram: Number(r.histogram),
     }
   }
 
@@ -71,20 +63,15 @@ export class IndicatorCalculator {
     period = 20,
     stdDev = 2,
   ): BollingerResult | null {
-    if (candles.length < period) return null
-    const closes = candles.map((c) => c.close)
-    const result = BollingerBands.calculate({
-      values: closes,
-      period,
-      stdDev,
-    })
-
-    const last = result[result.length - 1]
-    if (!last) return null
+    if (candles.length < period + 1) return null
+    const bb = new BollingerBands(period, stdDev)
+    candles.forEach((c) => bb.add(c.close))
+    if (!bb.isStable) return null
+    const r = bb.getResult()
     return {
-      upper: last.upper ?? 0,
-      middle: last.middle ?? 0,
-      lower: last.lower ?? 0,
+      upper: Number(r.upper),
+      middle: Number(r.middle),
+      lower: Number(r.lower),
     }
   }
 
@@ -138,49 +125,32 @@ export class IndicatorCalculator {
 
   static calculateATR(candles: Candle[], period = 14): number | null {
     if (candles.length < period + 1) return null
-    const result = ATR.calculate({
-      high: candles.map((c) => c.high),
-      low: candles.map((c) => c.low),
-      close: candles.map((c) => c.close),
-      period,
-    })
-    return result[result.length - 1] ?? null
+    const atr = new ATR(period)
+    candles.forEach((c) => atr.add({ high: c.high, low: c.low, close: c.close }))
+    return atr.isStable ? Number(atr.getResult()) : null
   }
 
   static calculateStochastic(candles: Candle[], period = 14, signalPeriod = 3): number | null {
     if (candles.length < period + signalPeriod) return null
-    const result = Stochastic.calculate({
-      high: candles.map((c) => c.high),
-      low: candles.map((c) => c.low),
-      close: candles.map((c) => c.close),
-      period,
-      signalPeriod,
-    })
-    const last = result[result.length - 1]
-    if (!last) return null
-    return last.k ?? null
+    const stoch = new StochasticOscillator(period, 3, signalPeriod)
+    candles.forEach((c) => stoch.add({ high: c.high, low: c.low, close: c.close }))
+    if (!stoch.isStable) return null
+    const r = stoch.getResult()
+    return Number(r.stochK)
   }
 
   static calculateVWAP(candles: Candle[]): number | null {
     if (candles.length < 5) return null
-    const result = VWAP.calculate({
-      high: candles.map((c) => c.high),
-      low: candles.map((c) => c.low),
-      close: candles.map((c) => c.close),
-      volume: candles.map((c) => c.volume),
-    })
-    return result[result.length - 1] ?? null
+    const vwap = new VWAP()
+    candles.forEach((c) => vwap.add({ high: c.high, low: c.low, close: c.close, volume: c.volume }))
+    return vwap.isStable ? Number(vwap.getResult()) : null
   }
 
   static calculateWilliamsR(candles: Candle[], period = 14): number | null {
     if (candles.length < period + 1) return null
-    const result = WilliamsR.calculate({
-      high: candles.map((c) => c.high),
-      low: candles.map((c) => c.low),
-      close: candles.map((c) => c.close),
-      period,
-    })
-    return result[result.length - 1] ?? null
+    const wr = new WilliamsR(period)
+    candles.forEach((c) => wr.add({ high: c.high, low: c.low, close: c.close }))
+    return wr.isStable ? Number(wr.getResult()) : null
   }
 
   private static clusterLevels(levels: number[], threshold = 0.01): number[] {
