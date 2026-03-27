@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Ready to execute
-stopped_at: Completed 09-02-PLAN.md
-last_updated: "2026-03-27T07:29:28.511Z"
+stopped_at: Completed 09-01-PLAN.md
+last_updated: "2026-03-27T07:33:06.923Z"
 progress:
   total_phases: 18
   completed_phases: 14
   total_plans: 44
-  completed_plans: 37
+  completed_plans: 38
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 09 (data-pipeline-overhaul) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 
 ## Performance Metrics
 
@@ -56,6 +56,7 @@ Plan: 2 of 5
 | Phase 07.1 P01 | 5 | 2 tasks | 7 files |
 | Phase 07.1 P02 | 372 | 2 tasks | 10 files |
 | Phase 09 P02 | 2 | 2 tasks | 4 files |
+| Phase 09 P01 | 8 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -98,6 +99,8 @@ Plan: 2 of 5
 - [Phase 07.1]: Health score card replaces Markowitz donuts in analytics tab first position
 - [Phase 09]: MSK_OFFSET_MS exported as named constant to avoid hardcoding UTC+3 across modules
 - [Phase 09]: CANDLE_TTL_MAP 1m raised 60s->4h, 5m->12h, 15m->24h, 1h->48h for 500+ candle warmup
+- [Phase 09]: BollingerBands in trading-signals requires period+1 candles for isStable (vs period in old library)
+- [Phase 09]: getCandleRangeMs extended: 1m=7d, 5m=14d, 15m=30d, 1h=60d for 500+ candle warmup guarantee
 
 ### Roadmap Evolution
 
@@ -121,7 +124,7 @@ Plan: 2 of 5
 
 ## Session Continuity
 
-Last session: 2026-03-27T07:29:28.506Z
-Stopped at: Completed 09-02-PLAN.md
+Last session: 2026-03-27T07:33:06.919Z
+Stopped at: Completed 09-01-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
