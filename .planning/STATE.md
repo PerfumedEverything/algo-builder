@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
-status: Ready to execute
-stopped_at: Completed 08-03-PLAN.md
-last_updated: "2026-03-27T10:15:34.904Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 08-04-PLAN.md
+last_updated: "2026-03-27T10:20:53.694Z"
 progress:
   total_phases: 18
-  completed_phases: 15
+  completed_phases: 16
   total_plans: 50
-  completed_plans: 46
+  completed_plans: 47
 ---
 
 # Project State
@@ -65,6 +65,7 @@ Plan: 4 of 4
 | Phase 08 P01 | 3 | 1 tasks | 4 files |
 | Phase 08 P02 | 5 | 2 tasks | 2 files |
 | Phase 08 P03 | 3 | 2 tasks | 4 files |
+| Phase 08 P04 | 8 | 1 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -125,6 +126,8 @@ Plan: 4 of 4
 - [Phase 08]: useAiStream hook encapsulates all SSE logic — AiChat stays presentational
 - [Phase 08]: ThinkingIndicator and QuickActionButtons extracted to keep ai-chat.tsx under 150 lines
 - [Phase 08]: Conversation NOT reset after strategy creation — addSystemMessage used for continuity
+- [Phase Phase 08]: BacktestPreview shown after StrategyForm.onSuccess — wizard stays open, user sees 3-month backtest results inline in form step
+- [Phase Phase 08]: Removed setChatKey increment from handleProceedToStrategy — chat no longer resets when navigating analysis→strategy, preserving conversation continuity
 
 ### Roadmap Evolution
 
@@ -148,7 +151,7 @@ Plan: 4 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-27T10:15:34.899Z
-Stopped at: Completed 08-03-PLAN.md
+Last session: 2026-03-27T10:20:53.688Z
+Stopped at: Completed 08-04-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2

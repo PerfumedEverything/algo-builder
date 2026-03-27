@@ -310,7 +310,7 @@ Plans:
 - [x] 08-01-PLAN.md — AI types + AiContextService (market data, portfolio, fundamentals, senior TF)
 - [x] 08-02-PLAN.md — DeepSeekProvider thinking mode + SSE streaming Route Handler
 - [x] 08-03-PLAN.md — AiChat streaming client + quick actions + conversation continuity
-- [ ] 08-04-PLAN.md — Backtest preview in wizard + final wiring + human verification
+- [x] 08-04-PLAN.md — Backtest preview in wizard + final wiring + human verification
 
 **UI hint**: yes 
 

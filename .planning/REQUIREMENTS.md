@@ -80,7 +80,7 @@
 - [x] **AIUP-05**: AI responses stream character by character (not wait for full response)
 - [x] **AIUP-06**: AI sees current portfolio positions and warns about concentration/correlation risks
 - [x] **AIUP-07**: AI has access to fundamental data (P/E, dividends) when discussing instruments
-- [ ] **AIUP-08**: After strategy creation, user sees a backtest preview on historical data
+- [x] **AIUP-08**: After strategy creation, user sees a backtest preview on historical data
 - [x] **AIUP-09**: User can continue conversation after strategy creation
 ## v2 Requirements
 
@@ -164,7 +164,7 @@
 | AIUP-05 | Phase 8 | Complete |
 | AIUP-06 | Phase 8 | Complete |
 | AIUP-07 | Phase 8 | Complete |
-| AIUP-08 | Phase 8 | Pending |
+| AIUP-08 | Phase 8 | Complete |
 | AIUP-09 | Phase 8 | Complete |
 **Coverage:**
 - v1.1 requirements: 50 total
