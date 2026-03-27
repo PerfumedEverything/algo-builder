@@ -65,7 +65,7 @@
 - [x] **DPIPE-01**: Replace technicalindicators with trading-signals for all 9 indicators (RSI, SMA, EMA, MACD, Bollinger, ATR, Stochastic, VWAP, WilliamsR)
 - [x] **DPIPE-02**: All indicator values match TradingView within 0.1% tolerance using 500+ candle warmup
 - [x] **DPIPE-03**: backtest-kit integrated for strategy backtesting on historical MOEX data with slippage (0.05%) and fees (0.03%)
-- [ ] **DPIPE-04**: Terminal price bar shows daily session values: % change from session open, daily H/L, daily volume
+- [x] **DPIPE-04**: Terminal price bar shows daily session values: % change from session open, daily H/L, daily volume
 - [x] **DPIPE-05**: MOEX candle normalization utility handles UTC→MSK, session boundaries (main + evening), weekend filtering
 - [x] **DPIPE-06**: Historical candles cached in Redis with incremental updates and warmup-appropriate TTLs
 - [ ] **DPIPE-07**: Comprehensive test suite: indicator accuracy, candle normalization edge cases, cache hit/miss
@@ -140,7 +140,7 @@
 | DPIPE-01 | Phase 9 | Complete |
 | DPIPE-02 | Phase 9 | Complete |
 | DPIPE-03 | Phase 9 | Complete |
-| DPIPE-04 | Phase 9 | Pending |
+| DPIPE-04 | Phase 9 | Complete |
 | DPIPE-05 | Phase 9 | Complete |
 | DPIPE-06 | Phase 9 | Complete |
 | DPIPE-07 | Phase 9 | Pending |

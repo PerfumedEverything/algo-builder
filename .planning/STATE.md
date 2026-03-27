@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Ready to execute
-stopped_at: Completed 09-04-PLAN.md
-last_updated: "2026-03-27T07:38:17.121Z"
+stopped_at: Completed 09-03-PLAN.md
+last_updated: "2026-03-27T07:39:08.022Z"
 progress:
   total_phases: 18
   completed_phases: 14
   total_plans: 44
-  completed_plans: 39
+  completed_plans: 40
 ---
 
 # Project State
@@ -24,7 +24,7 @@ See: .planning/PROJECT.md (updated 2026-03-25)
 ## Current Position
 
 Phase: 09 (data-pipeline-overhaul) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 
 ## Performance Metrics
 
@@ -58,6 +58,7 @@ Plan: 4 of 5
 | Phase 09 P02 | 2 | 2 tasks | 4 files |
 | Phase 09 P01 | 8 | 2 tasks | 5 files |
 | Phase 09 P04 | 8 | 3 tasks | 5 files |
+| Phase 09 P03 | 8 | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -104,6 +105,8 @@ Plan: 4 of 5
 - [Phase 09]: getCandleRangeMs extended: 1m=7d, 5m=14d, 15m=30d, 1h=60d for 500+ candle warmup guarantee
 - [Phase Phase 09]: BacktestService uses static class with initialized guard — backtest-kit registers global state, must not re-initialize per request
 - [Phase Phase 09]: runBacktest() throws NotImplementedError for Phase 9 scope — full Backtest API integration deferred to AI backtest preview phase
+- [Phase 09]: aggregateSessionStats extracted as pure function separate from server action for clean unit testing without auth/broker mocks
+- [Phase 09]: dailyStats state replaces todayOpen in terminal page for session-level H/L/Vol/% change independent of chart period
 
 ### Roadmap Evolution
 
@@ -127,7 +130,7 @@ Plan: 4 of 5
 
 ## Session Continuity
 
-Last session: 2026-03-27T07:38:17.116Z
-Stopped at: Completed 09-04-PLAN.md
+Last session: 2026-03-27T07:39:08.017Z
+Stopped at: Completed 09-03-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
