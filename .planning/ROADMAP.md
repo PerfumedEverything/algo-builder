@@ -305,11 +305,14 @@ Plans:
   7. AI has access to fundamental data (P/E, dividends) when discussing instruments
   8. After strategy creation, user sees a backtest preview on historical data
   9. User can continue conversation after strategy creation ("now make one for GAZP")
-**Plans**: 2 plans
+**Plans**: 4 plans
 Plans:
-- [x] 06.2-01-PLAN.md — Worker dynamic subscription + price precision + shared class codes
-- [ ] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
-**UI hint**: yes
+- [ ] 08-01-PLAN.md — AI types + AiContextService (market data, portfolio, fundamentals, senior TF)
+- [ ] 08-02-PLAN.md — DeepSeekProvider thinking mode + SSE streaming Route Handler
+- [ ] 08-03-PLAN.md — AiChat streaming client + quick actions + conversation continuity
+- [ ] 08-04-PLAN.md — Backtest preview in wizard + final wiring + human verification
+
+**UI hint**: yes 
 
 ### Phase 9: Data Pipeline Overhaul
 **Goal**: Replace abandoned indicator library with verified alternative, integrate backtesting engine, normalize MOEX candle data, fix terminal price bar, add candle caching — making all market data across the platform accurate and verifiable against TradingView
@@ -358,6 +361,6 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 9 → 8
 | 6.2 Realtime Prices & Anton UX Fixes (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
-| 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
+| 8. AI Assistant Deep Upgrade | v1.1 | 0/4 | Not started | - |
 | 9. Data Pipeline Overhaul | v1.1 | 7/7 | Complete   | 2026-03-27 |
 
