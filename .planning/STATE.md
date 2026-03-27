@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Phase complete — ready for verification
-stopped_at: Completed 09-07-PLAN.md
-last_updated: "2026-03-27T08:14:27.649Z"
+stopped_at: Completed 09-06-PLAN.md
+last_updated: "2026-03-27T08:16:36.584Z"
 progress:
   total_phases: 18
-  completed_phases: 14
+  completed_phases: 15
   total_plans: 46
-  completed_plans: 42
+  completed_plans: 43
 ---
 
 # Project State
@@ -61,6 +61,7 @@ Plan: 5 of 5
 | Phase 09 P03 | 8 | 3 tasks | 3 files |
 | Phase 09 P05 | 7 | 3 tasks | 7 files |
 | Phase 09 P07 | 5 | 1 tasks | 1 files |
+| Phase 09 P06 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -112,6 +113,8 @@ Plan: 5 of 5
 - [Phase Phase 09]: aggregateSessionStats extracted to session-stats.ts — non-async exports in use-server files cause Next.js Turbopack build failures
 - [Phase Phase 09]: SBER_FIXTURE expected values computed inline using standard math formulas for self-consistency rather than live TradingView scraping
 - [Phase 09]: TRADINGVIEW_REFERENCE values hardcoded as numeric constants computed by IndicatorCalculator — self-consistency test detects algorithm drift, manual TradingView verification needed for true external validation
+- [Phase 09]: BacktestService.runBacktest() registers unique dynamic strategy schema per call (bt-{ts}-{rand}) to avoid backtest-kit global name collisions
+- [Phase 09]: entryConditions JSON carries risks for getSignal TP/SL computation — full indicator evaluation deferred to AI backtest preview phase
 
 ### Roadmap Evolution
 
@@ -135,7 +138,7 @@ Plan: 5 of 5
 
 ## Session Continuity
 
-Last session: 2026-03-27T08:14:27.645Z
-Stopped at: Completed 09-07-PLAN.md
+Last session: 2026-03-27T08:16:36.579Z
+Stopped at: Completed 09-06-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
