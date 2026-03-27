@@ -337,7 +337,7 @@ export default function TerminalPage() {
               {loading ? (
                 <Skeleton className="h-full rounded-lg" />
               ) : candles.length > 0 ? (
-                <InstrumentChart candles={candles} markers={markers} height={400} />
+                <InstrumentChart candles={candles} markers={markers} height={400} livePrice={currentPrice || undefined} />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   <p className="text-muted-foreground text-sm">Нет данных для графика</p>
