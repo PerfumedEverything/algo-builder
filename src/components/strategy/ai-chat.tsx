@@ -1,50 +1,25 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { Sparkles, Send, Loader2, CheckCircle2 } from "lucide-react"
+import { Sparkles, Send, CheckCircle2 } from "lucide-react"
 
 import type { AiGeneratedStrategy } from "@/core/types"
-import type { AiChatMessage } from "@/server/providers/ai/types"
+import type { QuickAction } from "@/server/providers/ai/types"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { useStrategyStore } from "@/hooks/use-strategy-store"
-import { chatStrategyAction } from "@/server/actions/strategy-actions"
+import { useAiStream } from "@/hooks/use-ai-stream"
+import { ThinkingIndicator } from "./thinking-indicator"
+import { QuickActionButtons } from "./quick-action-buttons"
 
 type AiChatProps = {
   onGenerated: (strategy: AiGeneratedStrategy) => void
   onStrategyExtracted?: (strategy: AiGeneratedStrategy) => void
   initialContext?: string
   analysisContext?: string
+  instrumentContext?: { ticker: string; timeframe: string; figi?: string }
 }
-
-type ChatMessage = AiChatMessage & {
-  strategy?: AiGeneratedStrategy
-  hidden?: boolean
-}
-
-const INITIAL_MESSAGE: ChatMessage = {
-  role: "assistant",
-  content: "Привет! Опишите свою торговую идею — какой инструмент, какая логика входа и выхода. Я помогу собрать из неё стратегию. Можете описать подробно или начать с общей идеи — я уточню детали.",
-}
-
-const getInitialMessages = (initialContext?: string): ChatMessage[] => {
-  if (initialContext) {
-    return [
-      { role: "assistant", content: "Анализирую данные из терминала и подбираю стратегию..." },
-    ]
-  }
-  return [INITIAL_MESSAGE]
-}
-
-const QUICK_REPLIES = [
-  { label: "SBER Сбер", text: "Хочу стратегию на акции Сбера" },
-  { label: "GAZP Газпром", text: "Хочу стратегию на Газпром" },
-  { label: "LKOH Лукойл", text: "Хочу стратегию на Лукойл" },
-  { label: "Скальпинг", text: "Скальпинг стратегию на короткие сделки" },
-  { label: "Свинг", text: "Свинг-трейдинг стратегию на несколько дней" },
-  { label: "Дивидендная", text: "Дивидендную стратегию на долгосрок" },
-]
 
 const StrategyPreview = ({
   strategy,
@@ -86,85 +61,67 @@ const StrategyPreview = ({
   )
 }
 
-export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext, analysisContext }: AiChatProps) => {
+export const AiChat = ({
+  onGenerated,
+  onStrategyExtracted,
+  initialContext,
+  analysisContext,
+  instrumentContext,
+}: AiChatProps) => {
   const context = analysisContext ?? initialContext
-  const [messages, setMessages] = useState<ChatMessage[]>(() => getInitialMessages(context))
   const [input, setInput] = useState("")
-  const [loading, setLoading] = useState(false)
   const [applied, setApplied] = useState(false)
   const scrollRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
+  const autoSentRef = useRef(false)
   const { setFromAI, setIsGenerating } = useStrategyStore()
 
-  const autoSentRef = useRef(false)
+  const { messages, streamingContent, thinkingContent, isStreaming, isThinking, sendMessage, addSystemMessage } =
+    useAiStream({ onStrategyExtracted })
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight
     }
-  }, [messages])
+  }, [messages, streamingContent, isThinking])
+
+  useEffect(() => {
+    setIsGenerating(isStreaming)
+  }, [isStreaming, setIsGenerating])
 
   useEffect(() => {
     if (context && !autoSentRef.current) {
       autoSentRef.current = true
-      handleSend(
+      void sendMessage(
         `Я только что провёл технический анализ инструмента. Вот результаты:\n\n${context}\n\nКакие стратегии ты видишь на основе этого анализа? Предложи 2-3 варианта с объяснением логики.`,
-        true,
+        { hidden: true, context: instrumentContext },
       )
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const handleSend = async (overrideText?: string, hideUserMessage?: boolean) => {
-    const text = (overrideText ?? input).trim()
-    if (!text || loading) return
-
-    const userMsg: ChatMessage = { role: "user", content: text, hidden: hideUserMessage }
-    const newMessages = [...messages, userMsg]
-    setMessages(newMessages)
+  const handleSend = () => {
+    const text = input.trim()
+    if (!text || isStreaming) return
     setInput("")
-    setLoading(true)
-    setIsGenerating(true)
-
-    try {
-      const chatHistory: AiChatMessage[] = newMessages.map((m) => ({
-        role: m.role,
-        content: m.content,
-      }))
-
-      const result = await chatStrategyAction(chatHistory)
-      if (result.success) {
-        const assistantMsg: ChatMessage = {
-          role: "assistant",
-          content: result.data.message,
-          strategy: result.data.strategy,
-        }
-        if (result.data.strategy) {
-          onStrategyExtracted?.(result.data.strategy)
-        }
-        setMessages([...newMessages, assistantMsg])
-      } else {
-        setMessages([
-          ...newMessages,
-          { role: "assistant", content: `Ошибка: ${result.error}` },
-        ])
-      }
-    } catch {
-      setMessages([
-        ...newMessages,
-        { role: "assistant", content: "Произошла ошибка. Попробуйте ещё раз." },
-      ])
-    } finally {
-      setLoading(false)
-      setIsGenerating(false)
-      inputRef.current?.focus()
-    }
+    void sendMessage(text, { context: instrumentContext })
   }
 
   const handleApply = (strategy: AiGeneratedStrategy) => {
     setFromAI(strategy.config)
     onGenerated(strategy)
     setApplied(true)
+    addSystemMessage("Стратегия создана! Можете продолжить — попросите другую стратегию или измените параметры.")
+  }
+
+  const handleQuickAction = (action: QuickAction) => {
+    if (action.action === "CREATE") {
+      void sendMessage("Да, создай эту стратегию", { forceCreate: true, context: instrumentContext })
+    } else if (action.action === "MORE") {
+      void sendMessage("Покажи другой вариант", { context: instrumentContext })
+    } else if (action.action === "ADJUST_RISKS") {
+      void sendMessage("Сделай риски консервативнее", { context: instrumentContext })
+    }
   }
 
   return (
@@ -177,15 +134,10 @@ export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext, analy
       <ScrollArea className="h-80">
         <div ref={scrollRef} className="space-y-3 p-4">
           {messages.filter((m) => !m.hidden).map((msg, i) => (
-            <div
-              key={i}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-            >
+            <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[85%] rounded-lg px-3 py-2 text-sm ${
-                  msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted"
+                  msg.role === "user" ? "bg-primary text-primary-foreground" : "bg-muted"
                 }`}
               >
                 <p className="whitespace-pre-wrap">{msg.content}</p>
@@ -196,28 +148,19 @@ export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext, analy
                     applied={applied}
                   />
                 )}
+                {msg.actions && <QuickActionButtons actions={msg.actions} onAction={handleQuickAction} />}
               </div>
             </div>
           ))}
-          {messages.length === 1 && !loading && !context && (
-            <div className="flex flex-wrap gap-1.5 px-1">
-              {QUICK_REPLIES.map((qr) => (
-                <button
-                  key={qr.label}
-                  type="button"
-                  className="rounded-full bg-muted px-3 py-1 text-xs text-muted-foreground transition-colors hover:bg-primary/10 hover:text-primary"
-                  onClick={() => handleSend(qr.text)}
-                >
-                  {qr.label}
-                </button>
-              ))}
+          {isThinking && (
+            <div className="flex justify-start">
+              <ThinkingIndicator thinkingContent={thinkingContent} />
             </div>
           )}
-          {loading && (
+          {isStreaming && !isThinking && streamingContent && (
             <div className="flex justify-start">
-              <div className="flex items-center gap-2 rounded-lg bg-muted px-3 py-2 text-sm text-muted-foreground">
-                <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                Думаю...
+              <div className="max-w-[85%] rounded-lg bg-muted px-3 py-2 text-sm">
+                <p className="whitespace-pre-wrap">{streamingContent}</p>
               </div>
             </div>
           )}
@@ -231,13 +174,13 @@ export const AiChat = ({ onGenerated, onStrategyExtracted, initialContext, analy
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && !e.shiftKey && handleSend()}
           placeholder="Напишите сообщение..."
-          disabled={loading}
+          disabled={isStreaming}
           className="bg-background"
         />
         <Button
           size="icon"
-          onClick={() => handleSend()}
-          disabled={!input.trim() || loading}
+          onClick={handleSend}
+          disabled={!input.trim() || isStreaming}
           className="shrink-0"
         >
           <Send className="h-4 w-4" />
