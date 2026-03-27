@@ -291,9 +291,10 @@ export class DeepSeekProvider implements AiProvider {
     messages: AiChatMessage[],
     forceCreate?: boolean,
   ): AsyncGenerator<AiStreamChunk> {
+    const safeMessages = messages.filter((m) => m.role === "user" || m.role === "assistant")
     const apiMessages: ChatCompletionMessageParam[] = [
       { role: "system", content: CHAT_SYSTEM_PROMPT },
-      ...messages.map((m) => ({
+      ...safeMessages.map((m) => ({
         role: m.role as "user" | "assistant",
         content: m.content,
       })),

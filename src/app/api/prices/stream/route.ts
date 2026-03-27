@@ -1,13 +1,20 @@
 import Redis from "ioredis"
 import { getCurrentUserId } from "@/server/actions/helpers"
+import { trackConnection } from "@/lib/rate-limit"
 
 export const dynamic = "force-dynamic"
 
 export async function GET(request: Request): Promise<Response> {
+  let userId: string
   try {
-    await getCurrentUserId()
+    userId = await getCurrentUserId()
   } catch {
     return new Response("Unauthorized", { status: 401 })
+  }
+
+  const { allowed, release } = await trackConnection(userId, "price-stream", 3)
+  if (!allowed) {
+    return new Response(JSON.stringify({ error: "Too many connections" }), { status: 429 })
   }
 
   const subscriber = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
@@ -28,12 +35,14 @@ export async function GET(request: Request): Promise<Response> {
       request.signal.addEventListener("abort", () => {
         subscriber.unsubscribe("price-updates")
         subscriber.disconnect()
+        release()
         controller.close()
       })
     },
     cancel() {
       subscriber.unsubscribe("price-updates")
       subscriber.disconnect()
+      release()
     },
   })
 
