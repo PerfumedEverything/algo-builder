@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server"
 import { getAiProvider } from "@/server/providers/ai"
 import { AiContextService } from "@/server/services/ai-context-service"
+import { checkRateLimit } from "@/lib/rate-limit"
 import type { AiChatMessage } from "@/server/providers/ai/types"
 
 export const dynamic = "force-dynamic"
@@ -31,10 +32,30 @@ export async function POST(request: Request): Promise<Response> {
 
     const userId = userData.id
 
+    const { allowed } = await checkRateLimit(userId, "ai-chat", 10, 60)
+    if (!allowed) {
+      return new Response(JSON.stringify({ error: "Rate limit exceeded" }), { status: 429 })
+    }
+
     const body = (await request.json()) as ChatRequestBody
     const { messages, context, forceCreate } = body
 
-    let enrichedMessages: AiChatMessage[] = messages
+    if (!Array.isArray(messages) || messages.length === 0) {
+      return new Response(JSON.stringify({ error: "Invalid messages" }), { status: 400 })
+    }
+
+    if (messages.length > 50) {
+      return new Response(JSON.stringify({ error: "Too many messages" }), { status: 413 })
+    }
+
+    const totalChars = messages.reduce((sum, m) => sum + (m.content?.length ?? 0), 0)
+    if (totalChars > 50000) {
+      return new Response(JSON.stringify({ error: "Content too large" }), { status: 413 })
+    }
+
+    const safeMessages = messages.filter((m) => m.role === "user" || m.role === "assistant")
+
+    let enrichedMessages: AiChatMessage[] = safeMessages
 
     if (context?.ticker) {
       const contextText = await AiContextService.assembleContext({
@@ -47,7 +68,7 @@ export async function POST(request: Request): Promise<Response> {
       if (contextText) {
         enrichedMessages = [
           { role: "user", content: `[Контекст рынка]\n${contextText}` },
-          ...messages,
+          ...safeMessages,
         ]
       }
     }
