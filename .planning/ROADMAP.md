@@ -356,8 +356,8 @@ Plans:
 **Plans**: 4 plans
 Plans:
 - [ ] 10-01-PLAN.md — Auth bypass + IDOR + ownership filter + middleware narrowing
-- [ ] 10-02-PLAN.md — Rate limiting + input validation + prompt injection prevention
-- [ ] 10-03-PLAN.md — File upload MIME fix + Docker Redis hardening
+- [x] 10-02-PLAN.md — Rate limiting + input validation + prompt injection prevention
+- [x] 10-03-PLAN.md — File upload MIME fix + Docker Redis hardening
 - [ ] 10-04-PLAN.md — Split oversized files (>150 lines) into focused modules
 **UI hint**: no
 
@@ -387,4 +387,4 @@ v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10
 | 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 3/4 | In Progress|  |
 | 9. Data Pipeline Overhaul | v1.1 | 7/7 | Complete   | 2026-03-27 |
-| 10. Security & Code Quality Hardening | v1.1 | 0/4 | Not started | - |
+| 10. Security & Code Quality Hardening | v1.1 | 2/4 | In Progress|  |
