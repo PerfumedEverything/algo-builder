@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
-status: Milestone complete
-stopped_at: Completed 09-06-PLAN.md
-last_updated: "2026-03-27T09:40:03.931Z"
+status: Ready to execute
+stopped_at: Completed 08-01-PLAN.md
+last_updated: "2026-03-27T10:10:57.227Z"
 progress:
   total_phases: 18
   completed_phases: 15
-  total_plans: 46
-  completed_plans: 43
+  total_plans: 50
+  completed_plans: 44
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 09 — data-pipeline-overhaul
+**Current focus:** Phase 08 — ai-assistant-deep-upgrade
 
 ## Current Position
 
-Phase: 09
-Plan: Not started
+Phase: 08 (ai-assistant-deep-upgrade) — EXECUTING
+Plan: 2 of 4
 
 ## Performance Metrics
 
@@ -62,6 +62,7 @@ Plan: Not started
 | Phase 09 P05 | 7 | 3 tasks | 7 files |
 | Phase 09 P07 | 5 | 1 tasks | 1 files |
 | Phase 09 P06 | 5 | 2 tasks | 4 files |
+| Phase 08 P01 | 3 | 1 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -115,6 +116,8 @@ Plan: Not started
 - [Phase 09]: TRADINGVIEW_REFERENCE values hardcoded as numeric constants computed by IndicatorCalculator — self-consistency test detects algorithm drift, manual TradingView verification needed for true external validation
 - [Phase 09]: BacktestService.runBacktest() registers unique dynamic strategy schema per call (bt-{ts}-{rand}) to avoid backtest-kit global name collisions
 - [Phase 09]: entryConditions JSON carries risks for getSignal TP/SL computation — full indicator evaluation deferred to AI backtest preview phase
+- [Phase 08]: AiContextService uses static assembleContext with Promise.allSettled for parallel fetch and partial failure isolation
+- [Phase 08]: SENIOR_TIMEFRAME exported as named constant: 1m->5m, 5m->15m, 15m->1h, 1h->4h, 4h->1d, 1d->1w
 
 ### Roadmap Evolution
 
@@ -138,7 +141,7 @@ Plan: Not started
 
 ## Session Continuity
 
-Last session: 2026-03-27T08:16:36.579Z
-Stopped at: Completed 09-06-PLAN.md
+Last session: 2026-03-27T10:10:57.220Z
+Stopped at: Completed 08-01-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
