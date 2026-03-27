@@ -324,13 +324,15 @@ Plans:
   6. Indicator calculations use 500+ candle warmup period for accuracy
   7. Comprehensive test suite: indicator output vs TradingView reference values, candle normalization edge cases, cache hit/miss scenarios
   8. Audit report documenting before/after comparison of indicator values against TradingView for top 10 instruments
-**Plans**: 5 plans
+**Plans**: 7 plans
 Plans:
 - [x] 09-01-PLAN.md — Indicator migration: technicalindicators → trading-signals + 500+ warmup
 - [x] 09-02-PLAN.md — MOEX candle normalizer + Redis cache incremental append + warmup TTLs
 - [x] 09-03-PLAN.md — Terminal price bar fix: daily session stats instead of lastCandle
 - [x] 09-04-PLAN.md — backtest-kit integration as BacktestService with MOEX exchange schema
 - [x] 09-05-PLAN.md — Indicator accuracy test suite + audit report script
+- [ ] 09-06-PLAN.md — Gap closure: implement BacktestService.runBacktest() + wire strategy conditions
+- [ ] 09-07-PLAN.md — Gap closure: hardcode TradingView reference values in SBER_FIXTURE tests
 **UI hint**: yes
 ## Progress
 
