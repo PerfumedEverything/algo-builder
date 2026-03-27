@@ -63,6 +63,10 @@ export const getOperationStatsForStrategiesAction = async (
 ): Promise<ApiResponse<StatsWithPrices>> => {
   try {
     const userId = await getCurrentUserId()
+    const strategyService = new StrategyService()
+    const userStrategies = await strategyService.getStrategies(userId)
+    const ownedIds = new Set(userStrategies.map((s) => s.id))
+    const validIds = strategyIds.filter((id) => ownedIds.has(id))
     const priceMap: Record<string, number> = {}
     if (instrumentMap) {
       const broker = new BrokerService()
@@ -78,12 +82,12 @@ export const getOperationStatsForStrategiesAction = async (
           if (cached !== null) prices[inst] = cached
         }
       }
-      for (const id of strategyIds) {
+      for (const id of validIds) {
         const inst = instrumentMap[id]
         if (inst && prices[inst]) priceMap[id] = prices[inst]
       }
     }
-    const stats = await getService().getStatsForStrategies(strategyIds, priceMap)
+    const stats = await getService().getStatsForStrategies(validIds, priceMap)
     return successResponse({ stats, prices: priceMap })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")

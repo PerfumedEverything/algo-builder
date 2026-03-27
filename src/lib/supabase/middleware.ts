@@ -36,7 +36,8 @@ export const updateSession = async (request: NextRequest) => {
     request.nextUrl.pathname.startsWith("/reset-password")
   const isApiWebhook =
     request.nextUrl.pathname.startsWith("/api/webhooks") ||
-    request.nextUrl.pathname.startsWith("/api/signals")
+    request.nextUrl.pathname === "/api/signals/check" ||
+    request.nextUrl.pathname === "/api/signals/check-instrument"
   const isPublicAsset =
     request.nextUrl.pathname.startsWith("/_next") ||
     request.nextUrl.pathname.startsWith("/favicon")

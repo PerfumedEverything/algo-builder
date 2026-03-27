@@ -20,6 +20,7 @@ export const getOrderBookAction = async (
   depth = 10,
 ): Promise<ApiResponse<OrderBookData>> => {
   try {
+    await getCurrentUserId()
     const api = new TinkoffInvestApi({ token: process.env.TINKOFF_SYSTEM_TOKEN! })
     const { bids, asks } = await api.marketdata.getOrderBook({ instrumentId: figi, depth })
     return successResponse(mapOrderBookResponse(bids as RawOrder[], asks as RawOrder[]))
@@ -32,6 +33,7 @@ export const getTopMoversAction = async (
   topN = 5,
 ): Promise<ApiResponse<{ gainers: TopMover[]; losers: TopMover[] }>> => {
   try {
+    await getCurrentUserId()
     const result = await new MOEXProvider().getTopMovers(topN)
     return successResponse(result)
   } catch (e) {
