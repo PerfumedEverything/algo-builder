@@ -4,7 +4,10 @@ import type { ApiResponse } from "@/core/types/api"
 import { errorResponse, successResponse } from "@/core/types/api"
 import { BrokerService } from "@/server/services"
 import { MSK_OFFSET_MS } from "@/server/services/candle-normalizer"
+import { aggregateSessionStats, type DailySessionStats } from "@/server/services/session-stats"
 import { getCurrentUserId } from "./helpers"
+
+export type { DailySessionStats }
 
 export type ChartCandle = {
   time: string | number
@@ -13,25 +16,6 @@ export type ChartCandle = {
   low: number
   close: number
   volume?: number
-}
-
-export type DailySessionStats = {
-  sessionOpen: number
-  high: number
-  low: number
-  volume: number
-}
-
-export const aggregateSessionStats = (
-  candles: { open: number; high: number; low: number; volume: number }[],
-): DailySessionStats => {
-  if (candles.length === 0) return { sessionOpen: 0, high: 0, low: 0, volume: 0 }
-  return {
-    sessionOpen: candles[0].open,
-    high: Math.max(...candles.map((c) => c.high)),
-    low: Math.min(...candles.map((c) => c.low)),
-    volume: candles.reduce((sum, c) => sum + c.volume, 0),
-  }
 }
 
 export const getDailySessionStatsAction = async (

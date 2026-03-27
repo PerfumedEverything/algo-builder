@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { aggregateSessionStats } from "@/server/actions/chart-actions"
+import { aggregateSessionStats } from "@/server/services/session-stats"
 
 describe("aggregateSessionStats", () => {
   const twoCandles = [
