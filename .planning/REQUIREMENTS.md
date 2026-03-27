@@ -60,6 +60,16 @@
 - [x] **RTPRICE-07**: Paper portfolio shows actual purchase amounts (not strategy settings amounts)
 - [x] **RTPRICE-08**: All tickers are consistently uppercase across the entire system
 
+### Data Pipeline Overhaul
+
+- [ ] **DPIPE-01**: Replace technicalindicators with trading-signals for all 9 indicators (RSI, SMA, EMA, MACD, Bollinger, ATR, Stochastic, VWAP, WilliamsR)
+- [ ] **DPIPE-02**: All indicator values match TradingView within 0.1% tolerance using 500+ candle warmup
+- [ ] **DPIPE-03**: backtest-kit integrated for strategy backtesting on historical MOEX data with slippage (0.05%) and fees (0.03%)
+- [ ] **DPIPE-04**: Terminal price bar shows daily session values: % change from session open, daily H/L, daily volume
+- [ ] **DPIPE-05**: MOEX candle normalization utility handles UTC→MSK, session boundaries (main + evening), weekend filtering
+- [ ] **DPIPE-06**: Historical candles cached in Redis with incremental updates and warmup-appropriate TTLs
+- [ ] **DPIPE-07**: Comprehensive test suite: indicator accuracy, candle normalization edge cases, cache hit/miss
+- [ ] **DPIPE-08**: Audit report documenting before/after indicator values vs TradingView for top instruments
 ## v2 Requirements
 
 ### AI Advanced
@@ -127,12 +137,19 @@
 | RTPRICE-06 | Phase 6.2 | Complete |
 | RTPRICE-07 | Phase 6.2 | Complete |
 | RTPRICE-08 | Phase 6.2 | Complete |
-
+| DPIPE-01 | Phase 9 | Pending |
+| DPIPE-02 | Phase 9 | Pending |
+| DPIPE-03 | Phase 9 | Pending |
+| DPIPE-04 | Phase 9 | Pending |
+| DPIPE-05 | Phase 9 | Pending |
+| DPIPE-06 | Phase 9 | Pending |
+| DPIPE-07 | Phase 9 | Pending |
+| DPIPE-08 | Phase 9 | Pending |
 **Coverage:**
-- v1.1 requirements: 33 total
-- Mapped to phases: 33
+- v1.1 requirements: 41 total
+- Mapped to phases: 41
 - Unmapped: 0
 
 ---
 *Requirements defined: 2026-03-25*
-*Last updated: 2026-03-26 — added RTPRICE requirements for Phase 6.2*
+*Last updated: 2026-03-27 — added DPIPE requirements for Phase 9*

@@ -311,11 +311,32 @@ Plans:
 - [ ] 06.2-02-PLAN.md — Paper portfolio date filter + terminal UX fixes (hide empty, mobile AI, TopMovers links)
 **UI hint**: yes
 
+### Phase 9: Data Pipeline Overhaul
+**Goal**: Replace abandoned indicator library with verified alternative, integrate backtesting engine, normalize MOEX candle data, fix terminal price bar, add candle caching — making all market data across the platform accurate and verifiable against TradingView
+**Depends on**: Phase 7.1 (analytics complete, data layer needs fundamental overhaul)
+**Requirements**: DPIPE-01, DPIPE-02, DPIPE-03, DPIPE-04, DPIPE-05, DPIPE-06, DPIPE-07, DPIPE-08
+**Success Criteria** (what must be TRUE):
+  1. `technicalindicators` replaced with `trading-signals` — all indicators (RSI, SMA, EMA, MACD, Bollinger, ATR, Stochastic, VWAP, Williams %R) produce values matching TradingView within 0.1% tolerance
+  2. `backtest-kit` integrated — strategies can be backtested on historical MOEX data with configurable slippage and fees
+  3. MOEX candle normalization utility handles timezone (UTC→MSK), session boundaries (main 10:00-18:40, evening 19:05-23:50), weekend/holiday filtering
+  4. Terminal price bar shows daily session values: percent change from MOEX session open, daily H/L, daily volume (not per-candle values)
+  5. Historical candles cached in Redis with incremental updates — no redundant API calls for same data
+  6. Indicator calculations use 500+ candle warmup period for accuracy
+  7. Comprehensive test suite: indicator output vs TradingView reference values, candle normalization edge cases, cache hit/miss scenarios
+  8. Audit report documenting before/after comparison of indicator values against TradingView for top 10 instruments
+**Plans**: 5 plans
+Plans:
+- [ ] 09-01-PLAN.md — Indicator migration: technicalindicators → trading-signals + 500+ warmup
+- [ ] 09-02-PLAN.md — MOEX candle normalizer + Redis cache incremental append + warmup TTLs
+- [ ] 09-03-PLAN.md — Terminal price bar fix: daily session stats instead of lastCandle
+- [ ] 09-04-PLAN.md — backtest-kit integration as BacktestService with MOEX exchange schema
+- [ ] 09-05-PLAN.md — Indicator accuracy test suite + audit report script
+**UI hint**: yes
 ## Progress
 
 **Execution Order:**
 v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
-v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 8
+v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 8 → 9
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -336,3 +357,5 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 8
 | 7. Portfolio Optimization + Full AI Analysis | v1.1 | 2/2 | Complete | 2026-03-26 |
 | 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 0/TBD | Not started | - |
+| 9. Data Pipeline Overhaul | v1.1 | 0/5 | Planned | - |
+
