@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
 status: Ready to execute
-stopped_at: Completed 10-03-PLAN.md
-last_updated: "2026-03-27T11:03:49.410Z"
+stopped_at: Completed 10-02-PLAN.md
+last_updated: "2026-03-27T11:04:05.605Z"
 progress:
   total_phases: 19
   completed_phases: 16
@@ -132,6 +132,8 @@ Plan: 3 of 4
 - [Phase Phase 08]: Removed setChatKey increment from handleProceedToStrategy — chat no longer resets when navigating analysis→strategy, preserving conversation continuity
 - [Phase 10]: MIME_TO_EXT map derives upload extension from file.type instead of filename to prevent spoofing
 - [Phase 10]: Redis requirepass + 256mb maxmemory + allkeys-lru via Docker Compose command arg, REDIS_URL must include password
+- [Phase 10]: checkRateLimit uses Redis INCR+EXPIRE for atomic sliding window rate limiting
+- [Phase 10]: SEC-05 role filter applied at both route level and DeepSeek provider level for defense-in-depth
 
 ### Roadmap Evolution
 
@@ -156,7 +158,7 @@ Plan: 3 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-27T11:03:34.606Z
-Stopped at: Completed 10-03-PLAN.md
+Last session: 2026-03-27T11:04:05.601Z
+Stopped at: Completed 10-02-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
