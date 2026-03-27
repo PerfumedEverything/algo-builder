@@ -13,6 +13,72 @@ function makeCandles(count: number): Candle[] {
   }))
 }
 
+describe("500+ candle warmup accuracy", () => {
+  const candles600 = makeCandles(600)
+
+  it("calculateRSI returns a number between 0 and 100 with 600 candles", () => {
+    const result = IndicatorCalculator.calculateRSI(candles600, 14)
+    expect(result).not.toBeNull()
+    expect(result!).toBeGreaterThanOrEqual(0)
+    expect(result!).toBeLessThanOrEqual(100)
+  })
+
+  it("calculateSMA returns close to mean of last 20 closes with 600 candles", () => {
+    const result = IndicatorCalculator.calculateSMA(candles600, 20)
+    expect(result).not.toBeNull()
+    expect(typeof result).toBe("number")
+    const last20Mean = candles600.slice(-20).reduce((s, c) => s + c.close, 0) / 20
+    expect(Math.abs(result! - last20Mean)).toBeLessThan(0.001)
+  })
+
+  it("calculateEMA returns a non-null number with 600 candles", () => {
+    const result = IndicatorCalculator.calculateEMA(candles600, 20)
+    expect(result).not.toBeNull()
+    expect(typeof result).toBe("number")
+  })
+
+  it("calculateMACD returns object with macd, signal, histogram as numbers with 600 candles", () => {
+    const result = IndicatorCalculator.calculateMACD(candles600)
+    expect(result).not.toBeNull()
+    expect(typeof result!.macd).toBe("number")
+    expect(typeof result!.signal).toBe("number")
+    expect(typeof result!.histogram).toBe("number")
+  })
+
+  it("calculateBollinger returns upper > middle > lower with 600 candles", () => {
+    const result = IndicatorCalculator.calculateBollinger(candles600)
+    expect(result).not.toBeNull()
+    expect(result!.upper).toBeGreaterThan(result!.middle)
+    expect(result!.middle).toBeGreaterThan(result!.lower)
+  })
+
+  it("calculateATR returns a positive number with 600 candles", () => {
+    const result = IndicatorCalculator.calculateATR(candles600, 14)
+    expect(result).not.toBeNull()
+    expect(result!).toBeGreaterThan(0)
+  })
+
+  it("calculateStochastic returns a number between 0 and 100 with 600 candles", () => {
+    const result = IndicatorCalculator.calculateStochastic(candles600, 14, 3)
+    expect(result).not.toBeNull()
+    expect(result!).toBeGreaterThanOrEqual(0)
+    expect(result!).toBeLessThanOrEqual(100)
+  })
+
+  it("calculateVWAP returns a non-null number with 600 candles", () => {
+    const result = IndicatorCalculator.calculateVWAP(candles600)
+    expect(result).not.toBeNull()
+    expect(typeof result).toBe("number")
+  })
+
+  it("calculateWilliamsR returns a number between -100 and 0 with 600 candles", () => {
+    const result = IndicatorCalculator.calculateWilliamsR(candles600, 14)
+    expect(result).not.toBeNull()
+    expect(result!).toBeGreaterThanOrEqual(-100)
+    expect(result!).toBeLessThanOrEqual(0)
+  })
+})
+
 describe("IndicatorCalculator — null safety", () => {
   describe("calculateRSI", () => {
     it("returns null when candles.length < period + 1 (3 < 15)", () => {

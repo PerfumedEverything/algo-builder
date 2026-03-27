@@ -21,7 +21,7 @@ type CheckResult = {
 
 const HOUR = 60 * 60 * 1000
 const DAY = 24 * HOUR
-const getCandleRangeMs = (i: string) => ({ "1m": DAY, "5m": DAY, "15m": DAY, "1h": 7 * DAY })[i] ?? 365 * DAY
+const getCandleRangeMs = (i: string) => ({ "1m": 7 * DAY, "5m": 14 * DAY, "15m": 30 * DAY, "1h": 60 * DAY })[i] ?? 365 * DAY
 
 const errResult = (s: StrategyRow, e: unknown): CheckResult => ({
   strategyId: s.id, strategyName: s.name, instrument: s.instrument,
