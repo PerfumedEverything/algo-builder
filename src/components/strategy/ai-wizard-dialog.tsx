@@ -5,6 +5,8 @@ import { ArrowLeft, Loader2, RefreshCw, Sparkles, Zap } from "lucide-react"
 import Markdown from "react-markdown"
 
 import type { AiGeneratedStrategy } from "@/core/types"
+import type { BacktestResult } from "@/server/services"
+import { runBacktestAction } from "@/server/actions/backtest-actions"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -13,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { AiChat } from "./ai-chat"
+import { BacktestPreview } from "./backtest-preview"
 import { StrategyForm, type StrategyFormHandle } from "./strategy-form"
 import { StrategyPreviewPanel } from "./strategy-preview-panel"
 import { WizardStepIndicator } from "./wizard-step-indicator"
@@ -53,6 +56,9 @@ export const AiWizardDialog = ({
   const [extractedStrategy, setExtractedStrategy] = useState<AiGeneratedStrategy | null>(null)
   const [chatKey, setChatKey] = useState(0)
   const [pendingFormData, setPendingFormData] = useState<AiGeneratedStrategy | null>(null)
+  const [backtestResult, setBacktestResult] = useState<BacktestResult | undefined>(undefined)
+  const [backtestLoading, setBacktestLoading] = useState(false)
+  const [backtestError, setBacktestError] = useState<string | undefined>(undefined)
   const formRef = useRef<StrategyFormHandle>(null)
 
   const handleAnalyze = async () => {
@@ -76,6 +82,9 @@ export const AiWizardDialog = ({
     setAnalysisError(null)
     setAnalysisLoading(false)
     setExtractedStrategy(null)
+    setBacktestResult(undefined)
+    setBacktestError(undefined)
+    setBacktestLoading(false)
     handleAnalyze()
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open])
@@ -85,7 +94,6 @@ export const AiWizardDialog = ({
   }
 
   const handleProceedToStrategy = () => {
-    setChatKey((k) => k + 1)
     setExtractedStrategy(null)
     setStep("strategy")
   }
@@ -97,6 +105,30 @@ export const AiWizardDialog = ({
   const handleStrategyGenerated = (strategy: AiGeneratedStrategy) => {
     setPendingFormData(strategy)
     setStep("form")
+  }
+
+  const handleStrategyCreated = async (strategyId?: string) => {
+    onSuccess()
+    if (!strategyId) return
+
+    setBacktestResult(undefined)
+    setBacktestError(undefined)
+    setBacktestLoading(true)
+    const toDate = new Date()
+    const fromDate = new Date(toDate)
+    fromDate.setMonth(fromDate.getMonth() - 3)
+
+    const res = await runBacktestAction(strategyId, {
+      fromDate,
+      toDate,
+      positionSize: 100000,
+    })
+    setBacktestLoading(false)
+    if (res.success) {
+      setBacktestResult(res.data)
+    } else {
+      setBacktestError(res.error ?? "Ошибка бэктеста")
+    }
   }
 
   useEffect(() => {
@@ -209,6 +241,7 @@ export const AiWizardDialog = ({
                 onGenerated={handleStrategyGenerated}
                 onStrategyExtracted={setExtractedStrategy}
                 analysisContext={analysisResult ?? undefined}
+                instrumentContext={initialInstrument ? { ticker: initialInstrument, timeframe: "1h" } : undefined}
               />
               {extractedStrategy && <StrategyPreviewPanel strategy={extractedStrategy} />}
             </div>
@@ -228,8 +261,15 @@ export const AiWizardDialog = ({
                 ref={formRef}
                 mode="create"
                 onClose={() => onOpenChange(false)}
-                onSuccess={onSuccess}
+                onSuccess={handleStrategyCreated}
               />
+              {(backtestLoading || backtestResult || backtestError) && (
+                <BacktestPreview
+                  result={backtestResult}
+                  loading={backtestLoading}
+                  error={backtestError}
+                />
+              )}
             </div>
           )}
         </div>

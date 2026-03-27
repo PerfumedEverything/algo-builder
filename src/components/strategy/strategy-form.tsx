@@ -45,7 +45,7 @@ type StrategyFormProps = {
   mode: "create" | "edit"
   strategy?: StrategyRow
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (strategyId?: string) => void
 }
 
 export type StrategyFormHandle = {
@@ -131,7 +131,7 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
 
       if (result.success) {
         toast.success(mode === "create" ? "Стратегия создана" : "Стратегия обновлена")
-        onSuccess()
+        onSuccess(result.data?.id)
         onClose()
       } else {
         toast.error(result.error)
