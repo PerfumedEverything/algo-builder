@@ -50,7 +50,7 @@ export class IndicatorCalculator {
     const macd = new MACD(new EMA(fastPeriod), new EMA(slowPeriod), new EMA(signalPeriod))
     candles.forEach((c) => macd.add(c.close))
     if (!macd.isStable) return null
-    const r = macd.getResult()
+    const r = macd.getResult()!
     return {
       macd: Number(r.macd),
       signal: Number(r.signal),
@@ -67,7 +67,7 @@ export class IndicatorCalculator {
     const bb = new BollingerBands(period, stdDev)
     candles.forEach((c) => bb.add(c.close))
     if (!bb.isStable) return null
-    const r = bb.getResult()
+    const r = bb.getResult()!
     return {
       upper: Number(r.upper),
       middle: Number(r.middle),
@@ -135,7 +135,7 @@ export class IndicatorCalculator {
     const stoch = new StochasticOscillator(period, 3, signalPeriod)
     candles.forEach((c) => stoch.add({ high: c.high, low: c.low, close: c.close }))
     if (!stoch.isStable) return null
-    const r = stoch.getResult()
+    const r = stoch.getResult()!
     return Number(r.stochK)
   }
 
