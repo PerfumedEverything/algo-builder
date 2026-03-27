@@ -337,11 +337,32 @@ Plans:
 - [x] 09-06-PLAN.md — Gap closure: implement BacktestService.runBacktest() + wire strategy conditions
 - [x] 09-07-PLAN.md — Gap closure: hardcode TradingView reference values in SBER_FIXTURE tests
 **UI hint**: yes
+
+### Phase 10: Security & Code Quality Hardening
+**Goal**: Fix all critical security vulnerabilities found in audit — auth bypasses, rate limiting, IDOR, prompt injection, input validation — plus resolve code quality issues (files >150 lines, DRY violations, N+1 queries)
+**Depends on**: Phase 8 (all features complete, hardening before production)
+**Requirements**: SEC-01, SEC-02, SEC-03, SEC-04, SEC-05, SEC-06, SEC-07, SEC-08, SEC-09, SEC-10
+**Success Criteria** (what must be TRUE):
+  1. All server actions call `getCurrentUserId()` — no unauthenticated endpoints
+  2. `/api/ai/chat` and `/api/prices/stream` have Redis-based rate limiting (10 req/min, 3 SSE connections/user)
+  3. Chat endpoint validates message array size (max 50) and total content length (max 50k chars)
+  4. `getOperationStatsForStrategiesAction` verifies strategyIds ownership before returning data
+  5. Client cannot inject `role: "system"` into AI messages — only "user" and "assistant" allowed
+  6. `OperationRepository.findByStrategyId` filters by userId
+  7. Middleware `/api/signals` bypass narrowed to exact cron paths only
+  8. Logo upload derives file extension from MIME type, not filename
+  9. No source file exceeds 150 lines (deepseek-provider, analytics-service, portfolio-health-service split)
+  10. Redis in Docker has password + maxmemory configured
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 10 to break down)
+**UI hint**: no
+
 ## Progress
 
 **Execution Order:**
 v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
-v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 9 → 8
+v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 9 → 8 → 10
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -363,4 +384,5 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 9 → 8
 | 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 3/4 | In Progress|  |
 | 9. Data Pipeline Overhaul | v1.1 | 7/7 | Complete   | 2026-03-27 |
+| 10. Security & Code Quality Hardening | v1.1 | 0/TBD | Not started | - |
 

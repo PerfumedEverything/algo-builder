@@ -136,6 +136,7 @@ Plan: 4 of 4
 - Phase 6.2 inserted after Phase 6.1: Realtime Prices & Anton UX Fixes — gRPC streaming prices, UX fixes from Anton doc (URGENT)
 - Phase 7.1 inserted after Phase 7: Analytics Polish & Data Integrity — fix statistical validity, RF rate, data warnings (URGENT)
 - Phase 9 added: Data Pipeline Overhaul — replace technicalindicators→trading-signals, integrate backtest-kit, MOEX candle normalization, Redis caching, terminal price bar fix, TradingView accuracy audit
+- Phase 10 added: Security & Code Quality Hardening — auth bypasses, rate limiting, IDOR, prompt injection, input validation, file splitting (from comprehensive audit)
 
 ### Pending Todos
 
