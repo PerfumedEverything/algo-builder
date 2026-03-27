@@ -161,11 +161,11 @@ Plans:
 **Note**: UX polish deferred to Phase 4.1 (wizard flow, timeframe fix, redo analysis, mobile overflow)
 
 ### Phase 4.1: AI UX Polish (INSERTED)
-**Goal**: Polish the AI Revolution UX — wizard flow for analysis→strategy, fix timeframe bug, enable redo analysis, fix mobile overflow
+**Goal**: Polish the AI Revolution UX — wizard flow for analysis->strategy, fix timeframe bug, enable redo analysis, fix mobile overflow
 **Depends on**: Phase 4 (core AI features implemented)
 **Requirements**: AIUX-01, AIUX-02, AIUX-03, AIUX-04, AIUX-05
 **Success Criteria** (what must be TRUE):
-  1. User experiences a 3-step wizard flow: Анализ → Стратегия (AI chat + preview) → Настройка (form) in a single dialog
+  1. User experiences a 3-step wizard flow: Анализ -> Стратегия (AI chat + preview) -> Настройка (form) in a single dialog
   2. AI analysis uses the currently selected chart timeframe (not hardcoded 1d)
   3. User can rerun/redo AI analysis from within the analysis dialog
   4. Action buttons in analysis dialog do not overflow on mobile viewports
@@ -279,7 +279,7 @@ Plans:
 **Requirements**: APOL-01, APOL-02, APOL-03, APOL-04, APOL-05, APOL-06, APOL-07
 **Success Criteria** (what must be TRUE):
   1. Portfolio Health Score card (1-100) with color-coded breakdown: diversification, risk, performance — with plain-language explanations (not "Sharpe 0.74")
-  2. Markowitz donuts REPLACED with simple diversification advice: "⚠️ SBER 45% — снизьте до 25%", "💡 Нет IT-сектора", "✅ Хорошая диверсификация"
+  2. Markowitz donuts REPLACED with simple diversification advice: "SBER 45% — снизьте до 25%", "Нет IT-сектора", "Хорошая диверсификация"
   3. Benchmark section shows "Вы обгоняете рынок на X%" or "Депозит выгоднее на X%" with clear labels (price return, without dividends)
   4. Correlation warnings in human language: "SBER и VTBR движутся вместе (оба банки)" instead of raw matrix numbers
   5. Risk-free rate = 15% (CBR key rate), all analytics use per-metric try/catch (one failure doesn't break all)
@@ -312,7 +312,7 @@ Plans:
 - [x] 08-03-PLAN.md — AiChat streaming client + quick actions + conversation continuity
 - [x] 08-04-PLAN.md — Backtest preview in wizard + final wiring + human verification
 
-**UI hint**: yes 
+**UI hint**: yes
 
 ### Phase 9: Data Pipeline Overhaul
 **Goal**: Replace abandoned indicator library with verified alternative, integrate backtesting engine, normalize MOEX candle data, fix terminal price bar, add candle caching — making all market data across the platform accurate and verifiable against TradingView
@@ -321,7 +321,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. `technicalindicators` replaced with `trading-signals` — all indicators (RSI, SMA, EMA, MACD, Bollinger, ATR, Stochastic, VWAP, Williams %R) produce values matching TradingView within 0.1% tolerance
   2. `backtest-kit` integrated — strategies can be backtested on historical MOEX data with configurable slippage and fees
-  3. MOEX candle normalization utility handles timezone (UTC→MSK), session boundaries (main 10:00-18:40, evening 19:05-23:50), weekend/holiday filtering
+  3. MOEX candle normalization utility handles timezone (UTC->MSK), session boundaries (main 10:00-18:40, evening 19:05-23:50), weekend/holiday filtering
   4. Terminal price bar shows daily session values: percent change from MOEX session open, daily H/L, daily volume (not per-candle values)
   5. Historical candles cached in Redis with incremental updates — no redundant API calls for same data
   6. Indicator calculations use 500+ candle warmup period for accuracy
@@ -329,7 +329,7 @@ Plans:
   8. Audit report documenting before/after comparison of indicator values against TradingView for top 10 instruments
 **Plans**: 7 plans
 Plans:
-- [x] 09-01-PLAN.md — Indicator migration: technicalindicators → trading-signals + 500+ warmup
+- [x] 09-01-PLAN.md — Indicator migration: technicalindicators -> trading-signals + 500+ warmup
 - [x] 09-02-PLAN.md — MOEX candle normalizer + Redis cache incremental append + warmup TTLs
 - [x] 09-03-PLAN.md — Terminal price bar fix: daily session stats instead of lastCandle
 - [x] 09-04-PLAN.md — backtest-kit integration as BacktestService with MOEX exchange schema
@@ -353,16 +353,19 @@ Plans:
   8. Logo upload derives file extension from MIME type, not filename
   9. No source file exceeds 150 lines (deepseek-provider, analytics-service, portfolio-health-service split)
   10. Redis in Docker has password + maxmemory configured
-**Plans**: 0 plans
+**Plans**: 4 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 10 to break down)
+- [ ] 10-01-PLAN.md — Auth bypass + IDOR + ownership filter + middleware narrowing
+- [ ] 10-02-PLAN.md — Rate limiting + input validation + prompt injection prevention
+- [ ] 10-03-PLAN.md — File upload MIME fix + Docker Redis hardening
+- [ ] 10-04-PLAN.md — Split oversized files (>150 lines) into focused modules
 **UI hint**: no
 
 ## Progress
 
 **Execution Order:**
-v1.0: 1 → 2 → 2.1 → 2.2 → 2.3 → 3 → 3.1 (archived)
-v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 9 → 8 → 10
+v1.0: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 (archived)
+v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -384,5 +387,4 @@ v1.1: 4 → 4.1 → 5 → 5.1 → 6 → 6.1 → 6.2 → 7 → 7.1 → 9 → 8 �
 | 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 3/4 | In Progress|  |
 | 9. Data Pipeline Overhaul | v1.1 | 7/7 | Complete   | 2026-03-27 |
-| 10. Security & Code Quality Hardening | v1.1 | 0/TBD | Not started | - |
-
+| 10. Security & Code Quality Hardening | v1.1 | 0/4 | Not started | - |
