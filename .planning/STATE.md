@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Ready to execute
-stopped_at: Completed 14-02-PLAN.md
-last_updated: "2026-03-28T12:47:10.945Z"
+stopped_at: Completed 14-bybit-provider-backend-03-PLAN.md
+last_updated: "2026-03-28T12:48:24.890Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 14 (bybit-provider-backend) — EXECUTING
-Plan: 2 of 6
+Plan: 3 of 6
 
 ## Performance Metrics
 
@@ -80,6 +80,7 @@ Plan: 2 of 6
 | Phase 12 P01 | 4 | 2 tasks | 5 files |
 | Phase 12 P03 | 8 | 2 tasks | 4 files |
 | Phase 14-bybit-provider-backend P02 | 8 | 2 tasks | 1 files |
+| Phase 14-bybit-provider-backend P03 | 12 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -165,6 +166,8 @@ Plan: 2 of 6
 - [Phase 12]: StrategyCondition.params.period replaces plan's cond.period — actual type uses params: Record<string, number>
 - [Phase 14]: averagePositionPriceFifo with fallback to averagePositionPrice — handles sandbox/old T-Invest accounts without FIFO data
 - [Phase 14]: TinkoffProvider.placeOrder/cancelOrder stubs throw NotImplementedError — satisfies BrokerProvider interface, real order placement deferred
+- [Phase 14-bybit-provider-backend]: evaluateCrossing (sync, stateful) kept as backward-compat export — evaluateCrossingBatch (async, @ixjb94/indicators) is the new runtime path
+- [Phase 14-bybit-provider-backend]: indicator-series.ts extracted as separate file — keeps indicator-calculator.ts under 150 lines
 
 ### Roadmap Evolution
 
@@ -190,7 +193,7 @@ Plan: 2 of 6
 
 ## Session Continuity
 
-Last session: 2026-03-28T12:47:10.939Z
-Stopped at: Completed 14-02-PLAN.md
+Last session: 2026-03-28T12:48:24.884Z
+Stopped at: Completed 14-bybit-provider-backend-03-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
