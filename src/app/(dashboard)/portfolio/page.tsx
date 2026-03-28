@@ -23,8 +23,8 @@ import {
   getCorrelationMatrixAction,
   getPortfolioAnalyticsAction,
   getHealthScoreAction,
-  getFullPortfolioAiAnalysisAction,
 } from "@/server/actions/analytics-actions"
+import { getFullPortfolioAiAnalysisAction } from "@/server/actions/analytics-ai-prompt"
 import { PortfolioHealthService } from "@/server/services/portfolio-health-service"
 import { CorrelationHeatmap } from "@/components/portfolio/correlation-heatmap"
 import { CorrelationWarnings } from "@/components/portfolio/correlation-warnings"

@@ -19,7 +19,6 @@ const provider = new MOEXProvider()
 const analyticsService = new PortfolioAnalyticsService()
 const brokerService = new BrokerService()
 
-export { getFullPortfolioAiAnalysisAction } from "./analytics-ai-prompt"
 
 export const getImoexCandlesAction = async (
   from: string,

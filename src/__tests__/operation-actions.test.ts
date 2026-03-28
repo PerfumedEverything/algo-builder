@@ -35,7 +35,7 @@ vi.mock("@/server/services/price-cache", () => ({
   }),
 }))
 
-import { getPaperPortfolioAction } from "@/server/actions/operation-actions"
+import { getPaperPortfolioAction } from "@/server/actions/paper-portfolio-actions"
 import type { OperationStats } from "@/core/types"
 
 const zeroStats: OperationStats = {

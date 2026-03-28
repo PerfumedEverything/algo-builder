@@ -6,8 +6,6 @@ import { OperationService, StrategyService, BrokerService } from "@/server/servi
 import { PriceCache } from "@/server/services/price-cache"
 import { getCurrentUserId } from "./helpers"
 
-export type { PaperStrategyRow } from "./paper-portfolio-actions"
-export { getPaperPortfolioAction } from "./paper-portfolio-actions"
 
 const getService = () => new OperationService()
 

@@ -3,8 +3,8 @@
 import { useCallback, useEffect, useState } from "react"
 import { Loader2, TrendingUp, TrendingDown, FlaskConical } from "lucide-react"
 
-import type { PaperStrategyRow } from "@/server/actions/operation-actions"
-import { getPaperPortfolioAction } from "@/server/actions/operation-actions"
+import type { PaperStrategyRow } from "@/server/actions/paper-portfolio-actions"
+import { getPaperPortfolioAction } from "@/server/actions/paper-portfolio-actions"
 
 type DatePreset = "all" | "today" | "yesterday" | "7d" | "30d"
 
