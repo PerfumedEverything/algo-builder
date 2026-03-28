@@ -12,6 +12,7 @@ import {
   type SeriesMarker,
   type Time,
 } from "lightweight-charts"
+import { isMarketOpen } from "@/lib/market-hours"
 
 type InstrumentChartProps = {
   candles: CandlestickData<Time>[]
@@ -89,6 +90,7 @@ export const InstrumentChart = ({ candles, markers, height, livePrice }: Instrum
 
   useEffect(() => {
     if (!seriesRef.current || !livePrice || candles.length === 0) return
+    if (!isMarketOpen()) return
     const lastCandle = candles[candles.length - 1]
     seriesRef.current.update({
       time: lastCandle.time,
