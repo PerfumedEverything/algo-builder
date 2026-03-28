@@ -69,6 +69,7 @@ export class StrategyService {
 
   async deleteStrategy(id: string, userId: string) {
     await this.getStrategy(id, userId)
+    await this.repository.update(id, userId, { status: "PAUSED" })
     return this.repository.delete(id, userId)
   }
 
