@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Ready to plan
-stopped_at: Milestone v1.1 complete
-last_updated: "2026-03-28T12:00:00.000Z"
+status: Ready to execute
+stopped_at: Completed 12-04-PLAN.md
+last_updated: "2026-03-28T10:34:26.195Z"
 progress:
-  total_phases: 25
-  completed_phases: 20
-  total_plans: 57
-  completed_plans: 54
+  total_phases: 13
+  completed_phases: 13
+  total_plans: 36
+  completed_plans: 36
 ---
 
 # Project State
@@ -25,8 +25,8 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 ## Current Position
 
-Phase: 12 (calculation-correctness) — NOT STARTED
-Plan: 0 of TBD
+Phase: 12 (calculation-correctness) — EXECUTING
+Plan: 2 of 4
 
 ## Performance Metrics
 
@@ -75,6 +75,7 @@ Plan: 0 of TBD
 | Phase 11-root-cause-bug-fixes P01 | 5 | 2 tasks | 3 files |
 | Phase 11-root-cause-bug-fixes P02 | 10 | 2 tasks | 5 files |
 | Phase 11-root-cause-bug-fixes P03 | 3 | 2 tasks | 4 files |
+| Phase 12 P04 | 1 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -151,6 +152,7 @@ Plan: 0 of TBD
 - [Phase 11]: Exit P&L in Telegram = (sellPrice - buyPrice) * quantity — total not per-share
 - [Phase 11]: Use initialAmount (sum of all BUY amounts) as currentAmount fallback — accounts for multiple buys at different prices
 - [Phase 11]: portfolioSummary.totalPortfolio uses totalInitial from opsStatsMap — actual invested not config.risks.tradeAmount budget
+- [Phase 12]: Strategy card Позиция = initialAmount (cost basis), not currentAmount (mark-to-market)
 
 ### Roadmap Evolution
 
@@ -176,7 +178,7 @@ Plan: 0 of TBD
 
 ## Session Continuity
 
-Last session: 2026-03-28T08:03:29.209Z
-Stopped at: Completed 11-03-PLAN.md
+Last session: 2026-03-28T10:34:26.187Z
+Stopped at: Completed 12-04-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
