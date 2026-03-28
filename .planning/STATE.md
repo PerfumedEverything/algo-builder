@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Ready to execute
-stopped_at: Completed 14-05-PLAN.md
-last_updated: "2026-03-28T13:07:27.093Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 14-06-PLAN.md
+last_updated: "2026-03-28T13:09:10.415Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -84,6 +84,7 @@ Plan: 6 of 6
 | Phase 14 P01 | 11 | 2 tasks | 16 files |
 | Phase 14-bybit-provider-backend P04 | 7 | 2 tasks | 5 files |
 | Phase 14 P05 | 3 | 2 tasks | 4 files |
+| Phase 14-bybit-provider-backend P06 | 247 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -179,6 +180,8 @@ Plan: 6 of 6
 - [Phase 14-bybit-provider-backend]: BybitProvider uses regular function constructor mock in vitest — arrow functions cannot be used with new
 - [Phase 14]: bybit-worker uses dedicated Dockerfile.bybit-worker (not main Dockerfile) to match price-worker pattern and avoid heavy Next.js build
 - [Phase 14]: bybit-api exception event used instead of deprecated error event (types: UseTheExceptionEventInstead=never)
+- [Phase 14-bybit-provider-backend]: getSystemPrompt/getIndicatorHints/getRiskProfiles conditional selectors added — BYBIT returns crypto prompts, TINKOFF returns RU prompts
+- [Phase 14-bybit-provider-backend]: connectBybitAction validates credentials via getAccounts() before persisting — fail-fast on bad Bybit API keys
 
 ### Roadmap Evolution
 
@@ -204,7 +207,7 @@ Plan: 6 of 6
 
 ## Session Continuity
 
-Last session: 2026-03-28T13:07:27.088Z
-Stopped at: Completed 14-05-PLAN.md
+Last session: 2026-03-28T13:09:10.409Z
+Stopped at: Completed 14-06-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
