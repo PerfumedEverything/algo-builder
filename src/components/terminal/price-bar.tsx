@@ -13,6 +13,7 @@ type PriceBarProps = {
   volume: number
   bestBid: number
   bestAsk: number
+  brokerType?: string
 }
 
 const Separator = () => (
@@ -28,6 +29,7 @@ export const PriceBar = ({
   volume,
   bestBid,
   bestAsk,
+  brokerType,
 }: PriceBarProps) => {
   const changeColor = getChangeColor(change)
   const ChangeIcon = change > 0 ? ArrowUp : change < 0 ? ArrowDown : null
@@ -37,7 +39,7 @@ export const PriceBar = ({
       <div className="flex flex-wrap items-center gap-y-2">
         <div className="flex items-center gap-2">
           <span className="font-bold text-lg">{instrument.ticker}</span>
-          <span className="font-mono text-lg">{formatPrice(price)}</span>
+          <span className="font-mono text-lg">{formatPrice(price, brokerType)}</span>
           <span className={`flex items-center gap-0.5 font-mono text-sm ${changeColor}`}>
             {ChangeIcon && <ChangeIcon className="h-3.5 w-3.5" />}
             {formatChange(change)}
@@ -48,9 +50,9 @@ export const PriceBar = ({
           <Separator />
           <span className="text-sm">
             <span className="text-muted-foreground">H:</span>
-            <span className="font-mono ml-1">{formatPrice(high)}</span>
+            <span className="font-mono ml-1">{formatPrice(high, brokerType)}</span>
             <span className="text-muted-foreground ml-2">L:</span>
-            <span className="font-mono ml-1">{formatPrice(low)}</span>
+            <span className="font-mono ml-1">{formatPrice(low, brokerType)}</span>
           </span>
 
           <Separator />
@@ -62,18 +64,18 @@ export const PriceBar = ({
           <Separator />
           <span className="text-sm">
             <span className="text-muted-foreground">Бид:</span>
-            <span className="font-mono ml-1">{formatPrice(bestBid)}</span>
+            <span className="font-mono ml-1">{formatPrice(bestBid, brokerType)}</span>
             <span className="text-muted-foreground ml-2">Аск:</span>
-            <span className="font-mono ml-1">{formatPrice(bestAsk)}</span>
+            <span className="font-mono ml-1">{formatPrice(bestAsk, brokerType)}</span>
           </span>
         </div>
 
         <div className="flex md:hidden w-full items-center flex-wrap gap-x-3 gap-y-1 text-sm mt-1">
           <span>
             <span className="text-muted-foreground">H:</span>
-            <span className="font-mono ml-1">{formatPrice(high)}</span>
+            <span className="font-mono ml-1">{formatPrice(high, brokerType)}</span>
             <span className="text-muted-foreground ml-2">L:</span>
-            <span className="font-mono ml-1">{formatPrice(low)}</span>
+            <span className="font-mono ml-1">{formatPrice(low, brokerType)}</span>
           </span>
           <span className="text-muted-foreground/50">|</span>
           <span>
@@ -83,9 +85,9 @@ export const PriceBar = ({
           <span className="text-muted-foreground/50">|</span>
           <span>
             <span className="text-muted-foreground">Бид:</span>
-            <span className="font-mono ml-1">{formatPrice(bestBid)}</span>
+            <span className="font-mono ml-1">{formatPrice(bestBid, brokerType)}</span>
             <span className="text-muted-foreground ml-2">Аск:</span>
-            <span className="font-mono ml-1">{formatPrice(bestAsk)}</span>
+            <span className="font-mono ml-1">{formatPrice(bestAsk, brokerType)}</span>
           </span>
         </div>
       </div>

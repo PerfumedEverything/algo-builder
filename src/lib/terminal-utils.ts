@@ -5,7 +5,22 @@ const priceFormatter = new Intl.NumberFormat("ru-RU", {
 
 const intFormatter = new Intl.NumberFormat("ru-RU")
 
-export const formatPrice = (value: number): string => {
+const formatCryptoPrice = (value: number): string => {
+  if (value === 0) return "0"
+  const absValue = Math.abs(value)
+  if (absValue >= 1) {
+    return new Intl.NumberFormat("en-US", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(value)
+  }
+  const str = value.toPrecision(8)
+  const num = parseFloat(str)
+  return num.toString()
+}
+
+export const formatPrice = (value: number, brokerType?: string): string => {
+  if (brokerType === "BYBIT") return formatCryptoPrice(value)
   return priceFormatter.format(value)
 }
 
@@ -37,7 +52,8 @@ export const formatChange = (value: number): string => {
   return `${formatted}%`
 }
 
-export const formatSpread = (value: number): string => {
+export const formatSpread = (value: number, brokerType?: string): string => {
+  if (brokerType === "BYBIT") return formatCryptoPrice(value)
   return priceFormatter.format(value)
 }
 

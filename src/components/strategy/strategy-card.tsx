@@ -5,6 +5,7 @@ import { MoreHorizontal, Pencil, Trash2, Play, Pause, Radio, ChevronDown, Activi
 
 import type { OperationStats, StrategyOperation } from "@/core/types"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
+import { formatPrice } from "@/lib/terminal-utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { GlowingEffect } from "@/components/ui/glowing-effect"
@@ -24,6 +25,7 @@ type StrategyCardProps = {
   onEdit: (id: string) => void
   onDelete: (id: string) => void
   onStatusChange: (id: string, status: string) => void
+  brokerType?: string
 }
 
 const STATUS_MAP: Record<string, { style: string; label: string }> = {
@@ -35,7 +37,7 @@ const STATUS_MAP: Record<string, { style: string; label: string }> = {
 const formatAmount = (n: number) =>
   n.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
-export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPrice, expanded: controlledExpanded, onToggleExpand, onEdit, onDelete, onStatusChange }: StrategyCardProps) => {
+export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPrice, expanded: controlledExpanded, onToggleExpand, onEdit, onDelete, onStatusChange, brokerType }: StrategyCardProps) => {
   const config = strategy.config
   const isActive = strategy.status === "ACTIVE"
   const [internalExpanded, setInternalExpanded] = useState(false)
@@ -81,7 +83,7 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
             <span>·</span><span>{strategy.timeframe}</span>
             <span>·</span><span>{strategy.instrumentType}</span>
             {currentPrice && currentPrice > 0 && (
-              <><span>·</span><span className="font-mono text-foreground">Курс: {formatAmount(currentPrice)} ₽</span></>
+              <><span>·</span><span className="font-mono text-foreground">Курс: {formatPrice(currentPrice, brokerType)} ₽</span></>
             )}
           </div>
         </div>
@@ -106,7 +108,7 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
 
       {isActive && strategy.positionState === "OPEN" && lastBuyPrice && lastBuyPrice > 0 && (
         <div className="mt-2 flex items-center gap-2 text-xs">
-          <span className="text-muted-foreground">Цена входа:</span><span className="font-mono text-emerald-400">{formatAmount(lastBuyPrice)} ₽</span>
+          <span className="text-muted-foreground">Цена входа:</span><span className="font-mono text-emerald-400">{formatPrice(lastBuyPrice, brokerType)} ₽</span>
         </div>
       )}
       <div className="mt-3 flex flex-wrap gap-2">

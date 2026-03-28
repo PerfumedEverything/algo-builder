@@ -28,6 +28,7 @@ import {
   deactivateStrategyAction,
 } from "@/server/actions/strategy-actions"
 import { getBrokerStatusAction } from "@/server/actions/broker-actions"
+import { getBrokerSettingsAction } from "@/server/actions/settings-actions"
 import { getOperationStatsForStrategiesAction } from "@/server/actions/operation-actions"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
 import { INSTRUMENT_TYPES, TIMEFRAMES } from "@/core/config/instruments"
@@ -53,6 +54,7 @@ export default function StrategiesPage() {
   const [opsStatsMap, setOpsStatsMap] = useState<Record<string, OperationStats>>({})
   const [pricesMap, setPricesMap] = useState<Record<string, number>>({})
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
+  const [brokerType, setBrokerType] = useState<string>("TINKOFF")
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
@@ -97,6 +99,12 @@ export default function StrategiesPage() {
   }, [search, filters])
 
   useEffect(() => { fetchData() }, [fetchData])
+
+  useEffect(() => {
+    getBrokerSettingsAction().then((res) => {
+      if (res.success) setBrokerType(res.data.brokerType)
+    })
+  }, [])
 
   useEffect(() => {
     const createFor = searchParams.get("createFor")
@@ -359,7 +367,7 @@ export default function StrategiesPage() {
       {strategies.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 items-start">
           {strategies.map((strategy) => (
-            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} expanded={expandedIds.has(strategy.id)} onToggleExpand={() => setExpandedIds((prev) => { const next = new Set(prev); if (next.has(strategy.id)) next.delete(strategy.id); else next.add(strategy.id); return next })} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} />
+            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} expanded={expandedIds.has(strategy.id)} onToggleExpand={() => setExpandedIds((prev) => { const next = new Set(prev); if (next.has(strategy.id)) next.delete(strategy.id); else next.add(strategy.id); return next })} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} brokerType={brokerType} />
           ))}
         </div>
       ) : (

@@ -9,6 +9,7 @@ type PositionsPanelProps = {
   positions: PortfolioPosition[]
   loading?: boolean
   onSelectTicker?: (ticker: string, figi: string) => void
+  brokerType?: string
 }
 
 const SkeletonRows = () => (
@@ -25,7 +26,7 @@ const SkeletonRows = () => (
   </>
 )
 
-export const PositionsPanel = ({ positions, loading, onSelectTicker }: PositionsPanelProps) => {
+export const PositionsPanel = ({ positions, loading, onSelectTicker, brokerType }: PositionsPanelProps) => {
   return (
     <div className="rounded-lg border border-border bg-card overflow-hidden">
       <div className="px-3 py-2 border-b border-border">
@@ -65,11 +66,11 @@ export const PositionsPanel = ({ positions, loading, onSelectTicker }: Positions
                       <div className="text-xs text-muted-foreground truncate max-w-[120px]">{position.name}</div>
                     </TableCell>
                     <TableCell className="font-mono text-sm">{position.quantity}</TableCell>
-                    <TableCell className="font-mono text-sm">{formatPrice(position.averagePrice)}</TableCell>
-                    <TableCell className="font-mono text-sm">{formatPrice(position.currentPrice)}</TableCell>
+                    <TableCell className="font-mono text-sm">{formatPrice(position.averagePrice, brokerType)}</TableCell>
+                    <TableCell className="font-mono text-sm">{formatPrice(position.currentPrice, brokerType)}</TableCell>
                     <TableCell>
                       <div className={`font-mono text-sm ${pnlColor}`}>
-                        {formatPrice(position.expectedYieldAbsolute)} RUB
+                        {formatPrice(position.expectedYieldAbsolute, brokerType)} RUB
                       </div>
                       <div className={`text-xs ${pnlColor}`}>
                         {position.expectedYield >= 0 ? "+" : ""}

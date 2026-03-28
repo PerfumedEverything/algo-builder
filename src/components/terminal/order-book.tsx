@@ -8,6 +8,7 @@ import { formatPrice, formatSpread } from "@/lib/terminal-utils"
 type OrderBookProps = {
   data: OrderBookData | null
   loading?: boolean
+  brokerType?: string
 }
 
 const quantityFormatter = new Intl.NumberFormat("ru-RU")
@@ -34,7 +35,7 @@ const SkeletonRows = () => (
   </>
 )
 
-export const OrderBook = ({ data, loading }: OrderBookProps) => {
+export const OrderBook = ({ data, loading, brokerType }: OrderBookProps) => {
   if (loading) {
     return (
       <div className="rounded-lg border border-border bg-card h-full">
@@ -109,7 +110,7 @@ export const OrderBook = ({ data, loading }: OrderBookProps) => {
                       />
                       <div className="relative flex w-full">
                         <span className="flex-1 px-2 py-1 text-xs font-mono text-red-400">
-                          {formatPrice(level.price)}
+                          {formatPrice(level.price, brokerType)}
                         </span>
                         <span className="flex-1 px-2 py-1 text-xs font-mono">
                           {formatQty(level.quantity)}
@@ -126,7 +127,7 @@ export const OrderBook = ({ data, loading }: OrderBookProps) => {
 
             <TableRow className="border-y border-border hover:bg-transparent">
               <TableCell colSpan={3} className="text-center text-xs text-muted-foreground py-1">
-                Спред: {formatSpread(data.spread)}
+                Спред: {formatSpread(data.spread, brokerType)}
               </TableCell>
             </TableRow>
 
@@ -142,7 +143,7 @@ export const OrderBook = ({ data, loading }: OrderBookProps) => {
                       />
                       <div className="relative flex w-full">
                         <span className="flex-1 px-2 py-1 text-xs font-mono text-emerald-400">
-                          {formatPrice(level.price)}
+                          {formatPrice(level.price, brokerType)}
                         </span>
                         <span className="flex-1 px-2 py-1 text-xs font-mono">
                           {formatQty(level.quantity)}

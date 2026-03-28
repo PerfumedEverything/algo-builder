@@ -19,6 +19,7 @@ import type { DailySessionStats } from "@/server/services/session-stats"
 import { analyzeWithAiAction } from "@/server/actions/ai-analysis-actions"
 import { getPortfolioAction, findInstrumentByTickerAction, getInstrumentPriceAction } from "@/server/actions/broker-actions"
 import { getOrderBookAction, getOperationsByTickerAction, getTopMoversAction, subscribeInstrumentAction } from "@/server/actions/terminal-actions"
+import { getBrokerSettingsAction } from "@/server/actions/settings-actions"
 import { TopMoversPanel } from "@/components/terminal/top-movers-panel"
 import { isMarketOpen } from "@/lib/market-hours"
 import { usePriceStream } from "@/hooks/use-price-stream"
@@ -62,6 +63,7 @@ export default function TerminalPage() {
   const [dailyStats, setDailyStats] = useState<DailySessionStats | null>(null)
   const [apiPrice, setApiPrice] = useState<number | null>(null)
   const [marketOpen, setMarketOpen] = useState(true)
+  const [brokerType, setBrokerType] = useState<string>("TINKOFF")
 
   const prices = usePriceStream()
 
@@ -161,6 +163,12 @@ export default function TerminalPage() {
     const id = setInterval(fetchTopMovers, 60_000)
     return () => clearInterval(id)
   }, [fetchTopMovers])
+
+  useEffect(() => {
+    getBrokerSettingsAction().then((res) => {
+      if (res.success) setBrokerType(res.data.brokerType)
+    })
+  }, [])
 
   const fetchApiPrice = useCallback(async (t: string) => {
     try {
@@ -333,6 +341,7 @@ export default function TerminalPage() {
             volume={volume}
             bestBid={bestBid}
             bestAsk={bestAsk}
+            brokerType={brokerType}
           />
 
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-4">
@@ -349,7 +358,7 @@ export default function TerminalPage() {
             </div>
 
             <div className="h-[450px] lg:h-[450px]">
-              <OrderBook data={orderBook} loading={orderBookLoading && !orderBook} />
+              <OrderBook data={orderBook} loading={orderBookLoading && !orderBook} brokerType={brokerType} />
             </div>
           </div>
 
@@ -368,6 +377,7 @@ export default function TerminalPage() {
                   positions={positions}
                   loading={positionsLoading}
                   onSelectTicker={handlePositionSelect}
+                  brokerType={brokerType}
                 />
               )}
               {(operationsLoading || operations.length > 0) && (
