@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Ready to execute
-stopped_at: Completed 12-04-PLAN.md
-last_updated: "2026-03-28T10:34:26.195Z"
+stopped_at: Completed 12-02-PLAN.md
+last_updated: "2026-03-28T10:35:22.762Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 12 (calculation-correctness) — EXECUTING
-Plan: 2 of 4
+Plan: 3 of 4
 
 ## Performance Metrics
 
@@ -76,6 +76,7 @@ Plan: 2 of 4
 | Phase 11-root-cause-bug-fixes P02 | 10 | 2 tasks | 5 files |
 | Phase 11-root-cause-bug-fixes P03 | 3 | 2 tasks | 4 files |
 | Phase 12 P04 | 1 | 1 tasks | 2 files |
+| Phase 12 P02 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -153,6 +154,9 @@ Plan: 2 of 4
 - [Phase 11]: Use initialAmount (sum of all BUY amounts) as currentAmount fallback — accounts for multiple buys at different prices
 - [Phase 11]: portfolioSummary.totalPortfolio uses totalInitial from opsStatsMap — actual invested not config.risks.tradeAmount budget
 - [Phase 12]: Strategy card Позиция = initialAmount (cost basis), not currentAmount (mark-to-market)
+- [Phase 12]: validateOHLC checks 5 OHLC invariants; filterValidCandles logs [CandleValidator] warn per broken candle
+- [Phase 12]: BrokerService.getCandles pipes provider output through filterValidCandles before returning (CALC-04/05)
+- [Phase 12]: FIFO realized P&L for full-close deferred to OperationService.getStats — FifoCalculator only tracks unrealized
 
 ### Roadmap Evolution
 
@@ -178,7 +182,7 @@ Plan: 2 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-28T10:34:26.187Z
-Stopped at: Completed 12-04-PLAN.md
+Last session: 2026-03-28T10:35:22.759Z
+Stopped at: Completed 12-02-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
