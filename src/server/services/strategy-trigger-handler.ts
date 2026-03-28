@@ -42,10 +42,13 @@ export class StrategyTriggerHandler {
     const { data: updated } = await query.select("id")
     if (!updated?.length) return
 
+    let recordedQuantity = 0
+    let recordedAmount = 0
+
     if (result.price) {
       try {
         const config = strategy.config as StrategyConfig
-        await this.operationService.recordOperation({
+        const op = await this.operationService.recordOperation({
           strategyId: strategy.id,
           userId: strategy.userId,
           type: isEntry ? "BUY" : "SELL",
@@ -53,6 +56,8 @@ export class StrategyTriggerHandler {
           price: result.price,
           tradeAmount: config.risks.tradeAmount,
         })
+        recordedQuantity = op.quantity
+        recordedAmount = op.amount
       } catch (e) {
         console.error(`[StrategyChecker] recordOperation failed, rolling back positionState for strategy ${strategy.id}:`, e)
         try {
@@ -65,7 +70,15 @@ export class StrategyTriggerHandler {
     }
 
     let message = result.message
+
+    if (isEntry && recordedQuantity > 0) {
+      message += `\n\n📦 Куплено: ${recordedQuantity} лот(ов) на ${recordedAmount.toFixed(2)}₽`
+    }
+
     if (!isEntry && result.price) {
+      if (recordedQuantity > 0) {
+        message += `\n\n📦 Продано: ${recordedQuantity} лот(ов) на ${recordedAmount.toFixed(2)}₽`
+      }
       let buyPrice = 0
       try {
         buyPrice = await this.operationService.getLastBuyPrice(strategy.id)
@@ -77,10 +90,12 @@ export class StrategyTriggerHandler {
         }
       }
       if (buyPrice > 0) {
-        const pnl = result.price - buyPrice
-        const pnlPercent = ((pnl / buyPrice) * 100).toFixed(2)
-        const pnlSign = pnl >= 0 ? "+" : ""
-        message += `\n\n💰 *P&L:* ${pnlSign}${pnl.toFixed(2)}₽ (${pnlSign}${pnlPercent}%)`
+        const pnlPerShare = result.price - buyPrice
+        const quantity = recordedQuantity > 0 ? recordedQuantity : 1
+        const totalPnl = pnlPerShare * quantity
+        const pnlPercent = ((pnlPerShare / buyPrice) * 100).toFixed(2)
+        const pnlSign = totalPnl >= 0 ? "+" : ""
+        message += `\n\n💰 *P&L:* ${pnlSign}${totalPnl.toFixed(2)}₽ (${pnlSign}${pnlPercent}%)`
         message += `\n📊 Вход: ${buyPrice.toFixed(2)}₽ → Выход: ${result.price.toFixed(2)}₽`
       }
     }

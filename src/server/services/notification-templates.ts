@@ -309,10 +309,17 @@ const formatConditionLabel = (condition: string, value: number): string => {
   return labels[condition] ?? `${condition} ${value}`
 }
 
+type TradeDetails = {
+  quantity: number
+  amount: number
+  totalPnl?: number
+}
+
 export const formatStrategyNotification = (
   strategy: StrategyRow,
   side: "entry" | "exit",
   ctx: EvalContext,
+  trade?: TradeDetails,
 ): string => {
   const ticker = strategy.instrument.toUpperCase()
   const config = strategy.config as StrategyConfig
@@ -322,26 +329,37 @@ export const formatStrategyNotification = (
   const sideLabel = side === "entry" ? "ВХОД (BUY)" : "ВЫХОД (SELL)"
   const time = new Date().toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow" })
 
-  if (!conditions?.length) {
-    return `🔔 *${strategy.name}* | ${ticker}\n${sideEmoji} ${sideLabel}\n💰 ${ctx.price.toFixed(2)}₽\n🕐 ${time}`
-  }
+  const baseLines = !conditions?.length
+    ? [
+        `🔔 *${strategy.name}* | ${ticker}`,
+        `${sideEmoji} ${sideLabel}`,
+        `💰 ${ctx.price.toFixed(2)}₽`,
+        `🕐 ${time}`,
+      ]
+    : [
+        `🎯 *${strategy.name} | ${ticker}*`,
+        `${sideEmoji} ${sideLabel}`,
+        `📈 Цена: ${ctx.price.toFixed(2)}₽`,
+        "",
+        `📋 Условия (${logic}):`,
+        ...conditions.map((c) => {
+          const val = getIndicatorDisplayValue(c, ctx)
+          const label = formatConditionLabel(c.condition, c.value ?? 0)
+          return `  ${c.indicator}: ${val} ${label} ✓`
+        }),
+        "",
+        `🕐 ${time}`,
+      ]
 
-  const conditionLines = conditions.map((c) => {
-    const val = getIndicatorDisplayValue(c, ctx)
-    const label = formatConditionLabel(c.condition, c.value ?? 0)
-    return `  ${c.indicator}: ${val} ${label} ✓`
-  })
+  const message = baseLines.join("\n")
 
-  return [
-    `🎯 *${strategy.name} | ${ticker}*`,
-    `${sideEmoji} ${sideLabel}`,
-    `📈 Цена: ${ctx.price.toFixed(2)}₽`,
-    "",
-    `📋 Условия (${logic}):`,
-    ...conditionLines,
-    "",
-    `🕐 ${time}`,
-  ].join("\n")
+  if (!trade) return message
+
+  const tradeLabel = side === "entry"
+    ? `\n\n📦 Куплено: ${trade.quantity} лот(ов) на ${trade.amount.toFixed(2)}₽`
+    : `\n\n📦 Продано: ${trade.quantity} лот(ов) на ${trade.amount.toFixed(2)}₽`
+
+  return message + tradeLabel
 }
 
 const formatNumber = (n: number): string => {
