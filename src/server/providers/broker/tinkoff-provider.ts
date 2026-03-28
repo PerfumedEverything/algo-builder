@@ -302,7 +302,7 @@ export class TinkoffProvider implements BrokerProvider {
     const { lastPrices } = await client.marketdata.getLastPrices({
       figi: [],
       instrumentId: [resolvedId],
-      lastPriceType: LastPriceType.LAST_PRICE_EXCHANGE,
+      lastPriceType: LastPriceType.LAST_PRICE_DEALER,
     })
 
     if (!lastPrices.length || !lastPrices[0].price) {
