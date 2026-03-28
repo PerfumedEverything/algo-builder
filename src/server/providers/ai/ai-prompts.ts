@@ -1,3 +1,5 @@
+import { CRYPTO_SYSTEM_PROMPT, CRYPTO_INDICATOR_HINTS, CRYPTO_RISK_PROFILES } from "./ai-crypto-prompts"
+
 export const INDICATOR_HINTS = [
   "Используй RSI с нестандартным периодом (7, 9, 21) вместо дефолтного 14",
   "Попробуй комбинацию MACD + Bollinger Bands для фильтрации сигналов",
@@ -39,6 +41,15 @@ For scalping strategies use short timeframes (1m, 5m). For swing trading use lon
 Default timeframe is 1d if not specified.
 Respond in Russian for name and description fields.
 Be creative — each strategy should be unique even for similar requests.`
+
+export const getSystemPrompt = (brokerType: string): string =>
+  brokerType === "BYBIT" ? CRYPTO_SYSTEM_PROMPT : SYSTEM_PROMPT
+
+export const getIndicatorHints = (brokerType: string): string[] =>
+  brokerType === "BYBIT" ? CRYPTO_INDICATOR_HINTS : INDICATOR_HINTS
+
+export const getRiskProfiles = (brokerType: string): string[] =>
+  brokerType === "BYBIT" ? CRYPTO_RISK_PROFILES : RISK_PROFILES
 
 export const CHAT_SYSTEM_PROMPT = `Ты теперь используешь режим "мышления" — перед ответом ты глубоко анализируешь данные.
 Если тебе передан контекст с рыночными данными, портфелем или фундаменталом — используй их в анализе.
