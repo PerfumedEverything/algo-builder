@@ -438,9 +438,17 @@ Plans:
   5. AI промпты адаптированы под крипто
   6. Bybit testnet поддерживается
   7. Тесты: mock API, каждый метод провайдера проверен
-**Plans**: 0 plans
+**Plans**: 6 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 14 to break down)
+- [ ] 14-01-PLAN.md — Types + DB migration + factory + BrokerService multi-broker refactor
+- [ ] 14-02-PLAN.md — T-Invest refactor: API-native P&L fields + getOperationsByCursor
+- [ ] 14-03-PLAN.md — Crossover detection upgrade: @ixjb94/indicators
+- [ ] 14-04-PLAN.md — BybitBrokerProvider implementation + unit tests
+- [ ] 14-05-PLAN.md — Bybit WebSocket streaming worker + Docker
+- [ ] 14-06-PLAN.md — Crypto AI prompts + broker switch UI
+
+
+
 **UI hint**: yes
 
 ### Phase 14.1: Bybit TradingView Datafeed ⏸ BLOCKED — после Phase 13
