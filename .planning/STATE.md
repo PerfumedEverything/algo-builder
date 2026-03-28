@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Ready to execute
-stopped_at: Completed 14-01-PLAN.md
-last_updated: "2026-03-28T12:52:59.282Z"
+stopped_at: Completed 14-04-PLAN.md
+last_updated: "2026-03-28T13:02:38.856Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 14 (bybit-provider-backend) — EXECUTING
-Plan: 4 of 6
+Plan: 5 of 6
 
 ## Performance Metrics
 
@@ -82,6 +82,7 @@ Plan: 4 of 6
 | Phase 14-bybit-provider-backend P02 | 8 | 2 tasks | 1 files |
 | Phase 14-bybit-provider-backend P03 | 12 | 2 tasks | 6 files |
 | Phase 14 P01 | 11 | 2 tasks | 16 files |
+| Phase 14-bybit-provider-backend P04 | 7 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -172,6 +173,9 @@ Plan: 4 of 6
 - [Phase 14]: getBrokerProvider is now async and user-aware, reads brokerType from DB per call
 - [Phase 14]: backtest-service uses TinkoffProvider directly (backtest is MOEX-specific, no userId in static context)
 - [Phase 14]: BybitProvider is a stub — full implementation in Plan 04; brokerType defaults to TINKOFF for backward compatibility
+- [Phase 14-bybit-provider-backend]: PositionV5 from bybit-api used directly in mapPosition — avoids duplicate type definition
+- [Phase 14-bybit-provider-backend]: vi.hoisted() required for mock instance shared in vi.mock factory (vitest hoisting limitation)
+- [Phase 14-bybit-provider-backend]: BybitProvider uses regular function constructor mock in vitest — arrow functions cannot be used with new
 
 ### Roadmap Evolution
 
@@ -197,7 +201,7 @@ Plan: 4 of 6
 
 ## Session Continuity
 
-Last session: 2026-03-28T12:52:59.276Z
-Stopped at: Completed 14-01-PLAN.md
+Last session: 2026-03-28T13:02:38.848Z
+Stopped at: Completed 14-04-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
