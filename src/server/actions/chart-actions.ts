@@ -16,8 +16,16 @@ export type ChartCandle = {
   volume?: number
 }
 
+const INTRADAY_PERIODS = new Set(["1m", "5m", "15m", "1h"])
+
+const PERIOD_DAYS: Record<string, number> = {
+  "1d": 365,
+  "1w": 730,
+}
+
 export const getDailySessionStatsAction = async (
   figi: string,
+  period?: string,
 ): Promise<ApiResponse<DailySessionStats>> => {
   try {
     const userId = await getCurrentUserId()
@@ -30,18 +38,37 @@ export const getDailySessionStatsAction = async (
       0,
       0,
     )
-    const candles = await service.getCandles(userId, {
+    const sessionCandles = await service.getCandles(userId, {
       instrumentId: figi,
       interval: "1m",
       from: sessionStartUtc,
       to: today,
     })
 
-    if (!candles || candles.length === 0) {
-      return successResponse({ sessionOpen: 0, high: 0, low: 0, volume: 0 })
+    if (!sessionCandles || sessionCandles.length === 0) {
+      return successResponse({ sessionOpen: 0, periodOpen: 0, high: 0, low: 0, volume: 0 })
     }
 
-    const stats = aggregateSessionStats(candles)
+    const stats = aggregateSessionStats(sessionCandles)
+
+    if (period && !INTRADAY_PERIODS.has(period) && PERIOD_DAYS[period]) {
+      const days = PERIOD_DAYS[period]
+      const periodFrom = new Date(today.getTime() - days * 24 * 60 * 60 * 1000)
+      try {
+        const periodCandles = await service.getCandles(userId, {
+          instrumentId: figi,
+          interval: "1d",
+          from: periodFrom,
+          to: today,
+        })
+        if (periodCandles && periodCandles.length > 0) {
+          stats.periodOpen = periodCandles[0].open
+        }
+      } catch {
+        // keep periodOpen = sessionOpen as fallback
+      }
+    }
+
     return successResponse(stats)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")

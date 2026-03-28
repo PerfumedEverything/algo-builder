@@ -176,9 +176,9 @@ export default function TerminalPage() {
     return () => clearInterval(interval)
   }, [ticker, fetchApiPrice])
 
-  const fetchDailyStats = useCallback(async (figi: string) => {
+  const fetchDailyStats = useCallback(async (figi: string, p?: ChartPeriod) => {
     try {
-      const res = await getDailySessionStatsAction(figi)
+      const res = await getDailySessionStatsAction(figi, p)
       if (res.success) {
         setDailyStats(res.data)
       }
@@ -196,9 +196,9 @@ export default function TerminalPage() {
     setOperations([])
     setDailyStats(null)
     setApiPrice(null)
-    fetchDailyStats(inst.figi)
+    fetchDailyStats(inst.figi, period)
     subscribeInstrumentAction(inst.ticker)
-  }, [fetchDailyStats])
+  }, [fetchDailyStats, period])
 
   const handleQuickSelect = useCallback(async (t: string) => {
     const res = await findInstrumentByTickerAction(t)
@@ -224,7 +224,10 @@ export default function TerminalPage() {
 
   const handlePeriodChange = useCallback((p: ChartPeriod) => {
     setPeriod(p)
-  }, [])
+    if (instrument?.figi) {
+      fetchDailyStats(instrument.figi, p)
+    }
+  }, [instrument, fetchDailyStats])
 
   const buildChartMessage = useCallback(() => {
     if (!instrument) return ""
@@ -242,8 +245,8 @@ export default function TerminalPage() {
     : undefined
 
   const currentPrice = livePrice?.price ?? apiPrice ?? (candles.length > 0 ? (candles[candles.length - 1].close as number) : 0)
-  const sessionOpen = dailyStats?.sessionOpen ?? 0
-  const change = sessionOpen > 0 ? ((currentPrice - sessionOpen) / sessionOpen) * 100 : 0
+  const periodOpen = dailyStats?.periodOpen ?? dailyStats?.sessionOpen ?? 0
+  const change = periodOpen > 0 ? ((currentPrice - periodOpen) / periodOpen) * 100 : 0
   const high = dailyStats?.high ?? 0
   const low = dailyStats?.low ?? 0
   const volume = dailyStats?.volume ?? 0
