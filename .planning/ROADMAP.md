@@ -400,9 +400,12 @@ Plans:
   4. Бэктест парсит entry/exit conditions и оценивает их через IndicatorCalculator на каждой свече
   5. Портфель показывает sum(реальных операций), не sum(strategy.budget)
   6. Тест: стратегия "RSI<30 вход, RSI>70 выход" на известных данных → точки входа/выхода совпадают
-**Plans**: 0 plans
+**Plans**: 4 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 12 to break down)
+- [ ] 12-01-PLAN.md — Replace risk calculations with @railpath/finance-toolkit (CALC-01, CALC-02, CALC-03)
+- [ ] 12-02-PLAN.md — Candle validation + FIFO P&L 6 spec scenarios (CALC-04 through CALC-09)
+- [ ] 12-03-PLAN.md — Backtest real condition evaluation (CALC-10, CALC-11, CALC-12, CALC-13)
+- [ ] 12-04-PLAN.md — Portfolio real amounts fix (CALC-14, CALC-15, CALC-16, CALC-17)
 **UI hint**: no
 
 ### Phase 13: TradingView Advanced Charts
