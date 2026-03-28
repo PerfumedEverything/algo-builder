@@ -1,6 +1,7 @@
 import type { BrokerAccount, Portfolio, BrokerInstrument, Candle, CandleParams } from "@/core/types"
 import { BrokerRepository } from "@/server/repositories"
 import { getBrokerProvider } from "@/server/providers/broker"
+import { filterValidCandles } from "./candle-validator"
 
 export class BrokerService {
   private repo = new BrokerRepository()
@@ -60,7 +61,8 @@ export class BrokerService {
     const settings = await this.repo.getSettings(userId)
     if (!settings?.brokerToken) throw new Error("Брокер не подключён")
     await this.provider.connect(settings.brokerToken)
-    return this.provider.getCandles(params)
+    const candles = await this.provider.getCandles(params)
+    return filterValidCandles(candles)
   }
 
   async selectAccount(userId: string, accountId: string): Promise<void> {
