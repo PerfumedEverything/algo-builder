@@ -21,12 +21,13 @@ See: .planning/v2.0-SPEC.md (full spec)
 See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 **Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
-**Current focus:** Phase 12 — calculation-correctness
+**Current focus:** Phase 14 — Bybit Provider (Phase 13 blocked on TV license)
 
 ## Current Position
 
-Phase: 12
-Plan: Not started
+Phase: 14 (Bybit Provider — Backend + Мульти-брокер) — NOT STARTED
+Plan: 0 of TBD
+Note: Phase 13 (TradingView) skipped — blocked on license. Phase 14.1 (Bybit TV datafeed) deferred until Phase 13 unblocked.
 
 ## Performance Metrics
 

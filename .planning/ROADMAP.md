@@ -408,9 +408,10 @@ Plans:
 - [x] 12-04-PLAN.md — Portfolio real amounts fix (CALC-14, CALC-15, CALC-16, CALC-17)
 **UI hint**: no
 
-### Phase 13: TradingView Advanced Charts
+### Phase 13: TradingView Advanced Charts ⏸ BLOCKED — ждём лицензию
 **Goal**: Заменить сырой lightweight-charts на профессиональный TradingView Advanced Charts — 100+ индикаторов, 110+ drawing tools, тот же уровень что у Veles Finance
 **Depends on**: Phase 12 (корректные данные для datafeed)
+**Blocker**: Ожидание бесплатной лицензии TradingView Advanced Charts (заявка: https://www.tradingview.com/advanced-charts/)
 **Requirements**: TV-01, TV-02, TV-03, TV-04, TV-05, TV-06, TV-07, TV-08, TV-09
 **Success Criteria** (what must be TRUE):
   1. TradingView Advanced Charts лицензия получена и библиотека установлена
@@ -422,12 +423,12 @@ Plans:
   7. Мобильная версия работает
 **Plans**: 0 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 13 to break down)
+- [ ] TBD (run /gsd:plan-phase 13 after license obtained)
 **UI hint**: yes
 
-### Phase 14: Bybit Provider + Мульти-брокер
-**Goal**: Подключить Bybit как второго брокера через bybit-api SDK — крипто-торговля 24/7, мульти-брокер UI с переключателем, данные через тот же движок
-**Depends on**: Phase 12 (корректный движок), Phase 13 (TradingView datafeed с поддержкой Bybit)
+### Phase 14: Bybit Provider — Backend + Мульти-брокер
+**Goal**: Подключить Bybit как второго брокера через bybit-api SDK — провайдер, WebSocket реалтайм, мульти-брокер UI с переключателем. Datafeed-интеграция с TradingView вынесена в Phase 14.1 (после лицензии TV).
+**Depends on**: Phase 12 (корректный движок)
 **Requirements**: BYBIT-01, BYBIT-02, BYBIT-03, BYBIT-04, BYBIT-05, BYBIT-06, BYBIT-07, BYBIT-08, BYBIT-09, BYBIT-10, BYBIT-11, BYBIT-12, BYBIT-13, BYBIT-14
 **Success Criteria** (what must be TRUE):
   1. `BybitBrokerProvider` реализует `BrokerProvider` интерфейс — все методы работают
@@ -440,6 +441,18 @@ Plans:
 **Plans**: 0 plans
 Plans:
 - [ ] TBD (run /gsd:plan-phase 14 to break down)
+**UI hint**: yes
+
+### Phase 14.1: Bybit TradingView Datafeed ⏸ BLOCKED — после Phase 13
+**Goal**: Интеграция Bybit данных в TradingView Advanced Charts datafeed
+**Depends on**: Phase 13 (TradingView чарт), Phase 14 (Bybit провайдер)
+**Requirements**: TV-09
+**Success Criteria** (what must be TRUE):
+  1. Datafeed поддерживает Bybit данные через тот же UDFCompatibleDatafeed интерфейс
+  2. Переключение T-Invest / Bybit меняет источник данных на графике
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (after Phase 13 + 14 complete)
 **UI hint**: yes
 
 ### Phase 15: Grid Trading
@@ -478,7 +491,7 @@ Plans:
 **Execution Order:**
 v1.0: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 (archived)
 v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11 (archived)
-v2.0: 12 -> 13 -> 14 -> 15 -> 16
+v2.0: 12 -> 14 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -503,7 +516,8 @@ v2.0: 12 -> 13 -> 14 -> 15 -> 16
 | 10. Security & Code Quality Hardening | v1.1 | 4/4 | Complete    | 2026-03-28 |
 | 11. Root Cause Bug Fixes | v1.1 | 3/3 | Complete    | 2026-03-28 |
 | 12. Корректность расчётов | v2.0 | 4/4 | Complete    | 2026-03-28 |
-| 13. TradingView Advanced Charts | v2.0 | 0/TBD | Not started | - |
-| 14. Bybit Provider + Мульти-брокер | v2.0 | 0/TBD | Not started | - |
+| 13. TradingView Advanced Charts | v2.0 | 0/TBD | Blocked (license) | - |
+| 14. Bybit Provider — Backend + Мульти-брокер | v2.0 | 0/TBD | Not started | - |
+| 14.1 Bybit TradingView Datafeed | v2.0 | 0/TBD | Blocked (Phase 13) | - |
 | 15. Grid Trading | v2.0 | 0/TBD | Not started | - |
 | 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |
