@@ -454,16 +454,17 @@ Plans:
 ### Phase 14.2: MOEX Evening Session + Chart Correctness (INSERTED URGENT)
 **Goal**: Терминал показывает все сессии MOEX (основная + вечерняя 18:40-23:50), свечи и цена совпадают с T-Invest приложением на всех таймфреймах
 **Depends on**: Phase 14 (multi-broker architecture)
-**Requirements**: TBD (run /gsd:discuss-phase 14.2 to gather)
+**Requirements**: SC-1, SC-2, SC-3, SC-4, SC-5
 **Success Criteria** (what must be TRUE):
   1. Свечи на 5М/15М/1Ч совпадают с T-Invest приложением (включая вечернюю сессию)
   2. Price bar цена совпадает с T-Invest на ±0.5% в реалтайме
   3. H/L/Vol в price bar отражают текущую торговую сессию (основная + вечерняя)
   4. Дневные и недельные свечи close совпадает с T-Invest
   5. Live price обновляется во время вечерней сессии
-**Plans**: 0 plans
+**Plans**: 2 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 14.2 to break down)
+- [ ] 14.2-01-PLAN.md — Fix isMarketOpen() evening session + periodic stats refresh
+- [ ] 14.2-02-PLAN.md — Candle normalizer audit + evening session boundary tests
 **UI hint**: no
 
 ### Phase 14.1: Bybit TradingView Datafeed ⏸ BLOCKED — после Phase 13
