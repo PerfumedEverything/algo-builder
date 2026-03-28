@@ -441,7 +441,7 @@ Plans:
 **Plans**: 6 plans
 Plans:
 - [ ] 14-01-PLAN.md — Types + DB migration + factory + BrokerService multi-broker refactor
-- [ ] 14-02-PLAN.md — T-Invest refactor: API-native P&L fields + getOperationsByCursor
+- [x] 14-02-PLAN.md — T-Invest refactor: API-native P&L fields + getOperationsByCursor
 - [ ] 14-03-PLAN.md — Crossover detection upgrade: @ixjb94/indicators
 - [ ] 14-04-PLAN.md — BybitBrokerProvider implementation + unit tests
 - [ ] 14-05-PLAN.md — Bybit WebSocket streaming worker + Docker
@@ -525,7 +525,7 @@ v2.0: 12 -> 14 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 | 11. Root Cause Bug Fixes | v1.1 | 3/3 | Complete    | 2026-03-28 |
 | 12. Корректность расчётов | v2.0 | 4/4 | Complete    | 2026-03-28 |
 | 13. TradingView Advanced Charts | v2.0 | 0/TBD | Blocked (license) | - |
-| 14. Bybit Provider — Backend + Мульти-брокер | v2.0 | 0/TBD | Not started | - |
+| 14. Bybit Provider — Backend + Мульти-брокер | v2.0 | 1/6 | In Progress|  |
 | 14.1 Bybit TradingView Datafeed | v2.0 | 0/TBD | Blocked (Phase 13) | - |
 | 15. Grid Trading | v2.0 | 0/TBD | Not started | - |
 | 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |

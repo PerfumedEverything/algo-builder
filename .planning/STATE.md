@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Milestone complete
-stopped_at: Phase 14 context gathered
-last_updated: "2026-03-28T12:15:42.903Z"
+status: Ready to execute
+stopped_at: Completed 14-02-PLAN.md
+last_updated: "2026-03-28T12:47:10.945Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -21,13 +21,12 @@ See: .planning/v2.0-SPEC.md (full spec)
 See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 **Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
-**Current focus:** Phase 14 — Bybit Provider (Phase 13 blocked on TV license)
+**Current focus:** Phase 14 — bybit-provider-backend
 
 ## Current Position
 
-Phase: 14 (Bybit Provider — Backend + Мульти-брокер) — NOT STARTED
-Plan: 0 of TBD
-Note: Phase 13 (TradingView) skipped — blocked on license. Phase 14.1 (Bybit TV datafeed) deferred until Phase 13 unblocked.
+Phase: 14 (bybit-provider-backend) — EXECUTING
+Plan: 2 of 6
 
 ## Performance Metrics
 
@@ -80,6 +79,7 @@ Note: Phase 13 (TradingView) skipped — blocked on license. Phase 14.1 (Bybit T
 | Phase 12 P02 | 5 | 2 tasks | 4 files |
 | Phase 12 P01 | 4 | 2 tasks | 5 files |
 | Phase 12 P03 | 8 | 2 tasks | 4 files |
+| Phase 14-bybit-provider-backend P02 | 8 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -163,6 +163,8 @@ Note: Phase 13 (TradingView) skipped — blocked on license. Phase 14.1 (Bybit T
 - [Phase 12]: @railpath/finance-toolkit replaces custom Sharpe/VaR/maxDrawdown math — maxDrawdown now takes prices[] not returns[], wrapper multiplies maxDrawdownPercent fraction by 100
 - [Phase 12]: computeIndicators() function built inline in backtest-service.ts (not IndicatorCalculator) because no static calculate(candles, configs) batch method exists
 - [Phase 12]: StrategyCondition.params.period replaces plan's cond.period — actual type uses params: Record<string, number>
+- [Phase 14]: averagePositionPriceFifo with fallback to averagePositionPrice — handles sandbox/old T-Invest accounts without FIFO data
+- [Phase 14]: TinkoffProvider.placeOrder/cancelOrder stubs throw NotImplementedError — satisfies BrokerProvider interface, real order placement deferred
 
 ### Roadmap Evolution
 
@@ -188,7 +190,7 @@ Note: Phase 13 (TradingView) skipped — blocked on license. Phase 14.1 (Bybit T
 
 ## Session Continuity
 
-Last session: 2026-03-28T12:15:42.893Z
-Stopped at: Phase 14 context gathered
-Resume file: .planning/phases/14-bybit-provider-backend/14-CONTEXT.md
+Last session: 2026-03-28T12:47:10.939Z
+Stopped at: Completed 14-02-PLAN.md
+Resume file: None
 Next: /gsd:plan-phase 6.2
