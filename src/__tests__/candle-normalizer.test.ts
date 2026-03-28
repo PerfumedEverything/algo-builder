@@ -84,4 +84,37 @@ describe("candle-normalizer", () => {
       expect(isInMoexSession(date, { filterWeekends: true })).toBe(false)
     })
   })
+
+  describe("evening session boundaries", () => {
+    const eveningCandle = (utcHour: number, utcMinute: number) => ({
+      open: 100,
+      high: 110,
+      low: 90,
+      close: 105,
+      volume: 1000,
+      time: new Date(
+        `2026-03-30T${String(utcHour).padStart(2, "0")}:${String(utcMinute).padStart(2, "0")}:00Z`,
+      ),
+    })
+
+    it("default: filters evening candle at 19:00 MSK (16:00 UTC)", () => {
+      expect(normalizeMoexCandles([eveningCandle(16, 0)])).toHaveLength(0)
+    })
+
+    it("includeEveningSession:true keeps candle at 19:00 MSK (16:00 UTC)", () => {
+      expect(normalizeMoexCandles([eveningCandle(16, 0)], { includeEveningSession: true })).toHaveLength(1)
+    })
+
+    it("includeEveningSession:true keeps candle at 23:49 MSK (20:49 UTC)", () => {
+      expect(normalizeMoexCandles([eveningCandle(20, 49)], { includeEveningSession: true })).toHaveLength(1)
+    })
+
+    it("includeEveningSession:true filters candle at 23:51 MSK (20:51 UTC)", () => {
+      expect(normalizeMoexCandles([eveningCandle(20, 51)], { includeEveningSession: true })).toHaveLength(0)
+    })
+
+    it("includeEveningSession:false filters candle at 18:41 MSK (15:41 UTC)", () => {
+      expect(normalizeMoexCandles([eveningCandle(15, 41)], { includeEveningSession: false })).toHaveLength(0)
+    })
+  })
 })
