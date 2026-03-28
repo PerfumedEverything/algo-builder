@@ -8,5 +8,7 @@ export const isMarketOpen = (now: Date = new Date()): boolean => {
 
   if (mskDay === 0 || mskDay === 6) return false
 
-  return mskMinutes >= 590 && mskMinutes < 1130
+  const inPreOpenAndMain = mskMinutes >= 590 && mskMinutes < 1120
+  const inEvening = mskMinutes >= 1120 && mskMinutes < 1430
+  return inPreOpenAndMain || inEvening
 }
