@@ -25,7 +25,7 @@ const sharpe = (returns: number[], rfDaily: number = RF_DAILY): number | null =>
 
 const sortino = (returns: number[], rfDaily: number = RF_DAILY): number | null => {
   if (returns.length < 2) return null
-  const result = calculateSortinoRatio({ returns, riskFreeRate: rfDaily, annualizationFactor: TRADING_DAYS })
+  const result = calculateSortinoRatio({ returns, riskFreeRate: rfDaily, targetReturn: 0, annualizationFactor: TRADING_DAYS })
   const ratio = result.sortinoRatio
   if (!isFinite(ratio)) return 0
   return ratio
