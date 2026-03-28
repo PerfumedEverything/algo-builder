@@ -114,9 +114,15 @@ export const AiChat = ({
     addSystemMessage("Стратегия создана! Можете продолжить — попросите другую стратегию или измените параметры.")
   }
 
-  const handleQuickAction = (action: QuickAction) => {
+  const handleQuickAction = async (action: QuickAction) => {
     if (action.action === "CREATE") {
-      void sendMessage("Да, создай эту стратегию", { forceCreate: true, context: instrumentContext })
+      const strategy = await sendMessage("Да, создай эту стратегию", { forceCreate: true, context: instrumentContext })
+      if (strategy) {
+        setFromAI(strategy.config)
+        onGenerated(strategy)
+        setApplied(true)
+        addSystemMessage("Стратегия создана! Можете продолжить — попросите другую стратегию или измените параметры.")
+      }
     } else if (action.action === "MORE") {
       void sendMessage("Покажи другой вариант", { context: instrumentContext })
     } else if (action.action === "ADJUST_RISKS") {

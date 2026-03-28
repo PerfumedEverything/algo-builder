@@ -28,7 +28,7 @@ type UseAiStreamReturn = {
   thinkingContent: string
   isStreaming: boolean
   isThinking: boolean
-  sendMessage: (text: string, options?: SendMessageOptions) => Promise<void>
+  sendMessage: (text: string, options?: SendMessageOptions) => Promise<AiGeneratedStrategy | undefined>
   resetChat: () => void
   addSystemMessage: (text: string) => void
 }
@@ -55,8 +55,8 @@ export const useAiStream = ({ onStrategyExtracted }: UseAiStreamParams): UseAiSt
   const [isThinking, setIsThinking] = useState(false)
 
   const sendMessage = useCallback(
-    async (text: string, options?: SendMessageOptions) => {
-      if (!text.trim() || isStreaming) return
+    async (text: string, options?: SendMessageOptions): Promise<AiGeneratedStrategy | undefined> => {
+      if (!text.trim() || isStreaming) return undefined
 
       const userMsg: ChatMessage = { role: "user", content: text, hidden: options?.hidden }
 
@@ -162,6 +162,8 @@ export const useAiStream = ({ onStrategyExtracted }: UseAiStreamParams): UseAiSt
         setIsStreaming(false)
         setIsThinking(false)
       }
+
+      return pendingStrategy
     },
     [isStreaming, onStrategyExtracted],
   )
