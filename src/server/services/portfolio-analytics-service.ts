@@ -1,4 +1,3 @@
-import { sampleCorrelation } from "simple-statistics"
 import { FUNDAMENTALS_MAP } from "@/core/data/fundamentals-map"
 import type {
   CorrelationMatrix,
@@ -11,63 +10,23 @@ import type {
   AggregateDividendYield,
   InstrumentPnl,
 } from "@/core/types"
-import { AppError } from "@/core/errors/app-error"
-import { MOEXProvider } from "@/server/providers/analytics/moex-provider"
-import { BrokerService } from "./broker-service"
 import { OperationService } from "./operation-service"
 import { StrategyRepository } from "@/server/repositories/strategy-repository"
+import { CorrelationService } from "./correlation-service"
+import { getAggregateDividendYield } from "./portfolio-dividend-service"
+import { getBenchmarkComparison as fetchBenchmarkComparison } from "./portfolio-benchmark-service"
 
 const ASSET_TYPE_LABELS: Record<string, string> = {
   STOCK: "Акции", ETF: "ETF", BOND: "Облигации", CURRENCY: "Валюта", FUTURES: "Фьючерсы",
 }
 
-const toReturns = (closes: number[]) => closes.slice(1).map((c, i) => (c - closes[i]) / closes[i])
-
 export class PortfolioAnalyticsService {
-  private broker = new BrokerService()
   private operationService = new OperationService()
   private strategyRepo = new StrategyRepository()
+  private correlationService = new CorrelationService()
 
   async getCorrelationMatrix(userId: string, days = 90): Promise<CorrelationMatrix> {
-    const portfolio = await this.broker.getPortfolio(userId)
-    if (!portfolio) throw AppError.badRequest("Портфель не найден")
-
-    const positions = portfolio.positions.filter(
-      (p) => p.instrumentType === "STOCK" || p.instrumentType === "ETF"
-    )
-    if (positions.length < 2) return { tickers: positions.map((p) => p.ticker), matrix: [], highPairs: [] }
-
-    const now = new Date()
-    const from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
-    const returnsArr: number[][] = []
-
-    for (let i = 0; i < positions.length; i += 3) {
-      const batch = positions.slice(i, i + 3)
-      const results = await Promise.all(
-        batch.map((p) => this.broker.getCandles(userId, { instrumentId: p.instrumentId, from, to: now, interval: "day" }))
-      )
-      for (const candles of results) {
-        returnsArr.push(candles.length < 2 ? [] : toReturns(candles.map((c) => c.close)))
-      }
-    }
-
-    const tickers = positions.map((p) => p.ticker)
-    const n = tickers.length
-    const matrix: number[][] = Array.from({ length: n }, () => Array(n).fill(0))
-    const highPairs: CorrelationMatrix["highPairs"] = []
-
-    for (let i = 0; i < n; i++) {
-      matrix[i][i] = 1
-      for (let j = i + 1; j < n; j++) {
-        const minLen = Math.min(returnsArr[i].length, returnsArr[j].length)
-        if (minLen < 5) { matrix[i][j] = matrix[j][i] = 0; continue }
-        const corr = Math.round(sampleCorrelation(returnsArr[i].slice(0, minLen), returnsArr[j].slice(0, minLen)) * 100) / 100
-        matrix[i][j] = matrix[j][i] = corr
-        if (Math.abs(corr) > 0.7) highPairs.push({ a: tickers[i], b: tickers[j], corr })
-      }
-    }
-
-    return { tickers, matrix, highPairs }
+    return this.correlationService.getCorrelationMatrix(userId, days)
   }
 
   getSectorAllocation(positions: PortfolioPosition[]): SectorAllocation[] {
@@ -122,31 +81,20 @@ export class PortfolioAnalyticsService {
 
     const strategyIds = strategies.map(s => s.id)
     const allStats = await this.operationService.getStatsForStrategies(strategyIds)
-
     const instrumentMap = new Map<string, { name: string; totalPnl: number; strategyCount: number }>()
 
     for (const strategy of strategies) {
       const stats = allStats[strategy.id]
       if (!stats || stats.totalOperations === 0) continue
 
-      if (stats.pnl > 0) {
-        result.profitable.count += 1
-        result.profitable.totalPnl += stats.pnl
-      } else if (stats.pnl < 0) {
-        result.unprofitable.count += 1
-        result.unprofitable.totalPnl += stats.pnl
-      } else {
-        result.breakEven.count += 1
-      }
+      if (stats.pnl > 0) { result.profitable.count += 1; result.profitable.totalPnl += stats.pnl }
+      else if (stats.pnl < 0) { result.unprofitable.count += 1; result.unprofitable.totalPnl += stats.pnl }
+      else result.breakEven.count += 1
 
       const ticker = strategy.instrument
       const existing = instrumentMap.get(ticker)
-      if (existing) {
-        existing.totalPnl += stats.pnl
-        existing.strategyCount += 1
-      } else {
-        instrumentMap.set(ticker, { name: strategy.name ?? ticker, totalPnl: stats.pnl, strategyCount: 1 })
-      }
+      if (existing) { existing.totalPnl += stats.pnl; existing.strategyCount += 1 }
+      else instrumentMap.set(ticker, { name: strategy.name ?? ticker, totalPnl: stats.pnl, strategyCount: 1 })
     }
 
     const byInstrument: InstrumentPnl[] = Array.from(instrumentMap.entries())
@@ -176,111 +124,11 @@ export class PortfolioAnalyticsService {
   }
 
   async getBenchmarkComparison(userId: string, days = 90): Promise<BenchmarkComparison | null> {
-    try {
-      const now = new Date()
-      const from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
-      const fromStr = from.toISOString().slice(0, 10)
-      const tillStr = now.toISOString().slice(0, 10)
-
-      const portfolio = await this.broker.getPortfolio(userId)
-      if (!portfolio || portfolio.positions.length === 0) return null
-
-      const moex = new MOEXProvider()
-      const positions = portfolio.positions.filter(
-        (p) => p.instrumentType === "STOCK" || p.instrumentType === "ETF"
-      )
-      if (positions.length === 0) return null
-
-      const [imoexCandles, ...positionCandles] = await Promise.all([
-        moex.getImoexCandles(fromStr, tillStr),
-        ...positions.slice(0, 10).map((p) =>
-          this.broker.getCandles(userId, { instrumentId: p.instrumentId, from, to: now, interval: "day" })
-            .catch(() => [])
-        ),
-      ])
-
-      if (imoexCandles.length < 2) return null
-
-      let pastValue = 0
-      let currentValue = 0
-      for (let i = 0; i < Math.min(positions.length, 10); i++) {
-        const pos = positions[i]
-        const candles = positionCandles[i]
-        const startClose = candles.length > 0 ? candles[0].close : pos.currentPrice
-        pastValue += pos.quantity * startClose
-        currentValue += pos.quantity * pos.currentPrice
-      }
-
-      const portfolioReturn = pastValue > 0 ? ((currentValue - pastValue) / pastValue) * 100 : 0
-
-      const startPrice = imoexCandles[0].close
-      const endPrice = imoexCandles[imoexCandles.length - 1].close
-      const benchmarkReturn = ((endPrice - startPrice) / startPrice) * 100
-
-      return {
-        portfolioReturn: Math.round(portfolioReturn * 100) / 100,
-        benchmarkReturn: Math.round(benchmarkReturn * 100) / 100,
-        delta: Math.round((portfolioReturn - benchmarkReturn) * 100) / 100,
-        period: days,
-      }
-    } catch {
-      return null
-    }
+    return fetchBenchmarkComparison(userId, days)
   }
 
   async getAggregateDividendYield(positions: PortfolioPosition[]): Promise<AggregateDividendYield> {
-    const totalValue = positions.reduce((sum, p) => sum + p.quantity * p.currentPrice, 0)
-    if (totalValue <= 0) return { weightedYield: 0, positionYields: [] }
-
-    const moex = new MOEXProvider()
-    const results: { ticker: string; weight: number; dividendYield: number | null }[] = []
-    for (let i = 0; i < positions.length; i += 5) {
-      const batch = positions.slice(i, i + 5)
-      const batchResults = await Promise.all(
-        batch.map(async (pos) => {
-          const weight = (pos.quantity * pos.currentPrice) / totalValue
-          try {
-            const dividends = await moex.getDividends(pos.ticker)
-            const oneYearAgo = new Date()
-            oneYearAgo.setFullYear(oneYearAgo.getFullYear() - 1)
-            const recent = dividends.filter(d => new Date(d.registryclosedate) >= oneYearAgo)
-            if (recent.length === 0 || pos.currentPrice <= 0) {
-              return { ticker: pos.ticker, weight, dividendYield: null as number | null }
-            }
-            const totalDiv = recent.reduce((sum, d) => sum + d.value, 0)
-            const dy = (totalDiv / pos.currentPrice) * 100
-            return { ticker: pos.ticker, weight, dividendYield: Math.round(dy * 100) / 100 }
-          } catch {
-            return { ticker: pos.ticker, weight, dividendYield: null as number | null }
-          }
-        })
-      )
-      results.push(...batchResults)
-    }
-
-    let weightedYield = 0
-    for (const r of results) {
-      if (r.dividendYield !== null) weightedYield += r.weight * r.dividendYield
-    }
-
-    return { weightedYield: Math.round(weightedYield * 100) / 100, positionYields: results }
-  }
-
-  async _buildReturnSeries(userId: string, positions: PortfolioPosition[], days: number): Promise<number[][]> {
-    const now = new Date()
-    const from = new Date(now.getTime() - days * 24 * 60 * 60 * 1000)
-    const returnsArr: number[][] = []
-
-    for (let i = 0; i < positions.length; i += 3) {
-      const batch = positions.slice(i, i + 3)
-      const results = await Promise.all(
-        batch.map((p) => this.broker.getCandles(userId, { instrumentId: p.instrumentId, from, to: now, interval: "day" }))
-      )
-      for (const candles of results) {
-        returnsArr.push(candles.length < 2 ? [] : toReturns(candles.map((c) => c.close)))
-      }
-    }
-    return returnsArr
+    return getAggregateDividendYield(positions)
   }
 
 }
