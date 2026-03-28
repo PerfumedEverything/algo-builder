@@ -12,6 +12,7 @@ import {
   Lock,
   Eye,
   EyeOff,
+  Building2,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -23,8 +24,10 @@ import {
   saveTelegramChatIdAction,
   removeTelegramChatIdAction,
   testNotificationAction,
+  getBrokerSettingsAction,
 } from "@/server/actions/settings-actions"
 import { logoutAction, changePasswordAction } from "@/server/actions/auth"
+import { BrokerSwitch } from "@/components/settings/broker-switch"
 
 export default function SettingsPage() {
   const [loading, setLoading] = useState(true)
@@ -40,16 +43,22 @@ export default function SettingsPage() {
   const [changingPassword, setChangingPassword] = useState(false)
   const [showCurrentPassword, setShowCurrentPassword] = useState(false)
   const [showNewPassword, setShowNewPassword] = useState(false)
+  const [brokerType, setBrokerType] = useState("TINKOFF")
+  const [hasApiKey, setHasApiKey] = useState(false)
 
   const fetchSettings = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await getSettingsAction()
+      const [res, brokerRes] = await Promise.all([getSettingsAction(), getBrokerSettingsAction()])
       if (res.success) {
         setName(res.data.name ?? "")
         setEmail(res.data.email ?? "")
         setTelegramChatId(res.data.telegramChatId ?? "")
         setTelegramConnected(!!res.data.telegramChatId)
+      }
+      if (brokerRes.success) {
+        setBrokerType(brokerRes.data.brokerType)
+        setHasApiKey(brokerRes.data.hasApiKey)
       }
     } finally {
       setLoading(false)
@@ -138,6 +147,19 @@ export default function SettingsPage() {
       <div>
         <h1 className="text-2xl font-bold">Настройки</h1>
         <p className="text-sm text-muted-foreground">Профиль и уведомления</p>
+      </div>
+
+      <div className="rounded-xl border border-border bg-card p-4 lg:p-6">
+        <div className="mb-4 flex items-center gap-3">
+          <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-500/10">
+            <Building2 className="h-5 w-5 text-violet-400" />
+          </div>
+          <div>
+            <h2 className="font-semibold">Брокер</h2>
+            <p className="text-sm text-muted-foreground">Выберите брокера для торговли</p>
+          </div>
+        </div>
+        <BrokerSwitch currentBroker={brokerType} hasApiKey={hasApiKey} />
       </div>
 
       <div className="rounded-xl border border-border bg-card p-4 lg:p-6">

@@ -2,6 +2,8 @@
 
 import { type ApiResponse, errorResponse, successResponse } from "@/core/types/api"
 import { NotificationService } from "@/server/services"
+import { BrokerRepository } from "@/server/repositories/broker-repository"
+import { BybitProvider } from "@/server/providers/broker/bybit-provider"
 import { getCurrentUserId } from "./helpers"
 
 const getService = () => new NotificationService()
@@ -84,5 +86,48 @@ export const testNotificationAction = async (): Promise<ApiResponse<boolean>> =>
     return successResponse(result)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
+export const switchBrokerAction = async (brokerType: string): Promise<ApiResponse<void>> => {
+  try {
+    const userId = await getCurrentUserId()
+    if (brokerType !== "TINKOFF" && brokerType !== "BYBIT") {
+      return errorResponse("Неверный тип брокера")
+    }
+    const repo = new BrokerRepository()
+    await repo.saveBrokerType(userId, brokerType)
+    return successResponse(undefined)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Ошибка переключения брокера")
+  }
+}
+
+export const connectBybitAction = async (apiKey: string, apiSecret: string): Promise<ApiResponse<void>> => {
+  try {
+    const userId = await getCurrentUserId()
+    const provider = new BybitProvider()
+    await provider.connect(`${apiKey}:${apiSecret}`)
+    await provider.getAccounts()
+    await provider.disconnect()
+    const repo = new BrokerRepository()
+    await repo.saveBybitCredentials(userId, apiKey, apiSecret)
+    return successResponse(undefined)
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Ошибка подключения к Bybit")
+  }
+}
+
+export const getBrokerSettingsAction = async (): Promise<ApiResponse<{ brokerType: string; hasApiKey: boolean }>> => {
+  try {
+    const userId = await getCurrentUserId()
+    const repo = new BrokerRepository()
+    const settings = await repo.getSettings(userId)
+    return successResponse({
+      brokerType: settings?.brokerType ?? "TINKOFF",
+      hasApiKey: !!(settings?.bybitApiKey && settings?.bybitApiSecret),
+    })
+  } catch (e) {
+    return errorResponse(e instanceof Error ? e.message : "Ошибка загрузки настроек брокера")
   }
 }
