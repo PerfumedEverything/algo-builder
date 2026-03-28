@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Milestone complete
-stopped_at: Completed 14-06-PLAN.md
-last_updated: "2026-03-28T13:17:07.856Z"
+status: Phase complete — ready for verification
+stopped_at: "Completed 14.2-02-PLAN.md (checkpoint: awaiting human-verify during evening session)"
+last_updated: "2026-03-28T16:50:47.095Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -21,12 +21,12 @@ See: .planning/v2.0-SPEC.md (full spec)
 See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 **Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
-**Current focus:** Phase 14 — bybit-provider-backend
+**Current focus:** Phase 14.2 — moex-evening-session
 
 ## Current Position
 
-Phase: 14
-Plan: Not started
+Phase: 14.2 (moex-evening-session) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -85,6 +85,8 @@ Plan: Not started
 | Phase 14-bybit-provider-backend P04 | 7 | 2 tasks | 5 files |
 | Phase 14 P05 | 3 | 2 tasks | 4 files |
 | Phase 14-bybit-provider-backend P06 | 247 | 2 tasks | 5 files |
+| Phase 14.2-moex-evening-session P01 | 7 | 2 tasks | 3 files |
+| Phase 14.2 P02 | 5 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -182,6 +184,10 @@ Plan: Not started
 - [Phase 14]: bybit-api exception event used instead of deprecated error event (types: UseTheExceptionEventInstead=never)
 - [Phase 14-bybit-provider-backend]: getSystemPrompt/getIndicatorHints/getRiskProfiles conditional selectors added — BYBIT returns crypto prompts, TINKOFF returns RU prompts
 - [Phase 14-bybit-provider-backend]: connectBybitAction validates credentials via getAccounts() before persisting — fail-fast on bad Bybit API keys
+- [Phase 14.2]: inPreOpenAndMain || inEvening pattern: 09:50-18:40 MSK + 18:40-23:50 MSK covers MOEX full trading day including evening session
+- [Phase 14.2]: fetchDailyStats called immediately on instrument select AND in 60s interval with isMarketOpen() guard — no 60s initial wait
+- [Phase 14.2]: isInMoexSession inEvening boundary corrected: >= 1120 (18:40 MSK) not >= 1145 (19:05 MSK)
+- [Phase 14.2]: Chart path confirmed to NOT use normalizeMoexCandles — evening candles pass through filterValidCandles unfiltered
 
 ### Roadmap Evolution
 
@@ -208,7 +214,7 @@ Plan: Not started
 
 ## Session Continuity
 
-Last session: 2026-03-28T13:09:10.409Z
-Stopped at: Completed 14-06-PLAN.md
+Last session: 2026-03-28T16:50:47.090Z
+Stopped at: Completed 14.2-02-PLAN.md (checkpoint: awaiting human-verify during evening session)
 Resume file: None
 Next: /gsd:plan-phase 6.2

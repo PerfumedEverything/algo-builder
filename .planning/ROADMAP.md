@@ -541,7 +541,7 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 | 11. Root Cause Bug Fixes | v1.1 | 3/3 | Complete    | 2026-03-28 |
 | 12. Корректность расчётов | v2.0 | 4/4 | Complete    | 2026-03-28 |
 | 13. TradingView Advanced Charts | v2.0 | 0/TBD | Blocked (license) | - |
-| 14. Bybit Provider — Backend + Мульти-брокер | v2.0 | 6/6 | Complete    | 2026-03-28 |
+| 14. Bybit Provider — Backend + Мульти-брокер | v2.0 | 6/6 | Complete   | 2026-03-28 |
 | 14.2 MOEX Evening Session + Chart Correctness (INSERTED) | v2.0 | 0/TBD | Not started | - |
 | 14.1 Bybit TradingView Datafeed | v2.0 | 0/TBD | Blocked (Phase 13) | - |
 | 15. Grid Trading | v2.0 | 0/TBD | Not started | - |
