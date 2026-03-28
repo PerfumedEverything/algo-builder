@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Ready to execute
-stopped_at: Completed 12-02-PLAN.md
-last_updated: "2026-03-28T10:35:22.762Z"
+stopped_at: Completed 12-01-PLAN.md
+last_updated: "2026-03-28T10:37:25.916Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 12 (calculation-correctness) — EXECUTING
-Plan: 3 of 4
+Plan: 4 of 4
 
 ## Performance Metrics
 
@@ -77,6 +77,7 @@ Plan: 3 of 4
 | Phase 11-root-cause-bug-fixes P03 | 3 | 2 tasks | 4 files |
 | Phase 12 P04 | 1 | 1 tasks | 2 files |
 | Phase 12 P02 | 5 | 2 tasks | 4 files |
+| Phase 12 P01 | 4 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -157,6 +158,7 @@ Plan: 3 of 4
 - [Phase 12]: validateOHLC checks 5 OHLC invariants; filterValidCandles logs [CandleValidator] warn per broken candle
 - [Phase 12]: BrokerService.getCandles pipes provider output through filterValidCandles before returning (CALC-04/05)
 - [Phase 12]: FIFO realized P&L for full-close deferred to OperationService.getStats — FifoCalculator only tracks unrealized
+- [Phase 12]: @railpath/finance-toolkit replaces custom Sharpe/VaR/maxDrawdown math — maxDrawdown now takes prices[] not returns[], wrapper multiplies maxDrawdownPercent fraction by 100
 
 ### Roadmap Evolution
 
@@ -182,7 +184,7 @@ Plan: 3 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-28T10:35:22.759Z
-Stopped at: Completed 12-02-PLAN.md
+Last session: 2026-03-28T10:37:25.912Z
+Stopped at: Completed 12-01-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2

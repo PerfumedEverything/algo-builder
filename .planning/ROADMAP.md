@@ -402,7 +402,7 @@ Plans:
   6. Тест: стратегия "RSI<30 вход, RSI>70 выход" на известных данных → точки входа/выхода совпадают
 **Plans**: 4 plans
 Plans:
-- [ ] 12-01-PLAN.md — Replace risk calculations with @railpath/finance-toolkit (CALC-01, CALC-02, CALC-03)
+- [x] 12-01-PLAN.md — Replace risk calculations with @railpath/finance-toolkit (CALC-01, CALC-02, CALC-03)
 - [x] 12-02-PLAN.md — Candle validation + FIFO P&L 6 spec scenarios (CALC-04 through CALC-09)
 - [ ] 12-03-PLAN.md — Backtest real condition evaluation (CALC-10, CALC-11, CALC-12, CALC-13)
 - [x] 12-04-PLAN.md — Portfolio real amounts fix (CALC-14, CALC-15, CALC-16, CALC-17)
@@ -502,7 +502,7 @@ v2.0: 12 -> 13 -> 14 -> 15 -> 16
 | 9. Data Pipeline Overhaul | v1.1 | 7/7 | Complete   | 2026-03-27 |
 | 10. Security & Code Quality Hardening | v1.1 | 4/4 | Complete    | 2026-03-28 |
 | 11. Root Cause Bug Fixes | v1.1 | 3/3 | Complete    | 2026-03-28 |
-| 12. Корректность расчётов | v2.0 | 2/4 | In Progress|  |
+| 12. Корректность расчётов | v2.0 | 3/4 | In Progress|  |
 | 13. TradingView Advanced Charts | v2.0 | 0/TBD | Not started | - |
 | 14. Bybit Provider + Мульти-брокер | v2.0 | 0/TBD | Not started | - |
 | 15. Grid Trading | v2.0 | 0/TBD | Not started | - |
