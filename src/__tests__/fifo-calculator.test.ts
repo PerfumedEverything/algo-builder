@@ -224,3 +224,79 @@ describe("FifoCalculator.calculateSummary", () => {
     expect(summary.lots).toHaveLength(0)
   })
 })
+
+describe("CALC-07: 6 spec scenarios with exact kopek numbers", () => {
+  it("Scenario 1: single entry 10@100, exit 10@110 => no remaining lots", () => {
+    const ops = [makeOp("BUY", 10, 100, "2026-01-01"), makeOp("SELL", 10, 110, "2026-01-05")]
+    const summary = FifoCalculator.calculateSummary(ops, 110)
+    expect(summary.totalQuantity).toBe(0)
+    expect(summary.lots).toHaveLength(0)
+    // Realized P&L = (110-100)*10 = 100 — verified separately via OperationService
+  })
+
+  it("Scenario 2: two entries (5@100, 5@120), exit 10@115 => no remaining lots", () => {
+    const ops = [
+      makeOp("BUY", 5, 100, "2026-01-01"),
+      makeOp("BUY", 5, 120, "2026-01-05"),
+      makeOp("SELL", 10, 115, "2026-01-10"),
+    ]
+    const summary = FifoCalculator.calculateSummary(ops, 115)
+    expect(summary.totalQuantity).toBe(0)
+    // All sold — FIFO: first 5 at cost 100, next 5 at cost 120
+  })
+
+  it("Scenario 3: partial close — 10@100, sell 3 => remaining 7, unrealized P&L at 110", () => {
+    const ops = [makeOp("BUY", 10, 100, "2026-01-01"), makeOp("SELL", 3, 110, "2026-01-05")]
+    const summary = FifoCalculator.calculateSummary(ops, 110)
+    expect(summary.totalQuantity).toBe(7)
+    expect(summary.totalCost).toBe(700) // 7 * 100
+    expect(summary.currentValue).toBe(770) // 7 * 110
+    expect(summary.totalPnl).toBe(70) // 770 - 700
+    expect(summary.totalPnlPercent).toBeCloseTo(10, 1) // 70/700*100
+  })
+
+  it("Scenario 4: full close + new entry — 10@100, sell 10@110, buy 5@105", () => {
+    const ops = [
+      makeOp("BUY", 10, 100, "2026-01-01"),
+      makeOp("SELL", 10, 110, "2026-01-05"),
+      makeOp("BUY", 5, 105, "2026-01-10"),
+    ]
+    const summary = FifoCalculator.calculateSummary(ops, 108)
+    expect(summary.totalQuantity).toBe(5)
+    expect(summary.avgPrice).toBe(105)
+    expect(summary.totalPnl).toBe(15) // 5*(108-105)
+  })
+
+  it("Scenario 5: loss — 10@120, sell 10@100 => no remaining lots", () => {
+    const ops = [makeOp("BUY", 10, 120, "2026-01-01"), makeOp("SELL", 10, 100, "2026-01-05")]
+    const summary = FifoCalculator.calculateSummary(ops, 100)
+    expect(summary.totalQuantity).toBe(0)
+    // Realized loss = (100-120)*10 = -200 — verified via OperationService
+  })
+
+  it("Scenario 6: breakeven — 10@100, sell 10@100 => zero P&L", () => {
+    const ops = [makeOp("BUY", 10, 100, "2026-01-01"), makeOp("SELL", 10, 100, "2026-01-05")]
+    const summary = FifoCalculator.calculateSummary(ops, 100)
+    expect(summary.totalQuantity).toBe(0)
+    expect(summary.totalPnl).toBe(0)
+  })
+})
+
+describe("CALC-08: average entry price with multiple entries", () => {
+  it("5@100 + 5@120 => avgPrice = 110", () => {
+    const ops = [makeOp("BUY", 5, 100, "2026-01-01"), makeOp("BUY", 5, 120, "2026-01-05")]
+    const summary = FifoCalculator.calculateSummary(ops, 115)
+    expect(summary.avgPrice).toBe(110) // (500+600)/10
+  })
+})
+
+describe("CALC-09: unrealized P&L on partial close", () => {
+  it("10@100, sell 4@120 => remaining 6, unrealized at 115", () => {
+    const ops = [makeOp("BUY", 10, 100, "2026-01-01"), makeOp("SELL", 4, 120, "2026-01-05")]
+    const summary = FifoCalculator.calculateSummary(ops, 115)
+    expect(summary.totalQuantity).toBe(6)
+    expect(summary.avgPrice).toBe(100) // remaining are all from first lot
+    expect(summary.totalPnl).toBe(90) // 6*(115-100)
+    expect(summary.totalPnlPercent).toBeCloseTo(15, 1) // 90/600*100
+  })
+})
