@@ -71,7 +71,7 @@ Each task was committed atomically:
 
 1. **Task 1: Write portfolio amounts tests and fix strategy card** - `f28b071` (fix)
 
-**Plan metadata:** to be added in final commit
+**Plan metadata:** `33be380` (docs: complete plan)
 
 _Note: TDD task — RED (tests written, CALC-15 failed), GREEN (strategy-card fixed, all 6 pass)_
 
@@ -96,6 +96,14 @@ None - no external service configuration required.
 - CALC-14 through CALC-17 complete and verified
 - Portfolio shows real invested amounts, not budget configuration
 - Strategy card correctness proven via automated tests
+
+## Self-Check: PASSED
+
+- `src/__tests__/portfolio-amounts.test.ts`: FOUND
+- `src/components/strategy/strategy-card.tsx`: FOUND (modified)
+- `.planning/phases/12-calculation-correctness/12-04-SUMMARY.md`: FOUND
+- Commit `f28b071`: FOUND
+- Commit `33be380`: FOUND
 
 ---
 *Phase: 12-calculation-correctness*
