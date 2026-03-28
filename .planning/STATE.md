@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Phase complete — ready for verification
+status: Milestone complete
 stopped_at: Completed 14-06-PLAN.md
-last_updated: "2026-03-28T13:09:10.415Z"
+last_updated: "2026-03-28T13:17:07.856Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -25,8 +25,8 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 ## Current Position
 
-Phase: 14 (bybit-provider-backend) — EXECUTING
-Plan: 6 of 6
+Phase: 14
+Plan: Not started
 
 ## Performance Metrics
 
