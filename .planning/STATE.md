@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Ready to execute
-stopped_at: Completed 14-04-PLAN.md
-last_updated: "2026-03-28T13:02:38.856Z"
+stopped_at: Completed 14-05-PLAN.md
+last_updated: "2026-03-28T13:07:27.093Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 14 (bybit-provider-backend) — EXECUTING
-Plan: 5 of 6
+Plan: 6 of 6
 
 ## Performance Metrics
 
@@ -83,6 +83,7 @@ Plan: 5 of 6
 | Phase 14-bybit-provider-backend P03 | 12 | 2 tasks | 6 files |
 | Phase 14 P01 | 11 | 2 tasks | 16 files |
 | Phase 14-bybit-provider-backend P04 | 7 | 2 tasks | 5 files |
+| Phase 14 P05 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -176,6 +177,8 @@ Plan: 5 of 6
 - [Phase 14-bybit-provider-backend]: PositionV5 from bybit-api used directly in mapPosition — avoids duplicate type definition
 - [Phase 14-bybit-provider-backend]: vi.hoisted() required for mock instance shared in vi.mock factory (vitest hoisting limitation)
 - [Phase 14-bybit-provider-backend]: BybitProvider uses regular function constructor mock in vitest — arrow functions cannot be used with new
+- [Phase 14]: bybit-worker uses dedicated Dockerfile.bybit-worker (not main Dockerfile) to match price-worker pattern and avoid heavy Next.js build
+- [Phase 14]: bybit-api exception event used instead of deprecated error event (types: UseTheExceptionEventInstead=never)
 
 ### Roadmap Evolution
 
@@ -201,7 +204,7 @@ Plan: 5 of 6
 
 ## Session Continuity
 
-Last session: 2026-03-28T13:02:38.848Z
-Stopped at: Completed 14-04-PLAN.md
+Last session: 2026-03-28T13:07:27.088Z
+Stopped at: Completed 14-05-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
