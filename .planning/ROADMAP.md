@@ -373,9 +373,11 @@ Plans:
   5. Deleting a strategy auto-stops it at the broker (cancels pending orders/subscriptions)
   6. Paper portfolio table shows operation volume in trade units (lots × lot size), not just count
   7. Strategy card position amount matches the actual operations sum (no mismatch between card and detail view)
-**Plans**: 0 plans
+**Plans**: 3 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 11 to break down)
+- [ ] 11-01-PLAN.md — AI wizard quick action fix + strategy delete deactivation
+- [ ] 11-02-PLAN.md — Terminal period-based % + Telegram trade details
+- [ ] 11-03-PLAN.md — Portfolio amount labels, quantity column, strategy card fallback
 **UI hint**: yes
 
 ## Progress
@@ -405,4 +407,4 @@ v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11
 | 8. AI Assistant Deep Upgrade | v1.1 | 3/4 | In Progress|  |
 | 9. Data Pipeline Overhaul | v1.1 | 7/7 | Complete   | 2026-03-27 |
 | 10. Security & Code Quality Hardening | v1.1 | 4/4 | Complete   | 2026-03-28 |
-| 11. Root Cause Bug Fixes | v1.1 | 0/TBD | Not started | - |
+| 11. Root Cause Bug Fixes | v1.1 | 0/3 | Not started | - |
