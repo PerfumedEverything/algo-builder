@@ -29,6 +29,7 @@ export const updateSession = async (request: NextRequest) => {
     data: { user },
   } = await supabase.auth.getUser()
 
+  const isLanding = request.nextUrl.pathname === "/"
   const isAuthPage =
     request.nextUrl.pathname.startsWith("/login") ||
     request.nextUrl.pathname.startsWith("/register") ||
@@ -43,7 +44,7 @@ export const updateSession = async (request: NextRequest) => {
     request.nextUrl.pathname.startsWith("/favicon")
   const isServerAction = request.method === "POST" && request.headers.get("next-action")
 
-  if (isApiWebhook || isPublicAsset) {
+  if (isApiWebhook || isPublicAsset || isLanding) {
     return supabaseResponse
   }
 
@@ -53,9 +54,9 @@ export const updateSession = async (request: NextRequest) => {
     return NextResponse.redirect(url)
   }
 
-  if (user && isAuthPage) {
+  if (user && (isAuthPage || isLanding)) {
     const url = request.nextUrl.clone()
-    url.pathname = "/"
+    url.pathname = "/dashboard"
     return NextResponse.redirect(url)
   }
 
