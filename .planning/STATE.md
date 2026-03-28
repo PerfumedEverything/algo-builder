@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Phase complete — ready for verification
+status: Milestone complete
 stopped_at: "Completed 14.2-02-PLAN.md (checkpoint: awaiting human-verify during evening session)"
-last_updated: "2026-03-28T16:50:47.095Z"
+last_updated: "2026-03-28T17:44:57.547Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -25,8 +25,8 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 ## Current Position
 
-Phase: 14.2 (moex-evening-session) — EXECUTING
-Plan: 2 of 2
+Phase: 14.2
+Plan: Not started
 
 ## Performance Metrics
 
