@@ -47,6 +47,21 @@ services:
     networks:
       - algo-net
 
+  bybit-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile.bybit-worker
+    command: npx tsx scripts/bybit-stream-worker.ts
+    env_file: .env
+    environment:
+      - BYBIT_API_KEY=${BYBIT_API_KEY}
+      - BYBIT_API_SECRET=${BYBIT_API_SECRET}
+    depends_on:
+      - redis
+    restart: unless-stopped
+    networks:
+      - algo-net
+
   nginx:
     image: nginx:alpine
     ports:

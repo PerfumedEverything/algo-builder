@@ -1,0 +1,15 @@
+FROM node:20-alpine
+WORKDIR /app
+
+RUN apk add --no-cache libc6-compat
+
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+COPY tsconfig.json ./
+COPY scripts/bybit-stream-worker.ts ./scripts/
+COPY src/server/providers/broker/bybit-constants.ts ./src/server/providers/broker/
+
+RUN npx tsx --version
+
+CMD ["npx", "tsx", "scripts/bybit-stream-worker.ts"]
