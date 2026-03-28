@@ -11,7 +11,7 @@ export type StrategyRow = {
   status: "DRAFT" | "ACTIVE" | "PAUSED" | "TRIGGERED"
   positionState: PositionState
   instrument: string
-  instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+  instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "CRYPTO"
   timeframe: string
   config: StrategyConfig
   lastIndicatorValues: Record<string, number> | null

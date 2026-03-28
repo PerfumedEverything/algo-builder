@@ -1,5 +1,5 @@
 export type InstrumentTypeConfig = {
-  type: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+  type: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "CRYPTO"
   label: string
   labelRu: string
 }
@@ -9,6 +9,7 @@ export const INSTRUMENT_TYPES: InstrumentTypeConfig[] = [
   { type: "BOND", label: "Bonds", labelRu: "Облигации" },
   { type: "CURRENCY", label: "Currencies", labelRu: "Валюты" },
   { type: "FUTURES", label: "Futures", labelRu: "Фьючерсы" },
+  { type: "CRYPTO", label: "Crypto", labelRu: "Крипто" },
 ]
 
 export const TIMEFRAMES = [
