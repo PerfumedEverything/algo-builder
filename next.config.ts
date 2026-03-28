@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
+  transpilePackages: ["@ixjb94/indicators"],
   serverExternalPackages: ["tinkoff-invest-api", "@grpc/grpc-js", "nice-grpc", "protobufjs"],
 };
 
