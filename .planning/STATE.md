@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Milestone complete
-stopped_at: Completed 12-03-PLAN.md
-last_updated: "2026-03-28T10:47:32.204Z"
+stopped_at: Phase 14 context gathered
+last_updated: "2026-03-28T12:15:42.903Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -188,7 +188,7 @@ Note: Phase 13 (TradingView) skipped — blocked on license. Phase 14.1 (Bybit T
 
 ## Session Continuity
 
-Last session: 2026-03-28T10:43:30.320Z
-Stopped at: Completed 12-03-PLAN.md
-Resume file: None
+Last session: 2026-03-28T12:15:42.893Z
+Stopped at: Phase 14 context gathered
+Resume file: .planning/phases/14-bybit-provider-backend/14-CONTEXT.md
 Next: /gsd:plan-phase 6.2
