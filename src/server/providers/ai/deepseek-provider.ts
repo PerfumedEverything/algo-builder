@@ -2,7 +2,7 @@ import OpenAI from "openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions"
 import type { AiGeneratedStrategy } from "@/core/types"
 import type { AiProvider, AiChatMessage, AiChatResponse, AiStreamChunk } from "./types"
-import { SYSTEM_PROMPT, CHAT_SYSTEM_PROMPT, INDICATOR_HINTS, RISK_PROFILES, randomItem } from "./ai-prompts"
+import { CHAT_SYSTEM_PROMPT, getSystemPrompt, getIndicatorHints, getRiskProfiles, randomItem } from "./ai-prompts"
 import { generateStrategyTool } from "./ai-tools"
 import { validateStrategyConfig } from "./ai-strategy-validator"
 
@@ -13,12 +13,14 @@ export class DeepSeekProvider implements AiProvider {
     this.client = new OpenAI({ apiKey, baseURL: baseUrl })
   }
 
-  async generateStrategy(prompt: string): Promise<AiGeneratedStrategy> {
-    const seed = `\nCreativity hint: ${randomItem(INDICATOR_HINTS)}\nRisk profile: ${randomItem(RISK_PROFILES)}`
+  async generateStrategy(prompt: string, brokerType = "TINKOFF"): Promise<AiGeneratedStrategy> {
+    const hints = getIndicatorHints(brokerType)
+    const profiles = getRiskProfiles(brokerType)
+    const seed = `\nCreativity hint: ${randomItem(hints)}\nRisk profile: ${randomItem(profiles)}`
     const response = await this.client.chat.completions.create({
       model: "deepseek-chat",
       messages: [
-        { role: "system", content: SYSTEM_PROMPT + seed },
+        { role: "system", content: getSystemPrompt(brokerType) + seed },
         { role: "user", content: prompt },
       ],
       tools: [generateStrategyTool],

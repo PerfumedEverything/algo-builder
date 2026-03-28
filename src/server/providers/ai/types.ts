@@ -31,7 +31,7 @@ export type AiContextParams = {
 }
 
 export interface AiProvider {
-  generateStrategy(prompt: string): Promise<AiGeneratedStrategy>
+  generateStrategy(prompt: string, brokerType?: string): Promise<AiGeneratedStrategy>
   chatAboutStrategy(messages: AiChatMessage[]): Promise<AiChatResponse>
   chatWithThinking?(messages: AiChatMessage[], forceCreate?: boolean): AsyncGenerator<AiStreamChunk>
 }

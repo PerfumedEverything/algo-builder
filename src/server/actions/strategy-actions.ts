@@ -126,11 +126,13 @@ export const generateStrategyAction = async (
   prompt: string,
 ): Promise<ApiResponse<AiGeneratedStrategy>> => {
   try {
-    await getCurrentUserId()
+    const userId = await getCurrentUserId()
     if (!prompt.trim()) {
       return errorResponse("Prompt is required")
     }
-    const strategy = await getService().generateWithAI(prompt)
+    const { BrokerRepository } = await import("@/server/repositories/broker-repository")
+    const brokerType = await new BrokerRepository().getBrokerType(userId)
+    const strategy = await getService().generateWithAI(prompt, brokerType)
     return successResponse(strategy)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")

@@ -73,11 +73,11 @@ export class StrategyService {
     return this.repository.delete(id, userId)
   }
 
-  async generateWithAI(prompt: string) {
+  async generateWithAI(prompt: string, brokerType?: string) {
     if (!this.aiProvider) {
       throw AppError.badRequest("AI provider not configured")
     }
-    return this.aiProvider.generateStrategy(prompt)
+    return this.aiProvider.generateStrategy(prompt, brokerType)
   }
 
   async chatWithAI(messages: { role: "user" | "assistant"; content: string }[]) {
