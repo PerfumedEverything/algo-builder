@@ -16,7 +16,7 @@ import {
 import { isMarketOpen } from "@/lib/market-hours"
 
 type FormingCandle = {
-  time: UTCTimestamp
+  time: Time
   open: number
   high: number
   low: number
@@ -31,9 +31,14 @@ type InstrumentChartProps = {
   brokerType?: string
 }
 
-const getCurrentCandleTime = (interval: string): UTCTimestamp => {
+const INTRADAY_INTERVALS = new Set(["1m", "5m", "15m", "1h"])
+
+const getCurrentCandleTime = (interval: string): Time => {
+  if (!INTRADAY_INTERVALS.has(interval)) {
+    return new Date().toISOString().split("T")[0] as string & Time
+  }
   const now = Math.floor(Date.now() / 1000)
-  const intervals: Record<string, number> = { "1m": 60, "5m": 300, "15m": 900, "1h": 3600, "1d": 86400 }
+  const intervals: Record<string, number> = { "1m": 60, "5m": 300, "15m": 900, "1h": 3600 }
   const period = intervals[interval] ?? 300
   return (now - (now % period)) as UTCTimestamp
 }
