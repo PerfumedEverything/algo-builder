@@ -278,8 +278,9 @@ export class TinkoffProvider implements BrokerProvider {
       interval,
     })
 
+    const lastIdx = candles.length - 1
     return candles
-      .filter((c) => c.isComplete)
+      .filter((c, i) => c.isComplete || i === lastIdx)
       .map((c) => ({
         open: toNumber(c.open),
         high: toNumber(c.high),
