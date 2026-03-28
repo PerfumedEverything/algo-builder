@@ -52,7 +52,7 @@ export class RiskService {
       const batch = positions.slice(i, i + BATCH_SIZE)
       const results = await Promise.all(
         batch.map((p) =>
-          this.broker.getCandles(userId, { instrumentId: p.instrumentId, from: yearAgo, to: now, interval: "day" })
+          this.broker.getCandles(userId, { instrumentId: p.instrumentId, from: yearAgo, to: now, interval: "1d" })
         )
       )
       candlesArr.push(...results)

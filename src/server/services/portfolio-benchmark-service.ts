@@ -25,7 +25,7 @@ export const getBenchmarkComparison = async (
     const [imoexCandles, ...positionCandles] = await Promise.all([
       moex.getImoexCandles(fromStr, tillStr),
       ...positions.slice(0, 10).map((p) =>
-        broker.getCandles(userId, { instrumentId: p.instrumentId, from, to: now, interval: "day" }).catch(() => [])
+        broker.getCandles(userId, { instrumentId: p.instrumentId, from, to: now, interval: "1d" }).catch(() => [])
       ),
     ])
 

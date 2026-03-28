@@ -24,7 +24,7 @@ export class CorrelationService {
     for (let i = 0; i < positions.length; i += 3) {
       const batch = positions.slice(i, i + 3)
       const results = await Promise.all(
-        batch.map((p) => this.broker.getCandles(userId, { instrumentId: p.instrumentId, from, to: now, interval: "day" }))
+        batch.map((p) => this.broker.getCandles(userId, { instrumentId: p.instrumentId, from, to: now, interval: "1d" }))
       )
       for (const candles of results) {
         returnsArr.push(candles.length < 2 ? [] : toReturns(candles.map((c) => c.close)))
