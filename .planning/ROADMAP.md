@@ -463,8 +463,8 @@ Plans:
   5. Live price обновляется во время вечерней сессии
 **Plans**: 2 plans
 Plans:
-- [ ] 14.2-01-PLAN.md — Fix isMarketOpen() evening session + periodic stats refresh
-- [ ] 14.2-02-PLAN.md — Candle normalizer audit + evening session boundary tests
+- [x] 14.2-01-PLAN.md — Fix isMarketOpen() evening session + periodic stats refresh
+- [x] 14.2-02-PLAN.md — Candle normalizer audit + evening session boundary tests
 **UI hint**: no
 
 ### Phase 14.1: Bybit TradingView Datafeed ⏸ BLOCKED — после Phase 13
@@ -542,7 +542,7 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 | 12. Корректность расчётов | v2.0 | 4/4 | Complete    | 2026-03-28 |
 | 13. TradingView Advanced Charts | v2.0 | 0/TBD | Blocked (license) | - |
 | 14. Bybit Provider — Backend + Мульти-брокер | v2.0 | 6/6 | Complete   | 2026-03-28 |
-| 14.2 MOEX Evening Session + Chart Correctness (INSERTED) | v2.0 | 0/TBD | Not started | - |
+| 14.2 MOEX Evening Session + Chart Correctness (INSERTED) | v2.0 | 2/2 | Complete   | 2026-03-28 |
 | 14.1 Bybit TradingView Datafeed | v2.0 | 0/TBD | Blocked (Phase 13) | - |
 | 15. Grid Trading | v2.0 | 0/TBD | Not started | - |
 | 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |
