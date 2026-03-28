@@ -7,10 +7,12 @@ import type {
   BrokerInstrument,
   Candle,
   CandleParams,
+  PlaceOrderParams,
   Portfolio,
   PortfolioPosition,
   PositionOperation,
 } from "@/core/types"
+
 import { FifoCalculator } from "@/server/services/fifo-calculator"
 import { PREFERRED_CLASS_CODES } from "@/lib/shared-constants"
 import type { BrokerProvider } from "./types"
@@ -109,22 +111,28 @@ export class TinkoffProvider implements BrokerProvider {
         : client.operations.getPortfolio({ accountId }),
       this.getAvailableCash(accountId),
       this.isSandbox
-        ? Promise.resolve({ operations: [] })
-        : client.operations.getOperations({
+        ? Promise.resolve({ items: [], hasNext: false, nextCursor: "" })
+        : client.operations.getOperationsByCursor({
             accountId,
             from: yearAgo,
             to: new Date(),
+            operationTypes: [OperationType.OPERATION_TYPE_BUY, OperationType.OPERATION_TYPE_SELL],
             state: OperationState.OPERATION_STATE_EXECUTED,
+            limit: 1000,
           }),
     ])
+
+    if (opsRes.hasNext) {
+      console.warn("[TinkoffProvider] getOperationsByCursor: hasNext=true, >1000 ops in year, only first page used")
+    }
 
     const BUY_TYPES = new Set([OperationType.OPERATION_TYPE_BUY, OperationType.OPERATION_TYPE_BUY_CARD, OperationType.OPERATION_TYPE_BUY_MARGIN])
     const SELL_TYPES = new Set([OperationType.OPERATION_TYPE_SELL, OperationType.OPERATION_TYPE_SELL_CARD, OperationType.OPERATION_TYPE_SELL_MARGIN])
 
     const opsByFigi = new Map<string, PositionOperation[]>()
-    for (const op of opsRes.operations) {
-      const isBuy = BUY_TYPES.has(op.operationType)
-      const isSell = SELL_TYPES.has(op.operationType)
+    for (const op of opsRes.items) {
+      const isBuy = BUY_TYPES.has(op.type)
+      const isSell = SELL_TYPES.has(op.type)
       if (!isBuy && !isSell) continue
       if (!opsByFigi.has(op.figi)) opsByFigi.set(op.figi, [])
       opsByFigi.get(op.figi)!.push({
@@ -159,13 +167,13 @@ export class TinkoffProvider implements BrokerProvider {
 
         const quantity = toNumber(p.quantity)
         const currentPrice = toNumber(p.currentPrice)
-        const apiAvgPrice = toNumber(p.averagePositionPrice)
+        const avgPriceFifo = toNumber(p.averagePositionPriceFifo)
+        const averagePrice = avgPriceFifo > 0 ? avgPriceFifo : toNumber(p.averagePositionPrice)
+        const yieldAbs = toNumber(p.expectedYieldFifo) || (currentPrice - averagePrice) * quantity
+        const cost = averagePrice * quantity
+        const yieldPct = cost > 0 ? (yieldAbs / cost) * 100 : 0
         const ops = opsByFigi.get(p.figi) ?? []
         const fifoSummary = FifoCalculator.calculateSummary(ops, currentPrice)
-        const averagePrice = fifoSummary.totalQuantity > 0 ? fifoSummary.avgPrice : apiAvgPrice
-        const cost = averagePrice * quantity
-        const yieldAbs = (currentPrice - averagePrice) * quantity
-        const yieldPct = cost > 0 ? (yieldAbs / cost) * 100 : 0
 
         return {
           instrumentId: p.figi,
@@ -176,11 +184,11 @@ export class TinkoffProvider implements BrokerProvider {
           currentPrice,
           expectedYield: yieldPct,
           expectedYieldAbsolute: yieldAbs,
-          dailyYield: toNumber((p as unknown as Record<string, unknown>).dailyYield as { units: number; nano: number } | undefined),
+          dailyYield: toNumber(p.dailyYield),
           currentValue: quantity * currentPrice,
           instrumentType: mapInstrumentType(p.instrumentType),
-          blocked: (p as unknown as Record<string, unknown>).blocked === true,
-          blockedLots: toNumber((p as unknown as Record<string, unknown>).blockedLots as { units: number; nano: number } | undefined),
+          blocked: p.blocked === true,
+          blockedLots: toNumber(p.blockedLots),
           operations: ops.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()),
           lots: fifoSummary.lots,
         }
@@ -322,6 +330,14 @@ export class TinkoffProvider implements BrokerProvider {
     if (match) return match.uid
 
     throw new Error(`Инструмент "${ticker}" не найден`)
+  }
+
+  async placeOrder(_params: PlaceOrderParams): Promise<string> {
+    throw new Error("Order placement not implemented for T-Invest in this phase")
+  }
+
+  async cancelOrder(_orderId: string, _symbol: string): Promise<void> {
+    throw new Error("Order cancellation not implemented for T-Invest in this phase")
   }
 
   async sandboxPayIn(accountId: string, amount: number): Promise<void> {
