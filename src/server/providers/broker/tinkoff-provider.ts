@@ -279,7 +279,6 @@ export class TinkoffProvider implements BrokerProvider {
     })
 
     return candles
-      .filter((c) => c.isComplete)
       .map((c) => ({
         open: toNumber(c.open),
         high: toNumber(c.high),

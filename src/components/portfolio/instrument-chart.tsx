@@ -11,43 +11,21 @@ import {
   type CandlestickData,
   type SeriesMarker,
   type Time,
-  type UTCTimestamp,
 } from "lightweight-charts"
 import { isMarketOpen } from "@/lib/market-hours"
-
-type FormingCandle = {
-  time: Time
-  open: number
-  high: number
-  low: number
-}
 
 type InstrumentChartProps = {
   candles: CandlestickData<Time>[]
   markers?: SeriesMarker<Time>[]
   height?: number
   livePrice?: number
-  interval?: string
   brokerType?: string
 }
 
-const INTRADAY_INTERVALS = new Set(["1m", "5m", "15m", "1h"])
-
-const getCurrentCandleTime = (interval: string): Time => {
-  if (!INTRADAY_INTERVALS.has(interval)) {
-    return new Date().toISOString().split("T")[0] as string & Time
-  }
-  const now = Math.floor(Date.now() / 1000)
-  const intervals: Record<string, number> = { "1m": 60, "5m": 300, "15m": 900, "1h": 3600 }
-  const period = intervals[interval] ?? 300
-  return (now - (now % period)) as UTCTimestamp
-}
-
-export const InstrumentChart = ({ candles, markers, height, livePrice, interval = "1d", brokerType }: InstrumentChartProps) => {
+export const InstrumentChart = ({ candles, markers, height, livePrice, brokerType }: InstrumentChartProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null)
-  const formingCandleRef = useRef<FormingCandle | null>(null)
 
   useEffect(() => {
     if (!containerRef.current || candles.length === 0) return
@@ -115,29 +93,15 @@ export const InstrumentChart = ({ candles, markers, height, livePrice, interval 
     if (!seriesRef.current || !livePrice || candles.length === 0) return
     if (brokerType !== "BYBIT" && !isMarketOpen()) return
 
-    const candleTime = getCurrentCandleTime(interval)
-    const forming = formingCandleRef.current
-
-    if (!forming || forming.time !== candleTime) {
-      formingCandleRef.current = { time: candleTime, open: livePrice, high: livePrice, low: livePrice }
-    } else {
-      formingCandleRef.current = {
-        time: candleTime,
-        open: forming.open,
-        high: Math.max(forming.high, livePrice),
-        low: Math.min(forming.low, livePrice),
-      }
-    }
-
-    const current = formingCandleRef.current
+    const lastCandle = candles[candles.length - 1]
     seriesRef.current.update({
-      time: current.time,
-      open: current.open,
-      high: current.high,
-      low: current.low,
+      time: lastCandle.time,
+      open: lastCandle.open as number,
+      high: Math.max(lastCandle.high as number, livePrice),
+      low: Math.min(lastCandle.low as number, livePrice),
       close: livePrice,
     })
-  }, [livePrice, candles, interval, brokerType])
+  }, [livePrice, candles, brokerType])
 
   return <div ref={containerRef} className="w-full" />
 }
