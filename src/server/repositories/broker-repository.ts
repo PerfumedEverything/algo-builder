@@ -7,6 +7,7 @@ export type BrokerSettingsRow = {
   brokerType: string
   bybitApiKey: string | null
   bybitApiSecret: string | null
+  connectionToken: string | null
 }
 
 export class BrokerRepository {
@@ -23,13 +24,19 @@ export class BrokerRepository {
       .single()
 
     if (!data) return null
+    const brokerType = data.brokerType ?? "TINKOFF"
+    const connectionToken =
+      brokerType === "BYBIT" && data.bybitApiKey && data.bybitApiSecret
+        ? `${data.bybitApiKey}:${data.bybitApiSecret}`
+        : data.brokerToken ?? null
     return {
       userId,
       brokerToken: data.brokerToken,
       brokerAccountId: data.brokerAccountId,
-      brokerType: data.brokerType ?? "TINKOFF",
+      brokerType,
       bybitApiKey: data.bybitApiKey ?? null,
       bybitApiSecret: data.bybitApiSecret ?? null,
+      connectionToken,
     }
   }
 

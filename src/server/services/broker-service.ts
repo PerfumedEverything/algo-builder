@@ -25,49 +25,49 @@ export class BrokerService {
 
   async getAccounts(userId: string): Promise<BrokerAccount[]> {
     const settings = await this.repo.getSettings(userId)
-    if (!settings?.brokerToken) return []
+    if (!settings?.connectionToken) return []
     const provider = await getBrokerProvider(userId)
-    await provider.connect(settings.brokerToken)
+    await provider.connect(settings.connectionToken)
     return provider.getAccounts()
   }
 
   async getPortfolio(userId: string): Promise<Portfolio | null> {
     const settings = await this.repo.getSettings(userId)
-    if (!settings?.brokerToken || !settings.brokerAccountId) return null
+    if (!settings?.connectionToken || !settings.brokerAccountId) return null
     const provider = await getBrokerProvider(userId)
-    await provider.connect(settings.brokerToken)
+    await provider.connect(settings.connectionToken)
     return provider.getPortfolio(settings.brokerAccountId)
   }
 
   async getInstruments(userId: string, type: string): Promise<BrokerInstrument[]> {
     const settings = await this.repo.getSettings(userId)
-    if (!settings?.brokerToken) return []
+    if (!settings?.connectionToken) return []
     const provider = await getBrokerProvider(userId)
-    await provider.connect(settings.brokerToken)
+    await provider.connect(settings.connectionToken)
     return provider.getInstruments(type)
   }
 
   async getCurrentPrice(userId: string, instrumentId: string): Promise<number | null> {
     const settings = await this.repo.getSettings(userId)
-    if (!settings?.brokerToken) return null
+    if (!settings?.connectionToken) return null
     const provider = await getBrokerProvider(userId)
-    await provider.connect(settings.brokerToken)
+    await provider.connect(settings.connectionToken)
     return provider.getCurrentPrice(instrumentId)
   }
 
   async getInstrumentPrice(userId: string, ticker: string): Promise<number> {
     const settings = await this.repo.getSettings(userId)
-    if (!settings?.brokerToken) throw new Error("Брокер не подключён")
+    if (!settings?.connectionToken) throw new Error("Брокер не подключён")
     const provider = await getBrokerProvider(userId)
-    await provider.connect(settings.brokerToken)
+    await provider.connect(settings.connectionToken)
     return provider.getCurrentPrice(ticker)
   }
 
   async getCandles(userId: string, params: CandleParams): Promise<Candle[]> {
     const settings = await this.repo.getSettings(userId)
-    if (!settings?.brokerToken) throw new Error("Брокер не подключён")
+    if (!settings?.connectionToken) throw new Error("Брокер не подключён")
     const provider = await getBrokerProvider(userId)
-    await provider.connect(settings.brokerToken)
+    await provider.connect(settings.connectionToken)
     const candles = await provider.getCandles(params)
     return filterValidCandles(candles)
   }
@@ -78,11 +78,11 @@ export class BrokerService {
 
   async sandboxPayIn(userId: string, amount: number): Promise<void> {
     const settings = await this.repo.getSettings(userId)
-    if (!settings?.brokerToken || !settings.brokerAccountId) {
+    if (!settings?.connectionToken || !settings.brokerAccountId) {
       throw new Error("Брокер не подключён или счёт не выбран")
     }
     const provider = await getBrokerProvider(userId)
-    await provider.connect(settings.brokerToken)
+    await provider.connect(settings.connectionToken)
     if (!provider.sandboxPayIn) {
       throw new Error("Пополнение доступно только для sandbox")
     }
@@ -92,7 +92,7 @@ export class BrokerService {
   async getConnectionStatus(userId: string) {
     const settings = await this.repo.getSettings(userId)
     return {
-      connected: !!settings?.brokerToken,
+      connected: !!settings?.connectionToken,
       accountId: settings?.brokerAccountId ?? null,
     }
   }

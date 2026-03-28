@@ -142,10 +142,19 @@ export class StrategyChecker {
   }
 
   private async connectBroker(userId: string) {
-    const { data } = await this.db.from("User").select("brokerToken").eq("id", userId).single()
-    if (!data?.brokerToken) throw new Error(`Broker not connected for user ${userId}`)
+    const { data } = await this.db
+      .from("User")
+      .select("brokerType, brokerToken, bybitApiKey, bybitApiSecret")
+      .eq("id", userId)
+      .single()
+    const brokerType = data?.brokerType ?? "TINKOFF"
+    const connectionToken =
+      brokerType === "BYBIT" && data?.bybitApiKey && data?.bybitApiSecret
+        ? `${data.bybitApiKey}:${data.bybitApiSecret}`
+        : data?.brokerToken ?? null
+    if (!connectionToken) throw new Error(`Broker not connected for user ${userId}`)
     const broker = await getBrokerProvider(userId)
-    await broker.connect(data.brokerToken)
+    await broker.connect(connectionToken)
     return broker
   }
 }
