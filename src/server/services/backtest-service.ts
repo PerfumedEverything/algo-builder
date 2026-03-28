@@ -2,6 +2,10 @@ import { addExchangeSchema, addStrategySchema, setConfig, Backtest } from "backt
 import type { IStrategyTickResultClosed } from "backtest-kit"
 import { getBrokerProvider } from "@/server/providers/broker"
 import type { StrategyCondition, LogicOperator, StrategyRisks } from "@/core/types"
+import { evaluateBacktestConditions } from "./evaluate-conditions"
+import { IndicatorCalculator } from "./indicator-calculator"
+import { filterValidCandles } from "./candle-validator"
+import type { Candle } from "@/core/types"
 
 export type BacktestResult = {
   totalTrades: number
@@ -51,6 +55,43 @@ function calcMaxDrawdown(signalList: IStrategyTickResultClosed[]): number {
   }
 
   return maxDrawdown
+}
+
+function computeIndicators(candles: Candle[], conditions: StrategyCondition[]): Record<string, number | null> {
+  const result: Record<string, number | null> = {}
+  for (const cond of conditions) {
+    if (cond.indicator === "PRICE") continue
+    const period = cond.params.period ?? 14
+    const key = `${cond.indicator}_${period}`
+    if (key in result) continue
+
+    switch (cond.indicator) {
+      case "RSI":
+        result[key] = IndicatorCalculator.calculateRSI(candles, period)
+        break
+      case "SMA":
+        result[key] = IndicatorCalculator.calculateSMA(candles, period)
+        break
+      case "EMA":
+        result[key] = IndicatorCalculator.calculateEMA(candles, period)
+        break
+      case "ATR":
+        result[key] = IndicatorCalculator.calculateATR(candles, period)
+        break
+      case "STOCHASTIC":
+        result[key] = IndicatorCalculator.calculateStochastic(candles, period)
+        break
+      case "WILLIAMS_R":
+        result[key] = IndicatorCalculator.calculateWilliamsR(candles, period)
+        break
+      case "VWAP":
+        result[key] = IndicatorCalculator.calculateVWAP(candles)
+        break
+      default:
+        result[key] = null
+    }
+  }
+  return result
 }
 
 export class BacktestService {
@@ -104,19 +145,70 @@ export class BacktestService {
       entryPayload = JSON.parse(params.entryConditions) as ConditionsPayload
     } catch {}
 
+    let exitPayload: ConditionsPayload = { conditions: [], logic: "OR" }
+    try {
+      exitPayload = JSON.parse(params.exitConditions) as ConditionsPayload
+    } catch {}
+
     const risks = entryPayload.risks ?? {}
     const tpPct = risks.takeProfit ?? 3
     const slPct = risks.stopLoss ?? 1.5
 
+    const broker = getBrokerProvider()
+    const rawCandles = await broker.getCandles({
+      instrumentId: params.instrumentId,
+      interval: params.interval,
+      from: params.fromDate,
+      to: params.toDate,
+    })
+    const allCandles = filterValidCandles(rawCandles)
+
+    const allConditions = [...entryPayload.conditions, ...exitPayload.conditions]
+    let inPosition = false
+
     addStrategySchema({
       strategyName: name,
       interval,
-      getSignal: async (_symbol: string, _when: Date) => {
-        return {
-          position: "long" as const,
-          priceTakeProfit: 1 + tpPct / 100,
-          priceStopLoss: 1 - slPct / 100,
-          minuteEstimatedTime: Infinity,
+      getSignal: async (_symbol: string, when: Date) => {
+        if (entryPayload.conditions.length === 0) return null
+
+        const windowEnd = allCandles.findLastIndex((c) => c.time <= when)
+        if (windowEnd < 0) return null
+
+        const window = allCandles.slice(0, windowEnd + 1)
+        const currentCandle = window[window.length - 1]
+        const indicators = computeIndicators(window, allConditions)
+
+        if (!inPosition) {
+          const entryMet = evaluateBacktestConditions(
+            entryPayload.conditions,
+            entryPayload.logic ?? "AND",
+            indicators,
+            currentCandle.close,
+          )
+          if (!entryMet) return null
+
+          inPosition = true
+          return {
+            position: "long" as const,
+            priceTakeProfit: 1 + tpPct / 100,
+            priceStopLoss: 1 - slPct / 100,
+            minuteEstimatedTime: Infinity,
+          }
+        } else {
+          if (exitPayload.conditions.length > 0) {
+            const exitMet = evaluateBacktestConditions(
+              exitPayload.conditions,
+              "OR",
+              indicators,
+              currentCandle.close,
+            )
+            if (exitMet) {
+              inPosition = false
+              return null
+            }
+          }
+          return null
         }
       },
     })
