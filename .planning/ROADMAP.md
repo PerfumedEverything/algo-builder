@@ -451,6 +451,21 @@ Plans:
 
 **UI hint**: yes
 
+### Phase 14.2: MOEX Evening Session + Chart Correctness (INSERTED URGENT)
+**Goal**: Терминал показывает все сессии MOEX (основная + вечерняя 18:40-23:50), свечи и цена совпадают с T-Invest приложением на всех таймфреймах
+**Depends on**: Phase 14 (multi-broker architecture)
+**Requirements**: TBD (run /gsd:discuss-phase 14.2 to gather)
+**Success Criteria** (what must be TRUE):
+  1. Свечи на 5М/15М/1Ч совпадают с T-Invest приложением (включая вечернюю сессию)
+  2. Price bar цена совпадает с T-Invest на ±0.5% в реалтайме
+  3. H/L/Vol в price bar отражают текущую торговую сессию (основная + вечерняя)
+  4. Дневные и недельные свечи close совпадает с T-Invest
+  5. Live price обновляется во время вечерней сессии
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 14.2 to break down)
+**UI hint**: no
+
 ### Phase 14.1: Bybit TradingView Datafeed ⏸ BLOCKED — после Phase 13
 **Goal**: Интеграция Bybit данных в TradingView Advanced Charts datafeed
 **Depends on**: Phase 13 (TradingView чарт), Phase 14 (Bybit провайдер)
@@ -499,7 +514,7 @@ Plans:
 **Execution Order:**
 v1.0: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 (archived)
 v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11 (archived)
-v2.0: 12 -> 14 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
+v2.0: 12 -> 14 -> 14.2 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -526,6 +541,7 @@ v2.0: 12 -> 14 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 | 12. Корректность расчётов | v2.0 | 4/4 | Complete    | 2026-03-28 |
 | 13. TradingView Advanced Charts | v2.0 | 0/TBD | Blocked (license) | - |
 | 14. Bybit Provider — Backend + Мульти-брокер | v2.0 | 6/6 | Complete    | 2026-03-28 |
+| 14.2 MOEX Evening Session + Chart Correctness (INSERTED) | v2.0 | 0/TBD | Not started | - |
 | 14.1 Bybit TradingView Datafeed | v2.0 | 0/TBD | Blocked (Phase 13) | - |
 | 15. Grid Trading | v2.0 | 0/TBD | Not started | - |
 | 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |

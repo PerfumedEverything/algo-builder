@@ -192,6 +192,7 @@ Plan: Not started
 - Phase 9 added: Data Pipeline Overhaul — replace technicalindicators→trading-signals, integrate backtest-kit, MOEX candle normalization, Redis caching, terminal price bar fix, TradingView accuracy audit
 - Phase 10 added: Security & Code Quality Hardening — auth bypasses, rate limiting, IDOR, prompt injection, input validation, file splitting (from comprehensive audit)
 - Phase 11 added: Root Cause Bug Fixes — AI wizard strategy creation, period-based %, real amounts in portfolio, Telegram details, strategy auto-stop, operation volume, position mismatch (Anton feedback 2026-03-28)
+- Phase 14.2 inserted after Phase 14: MOEX Evening Session + Chart Correctness — терминал не показывает вечернюю сессию (18:40-23:50), root cause всех расхождений с T-Invest (URGENT BLOCKER)
 
 ### Pending Todos
 
