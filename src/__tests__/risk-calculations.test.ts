@@ -179,3 +179,65 @@ describe("alignByDate", () => {
     expect(result.aligned_b).toEqual([0.05, 0.06])
   })
 })
+
+describe("@railpath/finance-toolkit validation — 3 datasets (CALC-03)", () => {
+  const dataset1Returns = [0.01, -0.02, 0.015, -0.005, 0.03]
+  const dataset2Returns = [0.05, -0.08, 0.03, -0.06, 0.04, -0.03, 0.07, -0.02]
+  const dataset3Prices = [100, 105, 103, 108, 112, 107, 115, 120]
+
+  it("CALC-01: Sharpe from library on dataset 1", async () => {
+    const { calculateSharpeRatio } = await import("@railpath/finance-toolkit")
+    const rfDaily = 0.21 / 248
+    const N = 248
+    const result = calculateSharpeRatio({ returns: dataset1Returns, riskFreeRate: rfDaily, annualizationFactor: N })
+
+    const meanReturn = dataset1Returns.reduce((s, v) => s + v, 0) / dataset1Returns.length
+    const annualizedReturn = meanReturn * N
+    const variance = dataset1Returns.reduce((s, v) => s + (v - meanReturn) ** 2, 0) / (dataset1Returns.length - 1)
+    const annualizedVol = Math.sqrt(variance) * Math.sqrt(N)
+    const manualSharpe = annualizedVol !== 0 ? (annualizedReturn - rfDaily) / annualizedVol : 0
+
+    expect(result.sharpeRatio).toBeCloseTo(manualSharpe, 2)
+  })
+
+  it("CALC-01: VaR95 from library on dataset 2", async () => {
+    const { calculateVaR } = await import("@railpath/finance-toolkit")
+    const result = calculateVaR(dataset2Returns, { confidenceLevel: 0.95 })
+
+    const sorted = [...dataset2Returns].sort((a, b) => a - b)
+    const manualVaR = Math.abs(sorted[0])
+
+    expect(result.value).toBeCloseTo(manualVaR, 2)
+  })
+
+  it("CALC-01: maxDrawdown from library on dataset 3 (prices, NOT returns)", async () => {
+    const { calculateMaxDrawdown } = await import("@railpath/finance-toolkit")
+    const result = calculateMaxDrawdown({ prices: dataset3Prices })
+
+    const manualDrawdownFraction = (112 - 107) / 112
+
+    expect(result.maxDrawdownPercent).toBeCloseTo(manualDrawdownFraction, 3)
+  })
+
+  it("CALC-02: correlation matrix from library", async () => {
+    const { calculateCorrelationMatrix } = await import("@railpath/finance-toolkit")
+    const { sampleCorrelation } = await import("simple-statistics")
+
+    const returnsA = [0.01, -0.02, 0.03, 0.005, -0.01]
+    const returnsB = [0.015, -0.01, 0.025, 0.002, -0.008]
+    const result = calculateCorrelationMatrix({ returns: [returnsA, returnsB], labels: ["A", "B"] })
+
+    const manualCorr = sampleCorrelation(returnsA, returnsB)
+
+    expect(result.matrix[0][1]).toBeCloseTo(manualCorr, 2)
+  })
+
+  it("CALC-01: Sortino from library on dataset 1", async () => {
+    const { calculateSortinoRatio } = await import("@railpath/finance-toolkit")
+    const rfDaily = 0.21 / 248
+    const result = calculateSortinoRatio({ returns: dataset1Returns, riskFreeRate: rfDaily, annualizationFactor: 248 })
+
+    expect(typeof result.sortinoRatio).toBe("number")
+    expect(result.downsideDeviation).toBeGreaterThanOrEqual(0)
+  })
+})
