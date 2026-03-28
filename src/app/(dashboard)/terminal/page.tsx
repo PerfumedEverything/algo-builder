@@ -186,14 +186,14 @@ export default function TerminalPage() {
 
   const fetchDailyStats = useCallback(async (figi: string) => {
     try {
-      const res = await getDailySessionStatsAction(figi)
+      const res = await getDailySessionStatsAction(figi, period)
       if (res.success) {
         setDailyStats(res.data)
       }
     } catch {
       setDailyStats(null)
     }
-  }, [])
+  }, [period])
 
   const handleInstrumentSelect = useCallback((inst: BrokerInstrument) => {
     setInstrument(inst)
@@ -207,6 +207,15 @@ export default function TerminalPage() {
     fetchDailyStats(inst.figi)
     subscribeInstrumentAction(inst.ticker)
   }, [fetchDailyStats, period])
+
+  useEffect(() => {
+    if (!instrument?.figi) return
+    fetchDailyStats(instrument.figi)
+    const id = setInterval(() => {
+      if (isMarketOpen()) fetchDailyStats(instrument.figi)
+    }, 60_000)
+    return () => clearInterval(id)
+  }, [instrument, fetchDailyStats])
 
   const handleQuickSelect = useCallback(async (t: string) => {
     const res = await findInstrumentByTickerAction(t)
@@ -235,7 +244,7 @@ export default function TerminalPage() {
     if (instrument?.figi) {
       fetchDailyStats(instrument.figi)
     }
-  }, [instrument])
+  }, [instrument, fetchDailyStats])
 
   const buildChartMessage = useCallback(() => {
     if (!instrument) return ""
