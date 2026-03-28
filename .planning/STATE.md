@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
-status: Phase complete — ready for verification
-stopped_at: Completed 10-04-PLAN.md
-last_updated: "2026-03-28T06:41:48.312Z"
+status: Ready to execute
+stopped_at: Completed 11-01-PLAN.md
+last_updated: "2026-03-28T08:00:28.331Z"
 progress:
-  total_phases: 19
+  total_phases: 20
   completed_phases: 17
-  total_plans: 54
-  completed_plans: 51
+  total_plans: 57
+  completed_plans: 52
 ---
 
 # Project State
@@ -19,12 +19,12 @@ progress:
 See: .planning/PROJECT.md (updated 2026-03-25)
 
 **Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 10 — security-code-quality-hardening
+**Current focus:** Phase 11 — root-cause-bug-fixes
 
 ## Current Position
 
-Phase: 10 (security-code-quality-hardening) — EXECUTING
-Plan: 4 of 4
+Phase: 11 (root-cause-bug-fixes) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -70,6 +70,7 @@ Plan: 4 of 4
 | Phase 10 P02 | 2 | 2 tasks | 4 files |
 | Phase 10 P01 | 13 | 2 tasks | 4 files |
 | Phase 10 P04 | 19 | 2 tasks | 15 files |
+| Phase 11-root-cause-bug-fixes P01 | 5 | 2 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -140,6 +141,8 @@ Plan: 4 of 4
 - [Phase 10]: Middleware bypass uses exact pathname === for cron paths — prevents bypass via future paths like /api/signals/admin
 - [Phase 10]: IDOR defense: load owned IDs server-side, filter client-supplied IDs through Set — never trust client-supplied entity IDs directly
 - [Phase 10]: ai-strategy-validator.ts extracted as separate file — validateConfig logic needed its own home after ai-tools.ts grew over 150 lines during split
+- [Phase 11]: sendMessage return value (not new callback) surfaces pendingStrategy — minimal API change, hook stays navigation-agnostic
+- [Phase 11]: PAUSED-before-delete is sufficient defense for paper trading; no broker cancel step needed
 
 ### Roadmap Evolution
 
@@ -165,7 +168,7 @@ Plan: 4 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-28T06:41:48.307Z
-Stopped at: Completed 10-04-PLAN.md
+Last session: 2026-03-28T08:00:28.323Z
+Stopped at: Completed 11-01-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
