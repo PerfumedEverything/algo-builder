@@ -24,7 +24,7 @@ export class SignalChecker {
   private get priceCache() { if (!this._priceCache) this._priceCache = new PriceCache(); return this._priceCache }
   private get triggerHandler() { if (!this._triggerHandler) this._triggerHandler = new SignalTriggerHandler(this.db); return this._triggerHandler }
 
-  evaluateCondition(condition: SignalCondition, ctx: EvalContext, lastValues?: Record<string, number>): boolean | null {
+  async evaluateCondition(condition: SignalCondition, ctx: EvalContext, lastValues?: Record<string, number>): Promise<boolean | null> {
     return coreEval(condition, ctx, lastValues)
   }
 
@@ -72,7 +72,7 @@ export class SignalChecker {
     const candles = await this.fetchCandles(signal)
     const ctx: EvalContext = { price, candles }
     const lastValues = (signal.lastIndicatorValues ?? {}) as Record<string, number>
-    const allMet = evaluateConditions(signal.conditions, signal.logicOperator ?? "AND", ctx, lastValues)
+    const allMet = await evaluateConditions(signal.conditions, signal.logicOperator ?? "AND", ctx, lastValues)
     await this.persistIndicatorValues(signal, ctx)
     const message = allMet ? formatSignalNotification(signal, ctx) : `${instrument}: not met`
     return { signalId: signal.id, signalName: signal.name, instrument, triggered: allMet, message }
@@ -109,11 +109,11 @@ export class SignalChecker {
     const broker = await this.connectBroker(signal.userId)
     const price = await broker.getCurrentPrice(instrument)
     const ctx: EvalContext = { price, candles: await this.fetchCandles(signal) }
-    return signal.conditions.map((c) => {
+    return Promise.all(signal.conditions.map(async (c) => {
       const current = getIndicatorValue(c, ctx)
-      const met = current !== null ? coreEval(c, ctx) === true : false
+      const met = current !== null ? (await coreEval(c, ctx)) === true : false
       return { indicator: c.indicator, current: current !== null ? Math.round(current * 100) / 100 : null, target: c.value ?? 0, condition: c.condition, met }
-    })
+    }))
   }
 
   private errResult(signal: SignalRow, e: unknown): CheckResult {

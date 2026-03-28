@@ -27,67 +27,67 @@ const makeCondition = (
 describe("StrategyChecker compare — GREATER_THAN", () => {
   const checker = new SignalChecker()
 
-  it("14.40 > 14.37 = true", () => {
+  it("14.40 > 14.37 = true", async () => {
     const cond = makeCondition("GREATER_THAN", 14.37)
-    expect(checker.evaluateCondition(cond, makeCtx(14.40))).toBe(true)
+    expect(await checker.evaluateCondition(cond, makeCtx(14.40))).toBe(true)
   })
 
-  it("14.37 > 14.40 = false", () => {
+  it("14.37 > 14.40 = false", async () => {
     const cond = makeCondition("GREATER_THAN", 14.40)
-    expect(checker.evaluateCondition(cond, makeCtx(14.37))).toBe(false)
+    expect(await checker.evaluateCondition(cond, makeCtx(14.37))).toBe(false)
   })
 
-  it("exact equal value is false (strict greater)", () => {
+  it("exact equal value is false (strict greater)", async () => {
     const cond = makeCondition("GREATER_THAN", 14.37)
-    expect(checker.evaluateCondition(cond, makeCtx(14.37))).toBe(false)
+    expect(await checker.evaluateCondition(cond, makeCtx(14.37))).toBe(false)
   })
 })
 
 describe("StrategyChecker compare — LESS_THAN", () => {
   const checker = new SignalChecker()
 
-  it("14.37 < 14.40 = true", () => {
+  it("14.37 < 14.40 = true", async () => {
     const cond = makeCondition("LESS_THAN", 14.40)
-    expect(checker.evaluateCondition(cond, makeCtx(14.37))).toBe(true)
+    expect(await checker.evaluateCondition(cond, makeCtx(14.37))).toBe(true)
   })
 
-  it("14.40 < 14.37 = false", () => {
+  it("14.40 < 14.37 = false", async () => {
     const cond = makeCondition("LESS_THAN", 14.37)
-    expect(checker.evaluateCondition(cond, makeCtx(14.40))).toBe(false)
+    expect(await checker.evaluateCondition(cond, makeCtx(14.40))).toBe(false)
   })
 
-  it("exact equal value is false (strict less)", () => {
+  it("exact equal value is false (strict less)", async () => {
     const cond = makeCondition("LESS_THAN", 14.40)
-    expect(checker.evaluateCondition(cond, makeCtx(14.40))).toBe(false)
+    expect(await checker.evaluateCondition(cond, makeCtx(14.40))).toBe(false)
   })
 })
 
 describe("StrategyChecker compare — EQUALS", () => {
   const checker = new SignalChecker()
 
-  it("14.37 == 14.37 = true (exact)", () => {
+  it("14.37 == 14.37 = true (exact)", async () => {
     const cond = makeCondition("EQUALS", 14.37)
-    expect(checker.evaluateCondition(cond, makeCtx(14.37))).toBe(true)
+    expect(await checker.evaluateCondition(cond, makeCtx(14.37))).toBe(true)
   })
 
-  it("within 0.01 tolerance — 14.37 == 14.376 = true", () => {
+  it("within 0.01 tolerance — 14.37 == 14.376 = true", async () => {
     const cond = makeCondition("EQUALS", 14.37)
-    expect(checker.evaluateCondition(cond, makeCtx(14.376))).toBe(true)
+    expect(await checker.evaluateCondition(cond, makeCtx(14.376))).toBe(true)
   })
 
-  it("outside tolerance — 14.37 != 14.38 = false", () => {
+  it("outside tolerance — 14.37 != 14.38 = false", async () => {
     const cond = makeCondition("EQUALS", 14.37)
-    expect(checker.evaluateCondition(cond, makeCtx(14.38))).toBe(false)
+    expect(await checker.evaluateCondition(cond, makeCtx(14.38))).toBe(false)
   })
 
-  it("boundary edge — exactly 0.01 apart is false", () => {
+  it("boundary edge — exactly 0.01 apart is false", async () => {
     const cond = makeCondition("EQUALS", 100)
-    expect(checker.evaluateCondition(cond, makeCtx(100.01))).toBe(false)
+    expect(await checker.evaluateCondition(cond, makeCtx(100.01))).toBe(false)
   })
 
-  it("boundary edge — just under 0.01 is true", () => {
+  it("boundary edge — just under 0.01 is true", async () => {
     const cond = makeCondition("EQUALS", 100)
-    expect(checker.evaluateCondition(cond, makeCtx(100.009))).toBe(true)
+    expect(await checker.evaluateCondition(cond, makeCtx(100.009))).toBe(true)
   })
 })
 
@@ -157,48 +157,48 @@ describe("getIndicatorKey", () => {
 describe("StrategyChecker compare — ABOVE_BY_PERCENT", () => {
   const checker = new SignalChecker()
 
-  it("PRICE indicator with ABOVE_BY_PERCENT — always false (actual == currentPrice, delta = 0)", () => {
+  it("PRICE indicator with ABOVE_BY_PERCENT — always false (actual == currentPrice, delta = 0)", async () => {
     const condition: SignalCondition = {
       indicator: "PRICE",
       params: {},
       condition: "ABOVE_BY_PERCENT",
       value: 5,
     }
-    expect(checker.evaluateCondition(condition, makeCtx(110))).toBe(false)
+    expect(await checker.evaluateCondition(condition, makeCtx(110))).toBe(false)
   })
 
-  it("ABOVE_BY_PERCENT with target 0 — true when actual >= currentPrice (delta = 0 >= 0)", () => {
+  it("ABOVE_BY_PERCENT with target 0 — true when actual >= currentPrice (delta = 0 >= 0)", async () => {
     const condition: SignalCondition = {
       indicator: "PRICE",
       params: {},
       condition: "ABOVE_BY_PERCENT",
       value: 0,
     }
-    expect(checker.evaluateCondition(condition, makeCtx(110))).toBe(true)
+    expect(await checker.evaluateCondition(condition, makeCtx(110))).toBe(true)
   })
 })
 
 describe("StrategyChecker compare — BELOW_BY_PERCENT", () => {
   const checker = new SignalChecker()
 
-  it("PRICE indicator with BELOW_BY_PERCENT — always false (actual == currentPrice, delta = 0)", () => {
+  it("PRICE indicator with BELOW_BY_PERCENT — always false (actual == currentPrice, delta = 0)", async () => {
     const condition: SignalCondition = {
       indicator: "PRICE",
       params: {},
       condition: "BELOW_BY_PERCENT",
       value: 5,
     }
-    expect(checker.evaluateCondition(condition, makeCtx(90))).toBe(false)
+    expect(await checker.evaluateCondition(condition, makeCtx(90))).toBe(false)
   })
 
-  it("BELOW_BY_PERCENT with target 0 — true when currentPrice >= actual (delta = 0 >= 0)", () => {
+  it("BELOW_BY_PERCENT with target 0 — true when currentPrice >= actual (delta = 0 >= 0)", async () => {
     const condition: SignalCondition = {
       indicator: "PRICE",
       params: {},
       condition: "BELOW_BY_PERCENT",
       value: 0,
     }
-    expect(checker.evaluateCondition(condition, makeCtx(90))).toBe(true)
+    expect(await checker.evaluateCondition(condition, makeCtx(90))).toBe(true)
   })
 })
 

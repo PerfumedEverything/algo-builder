@@ -57,25 +57,25 @@ describe("Signal CROSSES_BELOW crossing detection", () => {
 describe("Signal null indicator handling", () => {
   const checker = new SignalChecker()
 
-  it("RSI with no candles returns null from evaluateCondition", () => {
+  it("RSI with no candles returns null from evaluateCondition", async () => {
     const cond = makeCondition("GREATER_THAN", 70, "RSI")
-    expect(checker.evaluateCondition(cond, makeCtx(100))).toBeNull()
+    expect(await checker.evaluateCondition(cond, makeCtx(100))).toBeNull()
   })
 
-  it("evaluateCondition with lastValues - CROSSES_ABOVE uses previous value", () => {
+  it("evaluateCondition with lastValues - CROSSES_ABOVE uses batch (no candles = false)", async () => {
     const cond = makeCondition("CROSSES_ABOVE", 100, "PRICE")
-    const result = checker.evaluateCondition(cond, makeCtx(110), { PRICE: 90 })
-    expect(result).toBe(true)
+    const result = await checker.evaluateCondition(cond, makeCtx(110), { PRICE: 90 })
+    expect(result).toBe(false)
   })
 
-  it("evaluateCondition with lastValues - CROSSES_ABOVE no prior history returns false", () => {
+  it("evaluateCondition with lastValues - CROSSES_ABOVE no prior history returns false", async () => {
     const cond = makeCondition("CROSSES_ABOVE", 100, "PRICE")
-    expect(checker.evaluateCondition(cond, makeCtx(110), {})).toBe(false)
+    expect(await checker.evaluateCondition(cond, makeCtx(110), {})).toBe(false)
   })
 
-  it("PRICE indicator returns value, not null", () => {
+  it("PRICE indicator returns value, not null", async () => {
     const cond = makeCondition("GREATER_THAN", 100, "PRICE")
-    expect(checker.evaluateCondition(cond, makeCtx(150))).toBe(true)
+    expect(await checker.evaluateCondition(cond, makeCtx(150))).toBe(true)
   })
 })
 
@@ -95,14 +95,14 @@ describe("Signal getIndicatorKey", () => {
 })
 
 describe("Signal CheckResult error flag", () => {
-  it("evaluateCondition returns null for unknown indicator (not 0)", () => {
+  it("evaluateCondition returns null for unknown indicator (not 0)", async () => {
     const cond: SignalCondition = {
       indicator: "UNKNOWN" as SignalCondition["indicator"],
       params: {},
       condition: "GREATER_THAN",
       value: 0,
     }
-    expect(checker.evaluateCondition(cond, makeCtx(100))).toBeNull()
+    expect(await checker.evaluateCondition(cond, makeCtx(100))).toBeNull()
   })
 })
 
@@ -119,25 +119,25 @@ describe("cleanTicker — signal ticker normalization", () => {
 })
 
 describe("SignalChecker.evaluateCondition — basic conditions", () => {
-  it("GREATER_THAN: true when price > target", () => {
-    expect(checker.evaluateCondition(makeCondition("GREATER_THAN", 100), makeCtx(150))).toBe(true)
-    expect(checker.evaluateCondition(makeCondition("GREATER_THAN", 100), makeCtx(50))).toBe(false)
+  it("GREATER_THAN: true when price > target", async () => {
+    expect(await checker.evaluateCondition(makeCondition("GREATER_THAN", 100), makeCtx(150))).toBe(true)
+    expect(await checker.evaluateCondition(makeCondition("GREATER_THAN", 100), makeCtx(50))).toBe(false)
   })
 
-  it("LESS_THAN: true when price < target", () => {
-    expect(checker.evaluateCondition(makeCondition("LESS_THAN", 200), makeCtx(150))).toBe(true)
-    expect(checker.evaluateCondition(makeCondition("LESS_THAN", 200), makeCtx(250))).toBe(false)
+  it("LESS_THAN: true when price < target", async () => {
+    expect(await checker.evaluateCondition(makeCondition("LESS_THAN", 200), makeCtx(150))).toBe(true)
+    expect(await checker.evaluateCondition(makeCondition("LESS_THAN", 200), makeCtx(250))).toBe(false)
   })
 
-  it("EQUALS: true within 0.01 tolerance", () => {
-    expect(checker.evaluateCondition(makeCondition("EQUALS", 100), makeCtx(100))).toBe(true)
-    expect(checker.evaluateCondition(makeCondition("EQUALS", 100), makeCtx(100.005))).toBe(true)
-    expect(checker.evaluateCondition(makeCondition("EQUALS", 100), makeCtx(101))).toBe(false)
+  it("EQUALS: true within 0.01 tolerance", async () => {
+    expect(await checker.evaluateCondition(makeCondition("EQUALS", 100), makeCtx(100))).toBe(true)
+    expect(await checker.evaluateCondition(makeCondition("EQUALS", 100), makeCtx(100.005))).toBe(true)
+    expect(await checker.evaluateCondition(makeCondition("EQUALS", 100), makeCtx(101))).toBe(false)
   })
 
-  it("handles missing value (defaults to 0)", () => {
+  it("handles missing value (defaults to 0)", async () => {
     const cond: SignalCondition = { indicator: "PRICE", params: {}, condition: "GREATER_THAN" }
-    expect(checker.evaluateCondition(cond, makeCtx(10))).toBe(true)
-    expect(checker.evaluateCondition(cond, makeCtx(-10))).toBe(false)
+    expect(await checker.evaluateCondition(cond, makeCtx(10))).toBe(true)
+    expect(await checker.evaluateCondition(cond, makeCtx(-10))).toBe(false)
   })
 })

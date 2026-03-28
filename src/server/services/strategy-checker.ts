@@ -116,7 +116,7 @@ export class StrategyChecker {
 
     const ctx: EvalContext = { price, candles }
     const lastValues = (strategy.lastIndicatorValues ?? {}) as Record<string, number>
-    const met = evaluateConditions(conditions, logic, ctx, lastValues)
+    const met = await evaluateConditions(conditions, logic, ctx, lastValues)
 
     const updatedValues = { ...lastValues }
     for (const c of conditions) { const v = getIndicatorValue(c, ctx); if (v !== null) updatedValues[getIndicatorKey(c)] = v }

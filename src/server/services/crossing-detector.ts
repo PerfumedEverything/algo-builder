@@ -1,10 +1,20 @@
+import { Indicators } from "@ixjb94/indicators"
 import type { SignalCondition, LogicOperator } from "@/core/types"
 import { IndicatorCalculator } from "./indicator-calculator"
+import {
+  calculateRSISeries,
+  calculateSMASeries,
+  calculateEMASeries,
+  calculateStochasticSeries,
+  calculateWilliamsRSeries,
+} from "./indicator-series"
 
 export type EvalContext = {
   price: number
   candles: { open: number; high: number; low: number; close: number; volume: number; time: Date }[]
 }
+
+const ta = new Indicators()
 
 export const getIndicatorKey = (condition: SignalCondition): string => {
   const sortedParams = Object.keys(condition.params)
@@ -25,6 +35,30 @@ export const evaluateCrossing = (
   if (prev === undefined || prev === null) return false
   if (type === "CROSSES_ABOVE") return prev < target && current >= target
   return prev > target && current <= target
+}
+
+export const evaluateCrossingBatch = async (
+  type: "CROSSES_ABOVE" | "CROSSES_BELOW",
+  series: number[],
+  target: number,
+): Promise<boolean> => {
+  if (series.length < 2) return false
+  const result = type === "CROSSES_ABOVE"
+    ? await ta.crossOverNumber(series, target)
+    : await ta.crossUnderNumber(series, target)
+  return result[result.length - 1] ?? false
+}
+
+const getIndicatorSeries = (condition: SignalCondition, candles: EvalContext["candles"]): number[] => {
+  const { indicator, params } = condition
+  switch (indicator) {
+    case "RSI": return calculateRSISeries(candles, params.period ?? 14)
+    case "SMA": return calculateSMASeries(candles, params.period ?? 20)
+    case "EMA": return calculateEMASeries(candles, params.period ?? 20)
+    case "STOCHASTIC": return calculateStochasticSeries(candles, params.period ?? 14, params.signalPeriod ?? 3)
+    case "WILLIAMS_R": return calculateWilliamsRSeries(candles, params.period ?? 14)
+    default: return []
+  }
 }
 
 export const getIndicatorValue = (condition: SignalCondition, ctx: EvalContext): number | null => {
@@ -97,19 +131,20 @@ export const compareCondition = (
   }
 }
 
-export const evaluateCondition = (condition: SignalCondition, ctx: EvalContext, lastValues?: Record<string, number>): boolean | null => {
+export const evaluateCondition = async (condition: SignalCondition, ctx: EvalContext, lastValues?: Record<string, number>): Promise<boolean | null> => {
+  if (condition.condition === "CROSSES_ABOVE" || condition.condition === "CROSSES_BELOW") {
+    const series = getIndicatorSeries(condition, ctx.candles)
+    if (series.length < 2) return false
+    return evaluateCrossingBatch(condition.condition, series, condition.value ?? 0)
+  }
   const actual = getIndicatorValue(condition, ctx)
   if (actual === null) return null
   const target = condition.value ?? 0
-  const indicatorKey = getIndicatorKey(condition)
-  if (condition.condition === "CROSSES_ABOVE" || condition.condition === "CROSSES_BELOW") {
-    return evaluateCrossing(condition.condition, actual, target, indicatorKey, lastValues)
-  }
   return compareCondition(actual, condition.condition, target, ctx.price, condition.valueTo)
 }
 
-export const evaluateConditions = (conditions: SignalCondition[], logic: LogicOperator, ctx: EvalContext, lastValues?: Record<string, number>): boolean => {
-  const results = conditions.map((c) => evaluateCondition(c, ctx, lastValues))
+export const evaluateConditions = async (conditions: SignalCondition[], logic: LogicOperator, ctx: EvalContext, lastValues?: Record<string, number>): Promise<boolean> => {
+  const results = await Promise.all(conditions.map((c) => evaluateCondition(c, ctx, lastValues)))
   const evaluated = results.filter((r): r is boolean => r !== null)
   if (evaluated.length === 0) return false
   return logic === "AND" ? evaluated.every(Boolean) : evaluated.some(Boolean)
