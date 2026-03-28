@@ -52,22 +52,23 @@ describe("sharpe", () => {
 })
 
 describe("maxDrawdown", () => {
-  it("computes correct peak-to-trough percentage", () => {
-    const returns = [0.1, -0.05, 0.03, -0.15, 0.02]
-    const result = maxDrawdown(returns)
+  it("computes correct peak-to-trough percentage from prices", () => {
+    const prices = [100, 110, 104.5, 107.635, 126.98, 129.52]
+    const result = maxDrawdown(prices)
     expect(result).not.toBeNull()
     expect(result!.value).toBeGreaterThan(0)
   })
 
-  it("returns zero drawdown for all positive returns", () => {
-    const returns = [0.01, 0.02, 0.03, 0.04]
-    const result = maxDrawdown(returns)
+  it("returns zero drawdown for monotonically increasing prices", () => {
+    const prices = [100, 101, 102, 103, 104]
+    const result = maxDrawdown(prices)
     expect(result).not.toBeNull()
     expect(result!.value).toBe(0)
   })
 
-  it("returns null when returns.length < 1", () => {
+  it("returns null when prices.length < 2", () => {
     expect(maxDrawdown([])).toBeNull()
+    expect(maxDrawdown([100])).toBeNull()
   })
 })
 

@@ -1,4 +1,4 @@
-import { sampleCorrelation } from "simple-statistics"
+import { calculateCorrelationMatrix } from "@railpath/finance-toolkit"
 import type { CorrelationMatrix } from "@/core/types"
 import { AppError } from "@/core/errors/app-error"
 import { BrokerService } from "./broker-service"
@@ -32,21 +32,26 @@ export class CorrelationService {
     }
 
     const tickers = positions.map((p) => p.ticker)
-    const n = tickers.length
-    const matrix: number[][] = Array.from({ length: n }, () => Array(n).fill(0))
-    const highPairs: CorrelationMatrix["highPairs"] = []
 
-    for (let i = 0; i < n; i++) {
-      matrix[i][i] = 1
-      for (let j = i + 1; j < n; j++) {
-        const minLen = Math.min(returnsArr[i].length, returnsArr[j].length)
-        if (minLen < 5) { matrix[i][j] = matrix[j][i] = 0; continue }
-        const corr = Math.round(sampleCorrelation(returnsArr[i].slice(0, minLen), returnsArr[j].slice(0, minLen)) * 100) / 100
-        matrix[i][j] = matrix[j][i] = corr
-        if (Math.abs(corr) > 0.7) highPairs.push({ a: tickers[i], b: tickers[j], corr })
+    const validReturns = returnsArr.filter((r) => r.length >= 5)
+    const validTickers = tickers.filter((_, i) => returnsArr[i].length >= 5)
+    if (validReturns.length < 2) return { tickers: validTickers, matrix: [], highPairs: [] }
+
+    const minLen = Math.min(...validReturns.map((r) => r.length))
+    const trimmed = validReturns.map((r) => r.slice(0, minLen))
+
+    const result = calculateCorrelationMatrix({ returns: trimmed, labels: validTickers })
+    const matrix = result.matrix.map((row) => row.map((v) => Math.round(v * 100) / 100))
+
+    const highPairs: CorrelationMatrix["highPairs"] = []
+    for (let i = 0; i < validTickers.length; i++) {
+      for (let j = i + 1; j < validTickers.length; j++) {
+        if (Math.abs(matrix[i][j]) > 0.7) {
+          highPairs.push({ a: validTickers[i], b: validTickers[j], corr: matrix[i][j] })
+        }
       }
     }
 
-    return { tickers, matrix, highPairs }
+    return { tickers: validTickers, matrix, highPairs }
   }
 }

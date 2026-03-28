@@ -1,4 +1,10 @@
-import { mean, standardDeviation, quantileSorted } from "simple-statistics"
+import { mean, standardDeviation } from "simple-statistics"
+import {
+  calculateSharpeRatio,
+  calculateSortinoRatio,
+  calculateVaR,
+  calculateMaxDrawdown,
+} from "@railpath/finance-toolkit"
 import type { MetricName, MetricStatus } from "@/core/types"
 
 const TRADING_DAYS = 248
@@ -11,47 +17,32 @@ const dailyReturns = (closes: number[]): number[] => {
 
 const sharpe = (returns: number[], rfDaily: number = RF_DAILY): number | null => {
   if (returns.length < 2) return null
-  const excess = returns.map((r) => r - rfDaily)
-  const std = standardDeviation(excess)
-  if (std === 0) return 0
-  return (mean(excess) / std) * Math.sqrt(TRADING_DAYS)
+  const result = calculateSharpeRatio({ returns, riskFreeRate: rfDaily, annualizationFactor: TRADING_DAYS })
+  const ratio = result.sharpeRatio
+  if (!isFinite(ratio)) return 0
+  return ratio
+}
+
+const sortino = (returns: number[], rfDaily: number = RF_DAILY): number | null => {
+  if (returns.length < 2) return null
+  const result = calculateSortinoRatio({ returns, riskFreeRate: rfDaily, annualizationFactor: TRADING_DAYS })
+  const ratio = result.sortinoRatio
+  if (!isFinite(ratio)) return 0
+  return ratio
 }
 
 const maxDrawdown = (
-  returns: number[]
+  prices: number[]
 ): { value: number; peakIdx: number; troughIdx: number } | null => {
-  if (returns.length < 1) return null
-  const cumulative: number[] = []
-  let cum = 1
-  for (const r of returns) {
-    cum *= 1 + r
-    cumulative.push(cum)
-  }
-  let peak = cumulative[0]
-  let peakIdx = 0
-  let mdd = 0
-  let mddPeakIdx = 0
-  let mddTroughIdx = 0
-  for (let i = 1; i < cumulative.length; i++) {
-    if (cumulative[i] > peak) {
-      peak = cumulative[i]
-      peakIdx = i
-    }
-    const dd = (peak - cumulative[i]) / peak
-    if (dd > mdd) {
-      mdd = dd
-      mddPeakIdx = peakIdx
-      mddTroughIdx = i
-    }
-  }
-  return { value: mdd * 100, peakIdx: mddPeakIdx, troughIdx: mddTroughIdx }
+  if (prices.length < 2) return null
+  const result = calculateMaxDrawdown({ prices })
+  return { value: result.maxDrawdownPercent * 100, peakIdx: result.peakIndex, troughIdx: result.troughIndex }
 }
 
 const var95 = (returns: number[]): number | null => {
   if (returns.length < 2) return null
-  const sorted = [...returns].sort((a, b) => a - b)
-  const q = quantileSorted(sorted, 0.05)
-  return Math.abs(q) * 100
+  const result = calculateVaR(returns, { confidenceLevel: 0.95 })
+  return Math.abs(result.value) * 100
 }
 
 const beta = (portfolio: number[], benchmark: number[]): number | null => {
@@ -117,6 +108,7 @@ const alignByDate = (
 export {
   dailyReturns,
   sharpe,
+  sortino,
   maxDrawdown,
   var95,
   beta,

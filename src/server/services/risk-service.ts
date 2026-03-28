@@ -101,11 +101,16 @@ export class RiskService {
         ? alpha(annualize(aligned_a), betaVal, annualize(aligned_b), 0.21)
         : null
 
+    const portfolioPrices = [100]
+    for (const r of portReturns) {
+      portfolioPrices.push(portfolioPrices[portfolioPrices.length - 1] * (1 + r))
+    }
+
     return {
       sharpe: buildResult("sharpe", sharpe(portReturns, RF_DAILY)),
       beta: buildResult("beta", betaVal),
       var95: buildResult("var95", var95(portReturns)),
-      maxDrawdown: buildResult("maxDrawdown", maxDrawdown(portReturns)?.value ?? null),
+      maxDrawdown: buildResult("maxDrawdown", maxDrawdown(portfolioPrices)?.value ?? null),
       alpha: buildResult("alpha", alphaVal),
       calculatedAt: now.toISOString(),
       dataPoints: portReturns.length,
