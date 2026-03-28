@@ -1,13 +1,13 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.1
-milestone_name: AI Revolution + Deep Analytics
-status: Phase complete — ready for verification
-stopped_at: Completed 11-03-PLAN.md
-last_updated: "2026-03-28T08:03:29.216Z"
+milestone: v2.0
+milestone_name: Корректный движок + Bybit + Pro Terminal
+status: Ready to plan
+stopped_at: Milestone v1.1 complete
+last_updated: "2026-03-28T12:00:00.000Z"
 progress:
-  total_phases: 20
-  completed_phases: 18
+  total_phases: 25
+  completed_phases: 20
   total_plans: 57
   completed_plans: 54
 ---
@@ -16,15 +16,17 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-03-25)
+See: .planning/PROJECT.md (updated 2026-03-28)
+See: .planning/v2.0-SPEC.md (full spec)
+See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
-**Core value:** AI-помощник, который думает вместе с трейдером — свободный диалог, автоматическое создание стратегий, глубокая аналитика портфеля лучше чем у Т-Инвест.
-**Current focus:** Phase 11 — root-cause-bug-fixes
+**Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
+**Current focus:** Phase 12 — calculation-correctness
 
 ## Current Position
 
-Phase: 11 (root-cause-bug-fixes) — EXECUTING
-Plan: 3 of 3
+Phase: 12 (calculation-correctness) — NOT STARTED
+Plan: 0 of TBD
 
 ## Performance Metrics
 

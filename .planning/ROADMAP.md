@@ -3,7 +3,8 @@
 ## Milestones
 
 - ✅ **v1.0 Portfolio Analytics & Terminal** - Phases 1-3.1 (shipped 2026-03-25)
-- 🚧 **v1.1 AI Revolution + Deep Analytics** - Phases 4-7 (in progress)
+- ✅ **v1.1 AI Revolution + Deep Analytics** - Phases 4-11 (shipped 2026-03-28)
+- 🚧 **v2.0 Корректный движок + Bybit + Pro Terminal** - Phases 12-16 (in progress)
 
 ## Phases
 
@@ -380,11 +381,101 @@ Plans:
 - [x] 11-03-PLAN.md — Portfolio amount labels, quantity column, strategy card fallback
 **UI hint**: yes
 
+</details>
+
+### v2.0 Корректный движок + Bybit + Pro Terminal (In Progress)
+
+**Milestone Goal:** Довести движок до точности реальных денег, подключить Bybit для 24/7 тестирования, заменить терминал на TradingView Advanced Charts, добавить Grid Trading, валидировать через Veles.
+
+## Phase Details (v2.0)
+
+### Phase 12: Корректность расчётов
+**Goal**: Все финансовые расчёты корректны до копейки — P&L, средняя цена входа, бэктест с реальной оценкой условий, валидация свечей, портфель показывает реальные суммы операций
+**Depends on**: Nothing (first phase of v2.0)
+**Requirements**: CALC-01, CALC-02, CALC-03, CALC-04, CALC-05, CALC-06, CALC-07, CALC-08, CALC-09, CALC-10, CALC-11, CALC-12, CALC-13, CALC-14, CALC-15, CALC-16, CALC-17
+**Success Criteria** (what must be TRUE):
+  1. Sharpe/Sortino/VaR/drawdown рассчитываются через `@railpath/finance-toolkit`, не кастомным кодом
+  2. Каждая свеча проходит `validateOHLC` перед расчётами — битые данные отсеиваются
+  3. FIFO P&L покрыт 100% тестами — 6 сценариев с конкретными числами до копейки
+  4. Бэктест парсит entry/exit conditions и оценивает их через IndicatorCalculator на каждой свече
+  5. Портфель показывает sum(реальных операций), не sum(strategy.budget)
+  6. Тест: стратегия "RSI<30 вход, RSI>70 выход" на известных данных → точки входа/выхода совпадают
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 12 to break down)
+**UI hint**: no
+
+### Phase 13: TradingView Advanced Charts
+**Goal**: Заменить сырой lightweight-charts на профессиональный TradingView Advanced Charts — 100+ индикаторов, 110+ drawing tools, тот же уровень что у Veles Finance
+**Depends on**: Phase 12 (корректные данные для datafeed)
+**Requirements**: TV-01, TV-02, TV-03, TV-04, TV-05, TV-06, TV-07, TV-08, TV-09
+**Success Criteria** (what must be TRUE):
+  1. TradingView Advanced Charts лицензия получена и библиотека установлена
+  2. Datafeed API отдаёт свечи T-Invest (и Bybit в фазе 14) в формате TradingView
+  3. Realtime updates работают — последняя свеча обновляется по price stream
+  4. Пользователь может добавить любой индикатор на график в 1 клик
+  5. Drawing tools работают (трендлайны, фибоначчи, уровни)
+  6. Все существующие функции терминала сохранены (price bar, стакан, позиции, история)
+  7. Мобильная версия работает
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 13 to break down)
+**UI hint**: yes
+
+### Phase 14: Bybit Provider + Мульти-брокер
+**Goal**: Подключить Bybit как второго брокера через bybit-api SDK — крипто-торговля 24/7, мульти-брокер UI с переключателем, данные через тот же движок
+**Depends on**: Phase 12 (корректный движок), Phase 13 (TradingView datafeed с поддержкой Bybit)
+**Requirements**: BYBIT-01, BYBIT-02, BYBIT-03, BYBIT-04, BYBIT-05, BYBIT-06, BYBIT-07, BYBIT-08, BYBIT-09, BYBIT-10, BYBIT-11, BYBIT-12, BYBIT-13, BYBIT-14
+**Success Criteria** (what must be TRUE):
+  1. `BybitBrokerProvider` реализует `BrokerProvider` интерфейс — все методы работают
+  2. Реалтайм цены и стакан через WebSocket с автореконнектом
+  3. Переключатель T-Invest / Bybit в настройках пользователя
+  4. При Bybit: крипто-пары, 24/7, 8 знаков, USDT
+  5. AI промпты адаптированы под крипто
+  6. Bybit testnet поддерживается
+  7. Тесты: mock API, каждый метод провайдера проверен
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 14 to break down)
+**UI hint**: yes
+
+### Phase 15: Grid Trading
+**Goal**: Добавить сетку ордеров (Grid Trading) — основной инструмент крипто-трейдинга, который есть у Veles. AI предлагает параметры сетки.
+**Depends on**: Phase 14 (Bybit Provider для исполнения ордеров)
+**Requirements**: GRID-01, GRID-02, GRID-03, GRID-04, GRID-05, GRID-06, GRID-07, GRID-08, GRID-09, GRID-10
+**Success Criteria** (what must be TRUE):
+  1. GridTradingService рассчитывает уровни и управляет ордерами (buy→sell→buy цикл)
+  2. P&L сетки = sum(profit от каждой пары buy-sell)
+  3. Тест: 100 ценовых тиков → корректное количество сделок и P&L
+  4. UI: форма с визуализацией уровней на графике, мониторинг ордеров и P&L
+  5. AI предлагает параметры сетки на основе волатильности
+  6. Кнопка остановки отменяет все pending ордера
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 15 to break down)
+**UI hint**: yes
+
+### Phase 16: Валидация через Veles
+**Goal**: Параллельное тестирование с Veles Finance — одинаковые стратегии, сравнение результатов, root-cause фикс каждого расхождения до ±1% совпадения
+**Depends on**: Phase 15 (Grid Trading для сравнения с Veles)
+**Requirements**: VAL-01, VAL-02, VAL-03, VAL-04, VAL-05
+**Success Criteria** (what must be TRUE):
+  1. Одинаковые Grid-стратегии настроены на AculaTrade и Veles (2-3 инструмента)
+  2. 3-5 дней параллельной торговли, каждая сделка залогирована
+  3. Расхождения по P&L ≤ ±1%
+  4. Каждое расхождение имеет root cause и fix
+  5. VALIDATION-REPORT.md документирует результаты
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 16 to break down)
+**UI hint**: no
+
 ## Progress
 
 **Execution Order:**
 v1.0: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 (archived)
-v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11
+v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11 (archived)
+v2.0: 12 -> 13 -> 14 -> 15 -> 16
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -406,5 +497,10 @@ v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11
 | 7.1 Analytics Polish & Data Integrity (INSERTED) | v1.1 | 0/2 | Not started | - |
 | 8. AI Assistant Deep Upgrade | v1.1 | 3/4 | In Progress|  |
 | 9. Data Pipeline Overhaul | v1.1 | 7/7 | Complete   | 2026-03-27 |
-| 10. Security & Code Quality Hardening | v1.1 | 4/4 | Complete   | 2026-03-28 |
-| 11. Root Cause Bug Fixes | v1.1 | 3/3 | Complete   | 2026-03-28 |
+| 10. Security & Code Quality Hardening | v1.1 | 4/4 | Complete    | 2026-03-28 |
+| 11. Root Cause Bug Fixes | v1.1 | 3/3 | Complete    | 2026-03-28 |
+| 12. Корректность расчётов | v2.0 | 0/TBD | Not started | - |
+| 13. TradingView Advanced Charts | v2.0 | 0/TBD | Not started | - |
+| 14. Bybit Provider + Мульти-брокер | v2.0 | 0/TBD | Not started | - |
+| 15. Grid Trading | v2.0 | 0/TBD | Not started | - |
+| 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |
