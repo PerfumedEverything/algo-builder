@@ -361,11 +361,28 @@ Plans:
 - [x] 10-04-PLAN.md — Split oversized files (>150 lines) into focused modules
 **UI hint**: no
 
+### Phase 11: Root Cause Bug Fixes
+**Goal**: Fix 7 bugs using root-cause analysis — AI wizard strategy creation flow, period-based % in terminal, real trade amounts in portfolio (not budget), Telegram notification details, strategy auto-stop on delete, operation volume in trade units, position amount mismatch
+**Depends on**: Phase 10 (security hardening complete)
+**Requirements**: RCBF-01, RCBF-02, RCBF-03, RCBF-04, RCBF-05, RCBF-06, RCBF-07
+**Success Criteria** (what must be TRUE):
+  1. AI Wizard "Create Strategy" button successfully creates a strategy and transitions to the form step
+  2. Terminal price bar % changes based on selected period (1 day = daily %, 1 week = weekly %, 1 month = monthly %)
+  3. Paper portfolio shows real operation amounts (sum of actual trades), not strategy budget settings (round numbers)
+  4. Telegram bot notifications include trade amounts: entry price, exit price, P&L in rubles
+  5. Deleting a strategy auto-stops it at the broker (cancels pending orders/subscriptions)
+  6. Paper portfolio table shows operation volume in trade units (lots × lot size), not just count
+  7. Strategy card position amount matches the actual operations sum (no mismatch between card and detail view)
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 11 to break down)
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
 v1.0: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 (archived)
-v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10
+v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -388,3 +405,4 @@ v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10
 | 8. AI Assistant Deep Upgrade | v1.1 | 3/4 | In Progress|  |
 | 9. Data Pipeline Overhaul | v1.1 | 7/7 | Complete   | 2026-03-27 |
 | 10. Security & Code Quality Hardening | v1.1 | 4/4 | Complete   | 2026-03-28 |
+| 11. Root Cause Bug Fixes | v1.1 | 0/TBD | Not started | - |

@@ -149,6 +149,7 @@ Plan: 4 of 4
 - Phase 7.1 inserted after Phase 7: Analytics Polish & Data Integrity — fix statistical validity, RF rate, data warnings (URGENT)
 - Phase 9 added: Data Pipeline Overhaul — replace technicalindicators→trading-signals, integrate backtest-kit, MOEX candle normalization, Redis caching, terminal price bar fix, TradingView accuracy audit
 - Phase 10 added: Security & Code Quality Hardening — auth bypasses, rate limiting, IDOR, prompt injection, input validation, file splitting (from comprehensive audit)
+- Phase 11 added: Root Cause Bug Fixes — AI wizard strategy creation, period-based %, real amounts in portfolio, Telegram details, strategy auto-stop, operation volume, position mismatch (Anton feedback 2026-03-28)
 
 ### Pending Todos
 
