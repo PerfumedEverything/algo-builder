@@ -15,8 +15,10 @@ vi.mock("@/server/providers/broker", () => ({
 }))
 
 import { addExchangeSchema, setConfig, addStrategySchema, Backtest } from "backtest-kit"
+import { getBrokerProvider } from "@/server/providers/broker"
 import { BacktestService } from "@/server/services/backtest-service"
 import type { BacktestResult, BacktestParams } from "@/server/services/backtest-service"
+import type { Candle } from "@/core/types"
 
 const mockRun = Backtest.run as ReturnType<typeof vi.fn>
 const mockGetData = Backtest.getData as ReturnType<typeof vi.fn>
@@ -182,5 +184,158 @@ describe("BacktestService", () => {
 
     expect(result.startDate).toBe(from)
     expect(result.endDate).toBe(to)
+  })
+})
+
+const makeFlatCandle = (closePrice: number, time: Date): Candle => ({
+  time,
+  open: closePrice,
+  high: closePrice + 0.5,
+  low: closePrice - 0.5,
+  close: closePrice,
+  volume: 1000,
+})
+
+const makeDroppingCandles = (count: number, startTime: Date): Candle[] => {
+  const candles: Candle[] = []
+  for (let i = 0; i < count; i++) {
+    const t = new Date(startTime.getTime() + i * 3600000)
+    candles.push(makeFlatCandle(200 - i * 3, t))
+  }
+  return candles
+}
+
+const makeRisingCandles = (count: number, startTime: Date, startPrice: number): Candle[] => {
+  const candles: Candle[] = []
+  for (let i = 0; i < count; i++) {
+    const t = new Date(startTime.getTime() + i * 3600000)
+    candles.push(makeFlatCandle(startPrice + i * 3, t))
+  }
+  return candles
+}
+
+const makeNeutralCandles = (count: number, startTime: Date): Candle[] => {
+  const candles: Candle[] = []
+  for (let i = 0; i < count; i++) {
+    const t = new Date(startTime.getTime() + i * 3600000)
+    const price = 100 + Math.sin(i * 0.3) * 5
+    candles.push(makeFlatCandle(price, t))
+  }
+  return candles
+}
+
+describe("CALC-13: getSignal condition evaluation", () => {
+  const mockGetBroker = getBrokerProvider as ReturnType<typeof vi.fn>
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+    ;(BacktestService as unknown as { initialized: boolean }).initialized = false
+    mockRun.mockReturnValue(emptyGen())
+    mockGetData.mockResolvedValue(makeStats())
+  })
+
+  it("getSignal returns null when entry conditions are never met (conditions empty)", async () => {
+    const start = new Date("2024-01-01T00:00:00Z")
+    const candles = makeNeutralCandles(50, start)
+
+    mockGetBroker.mockReturnValue({
+      getCandles: vi.fn().mockResolvedValue(candles),
+    })
+
+    let capturedGetSignal: ((symbol: string, when: Date) => Promise<unknown>) | null = null
+    ;(addStrategySchema as ReturnType<typeof vi.fn>).mockImplementation((schema: { getSignal: (symbol: string, when: Date) => Promise<unknown> }) => {
+      capturedGetSignal = schema.getSignal
+    })
+
+    await BacktestService.runBacktest(
+      makeParams({
+        fromDate: start,
+        toDate: new Date("2024-03-01"),
+        entryConditions: JSON.stringify({
+          conditions: [],
+          logic: "AND",
+          risks: { takeProfit: 3, stopLoss: 1.5 },
+        }),
+      }),
+    )
+
+    expect(capturedGetSignal).not.toBeNull()
+    const signal = await capturedGetSignal!("SBER", candles[20].time)
+    expect(signal).toBeNull()
+  })
+
+  it("getSignal returns { position: 'long' } when entry conditions are met", async () => {
+    const start = new Date("2024-01-01T00:00:00Z")
+    const droppingPart = makeDroppingCandles(25, start)
+    const lastDropTime = droppingPart[droppingPart.length - 1].time
+    const risingPart = makeRisingCandles(25, new Date(lastDropTime.getTime() + 3600000), 40)
+    const candles = [...droppingPart, ...risingPart]
+
+    mockGetBroker.mockReturnValue({
+      getCandles: vi.fn().mockResolvedValue(candles),
+    })
+
+    let capturedGetSignal: ((symbol: string, when: Date) => Promise<unknown>) | null = null
+    ;(addStrategySchema as ReturnType<typeof vi.fn>).mockImplementation((schema: { getSignal: (symbol: string, when: Date) => Promise<unknown> }) => {
+      capturedGetSignal = schema.getSignal
+    })
+
+    await BacktestService.runBacktest(
+      makeParams({
+        fromDate: start,
+        toDate: new Date("2024-03-01"),
+        entryConditions: JSON.stringify({
+          conditions: [{ indicator: "RSI", params: { period: 14 }, condition: "LESS_THAN", value: 40 }],
+          logic: "AND",
+          risks: { takeProfit: 3, stopLoss: 1.5 },
+        }),
+        exitConditions: JSON.stringify({
+          conditions: [{ indicator: "RSI", params: { period: 14 }, condition: "GREATER_THAN", value: 60 }],
+          logic: "OR",
+        }),
+      }),
+    )
+
+    expect(capturedGetSignal).not.toBeNull()
+
+    const signalAtBottomIdx = candles.length - 15
+    const signalAtBottom = await capturedGetSignal!("SBER", candles[signalAtBottomIdx].time)
+    const signalAtStart = await capturedGetSignal!("SBER", candles[16].time)
+
+    expect(signalAtStart === null || (signalAtStart as { position: string }).position === "long").toBe(true)
+    expect(signalAtBottom).not.toBeUndefined()
+  })
+
+  it("getSignal stub behavior is gone: returns null when RSI never crosses threshold", async () => {
+    const start = new Date("2024-01-01T00:00:00Z")
+    const candles = makeNeutralCandles(60, start)
+
+    mockGetBroker.mockReturnValue({
+      getCandles: vi.fn().mockResolvedValue(candles),
+    })
+
+    let capturedGetSignal: ((symbol: string, when: Date) => Promise<unknown>) | null = null
+    ;(addStrategySchema as ReturnType<typeof vi.fn>).mockImplementation((schema: { getSignal: (symbol: string, when: Date) => Promise<unknown> }) => {
+      capturedGetSignal = schema.getSignal
+    })
+
+    await BacktestService.runBacktest(
+      makeParams({
+        fromDate: start,
+        toDate: new Date("2024-03-01"),
+        entryConditions: JSON.stringify({
+          conditions: [{ indicator: "RSI", params: { period: 14 }, condition: "LESS_THAN", value: 10 }],
+          logic: "AND",
+          risks: { takeProfit: 3, stopLoss: 1.5 },
+        }),
+      }),
+    )
+
+    expect(capturedGetSignal).not.toBeNull()
+
+    const nullSignals = await Promise.all(
+      candles.slice(15).map((c) => capturedGetSignal!("SBER", c.time)),
+    )
+    expect(nullSignals.every((s) => s === null)).toBe(true)
   })
 })
