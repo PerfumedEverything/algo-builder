@@ -252,7 +252,7 @@ export default function TerminalPage() {
     ? (prices.get(instrument.ticker) ?? prices.get(instrument.figi))
     : undefined
 
-  const currentPrice = livePrice?.price ?? apiPrice ?? (candles.length > 0 ? (candles[candles.length - 1].close as number) : 0)
+  const currentPrice = livePrice?.price ?? apiPrice ?? 0
   const periodOpen = dailyStats?.periodOpen ?? dailyStats?.sessionOpen ?? 0
   const change = periodOpen > 0 ? ((currentPrice - periodOpen) / periodOpen) * 100 : 0
   const high = dailyStats?.high ?? null
@@ -349,7 +349,7 @@ export default function TerminalPage() {
               {loading ? (
                 <Skeleton className="h-full rounded-lg" />
               ) : candles.length > 0 ? (
-                <InstrumentChart candles={candles} markers={markers} height={400} livePrice={currentPrice || undefined} interval={PERIOD_CONFIG[period].interval} />
+                <InstrumentChart candles={candles} markers={markers} height={400} livePrice={currentPrice || undefined} brokerType={brokerType} />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   <p className="text-muted-foreground text-sm">Нет данных для графика</p>
