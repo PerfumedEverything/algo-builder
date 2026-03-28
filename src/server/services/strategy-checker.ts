@@ -144,7 +144,7 @@ export class StrategyChecker {
   private async connectBroker(userId: string) {
     const { data } = await this.db.from("User").select("brokerToken").eq("id", userId).single()
     if (!data?.brokerToken) throw new Error(`Broker not connected for user ${userId}`)
-    const broker = getBrokerProvider()
+    const broker = await getBrokerProvider(userId)
     await broker.connect(data.brokerToken)
     return broker
   }

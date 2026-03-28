@@ -5,6 +5,8 @@ export type BrokerSettingsRow = {
   brokerToken: string | null
   brokerAccountId: string | null
   brokerType: string
+  bybitApiKey: string | null
+  bybitApiSecret: string | null
 }
 
 export class BrokerRepository {
@@ -16,7 +18,7 @@ export class BrokerRepository {
     const supabase = await this.db()
     const { data } = await supabase
       .from("User")
-      .select("brokerToken, brokerAccountId")
+      .select("brokerToken, brokerAccountId, brokerType, bybitApiKey, bybitApiSecret")
       .eq("id", userId)
       .single()
 
@@ -25,8 +27,21 @@ export class BrokerRepository {
       userId,
       brokerToken: data.brokerToken,
       brokerAccountId: data.brokerAccountId,
-      brokerType: "TINKOFF",
+      brokerType: data.brokerType ?? "TINKOFF",
+      bybitApiKey: data.bybitApiKey ?? null,
+      bybitApiSecret: data.bybitApiSecret ?? null,
     }
+  }
+
+  async getBrokerType(userId: string): Promise<string> {
+    const supabase = await this.db()
+    const { data } = await supabase
+      .from("User")
+      .select("brokerType")
+      .eq("id", userId)
+      .single()
+
+    return data?.brokerType ?? "TINKOFF"
   }
 
   async saveToken(userId: string, token: string) {
@@ -48,6 +63,34 @@ export class BrokerRepository {
       .from("User")
       .update({
         brokerAccountId: accountId,
+        updatedAt: new Date().toISOString(),
+      })
+      .eq("id", userId)
+
+    if (error) throw new Error(error.message)
+  }
+
+  async saveBrokerType(userId: string, brokerType: string): Promise<void> {
+    const supabase = await this.db()
+    const { error } = await supabase
+      .from("User")
+      .update({
+        brokerType,
+        updatedAt: new Date().toISOString(),
+      })
+      .eq("id", userId)
+
+    if (error) throw new Error(error.message)
+  }
+
+  async saveBybitCredentials(userId: string, apiKey: string, apiSecret: string): Promise<void> {
+    const supabase = await this.db()
+    const { error } = await supabase
+      .from("User")
+      .update({
+        bybitApiKey: apiKey,
+        bybitApiSecret: apiSecret,
+        brokerType: "BYBIT",
         updatedAt: new Date().toISOString(),
       })
       .eq("id", userId)

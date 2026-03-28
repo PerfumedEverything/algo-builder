@@ -1,6 +1,6 @@
 import { addExchangeSchema, addStrategySchema, setConfig, Backtest } from "backtest-kit"
 import type { IStrategyTickResultClosed } from "backtest-kit"
-import { getBrokerProvider } from "@/server/providers/broker"
+import { TinkoffProvider } from "@/server/providers/broker"
 import type { StrategyCondition, LogicOperator, StrategyRisks } from "@/core/types"
 import { evaluateBacktestConditions } from "./evaluate-conditions"
 import { IndicatorCalculator } from "./indicator-calculator"
@@ -108,7 +108,7 @@ export class BacktestService {
     addExchangeSchema({
       exchangeName: "tinkoff-moex",
       getCandles: async (symbol: string, interval: string, since: Date, limit: number) => {
-        const broker = getBrokerProvider()
+        const broker = new TinkoffProvider()
         const to = new Date()
         const candles = await broker.getCandles({
           instrumentId: symbol,
@@ -154,7 +154,7 @@ export class BacktestService {
     const tpPct = risks.takeProfit ?? 3
     const slPct = risks.stopLoss ?? 1.5
 
-    const broker = getBrokerProvider()
+    const broker = new TinkoffProvider()
     const rawCandles = await broker.getCandles({
       instrumentId: params.instrumentId,
       interval: params.interval,
