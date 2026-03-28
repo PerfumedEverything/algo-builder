@@ -20,7 +20,7 @@ export const isInMoexSession = (utcDate: Date, opts: NormalizerOptions): boolean
 
   const minuteOfDay = mskDate.getUTCHours() * 60 + mskDate.getUTCMinutes()
   const inMain = minuteOfDay >= 600 && minuteOfDay < 1120
-  const inEvening = minuteOfDay >= 1145 && minuteOfDay < 1430
+  const inEvening = minuteOfDay >= 1120 && minuteOfDay < 1430
 
   return inMain || (!!opts.includeEveningSession && inEvening)
 }
