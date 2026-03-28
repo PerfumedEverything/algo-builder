@@ -2,14 +2,14 @@
 gsd_state_version: 1.0
 milestone: v1.1
 milestone_name: AI Revolution + Deep Analytics
-status: Ready to execute
-stopped_at: Completed 11-02-PLAN.md
-last_updated: "2026-03-28T08:02:46.125Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 11-03-PLAN.md
+last_updated: "2026-03-28T08:03:29.216Z"
 progress:
   total_phases: 20
-  completed_phases: 17
+  completed_phases: 18
   total_plans: 57
-  completed_plans: 53
+  completed_plans: 54
 ---
 
 # Project State
@@ -72,6 +72,7 @@ Plan: 3 of 3
 | Phase 10 P04 | 19 | 2 tasks | 15 files |
 | Phase 11-root-cause-bug-fixes P01 | 5 | 2 tasks | 3 files |
 | Phase 11-root-cause-bug-fixes P02 | 10 | 2 tasks | 5 files |
+| Phase 11-root-cause-bug-fixes P03 | 3 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -146,6 +147,8 @@ Plan: 3 of 3
 - [Phase 11]: PAUSED-before-delete is sufficient defense for paper trading; no broker cancel step needed
 - [Phase 11]: periodOpen defaults to sessionOpen for intraday periods — no extra API call needed for daily stats
 - [Phase 11]: Exit P&L in Telegram = (sellPrice - buyPrice) * quantity — total not per-share
+- [Phase 11]: Use initialAmount (sum of all BUY amounts) as currentAmount fallback — accounts for multiple buys at different prices
+- [Phase 11]: portfolioSummary.totalPortfolio uses totalInitial from opsStatsMap — actual invested not config.risks.tradeAmount budget
 
 ### Roadmap Evolution
 
@@ -171,7 +174,7 @@ Plan: 3 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-28T08:02:46.120Z
-Stopped at: Completed 11-02-PLAN.md
+Last session: 2026-03-28T08:03:29.209Z
+Stopped at: Completed 11-03-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
