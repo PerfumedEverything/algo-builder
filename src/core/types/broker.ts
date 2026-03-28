@@ -1,8 +1,17 @@
 export type BrokerAccount = {
   id: string
   name: string
-  type: "TINKOFF" | "SANDBOX"
+  type: "TINKOFF" | "SANDBOX" | "BYBIT"
   openedDate: string
+}
+
+export type PlaceOrderParams = {
+  symbol: string
+  side: "BUY" | "SELL"
+  orderType: "MARKET" | "LIMIT"
+  quantity: number
+  price?: number
+  accountId: string
 }
 
 export type PositionOperation = {
@@ -35,7 +44,7 @@ export type PortfolioPosition = {
   expectedYieldAbsolute: number
   dailyYield: number
   currentValue: number
-  instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF"
+  instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF" | "CRYPTO"
   blocked: boolean
   blockedLots: number
   operations: PositionOperation[]
@@ -60,7 +69,7 @@ export type BrokerInstrument = {
   figi: string
   ticker: string
   name: string
-  type: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF"
+  type: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "ETF" | "CRYPTO"
   currency: string
   lot: number
 }

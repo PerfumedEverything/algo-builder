@@ -41,7 +41,7 @@ export const createStrategyAction = async (
     name: string
     description?: string
     instrument: string
-    instrumentType?: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+    instrumentType?: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "CRYPTO"
     timeframe: string
     config: StrategyConfig
   },
@@ -66,7 +66,7 @@ export const updateStrategyAction = async (
     description?: string
     status?: "DRAFT" | "ACTIVE" | "PAUSED" | "TRIGGERED"
     instrument?: string
-    instrumentType?: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+    instrumentType?: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "CRYPTO"
     timeframe?: string
     config?: StrategyConfig
   },

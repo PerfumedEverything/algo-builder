@@ -3,6 +3,7 @@ import type {
   BrokerInstrument,
   Candle,
   CandleParams,
+  PlaceOrderParams,
   Portfolio,
 } from "@/core/types"
 import type { BrokerProvider } from "./types"
@@ -149,6 +150,14 @@ export class MockBrokerProvider implements BrokerProvider {
   async getCurrentPrice(_instrumentId: string): Promise<number> {
     this.ensureConnected()
     return 278.3 + (Math.random() - 0.5) * 5
+  }
+
+  async placeOrder(_params: PlaceOrderParams): Promise<string> {
+    throw new Error("Order placement not implemented for MockBrokerProvider")
+  }
+
+  async cancelOrder(_orderId: string, _symbol: string): Promise<void> {
+    throw new Error("Order cancellation not implemented for MockBrokerProvider")
   }
 
   private ensureConnected() {

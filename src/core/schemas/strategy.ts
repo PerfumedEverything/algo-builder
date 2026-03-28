@@ -59,7 +59,7 @@ export const createStrategySchema = z.object({
   name: z.string().min(1).max(100),
   description: z.string().max(500).optional(),
   instrument: z.string().min(1),
-  instrumentType: z.enum(["STOCK", "BOND", "CURRENCY", "FUTURES"]).default("STOCK"),
+  instrumentType: z.enum(["STOCK", "BOND", "CURRENCY", "FUTURES", "CRYPTO"]).default("STOCK"),
   timeframe: z.string().min(1),
   config: strategyConfigSchema,
 })

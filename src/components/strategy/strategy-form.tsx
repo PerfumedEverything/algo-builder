@@ -34,7 +34,7 @@ const generalSchema = z.object({
   name: z.string().min(1, "Введите название"),
   description: z.string().optional(),
   instrument: z.string().min(1, "Укажите инструмент"),
-  instrumentType: z.enum(["STOCK", "BOND", "CURRENCY", "FUTURES"]),
+  instrumentType: z.enum(["STOCK", "BOND", "CURRENCY", "FUTURES", "CRYPTO"]),
   timeframe: z.string().min(1, "Выберите таймфрейм"),
   status: z.enum(["DRAFT", "ACTIVE", "PAUSED", "TRIGGERED"]).optional(),
 })
@@ -52,7 +52,7 @@ export type StrategyFormHandle = {
   setGeneralFields: (fields: {
     name: string
     instrument: string
-    instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+    instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "CRYPTO"
     timeframe: string
     description: string
   }) => void

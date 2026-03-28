@@ -3,6 +3,7 @@ import type {
   BrokerInstrument,
   Candle,
   CandleParams,
+  PlaceOrderParams,
   Portfolio,
 } from "@/core/types"
 
@@ -15,5 +16,7 @@ export interface BrokerProvider {
   getCandles(params: CandleParams): Promise<Candle[]>
   getCurrentPrice(instrumentId: string): Promise<number>
   getAvailableCash(accountId: string): Promise<number>
+  placeOrder(params: PlaceOrderParams): Promise<string>
+  cancelOrder(orderId: string, symbol: string): Promise<void>
   sandboxPayIn?(accountId: string, amount: number): Promise<void>
 }

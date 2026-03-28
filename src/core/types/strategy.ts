@@ -55,7 +55,7 @@ export type StrategyConfig = {
 export type AiGeneratedStrategy = {
   name: string
   instrument: string
-  instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES"
+  instrumentType: "STOCK" | "BOND" | "CURRENCY" | "FUTURES" | "CRYPTO"
   timeframe: string
   description: string
   config: StrategyConfig
