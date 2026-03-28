@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Ready to execute
-stopped_at: Completed 12-01-PLAN.md
-last_updated: "2026-03-28T10:37:25.916Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 12-03-PLAN.md
+last_updated: "2026-03-28T10:43:30.323Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -78,6 +78,7 @@ Plan: 4 of 4
 | Phase 12 P04 | 1 | 1 tasks | 2 files |
 | Phase 12 P02 | 5 | 2 tasks | 4 files |
 | Phase 12 P01 | 4 | 2 tasks | 5 files |
+| Phase 12 P03 | 8 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -159,6 +160,8 @@ Plan: 4 of 4
 - [Phase 12]: BrokerService.getCandles pipes provider output through filterValidCandles before returning (CALC-04/05)
 - [Phase 12]: FIFO realized P&L for full-close deferred to OperationService.getStats — FifoCalculator only tracks unrealized
 - [Phase 12]: @railpath/finance-toolkit replaces custom Sharpe/VaR/maxDrawdown math — maxDrawdown now takes prices[] not returns[], wrapper multiplies maxDrawdownPercent fraction by 100
+- [Phase 12]: computeIndicators() function built inline in backtest-service.ts (not IndicatorCalculator) because no static calculate(candles, configs) batch method exists
+- [Phase 12]: StrategyCondition.params.period replaces plan's cond.period — actual type uses params: Record<string, number>
 
 ### Roadmap Evolution
 
@@ -184,7 +187,7 @@ Plan: 4 of 4
 
 ## Session Continuity
 
-Last session: 2026-03-28T10:37:25.912Z
-Stopped at: Completed 12-01-PLAN.md
+Last session: 2026-03-28T10:43:30.320Z
+Stopped at: Completed 12-03-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
