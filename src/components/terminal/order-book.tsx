@@ -77,7 +77,7 @@ export const OrderBook = ({ data, loading, brokerType }: OrderBookProps) => {
   const bidsWithCumulative = buildCumulativeLevels(sortedBids)
 
   const maxAskCumulative = asksWithCumulative.length > 0
-    ? asksWithCumulative[0].cumulative
+    ? asksWithCumulative[asksWithCumulative.length - 1].cumulative
     : 1
   const maxBidCumulative = bidsWithCumulative.length > 0
     ? bidsWithCumulative[bidsWithCumulative.length - 1].cumulative

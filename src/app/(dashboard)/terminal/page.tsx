@@ -255,9 +255,9 @@ export default function TerminalPage() {
   const currentPrice = livePrice?.price ?? apiPrice ?? (candles.length > 0 ? (candles[candles.length - 1].close as number) : 0)
   const periodOpen = dailyStats?.periodOpen ?? dailyStats?.sessionOpen ?? 0
   const change = periodOpen > 0 ? ((currentPrice - periodOpen) / periodOpen) * 100 : 0
-  const high = dailyStats?.high ?? 0
-  const low = dailyStats?.low ?? 0
-  const volume = dailyStats?.volume ?? 0
+  const high = dailyStats?.high ?? null
+  const low = dailyStats?.low ?? null
+  const volume = dailyStats?.volume ?? null
   const bestBid = orderBook?.bids?.[0]?.price ?? 0
   const bestAsk = orderBook?.asks?.[0]?.price ?? 0
 
@@ -349,7 +349,7 @@ export default function TerminalPage() {
               {loading ? (
                 <Skeleton className="h-full rounded-lg" />
               ) : candles.length > 0 ? (
-                <InstrumentChart candles={candles} markers={markers} height={400} livePrice={currentPrice || undefined} />
+                <InstrumentChart candles={candles} markers={markers} height={400} livePrice={currentPrice || undefined} interval={PERIOD_CONFIG[period].interval} />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   <p className="text-muted-foreground text-sm">Нет данных для графика</p>

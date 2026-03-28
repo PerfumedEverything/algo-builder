@@ -17,9 +17,10 @@ type InstrumentSelectProps = {
   onInstrumentSelect?: (instrument: BrokerInstrument) => void
   onPriceChange?: (price: number | null) => void
   showPrice?: boolean
+  brokerType?: string
 }
 
-export const InstrumentSelect = ({ instrumentType, value, onChange, onInstrumentSelect, onPriceChange, showPrice = true }: InstrumentSelectProps) => {
+export const InstrumentSelect = ({ instrumentType, value, onChange, onInstrumentSelect, onPriceChange, showPrice = true, brokerType }: InstrumentSelectProps) => {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
   const [instruments, setInstruments] = useState<BrokerInstrument[]>([])
@@ -199,7 +200,7 @@ export const InstrumentSelect = ({ instrumentType, value, onChange, onInstrument
             <span className="text-muted-foreground">Загрузка курса...</span>
           ) : price !== null ? (
             <span className="font-mono text-foreground">
-              {formatPrice(price)} <span className="text-muted-foreground">₽</span>
+              {formatPrice(price)} <span className="text-muted-foreground">{brokerType === "BYBIT" ? "$" : "₽"}</span>
             </span>
           ) : (
             <span className="text-muted-foreground">Курс недоступен</span>

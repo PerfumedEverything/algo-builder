@@ -8,9 +8,9 @@ type PriceBarProps = {
   instrument: BrokerInstrument
   price: number
   change: number
-  high: number
-  low: number
-  volume: number
+  high: number | null
+  low: number | null
+  volume: number | null
   bestBid: number
   bestAsk: number
   brokerType?: string
@@ -50,15 +50,15 @@ export const PriceBar = ({
           <Separator />
           <span className="text-sm">
             <span className="text-muted-foreground">H:</span>
-            <span className="font-mono ml-1">{formatPrice(high, brokerType)}</span>
+            <span className="font-mono ml-1">{high !== null ? formatPrice(high, brokerType) : "—"}</span>
             <span className="text-muted-foreground ml-2">L:</span>
-            <span className="font-mono ml-1">{formatPrice(low, brokerType)}</span>
+            <span className="font-mono ml-1">{low !== null ? formatPrice(low, brokerType) : "—"}</span>
           </span>
 
           <Separator />
           <span className="text-sm">
             <span className="text-muted-foreground">Vol:</span>
-            <span className="font-mono ml-1">{formatVolume(volume)}</span>
+            <span className="font-mono ml-1">{volume !== null ? formatVolume(volume) : "—"}</span>
           </span>
 
           <Separator />
@@ -73,14 +73,14 @@ export const PriceBar = ({
         <div className="flex md:hidden w-full items-center flex-wrap gap-x-3 gap-y-1 text-sm mt-1">
           <span>
             <span className="text-muted-foreground">H:</span>
-            <span className="font-mono ml-1">{formatPrice(high, brokerType)}</span>
+            <span className="font-mono ml-1">{high !== null ? formatPrice(high, brokerType) : "—"}</span>
             <span className="text-muted-foreground ml-2">L:</span>
-            <span className="font-mono ml-1">{formatPrice(low, brokerType)}</span>
+            <span className="font-mono ml-1">{low !== null ? formatPrice(low, brokerType) : "—"}</span>
           </span>
           <span className="text-muted-foreground/50">|</span>
           <span>
             <span className="text-muted-foreground">Vol:</span>
-            <span className="font-mono ml-1">{formatVolume(volume)}</span>
+            <span className="font-mono ml-1">{volume !== null ? formatVolume(volume) : "—"}</span>
           </span>
           <span className="text-muted-foreground/50">|</span>
           <span>

@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { Plus, TrendingUp, SlidersHorizontal, ShieldCheck, X, Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react"
 import { toast } from "sonner"
 
-import type { OperationStats, StrategyConfig } from "@/core/types"
+import type { OperationStats } from "@/core/types"
 import { Button } from "@/components/ui/button"
 import { SearchInput } from "@/components/ui/search-input"
 import { WarningBanner } from "@/components/ui/warning-banner"
@@ -60,8 +60,7 @@ export default function StrategiesPage() {
 
   const portfolioSummary = useMemo(() => {
     const totalPortfolio = strategies.reduce((sum, s) => {
-      const config = s.config as StrategyConfig
-      return sum + (config.risks?.tradeAmount ?? 0)
+      return sum + (opsStatsMap[s.id]?.initialAmount ?? 0)
     }, 0)
     const totalPnl = Object.values(opsStatsMap).reduce((sum, s) => sum + (s.pnl ?? 0), 0)
     const totalInitial = Object.values(opsStatsMap).reduce((sum, s) => sum + (s.initialAmount ?? 0), 0)

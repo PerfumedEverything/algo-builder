@@ -70,7 +70,7 @@ export const PositionsPanel = ({ positions, loading, onSelectTicker, brokerType 
                     <TableCell className="font-mono text-sm">{formatPrice(position.currentPrice, brokerType)}</TableCell>
                     <TableCell>
                       <div className={`font-mono text-sm ${pnlColor}`}>
-                        {formatPrice(position.expectedYieldAbsolute, brokerType)} RUB
+                        {formatPrice(position.expectedYieldAbsolute, brokerType)} {brokerType === "BYBIT" ? "USDT" : "₽"}
                       </div>
                       <div className={`text-xs ${pnlColor}`}>
                         {position.expectedYield >= 0 ? "+" : ""}
