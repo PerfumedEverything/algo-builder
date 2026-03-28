@@ -184,9 +184,9 @@ export default function TerminalPage() {
     return () => clearInterval(interval)
   }, [ticker, fetchApiPrice])
 
-  const fetchDailyStats = useCallback(async (figi: string, p?: ChartPeriod) => {
+  const fetchDailyStats = useCallback(async (figi: string) => {
     try {
-      const res = await getDailySessionStatsAction(figi, p)
+      const res = await getDailySessionStatsAction(figi)
       if (res.success) {
         setDailyStats(res.data)
       }
@@ -204,7 +204,7 @@ export default function TerminalPage() {
     setOperations([])
     setDailyStats(null)
     setApiPrice(null)
-    fetchDailyStats(inst.figi, period)
+    fetchDailyStats(inst.figi)
     subscribeInstrumentAction(inst.ticker)
   }, [fetchDailyStats, period])
 
@@ -233,9 +233,9 @@ export default function TerminalPage() {
   const handlePeriodChange = useCallback((p: ChartPeriod) => {
     setPeriod(p)
     if (instrument?.figi) {
-      fetchDailyStats(instrument.figi, p)
+      fetchDailyStats(instrument.figi)
     }
-  }, [instrument, fetchDailyStats])
+  }, [instrument])
 
   const buildChartMessage = useCallback(() => {
     if (!instrument) return ""
