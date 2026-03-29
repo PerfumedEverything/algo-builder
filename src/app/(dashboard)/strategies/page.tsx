@@ -60,7 +60,9 @@ export default function StrategiesPage() {
 
   const portfolioSummary = useMemo(() => {
     const totalPortfolio = strategies.reduce((sum, s) => {
-      return sum + (opsStatsMap[s.id]?.initialAmount ?? 0)
+      const stats = opsStatsMap[s.id]
+      if (!stats) return sum
+      return sum + (stats.currentAmount > 0 ? stats.currentAmount : 0)
     }, 0)
     const totalPnl = Object.values(opsStatsMap).reduce((sum, s) => sum + (s.pnl ?? 0), 0)
     const totalInitial = Object.values(opsStatsMap).reduce((sum, s) => sum + (s.initialAmount ?? 0), 0)
