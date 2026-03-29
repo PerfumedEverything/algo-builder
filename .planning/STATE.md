@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Milestone complete
-stopped_at: "Completed 14.2-02-PLAN.md (checkpoint: awaiting human-verify during evening session)"
-last_updated: "2026-03-28T17:44:57.547Z"
+stopped_at: Phase 15 context gathered
+last_updated: "2026-03-29T07:40:11.178Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -214,7 +214,7 @@ Plan: Not started
 
 ## Session Continuity
 
-Last session: 2026-03-28T16:50:47.090Z
-Stopped at: Completed 14.2-02-PLAN.md (checkpoint: awaiting human-verify during evening session)
-Resume file: None
+Last session: 2026-03-29T07:40:11.168Z
+Stopped at: Phase 15 context gathered
+Resume file: .planning/phases/15-grid-trading/15-CONTEXT.md
 Next: /gsd:plan-phase 6.2
