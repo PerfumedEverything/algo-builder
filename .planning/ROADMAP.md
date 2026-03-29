@@ -490,11 +490,14 @@ Plans:
   4. UI: форма с визуализацией уровней на графике, мониторинг ордеров и P&L
   5. AI предлагает параметры сетки на основе волатильности
   6. Кнопка остановки отменяет все pending ордера
-**Plans**: 0 plans
+**Plans**: 5 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 15 to break down)
+- [ ] 15-01-PLAN.md — Grid types + GridEngine TDD (pure stateless engine, 14+ tests, 100-tick simulation)
+- [ ] 15-02-PLAN.md — grid_orders DB schema + GridRepository
+- [ ] 15-03-PLAN.md — GridTradingService + server actions (paper trading simulation)
+- [ ] 15-04-PLAN.md — Grid UI: form with live chart preview, monitoring panel, stop button
+- [ ] 15-05-PLAN.md — AI grid parameter suggestion (ATR-based + DeepSeek reasoning)
 **UI hint**: yes
-
 ### Phase 16: Валидация через Veles
 **Goal**: Параллельное тестирование с Veles Finance — одинаковые стратегии, сравнение результатов, root-cause фикс каждого расхождения до ±1% совпадения
 **Depends on**: Phase 15 (Grid Trading для сравнения с Veles)
@@ -544,5 +547,5 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 | 14. Bybit Provider — Backend + Мульти-брокер | v2.0 | 6/6 | Complete   | 2026-03-28 |
 | 14.2 MOEX Evening Session + Chart Correctness (INSERTED) | v2.0 | 2/2 | Complete    | 2026-03-28 |
 | 14.1 Bybit TradingView Datafeed | v2.0 | 0/TBD | Blocked (Phase 13) | - |
-| 15. Grid Trading | v2.0 | 0/TBD | Not started | - |
+| 15. Grid Trading | v2.0 | 0/5 | Planned | - |
 | 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |
