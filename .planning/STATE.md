@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Ready to execute
-stopped_at: Completed 15-grid-trading-01-PLAN.md
-last_updated: "2026-03-29T08:51:16.562Z"
+stopped_at: Completed 15-grid-trading-05-PLAN.md
+last_updated: "2026-03-29T09:03:57.130Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 15 (grid-trading) — EXECUTING
-Plan: 3 of 5
+Plan: 5 of 5
 
 ## Performance Metrics
 
@@ -89,6 +89,8 @@ Plan: 3 of 5
 | Phase 14.2 P02 | 5 | 1 tasks | 2 files |
 | Phase 15-grid-trading P02 | 104 | 1 tasks | 3 files |
 | Phase 15-grid-trading P01 | 207 | 2 tasks | 5 files |
+| Phase 15-grid-trading P03 | 3 | 2 tasks | 4 files |
+| Phase 15-grid-trading P05 | 118 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -193,6 +195,10 @@ Plan: 3 of 5
 - [Phase 15-grid-trading]: grid_orders uses snake_case columns with mapRow() camelCase conversion; service role RLS policy added for worker access
 - [Phase 15-grid-trading]: GridEngine is pure stateless class with static methods — fully deterministic and testable without broker mocks
 - [Phase 15-grid-trading]: IndicatorStrategyConfig type preserved with optional type INDICATOR for backward compat; new discriminated union StrategyConfig = IndicatorStrategyConfig | GridConfig
+- [Phase 15-grid-trading]: vi.hoisted() used for mock instances in GridTradingService tests — arrow functions not constructors in Vitest
+- [Phase 15-grid-trading]: processPriceTick passes pnlDelta per fill from GridTickResult — matches engine contract
+- [Phase 15-grid-trading]: ATR(14) via IndicatorCalculator (trading-signals) for grid range — no custom math
+- [Phase 15-grid-trading]: GridAiService: Range = currentPrice ± 2*ATR, clamped to 4% minimum; levels = range/(ATR*0.5) clamped [5,30]; DeepSeek reasoning with 10s timeout fallback
 
 ### Roadmap Evolution
 
@@ -219,7 +225,7 @@ Plan: 3 of 5
 
 ## Session Continuity
 
-Last session: 2026-03-29T08:51:16.557Z
-Stopped at: Completed 15-grid-trading-01-PLAN.md
+Last session: 2026-03-29T09:03:57.125Z
+Stopped at: Completed 15-grid-trading-05-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
