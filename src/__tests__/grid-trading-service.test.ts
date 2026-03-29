@@ -2,47 +2,57 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import type { GridConfig, GridLevel, GridTickResult } from '@/core/types/grid'
 import type { GridOrderRow } from '@/server/repositories/grid-repository'
 
+const mockGridRepo = vi.hoisted(() => ({
+  createOrders: vi.fn(),
+  getPendingOrders: vi.fn(),
+  getOrdersByGridId: vi.fn(),
+  fillOrder: vi.fn(),
+  activateCounterOrder: vi.fn(),
+  cancelAllPending: vi.fn(),
+  getGridStats: vi.fn(),
+}))
+
+const mockStrategyRepo = vi.hoisted(() => ({
+  create: vi.fn(),
+  findById: vi.fn(),
+  update: vi.fn(),
+}))
+
+const mockNotifService = vi.hoisted(() => ({
+  sendNotification: vi.fn(),
+}))
+
+const mockGridEngine = vi.hoisted(() => ({
+  calculateLevels: vi.fn(),
+  initializeState: vi.fn(),
+  processTick: vi.fn(),
+}))
+
 vi.mock('@/lib/grid-engine', () => ({
-  GridEngine: {
-    calculateLevels: vi.fn(),
-    initializeState: vi.fn(),
-    processTick: vi.fn(),
-  },
+  GridEngine: mockGridEngine,
 }))
 
 vi.mock('@/server/repositories/grid-repository', () => {
-  const GridRepository = vi.fn().mockImplementation(() => ({
-    createOrders: vi.fn(),
-    getPendingOrders: vi.fn(),
-    getOrdersByGridId: vi.fn(),
-    fillOrder: vi.fn(),
-    activateCounterOrder: vi.fn(),
-    cancelAllPending: vi.fn(),
-    getGridStats: vi.fn(),
-  }))
+  function GridRepository(this: unknown) {
+    return mockGridRepo
+  }
   return { GridRepository }
 })
 
 vi.mock('@/server/repositories/strategy-repository', () => {
-  const StrategyRepository = vi.fn().mockImplementation(() => ({
-    create: vi.fn(),
-    findById: vi.fn(),
-    update: vi.fn(),
-  }))
+  function StrategyRepository(this: unknown) {
+    return mockStrategyRepo
+  }
   return { StrategyRepository }
 })
 
 vi.mock('@/server/services/notification-service', () => {
-  const NotificationService = vi.fn().mockImplementation(() => ({
-    sendNotification: vi.fn(),
-  }))
+  function NotificationService(this: unknown) {
+    return mockNotifService
+  }
   return { NotificationService }
 })
 
-import { GridEngine } from '@/lib/grid-engine'
-import { GridRepository } from '@/server/repositories/grid-repository'
-import { StrategyRepository } from '@/server/repositories/strategy-repository'
-import { NotificationService } from '@/server/services/notification-service'
 import { GridTradingService } from '@/server/services/grid-trading-service'
 
 const GRID_CONFIG: GridConfig = {
@@ -85,30 +95,19 @@ function makeOrderRow(level: GridLevel, gridId = 'grid-1', userId = 'user-1'): G
 
 describe('GridTradingService', () => {
   let service: GridTradingService
-  let mockGridRepo: ReturnType<typeof vi.mocked<typeof GridRepository>>['prototype']
-  let mockStrategyRepo: ReturnType<typeof vi.mocked<typeof StrategyRepository>>['prototype']
-  let mockNotifService: ReturnType<typeof vi.mocked<typeof NotificationService>>['prototype']
 
   beforeEach(() => {
     vi.clearAllMocks()
-
-    const GridRepoMock = vi.mocked(GridRepository)
-    const StrategyRepoMock = vi.mocked(StrategyRepository)
-    const NotifMock = vi.mocked(NotificationService)
-
     service = new GridTradingService()
-
-    mockGridRepo = GridRepoMock.mock.instances[0] as typeof mockGridRepo
-    mockStrategyRepo = StrategyRepoMock.mock.instances[0] as typeof mockStrategyRepo
-    mockNotifService = NotifMock.mock.instances[0] as typeof mockNotifService
   })
 
   it('Test 1: createGrid — creates strategy, calculates levels, persists orders to repository', async () => {
     const mockStrategy = { id: 'strategy-123', config: GRID_CONFIG }
-    vi.mocked(mockStrategyRepo.create).mockResolvedValue(mockStrategy as never)
-    vi.mocked(GridEngine.calculateLevels).mockReturnValue(MOCK_LEVELS)
-    vi.mocked(GridEngine.initializeState).mockReturnValue(MOCK_GRID_LEVELS)
-    vi.mocked(mockGridRepo.createOrders).mockResolvedValue(undefined)
+    mockStrategyRepo.create.mockResolvedValue(mockStrategy)
+    mockStrategyRepo.update.mockResolvedValue(mockStrategy)
+    mockGridEngine.calculateLevels.mockReturnValue(MOCK_LEVELS)
+    mockGridEngine.initializeState.mockReturnValue(MOCK_GRID_LEVELS)
+    mockGridRepo.createOrders.mockResolvedValue(undefined)
 
     const result = await service.createGrid({
       userId: 'user-1',
@@ -123,8 +122,8 @@ describe('GridTradingService', () => {
     expect(mockStrategyRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ userId: 'user-1', config: GRID_CONFIG }),
     )
-    expect(GridEngine.calculateLevels).toHaveBeenCalledWith(100, 200, 5, 'ARITHMETIC')
-    expect(GridEngine.initializeState).toHaveBeenCalledWith(MOCK_LEVELS, 150, 1000)
+    expect(mockGridEngine.calculateLevels).toHaveBeenCalledWith(100, 200, 5, 'ARITHMETIC')
+    expect(mockGridEngine.initializeState).toHaveBeenCalledWith(MOCK_LEVELS, 150, 1000)
     expect(mockGridRepo.createOrders).toHaveBeenCalledWith(
       'strategy-123',
       'user-1',
@@ -134,10 +133,10 @@ describe('GridTradingService', () => {
 
   it('Test 2: processPriceTick — BUY fill triggers counter SELL via repository', async () => {
     const mockStrategy = { id: 'grid-1', config: GRID_CONFIG }
-    vi.mocked(mockStrategyRepo.findById).mockResolvedValue(mockStrategy as never)
+    mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
 
     const buyOrder = makeOrderRow({ ...MOCK_GRID_LEVELS[0], side: 'BUY' })
-    vi.mocked(mockGridRepo.getPendingOrders).mockResolvedValue([buyOrder])
+    mockGridRepo.getPendingOrders.mockResolvedValue([buyOrder])
 
     const counterSell: GridLevel = { index: 1, price: 125, side: 'SELL', status: 'PENDING', quantity: 8 }
     const tickResult: GridTickResult = {
@@ -146,9 +145,9 @@ describe('GridTradingService', () => {
       pnlDelta: 0,
       isOutOfRange: false,
     }
-    vi.mocked(GridEngine.processTick).mockReturnValue(tickResult)
-    vi.mocked(mockGridRepo.fillOrder).mockResolvedValue(true)
-    vi.mocked(mockGridRepo.activateCounterOrder).mockResolvedValue(undefined)
+    mockGridEngine.processTick.mockReturnValue(tickResult)
+    mockGridRepo.fillOrder.mockResolvedValue(true)
+    mockGridRepo.activateCounterOrder.mockResolvedValue(undefined)
 
     await service.processPriceTick('grid-1', 'user-1', 100)
 
@@ -160,10 +159,10 @@ describe('GridTradingService', () => {
 
   it('Test 3: processPriceTick — SELL fill triggers counter BUY via repository', async () => {
     const mockStrategy = { id: 'grid-1', config: GRID_CONFIG }
-    vi.mocked(mockStrategyRepo.findById).mockResolvedValue(mockStrategy as never)
+    mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
 
     const sellOrder = makeOrderRow({ ...MOCK_GRID_LEVELS[4], side: 'SELL' })
-    vi.mocked(mockGridRepo.getPendingOrders).mockResolvedValue([sellOrder])
+    mockGridRepo.getPendingOrders.mockResolvedValue([sellOrder])
 
     const counterBuy: GridLevel = { index: 3, price: 175, side: 'BUY', status: 'PENDING', quantity: 5.7 }
     const tickResult: GridTickResult = {
@@ -172,9 +171,9 @@ describe('GridTradingService', () => {
       pnlDelta: 12.5,
       isOutOfRange: false,
     }
-    vi.mocked(GridEngine.processTick).mockReturnValue(tickResult)
-    vi.mocked(mockGridRepo.fillOrder).mockResolvedValue(true)
-    vi.mocked(mockGridRepo.activateCounterOrder).mockResolvedValue(undefined)
+    mockGridEngine.processTick.mockReturnValue(tickResult)
+    mockGridRepo.fillOrder.mockResolvedValue(true)
+    mockGridRepo.activateCounterOrder.mockResolvedValue(undefined)
 
     await service.processPriceTick('grid-1', 'user-1', 200)
 
@@ -186,8 +185,8 @@ describe('GridTradingService', () => {
 
   it('Test 4: processPriceTick — out of range triggers notification', async () => {
     const mockStrategy = { id: 'grid-1', config: GRID_CONFIG }
-    vi.mocked(mockStrategyRepo.findById).mockResolvedValue(mockStrategy as never)
-    vi.mocked(mockGridRepo.getPendingOrders).mockResolvedValue([])
+    mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
+    mockGridRepo.getPendingOrders.mockResolvedValue([])
 
     const tickResult: GridTickResult = {
       filledOrders: [],
@@ -195,8 +194,8 @@ describe('GridTradingService', () => {
       pnlDelta: 0,
       isOutOfRange: true,
     }
-    vi.mocked(GridEngine.processTick).mockReturnValue(tickResult)
-    vi.mocked(mockNotifService.sendNotification).mockResolvedValue(undefined)
+    mockGridEngine.processTick.mockReturnValue(tickResult)
+    mockNotifService.sendNotification.mockResolvedValue(undefined)
 
     await service.processPriceTick('grid-1', 'user-1', 50)
 
@@ -207,9 +206,9 @@ describe('GridTradingService', () => {
   })
 
   it('Test 5: stopGrid — cancels all pending, returns stats', async () => {
-    vi.mocked(mockGridRepo.cancelAllPending).mockResolvedValue(4)
-    vi.mocked(mockStrategyRepo.update).mockResolvedValue({} as never)
-    vi.mocked(mockGridRepo.getGridStats).mockResolvedValue({
+    mockGridRepo.cancelAllPending.mockResolvedValue(4)
+    mockStrategyRepo.update.mockResolvedValue({})
+    mockGridRepo.getGridStats.mockResolvedValue({
       totalBuys: 3,
       totalSells: 2,
       realizedPnl: 150.5,
@@ -229,10 +228,10 @@ describe('GridTradingService', () => {
 
   it('Test 6: processPriceTick — no fill when price is between levels', async () => {
     const mockStrategy = { id: 'grid-1', config: GRID_CONFIG }
-    vi.mocked(mockStrategyRepo.findById).mockResolvedValue(mockStrategy as never)
+    mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
 
     const pendingOrders = MOCK_GRID_LEVELS.map((l) => makeOrderRow(l))
-    vi.mocked(mockGridRepo.getPendingOrders).mockResolvedValue(pendingOrders)
+    mockGridRepo.getPendingOrders.mockResolvedValue(pendingOrders)
 
     const emptyTickResult: GridTickResult = {
       filledOrders: [],
@@ -240,7 +239,7 @@ describe('GridTradingService', () => {
       pnlDelta: 0,
       isOutOfRange: false,
     }
-    vi.mocked(GridEngine.processTick).mockReturnValue(emptyTickResult)
+    mockGridEngine.processTick.mockReturnValue(emptyTickResult)
 
     await service.processPriceTick('grid-1', 'user-1', 137)
 
@@ -251,10 +250,10 @@ describe('GridTradingService', () => {
 
   it('Test 7: processPriceTick — multiple fills in single tick (price gap scenario)', async () => {
     const mockStrategy = { id: 'grid-1', config: GRID_CONFIG }
-    vi.mocked(mockStrategyRepo.findById).mockResolvedValue(mockStrategy as never)
+    mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
 
     const pendingOrders = [0, 1, 2].map((i) => makeOrderRow({ ...MOCK_GRID_LEVELS[i], side: 'BUY' }))
-    vi.mocked(mockGridRepo.getPendingOrders).mockResolvedValue(pendingOrders)
+    mockGridRepo.getPendingOrders.mockResolvedValue(pendingOrders)
 
     const multiTickResult: GridTickResult = {
       filledOrders: [
@@ -270,9 +269,9 @@ describe('GridTradingService', () => {
       pnlDelta: 0,
       isOutOfRange: false,
     }
-    vi.mocked(GridEngine.processTick).mockReturnValue(multiTickResult)
-    vi.mocked(mockGridRepo.fillOrder).mockResolvedValue(true)
-    vi.mocked(mockGridRepo.activateCounterOrder).mockResolvedValue(undefined)
+    mockGridEngine.processTick.mockReturnValue(multiTickResult)
+    mockGridRepo.fillOrder.mockResolvedValue(true)
+    mockGridRepo.activateCounterOrder.mockResolvedValue(undefined)
 
     await service.processPriceTick('grid-1', 'user-1', 80)
 
