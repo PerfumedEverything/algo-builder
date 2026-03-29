@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
-import { Plus, TrendingUp, SlidersHorizontal, ShieldCheck, X, Wallet, ArrowUpRight, ArrowDownRight } from "lucide-react"
+import { Plus, TrendingUp, SlidersHorizontal, ShieldCheck, X, Wallet, ArrowUpRight, ArrowDownRight, Grid3X3 } from "lucide-react"
 import { toast } from "sonner"
 
 import type { OperationStats } from "@/core/types"
@@ -18,7 +18,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
-import { StrategyStats, StrategyCard, StrategyDialog, LaunchModeDialog } from "@/components/strategy"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { StrategyStats, StrategyCard, StrategyDialog, LaunchModeDialog, GridStrategyCard, GridStrategyDialog, isGridConfig } from "@/components/strategy"
+import { stopGridAction, getGridStatusAction } from "@/server/actions/grid-actions"
 import {
   getStrategiesAction,
   getStrategyStatsAction,
@@ -55,6 +62,8 @@ export default function StrategiesPage() {
   const [pricesMap, setPricesMap] = useState<Record<string, number>>({})
   const [expandedIds, setExpandedIds] = useState<Set<string>>(new Set())
   const [brokerType, setBrokerType] = useState<string>("TINKOFF")
+  const [gridStatsMap, setGridStatsMap] = useState<Record<string, { totalBuys: number; totalSells: number; realizedPnl: number }>>({})
+  const [gridDialogOpen, setGridDialogOpen] = useState(false)
 
   const activeFilterCount = Object.values(filters).filter(Boolean).length
 
@@ -83,16 +92,31 @@ export default function StrategiesPage() {
     if (strategiesRes.success) {
       const sorted = (strategiesRes.data as Strategy[]).sort((a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime())
       setStrategies(sorted)
-      const strategies = sorted
-      const ids = strategies.map((s) => s.id)
-      if (ids.length > 0) {
+
+      const gridStrategies = sorted.filter(s => isGridConfig(s.config))
+      const indicatorStrategies = sorted.filter(s => !isGridConfig(s.config))
+
+      if (indicatorStrategies.length > 0) {
         const instrumentMap: Record<string, string> = {}
-        strategies.forEach((s) => { instrumentMap[s.id] = s.instrument })
-        const opsRes = await getOperationStatsForStrategiesAction(ids, instrumentMap)
+        indicatorStrategies.forEach((s) => { instrumentMap[s.id] = s.instrument })
+        const opsRes = await getOperationStatsForStrategiesAction(indicatorStrategies.map(s => s.id), instrumentMap)
         if (opsRes.success) {
           setOpsStatsMap(opsRes.data.stats)
           setPricesMap(opsRes.data.prices)
         }
+      }
+
+      if (gridStrategies.length > 0) {
+        const gridResults = await Promise.allSettled(
+          gridStrategies.map(s => getGridStatusAction(s.id))
+        )
+        const newGridStats: Record<string, { totalBuys: number; totalSells: number; realizedPnl: number }> = {}
+        gridResults.forEach((result, i) => {
+          if (result.status === "fulfilled" && result.value.success) {
+            newGridStats[gridStrategies[i].id] = result.value.data.stats
+          }
+        })
+        setGridStatsMap(newGridStats)
       }
     }
     if (statsRes.success) setStats(statsRes.data)
@@ -185,19 +209,32 @@ export default function StrategiesPage() {
           <h1 className="text-2xl font-bold">Мои стратегии</h1>
           <p className="text-sm text-muted-foreground">Создавайте и управляйте торговыми стратегиями</p>
         </div>
-        <Button className="w-full sm:w-auto" onClick={() => {
-          if (!brokerConnected) {
-            toast.error("Сначала подключите брокера", {
-              action: { label: "Подключить", onClick: () => window.location.href = "/broker" },
-            })
-            return
-          }
-          setEditStrategy(undefined)
-          setDialogOpen(true)
-        }}>
-          <Plus className="mr-2 h-4 w-4" />
-          Новая стратегия
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button className="w-full sm:w-auto" onClick={() => {
+              if (!brokerConnected) {
+                toast.error("Сначала подключите брокера", {
+                  action: { label: "Подключить", onClick: () => window.location.href = "/broker" },
+                })
+              }
+            }}>
+              <Plus className="mr-2 h-4 w-4" />
+              Новая стратегия
+            </Button>
+          </DropdownMenuTrigger>
+          {brokerConnected && (
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => { setEditStrategy(undefined); setDialogOpen(true) }}>
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Индикаторная стратегия
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setGridDialogOpen(true)}>
+                <Grid3X3 className="mr-2 h-4 w-4" />
+                Grid Bot
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          )}
+        </DropdownMenu>
       </div>
 
       <div className="flex items-center gap-3 rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-2.5 text-sm">
@@ -368,7 +405,21 @@ export default function StrategiesPage() {
       {strategies.length > 0 ? (
         <div className="grid gap-3 sm:grid-cols-2 items-start">
           {strategies.map((strategy) => (
-            <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} expanded={expandedIds.has(strategy.id)} onToggleExpand={() => setExpandedIds((prev) => { const next = new Set(prev); if (next.has(strategy.id)) next.delete(strategy.id); else next.add(strategy.id); return next })} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} brokerType={brokerType} />
+            isGridConfig(strategy.config) ? (
+              <GridStrategyCard
+                key={strategy.id}
+                strategy={strategy}
+                gridStats={gridStatsMap[strategy.id]}
+                onStop={async (id) => {
+                  const res = await stopGridAction(id)
+                  if (res.success) { toast.success("Grid остановлен"); fetchData() }
+                  else toast.error(res.error)
+                }}
+                onDelete={handleDelete}
+              />
+            ) : (
+              <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} expanded={expandedIds.has(strategy.id)} onToggleExpand={() => setExpandedIds((prev) => { const next = new Set(prev); if (next.has(strategy.id)) next.delete(strategy.id); else next.add(strategy.id); return next })} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} brokerType={brokerType} />
+            )
           ))}
         </div>
       ) : (
@@ -400,6 +451,7 @@ export default function StrategiesPage() {
 
       <StrategyDialog open={dialogOpen} onOpenChange={setDialogOpen} strategy={editStrategy} onSuccess={fetchData} />
       <LaunchModeDialog open={launchDialogOpen} onOpenChange={setLaunchDialogOpen} onLaunch={handleLaunch} />
+      <GridStrategyDialog open={gridDialogOpen} onOpenChange={setGridDialogOpen} onSuccess={fetchData} />
     </div>
   )
 }
