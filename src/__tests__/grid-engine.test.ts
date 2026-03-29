@@ -112,9 +112,9 @@ describe('GridEngine.processTick', () => {
     expect(result.pnlDelta).toBeCloseTo(19.78, 2)
   })
 
-  it('no fill: price=150, no orders at 150, none should fill', () => {
+  it('no fill: price=150 (between highest BUY=140 and lowest SELL=160), none should fill', () => {
     const levelPrices = [100, 120, 140, 160, 180, 200]
-    const levels = buildLevels(levelPrices, 130)
+    const levels = buildLevels(levelPrices, 150)
 
     const result = GridEngine.processTick(150, levels, 0.001, 100, 200)
 
