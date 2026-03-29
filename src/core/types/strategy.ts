@@ -1,3 +1,5 @@
+import type { GridConfig } from './grid'
+
 export type IndicatorType =
   | "SMA"
   | "EMA"
@@ -44,13 +46,16 @@ export type StrategyRisks = {
   tradeAmount?: number
 }
 
-export type StrategyConfig = {
+export type IndicatorStrategyConfig = {
+  type?: 'INDICATOR'
   entry: StrategyCondition[]
   exit: StrategyCondition[]
   entryLogic: LogicOperator
   exitLogic: LogicOperator
   risks: StrategyRisks
 }
+
+export type StrategyConfig = IndicatorStrategyConfig | GridConfig
 
 export type AiGeneratedStrategy = {
   name: string
