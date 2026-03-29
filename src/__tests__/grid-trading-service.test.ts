@@ -136,7 +136,7 @@ describe('GridTradingService', () => {
     mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
 
     const buyOrder = makeOrderRow({ ...MOCK_GRID_LEVELS[0], side: 'BUY' })
-    mockGridRepo.getPendingOrders.mockResolvedValue([buyOrder])
+    mockGridRepo.getOrdersByGridId.mockResolvedValue([buyOrder])
 
     const counterSell: GridLevel = { index: 1, price: 125, side: 'SELL', status: 'PENDING', quantity: 8 }
     const tickResult: GridTickResult = {
@@ -162,7 +162,7 @@ describe('GridTradingService', () => {
     mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
 
     const sellOrder = makeOrderRow({ ...MOCK_GRID_LEVELS[4], side: 'SELL' })
-    mockGridRepo.getPendingOrders.mockResolvedValue([sellOrder])
+    mockGridRepo.getOrdersByGridId.mockResolvedValue([sellOrder])
 
     const counterBuy: GridLevel = { index: 3, price: 175, side: 'BUY', status: 'PENDING', quantity: 5.7 }
     const tickResult: GridTickResult = {
@@ -186,7 +186,7 @@ describe('GridTradingService', () => {
   it('Test 4: processPriceTick — out of range triggers notification', async () => {
     const mockStrategy = { id: 'grid-1', config: GRID_CONFIG }
     mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
-    mockGridRepo.getPendingOrders.mockResolvedValue([])
+    mockGridRepo.getOrdersByGridId.mockResolvedValue([])
 
     const tickResult: GridTickResult = {
       filledOrders: [],
@@ -231,7 +231,7 @@ describe('GridTradingService', () => {
     mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
 
     const pendingOrders = MOCK_GRID_LEVELS.map((l) => makeOrderRow(l))
-    mockGridRepo.getPendingOrders.mockResolvedValue(pendingOrders)
+    mockGridRepo.getOrdersByGridId.mockResolvedValue(pendingOrders)
 
     const emptyTickResult: GridTickResult = {
       filledOrders: [],
@@ -253,7 +253,7 @@ describe('GridTradingService', () => {
     mockStrategyRepo.findById.mockResolvedValue(mockStrategy)
 
     const pendingOrders = [0, 1, 2].map((i) => makeOrderRow({ ...MOCK_GRID_LEVELS[i], side: 'BUY' }))
-    mockGridRepo.getPendingOrders.mockResolvedValue(pendingOrders)
+    mockGridRepo.getOrdersByGridId.mockResolvedValue(pendingOrders)
 
     const multiTickResult: GridTickResult = {
       filledOrders: [

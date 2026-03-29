@@ -23,6 +23,7 @@ export type GridLevel = {
   filledAt?: Date
   filledPrice?: number
   quantity: number
+  pnlDelta?: number
 }
 
 export type GridState = {

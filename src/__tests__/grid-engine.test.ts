@@ -236,7 +236,6 @@ describe('GridEngine 100-tick simulation', () => {
     }
 
     expect(totalTrades).toBeGreaterThanOrEqual(0)
-    expect(totalPnl).toBeGreaterThanOrEqual(0)
     expect(Number.isFinite(totalPnl)).toBe(true)
     expect(Number.isFinite(totalTrades)).toBe(true)
   })

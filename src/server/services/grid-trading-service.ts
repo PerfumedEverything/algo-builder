@@ -78,9 +78,9 @@ export class GridTradingService {
     if (!strategy) throw new Error(`Grid strategy ${gridId} not found`)
 
     const config = strategy.config as GridConfig
-    const pendingRows = await this.gridRepo.getPendingOrders(gridId, userId)
+    const allRows = await this.gridRepo.getOrdersByGridId(gridId, userId)
 
-    const levels = pendingRows.map((r) => ({
+    const levels = allRows.map((r) => ({
       index: r.levelIndex,
       price: r.price,
       side: r.side,
@@ -104,7 +104,7 @@ export class GridTradingService {
         filled.index,
         filled.side,
         currentPrice,
-        tickResult.pnlDelta,
+        filled.pnlDelta ?? 0,
       )
       if (!ok) continue
     }
@@ -124,6 +124,22 @@ export class GridTradingService {
       await this.notifService.sendNotification(
         userId,
         `Grid ${gridId} is out of range at price ${currentPrice}. Upper: ${config.upperPrice}, Lower: ${config.lowerPrice}.`,
+      )
+    }
+
+    if (config.stopLoss && currentPrice <= config.stopLoss) {
+      await this.stopGrid(gridId, userId)
+      await this.notifService.sendNotification(
+        userId,
+        `Grid ${gridId} hit stop loss at ${currentPrice}`,
+      )
+    }
+
+    if (config.takeProfit && currentPrice >= config.takeProfit) {
+      await this.stopGrid(gridId, userId)
+      await this.notifService.sendNotification(
+        userId,
+        `Grid ${gridId} hit take profit at ${currentPrice}`,
       )
     }
 

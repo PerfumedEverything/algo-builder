@@ -24,13 +24,6 @@ const DEFAULT_FEE_RATE = 0.001
 const ATR_PERIOD = 14
 const ATR_MULTIPLIER = 2
 
-function computeStdDev(values: number[]): number {
-  if (values.length < 2) return 0
-  const mean = values.reduce((s, v) => s + v, 0) / values.length
-  const variance = values.reduce((s, v) => s + (v - mean) ** 2, 0) / (values.length - 1)
-  return Math.sqrt(variance)
-}
-
 function roundToSigFigs(value: number, precision: number): number {
   if (value === 0) return 0
   const factor = Math.pow(10, precision)
@@ -131,8 +124,6 @@ export class GridAiService {
     const currentPrice = candles[candles.length - 1].close
     const periodHigh = Math.max(...candles.map((c) => c.high))
     const periodLow = Math.min(...candles.map((c) => c.low))
-    const closes = candles.map((c) => c.close)
-    const stdDev = computeStdDev(closes)
 
     const precision = getPricePrecision(currentPrice)
 
@@ -169,8 +160,6 @@ export class GridAiService {
       upperPrice,
       gridLevels,
     )
-
-    void stdDev
 
     return {
       lowerPrice,

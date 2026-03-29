@@ -52,14 +52,12 @@ function simulateGrid(
 }
 
 describe('Edge Cases — calculateLevels', () => {
-  it('gridCount=1 returns [lower, upper] (fallback path)', () => {
-    const levels = GridEngine.calculateLevels(100, 200, 1, 'ARITHMETIC')
-    expect(levels).toEqual([100, 200])
+  it('gridCount=1 throws (BUG-06 fixed: validation enforced)', () => {
+    expect(() => GridEngine.calculateLevels(100, 200, 1, 'ARITHMETIC')).toThrow()
   })
 
-  it('gridCount=0 returns [lower, upper] (fallback path)', () => {
-    const levels = GridEngine.calculateLevels(100, 200, 0, 'ARITHMETIC')
-    expect(levels).toEqual([100, 200])
+  it('gridCount=0 throws (BUG-06 fixed: validation enforced)', () => {
+    expect(() => GridEngine.calculateLevels(100, 200, 0, 'ARITHMETIC')).toThrow()
   })
 
   it('gridCount=2 arithmetic produces exactly [lower, upper]', () => {
@@ -76,17 +74,12 @@ describe('Edge Cases — calculateLevels', () => {
     expect(levels[1]).toBeCloseTo(150, 8)
   })
 
-  it('equal lower and upper arithmetic returns same value repeated', () => {
-    const levels = GridEngine.calculateLevels(100, 100, 5, 'ARITHMETIC')
-    expect(levels).toHaveLength(5)
-    levels.forEach((l) => expect(l).toBe(100))
+  it('equal lower and upper throws (BUG-07 fixed: upperPrice must be > lowerPrice)', () => {
+    expect(() => GridEngine.calculateLevels(100, 100, 5, 'ARITHMETIC')).toThrow()
   })
 
-  it('equal lower and upper geometric returns NaN (division by zero in pow)', () => {
-    const levels = GridEngine.calculateLevels(100, 100, 5, 'GEOMETRIC')
-    expect(levels).toHaveLength(5)
-    expect(levels[0]).toBe(100)
-    expect(levels[4]).toBe(100)
+  it('equal lower and upper geometric throws (BUG-07 fixed: upperPrice must be > lowerPrice)', () => {
+    expect(() => GridEngine.calculateLevels(100, 100, 5, 'GEOMETRIC')).toThrow()
   })
 
   it('large gridCount=100 produces correct first and last', () => {
@@ -409,7 +402,7 @@ describe('P&L Pairing Logic', () => {
     expect(result.pnlDelta).toBeCloseTo(expected, 8)
   })
 
-  it('[BUG] P&L uses sellLevel.quantity, not buyLevel.quantity — mismatch if different', () => {
+  it('[BUG-02 fixed] P&L uses buyQty for cost, sellQty for revenue — asymmetric quantities handled correctly', () => {
     const buyLevel: GridLevel = {
       index: 0, price: 100, side: 'BUY', status: 'FILLED',
       filledPrice: 100, quantity: 2,
@@ -419,7 +412,9 @@ describe('P&L Pairing Logic', () => {
     }
     const result = GridEngine.processTick(120, [buyLevel, sellLevel], 0, 50, 200)
 
-    expect(result.pnlDelta).toBe(20)
+    const expectedRevenue = 120 * 1
+    const expectedCost = 100 * 2
+    expect(result.pnlDelta).toBe(expectedRevenue - expectedCost)
   })
 })
 
@@ -546,7 +541,7 @@ describe('[BUG REPORTS] — Issues Found During Audit', () => {
     expect(lvl150?.side).toBe('SELL')
   })
 
-  it('[BUG-3] processTick mutates by creating counter at same index: counter order uses levels[counterIndex].quantity not the fill qty', () => {
+  it('[BUG-04 fixed] counter SELL uses filled buy quantity, not original SELL level quantity', () => {
     const levels: GridLevel[] = [
       { index: 0, price: 100, side: 'BUY', status: 'PENDING', quantity: 10 },
       { index: 1, price: 120, side: 'SELL', status: 'PENDING', quantity: 5 },
@@ -554,7 +549,7 @@ describe('[BUG REPORTS] — Issues Found During Audit', () => {
     const result = GridEngine.processTick(100, levels, 0.001, 50, 200)
 
     const counterSell = result.newCounterOrders.find((o) => o.index === 1)
-    expect(counterSell?.quantity).toBe(5)
+    expect(counterSell?.quantity).toBe(10)
   })
 
   it('[BUG-4] service.processPriceTick applies same pnlDelta to every filled order in DB', () => {

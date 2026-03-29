@@ -9,9 +9,9 @@ export class GridEngine {
     gridCount: number,
     distribution: GridDistribution = 'ARITHMETIC',
   ): number[] {
-    if (gridCount < 2) {
-      return [lowerPrice, upperPrice]
-    }
+    if (lowerPrice <= 0) throw new Error('lowerPrice must be positive')
+    if (upperPrice <= lowerPrice) throw new Error('upperPrice must be greater than lowerPrice')
+    if (gridCount < 2) throw new Error('gridCount must be >= 2')
 
     if (distribution === 'GEOMETRIC') {
       return Array.from({ length: gridCount }, (_, i) =>
@@ -63,22 +63,23 @@ export class GridEngine {
         status: 'FILLED',
         filledAt: new Date(),
         filledPrice: currentPrice,
+        pnlDelta: 0,
       }
-      filledOrders.push(filled)
 
-      if (level.side === 'SELL' && level.status === 'PENDING') {
+      if (level.side === 'SELL') {
         const pairedBuy = levels.find(
           (l) => l.index === level.index - 1 && l.status === 'FILLED',
         )
         if (pairedBuy !== undefined && pairedBuy.filledPrice !== undefined) {
-          const buyPrice = pairedBuy.filledPrice
-          const sellPrice = currentPrice
-          const qty = level.quantity
-          const buyFee = buyPrice * qty * feeRate
-          const sellFee = sellPrice * qty * feeRate
-          pnlDelta += (sellPrice - buyPrice) * qty - buyFee - sellFee
+          const sellRevenue = currentPrice * level.quantity * (1 - feeRate)
+          const buyCost = pairedBuy.filledPrice * pairedBuy.quantity * (1 + feeRate)
+          const fillPnl = sellRevenue - buyCost
+          filled.pnlDelta = fillPnl
+          pnlDelta += fillPnl
         }
       }
+
+      filledOrders.push(filled)
 
       if (level.side === 'BUY') {
         const counterIndex = level.index + 1
@@ -88,7 +89,7 @@ export class GridEngine {
             price: levels[counterIndex].price,
             side: 'SELL',
             status: 'PENDING',
-            quantity: levels[counterIndex].quantity,
+            quantity: level.quantity,
           })
         }
       } else {
