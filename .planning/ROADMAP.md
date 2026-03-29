@@ -492,7 +492,7 @@ Plans:
   6. Кнопка остановки отменяет все pending ордера
 **Plans**: 5 plans
 Plans:
-- [ ] 15-01-PLAN.md — Grid types + GridEngine TDD (pure stateless engine, 14+ tests, 100-tick simulation)
+- [x] 15-01-PLAN.md — Grid types + GridEngine TDD (pure stateless engine, 14+ tests, 100-tick simulation)
 - [ ] 15-02-PLAN.md — grid_orders DB schema + GridRepository
 - [ ] 15-03-PLAN.md — GridTradingService + server actions (paper trading simulation)
 - [ ] 15-04-PLAN.md — Grid UI: form with live chart preview, monitoring panel, stop button
@@ -547,5 +547,5 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 | 14. Bybit Provider — Backend + Мульти-брокер | v2.0 | 6/6 | Complete   | 2026-03-28 |
 | 14.2 MOEX Evening Session + Chart Correctness (INSERTED) | v2.0 | 2/2 | Complete    | 2026-03-28 |
 | 14.1 Bybit TradingView Datafeed | v2.0 | 0/TBD | Blocked (Phase 13) | - |
-| 15. Grid Trading | v2.0 | 0/5 | Planned | - |
+| 15. Grid Trading | v2.0 | 1/5 | In Progress|  |
 | 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |

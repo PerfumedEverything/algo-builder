@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Milestone complete
-stopped_at: Phase 15 context gathered
-last_updated: "2026-03-29T07:40:11.178Z"
+status: Ready to execute
+stopped_at: Completed 15-grid-trading-01-PLAN.md
+last_updated: "2026-03-29T08:51:16.562Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -21,12 +21,12 @@ See: .planning/v2.0-SPEC.md (full spec)
 See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 **Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
-**Current focus:** Phase 14.2 — moex-evening-session
+**Current focus:** Phase 15 — grid-trading
 
 ## Current Position
 
-Phase: 14.2
-Plan: Not started
+Phase: 15 (grid-trading) — EXECUTING
+Plan: 3 of 5
 
 ## Performance Metrics
 
@@ -87,6 +87,8 @@ Plan: Not started
 | Phase 14-bybit-provider-backend P06 | 247 | 2 tasks | 5 files |
 | Phase 14.2-moex-evening-session P01 | 7 | 2 tasks | 3 files |
 | Phase 14.2 P02 | 5 | 1 tasks | 2 files |
+| Phase 15-grid-trading P02 | 104 | 1 tasks | 3 files |
+| Phase 15-grid-trading P01 | 207 | 2 tasks | 5 files |
 
 ## Accumulated Context
 
@@ -188,6 +190,9 @@ Plan: Not started
 - [Phase 14.2]: fetchDailyStats called immediately on instrument select AND in 60s interval with isMarketOpen() guard — no 60s initial wait
 - [Phase 14.2]: isInMoexSession inEvening boundary corrected: >= 1120 (18:40 MSK) not >= 1145 (19:05 MSK)
 - [Phase 14.2]: Chart path confirmed to NOT use normalizeMoexCandles — evening candles pass through filterValidCandles unfiltered
+- [Phase 15-grid-trading]: grid_orders uses snake_case columns with mapRow() camelCase conversion; service role RLS policy added for worker access
+- [Phase 15-grid-trading]: GridEngine is pure stateless class with static methods — fully deterministic and testable without broker mocks
+- [Phase 15-grid-trading]: IndicatorStrategyConfig type preserved with optional type INDICATOR for backward compat; new discriminated union StrategyConfig = IndicatorStrategyConfig | GridConfig
 
 ### Roadmap Evolution
 
@@ -214,7 +219,7 @@ Plan: Not started
 
 ## Session Continuity
 
-Last session: 2026-03-29T07:40:11.168Z
-Stopped at: Phase 15 context gathered
-Resume file: .planning/phases/15-grid-trading/15-CONTEXT.md
+Last session: 2026-03-29T08:51:16.557Z
+Stopped at: Completed 15-grid-trading-01-PLAN.md
+Resume file: None
 Next: /gsd:plan-phase 6.2
