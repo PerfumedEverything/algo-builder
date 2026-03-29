@@ -172,6 +172,8 @@ describe('GridForm', () => {
         gridDistribution: 'ARITHMETIC',
         feeRate: 0.001,
         reasoning: 'Test reasoning',
+        expectedProfitPerGrid: 0.1,
+        estimatedMonthlyTrades: 30,
       },
     })
     vi.mocked(getGridStatusAction).mockResolvedValue({
