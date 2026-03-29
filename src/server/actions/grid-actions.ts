@@ -5,6 +5,7 @@ import { type ApiResponse, errorResponse, successResponse } from "@/core/types/a
 import type { GridTickResult } from "@/core/types/grid"
 import type { GridOrderRow } from "@/server/repositories/grid-repository"
 import { GridTradingService } from "@/server/services/grid-trading-service"
+import { GridAiService, type GridSuggestion } from "@/server/services/grid-ai-service"
 import { getCurrentUserId } from "./helpers"
 
 const gridConfigSchema = z
@@ -89,5 +90,28 @@ export const processGridTickAction = async (
     return successResponse(result)
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
+  }
+}
+
+type SuggestGridParamsInput = {
+  instrumentId: string
+  instrument: string
+  lookbackDays?: number
+}
+
+export const suggestGridParamsAction = async (
+  params: SuggestGridParamsInput,
+): Promise<ApiResponse<GridSuggestion>> => {
+  const userId = await getCurrentUserId()
+  try {
+    const suggestion = await GridAiService.suggestParams({
+      instrumentId: params.instrumentId,
+      instrument: params.instrument,
+      userId,
+      lookbackDays: params.lookbackDays,
+    })
+    return successResponse(suggestion)
+  } catch (error) {
+    return errorResponse(error instanceof Error ? error.message : "Failed to suggest grid params")
   }
 }
