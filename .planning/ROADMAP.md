@@ -502,7 +502,7 @@ Plans:
 ### Phase 15.1: Grid Trading Integration — тип стратегии + ready-made + полный аудит (INSERTED URGENT)
 **Goal**: Grid Trading интегрирован как тип стратегии в существующую систему (не отдельная панель в терминале). Используются готовые решения где возможно. Критический баг двойного P&L пофикшен. Полный аудит с тестами покрывает все сценарии — zero tolerance.
 **Depends on**: Phase 15 (Grid Trading backend)
-**Requirements**: TBD (run /gsd:discuss-phase 15.1 to gather)
+**Requirements**: GRID-01, GRID-02, GRID-03, GRID-04, GRID-05, GRID-06, GRID-07, GRID-08, GRID-09, GRID-10
 **Success Criteria** (what must be TRUE):
   1. Grid — тип стратегии, создаётся через общую форму "Создать стратегию" → выбор типа
   2. Grid-стратегии показываются в списке стратегий наравне с индикаторными
@@ -510,9 +510,11 @@ Plans:
   4. CRITICAL баг двойного P&L при multi-fill пофикшен
   5. Все edge cases покрыты тестами (25+ тестов из аудита)
   6. Финальный аудит подтверждает zero bugs
-**Plans**: 0 plans
+**Plans**: 3 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 15.1 to break down)
+- [ ] 15.1-01-PLAN.md — Fix all grid engine/service bugs (BUG-01 through BUG-10) with TDD
+- [ ] 15.1-02-PLAN.md — Grid as strategy type: GridStrategyCard + GridStrategyDialog + strategies page
+- [ ] 15.1-03-PLAN.md — Comprehensive audit: integration tests + code audit + human verification
 **UI hint**: yes
 
 ### Phase 16: Валидация через Veles
