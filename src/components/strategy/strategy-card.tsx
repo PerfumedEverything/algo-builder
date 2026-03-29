@@ -130,7 +130,7 @@ export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPr
             </span>
           ) : (
             <>
-              <span className="text-xs font-mono text-muted-foreground">Позиция: <span className="text-foreground">{formatAmount(stats.initialAmount)} ₽</span></span>
+              <span className="text-xs font-mono text-muted-foreground">Позиция: <span className="text-foreground">{formatAmount(stats.currentAmount > 0 ? stats.currentAmount : stats.initialAmount)} ₽</span></span>
               <span className={`rounded px-2 py-0.5 text-xs font-mono ${stats.pnlPercent >= 0 ? "bg-emerald-500/10 text-emerald-400" : "bg-red-500/10 text-red-400"}`}>
                 {stats.pnl >= 0 ? "+" : ""}{formatAmount(stats.pnl)} ₽ ({stats.pnlPercent >= 0 ? "+" : ""}{stats.pnlPercent.toFixed(2)}%)
               </span>
