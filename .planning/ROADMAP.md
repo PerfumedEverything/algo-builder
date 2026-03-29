@@ -498,6 +498,23 @@ Plans:
 - [x] 15-04-PLAN.md — Grid UI: form with live chart preview, monitoring panel, stop button
 - [x] 15-05-PLAN.md — AI grid parameter suggestion (ATR-based + DeepSeek reasoning)
 **UI hint**: yes
+
+### Phase 15.1: Grid Trading Integration — тип стратегии + ready-made + полный аудит (INSERTED URGENT)
+**Goal**: Grid Trading интегрирован как тип стратегии в существующую систему (не отдельная панель в терминале). Используются готовые решения где возможно. Критический баг двойного P&L пофикшен. Полный аудит с тестами покрывает все сценарии — zero tolerance.
+**Depends on**: Phase 15 (Grid Trading backend)
+**Requirements**: TBD (run /gsd:discuss-phase 15.1 to gather)
+**Success Criteria** (what must be TRUE):
+  1. Grid — тип стратегии, создаётся через общую форму "Создать стратегию" → выбор типа
+  2. Grid-стратегии показываются в списке стратегий наравне с индикаторными
+  3. Карточка Grid-стратегии показывает уровни, циклы, P&L
+  4. CRITICAL баг двойного P&L при multi-fill пофикшен
+  5. Все edge cases покрыты тестами (25+ тестов из аудита)
+  6. Финальный аудит подтверждает zero bugs
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 15.1 to break down)
+**UI hint**: yes
+
 ### Phase 16: Валидация через Veles
 **Goal**: Параллельное тестирование с Veles Finance — одинаковые стратегии, сравнение результатов, root-cause фикс каждого расхождения до ±1% совпадения
 **Depends on**: Phase 15 (Grid Trading для сравнения с Veles)
@@ -518,7 +535,7 @@ Plans:
 **Execution Order:**
 v1.0: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 (archived)
 v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11 (archived)
-v2.0: 12 -> 14 -> 14.2 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
+v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -548,4 +565,5 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 16 (13 blocked on TV license, 14.1 after 13+14)
 | 14.2 MOEX Evening Session + Chart Correctness (INSERTED) | v2.0 | 2/2 | Complete    | 2026-03-28 |
 | 14.1 Bybit TradingView Datafeed | v2.0 | 0/TBD | Blocked (Phase 13) | - |
 | 15. Grid Trading | v2.0 | 5/5 | Complete   | 2026-03-29 |
+| 15.1 Grid Trading Integration (INSERTED) | v2.0 | 0/TBD | Not started | - |
 | 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |

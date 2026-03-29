@@ -213,6 +213,7 @@ Plan: 5 of 5
 - Phase 10 added: Security & Code Quality Hardening — auth bypasses, rate limiting, IDOR, prompt injection, input validation, file splitting (from comprehensive audit)
 - Phase 11 added: Root Cause Bug Fixes — AI wizard strategy creation, period-based %, real amounts in portfolio, Telegram details, strategy auto-stop, operation volume, position mismatch (Anton feedback 2026-03-28)
 - Phase 14.2 inserted after Phase 14: MOEX Evening Session + Chart Correctness — терминал не показывает вечернюю сессию (18:40-23:50), root cause всех расхождений с T-Invest (URGENT BLOCKER)
+- Phase 15.1 inserted after Phase 15: Grid Trading Integration — Grid как тип стратегии (не отдельная панель), ready-made решения, фикс critical P&L баг, полный аудит (URGENT)
 
 ### Pending Todos
 
