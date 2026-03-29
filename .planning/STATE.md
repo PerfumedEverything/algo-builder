@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Ready to execute
-stopped_at: Completed 15.1-02-PLAN.md
-last_updated: "2026-03-29T10:14:32.928Z"
+status: Phase complete — ready for verification
+stopped_at: "Checkpoint: 15.1-03 Task 2 human-verify"
+last_updated: "2026-03-29T10:20:09.015Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -94,6 +94,7 @@ Plan: 3 of 3
 | Phase 15-grid-trading P04 | 8 | 3 tasks | 7 files |
 | Phase 15.1-grid-trading-integration P01 | 15 | 2 tasks | 9 files |
 | Phase 15.1-grid-trading-integration P02 | 272 | 2 tasks | 4 files |
+| Phase 15.1-grid-trading-integration P03 | 525485 | 1 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -209,6 +210,7 @@ Plan: 3 of 3
 - [Phase 15.1-grid-trading-integration]: Counter SELL qty = filled BUY qty (level.quantity), not original SELL level quantity
 - [Phase 15.1-grid-trading-integration]: isGridConfig type guard exported from grid-strategy-card.tsx — single source of truth for Grid type discrimination across UI
 - [Phase 15.1-grid-trading-integration]: getOperationStatsForStrategiesAction only called with indicator strategy IDs — Grid strategies use getGridStatusAction instead
+- [Phase 15.1]: Integration test P&L uses direct GridLevel construction for deterministic expected value — avoids counter-order quantity propagation complexity
 
 ### Roadmap Evolution
 
@@ -236,7 +238,7 @@ Plan: 3 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-29T10:14:32.923Z
-Stopped at: Completed 15.1-02-PLAN.md
+Last session: 2026-03-29T10:20:09.008Z
+Stopped at: Checkpoint: 15.1-03 Task 2 human-verify
 Resume file: None
 Next: /gsd:plan-phase 6.2
