@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Ready to execute
-stopped_at: Completed 15.1-01-PLAN.md
-last_updated: "2026-03-29T10:07:54.608Z"
+stopped_at: Completed 15.1-02-PLAN.md
+last_updated: "2026-03-29T10:14:32.928Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 15.1 (grid-trading-integration) — EXECUTING
-Plan: 2 of 3
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -93,6 +93,7 @@ Plan: 2 of 3
 | Phase 15-grid-trading P05 | 118 | 2 tasks | 2 files |
 | Phase 15-grid-trading P04 | 8 | 3 tasks | 7 files |
 | Phase 15.1-grid-trading-integration P01 | 15 | 2 tasks | 9 files |
+| Phase 15.1-grid-trading-integration P02 | 272 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -206,6 +207,8 @@ Plan: 2 of 3
 - [Phase 15.1-grid-trading-integration]: pnlDelta per fill: engine sets filled.pnlDelta per SELL fill, service reads filled.pnlDelta ?? 0
 - [Phase 15.1-grid-trading-integration]: BUG-03 root cause: service used getPendingOrders filtering FILLED buys out — fixed to getOrdersByGridId
 - [Phase 15.1-grid-trading-integration]: Counter SELL qty = filled BUY qty (level.quantity), not original SELL level quantity
+- [Phase 15.1-grid-trading-integration]: isGridConfig type guard exported from grid-strategy-card.tsx — single source of truth for Grid type discrimination across UI
+- [Phase 15.1-grid-trading-integration]: getOperationStatsForStrategiesAction only called with indicator strategy IDs — Grid strategies use getGridStatusAction instead
 
 ### Roadmap Evolution
 
@@ -233,7 +236,7 @@ Plan: 2 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-29T10:07:54.602Z
-Stopped at: Completed 15.1-01-PLAN.md
+Last session: 2026-03-29T10:14:32.923Z
+Stopped at: Completed 15.1-02-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
