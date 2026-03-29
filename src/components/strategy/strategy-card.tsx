@@ -38,7 +38,7 @@ const formatAmount = (n: number) =>
   n.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
 export const StrategyCard = ({ strategy, operationStats, lastBuyPrice, currentPrice, expanded: controlledExpanded, onToggleExpand, onEdit, onDelete, onStatusChange, brokerType }: StrategyCardProps) => {
-  const config = strategy.config
+  const config = strategy.config as import("@/core/types/strategy").IndicatorStrategyConfig
   const isActive = strategy.status === "ACTIVE"
   const [internalExpanded, setInternalExpanded] = useState(false)
   const expanded = controlledExpanded ?? internalExpanded

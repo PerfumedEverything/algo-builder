@@ -47,7 +47,7 @@ export class StrategyTriggerHandler {
 
     if (result.price) {
       try {
-        const config = strategy.config as StrategyConfig
+        const config = strategy.config as import("@/core/types/strategy").IndicatorStrategyConfig
         const op = await this.operationService.recordOperation({
           strategyId: strategy.id,
           userId: strategy.userId,

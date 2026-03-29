@@ -88,7 +88,7 @@ export class StrategyChecker {
 
   private async checkStrategyWithPrice(strategy: StrategyRow, price: number): Promise<CheckResult[]> {
     const instrument = cleanTicker(strategy.instrument)
-    const config = strategy.config as StrategyConfig
+    const config = strategy.config as import("@/core/types/strategy").IndicatorStrategyConfig
     const side: "entry" | "exit" = (strategy.positionState ?? "NONE") === "OPEN" ? "exit" : "entry"
     const conditions = side === "entry" ? config.entry : config.exit
     const logic = side === "entry" ? (config.entryLogic ?? "AND") : (config.exitLogic ?? "AND")

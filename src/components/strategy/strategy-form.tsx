@@ -106,7 +106,7 @@ export const StrategyForm = forwardRef<StrategyFormHandle, StrategyFormProps>(
 
     useEffect(() => {
       if (strategy?.config) {
-        initFromExisting(strategy.config)
+        initFromExisting(strategy.config as import("@/core/types/strategy").IndicatorStrategyConfig)
       }
       return () => reset()
     // eslint-disable-next-line react-hooks/exhaustive-deps

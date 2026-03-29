@@ -322,7 +322,7 @@ export const formatStrategyNotification = (
   trade?: TradeDetails,
 ): string => {
   const ticker = strategy.instrument.toUpperCase()
-  const config = strategy.config as StrategyConfig
+  const config = strategy.config as import("@/core/types/strategy").IndicatorStrategyConfig
   const conditions = side === "entry" ? config.entry : config.exit
   const logic = side === "entry" ? (config.entryLogic ?? "AND") : (config.exitLogic ?? "AND")
   const sideEmoji = side === "entry" ? "📗" : "📕"

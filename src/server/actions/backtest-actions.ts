@@ -25,15 +25,17 @@ export const runBacktestAction = async (
     const strategy = await repo.findById(strategyId, userId)
 
     if (!strategy) return errorResponse("Strategy not found")
+    if (!("entry" in strategy.config)) return errorResponse("Backtest not supported for Grid strategies")
 
+    const config = strategy.config
     const entryConditions = JSON.stringify({
-      conditions: strategy.config.entry,
-      logic: strategy.config.entryLogic,
-      risks: strategy.config.risks,
+      conditions: config.entry,
+      logic: config.entryLogic,
+      risks: config.risks,
     })
     const exitConditions = JSON.stringify({
-      conditions: strategy.config.exit,
-      logic: strategy.config.exitLogic,
+      conditions: config.exit,
+      logic: config.exitLogic,
     })
 
     const result = await BacktestService.runBacktest({

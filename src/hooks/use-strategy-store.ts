@@ -1,5 +1,5 @@
 import { create } from "zustand"
-import type { StrategyCondition, StrategyConfig, StrategyRisks, LogicOperator } from "@/core/types"
+import type { StrategyCondition, IndicatorStrategyConfig, StrategyRisks, LogicOperator } from "@/core/types"
 
 const DEFAULT_ENTRY: StrategyCondition = {
   indicator: "SMA",
@@ -18,7 +18,7 @@ const DEFAULT_RISKS: StrategyRisks = {
   takeProfit: 4,
 }
 
-const DEFAULT_CONFIG: StrategyConfig = {
+const DEFAULT_CONFIG: IndicatorStrategyConfig = {
   entry: [DEFAULT_ENTRY],
   exit: [DEFAULT_EXIT],
   entryLogic: "AND",
@@ -27,7 +27,7 @@ const DEFAULT_CONFIG: StrategyConfig = {
 }
 
 type StrategyStore = {
-  config: StrategyConfig
+  config: IndicatorStrategyConfig
   activeTab: string
   isGenerating: boolean
   addCondition: (type: "entry" | "exit") => void
@@ -35,11 +35,11 @@ type StrategyStore = {
   removeCondition: (type: "entry" | "exit", index: number) => void
   setLogicOperator: (type: "entry" | "exit", op: LogicOperator) => void
   setRisks: (risks: StrategyRisks) => void
-  setFromAI: (config: StrategyConfig) => void
+  setFromAI: (config: IndicatorStrategyConfig) => void
   setActiveTab: (tab: string) => void
   setIsGenerating: (v: boolean) => void
   reset: () => void
-  initFromExisting: (config: StrategyConfig) => void
+  initFromExisting: (config: IndicatorStrategyConfig) => void
 }
 
 export const useStrategyStore = create<StrategyStore>((set) => ({

@@ -38,7 +38,7 @@ const formatCondition = (c: {
 
 export const StrategyPreviewPanel = ({ strategy }: StrategyPreviewPanelProps) => {
   const [expanded, setExpanded] = useState(true)
-  const { config } = strategy
+  const config = strategy.config as import("@/core/types/strategy").IndicatorStrategyConfig
 
   return (
     <div className="rounded-lg border border-primary/20 bg-muted/50 p-4">

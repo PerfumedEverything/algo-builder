@@ -31,6 +31,7 @@ const StrategyPreview = ({
   applied: boolean
 }) => {
   const { config } = strategy
+  if (!("entry" in config)) return null
   const entryLabels = config.entry.map((c) => `${c.indicator} ${c.condition} ${c.value ?? ""}`.trim())
   const exitLabels = config.exit.map((c) => `${c.indicator} ${c.condition} ${c.value ?? ""}`.trim())
 

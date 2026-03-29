@@ -27,6 +27,7 @@ const HintLabel = ({ label, hint }: { label: string; hint: string }) => (
 
 export const RiskForm = () => {
   const { config, setRisks } = useStrategyStore()
+  if (!("risks" in config)) return null
   const { risks } = config
 
   const updateRisk = (field: string, value: string) => {
