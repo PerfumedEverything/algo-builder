@@ -6,13 +6,22 @@ import {
   createSeriesMarkers,
   CandlestickSeries,
   ColorType,
+  LineStyle,
   type IChartApi,
   type ISeriesApi,
+  type IPriceLine,
   type CandlestickData,
   type SeriesMarker,
   type Time,
 } from "lightweight-charts"
 import { isMarketOpen } from "@/lib/market-hours"
+
+export type GridChartLevel = {
+  price: number
+  side: 'BUY' | 'SELL'
+  status: 'PENDING' | 'FILLED' | 'CANCELLED'
+  index: number
+}
 
 type InstrumentChartProps = {
   candles: CandlestickData<Time>[]
@@ -20,12 +29,27 @@ type InstrumentChartProps = {
   height?: number
   livePrice?: number
   brokerType?: string
+  gridLevels?: GridChartLevel[]
 }
 
-export const InstrumentChart = ({ candles, markers, height, livePrice, brokerType }: InstrumentChartProps) => {
+const GRID_COLORS: Record<string, string> = {
+  FILLED: '#26a69a',
+  SELL_PENDING: '#ef5350',
+  BUY_PENDING: '#1976d2',
+  CANCELLED: '#757575',
+}
+
+function getGridLevelColor(level: GridChartLevel): string {
+  if (level.status === 'FILLED') return GRID_COLORS.FILLED
+  if (level.status === 'CANCELLED') return GRID_COLORS.CANCELLED
+  return level.side === 'SELL' ? GRID_COLORS.SELL_PENDING : GRID_COLORS.BUY_PENDING
+}
+
+export const InstrumentChart = ({ candles, markers, height, livePrice, brokerType, gridLevels }: InstrumentChartProps) => {
   const containerRef = useRef<HTMLDivElement>(null)
   const chartRef = useRef<IChartApi | null>(null)
   const seriesRef = useRef<ISeriesApi<"Candlestick"> | null>(null)
+  const gridLineRefs = useRef<IPriceLine[]>([])
 
   useEffect(() => {
     if (!containerRef.current || candles.length === 0) return
@@ -102,6 +126,32 @@ export const InstrumentChart = ({ candles, markers, height, livePrice, brokerTyp
       close: livePrice,
     })
   }, [livePrice, candles, brokerType])
+
+  useEffect(() => {
+    const series = seriesRef.current
+    if (!series) return
+
+    for (const line of gridLineRefs.current) {
+      try { series.removePriceLine(line) } catch {}
+    }
+    gridLineRefs.current = []
+
+    if (!gridLevels?.length) return
+
+    const newLines: IPriceLine[] = []
+    for (const level of gridLevels) {
+      const line = series.createPriceLine({
+        price: level.price,
+        color: getGridLevelColor(level),
+        lineWidth: 1,
+        lineStyle: LineStyle.Dashed,
+        axisLabelVisible: true,
+        title: `${level.side} #${level.index}`,
+      })
+      newLines.push(line)
+    }
+    gridLineRefs.current = newLines
+  }, [gridLevels])
 
   return <div ref={containerRef} className="w-full" />
 }

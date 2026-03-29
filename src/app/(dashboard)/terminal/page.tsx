@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react"
 
 import dynamic from "next/dynamic"
-import { Plus, Bell, Bot } from "lucide-react"
+import { Plus, Bell, Bot, Grid3x3 } from "lucide-react"
 import { StrategyDialog, AiWizardDialog } from "@/components/strategy"
 import { SignalDialog } from "@/components/signal"
 import { Skeleton } from "@/components/ui/skeleton"
@@ -26,6 +26,9 @@ import { usePriceStream } from "@/hooks/use-price-stream"
 import type { BrokerInstrument, PortfolioPosition, PositionOperation, TopMover } from "@/core/types"
 import type { OrderBookData } from "@/core/types"
 import type { CandlestickData, SeriesMarker, Time } from "lightweight-charts"
+import { GridForm } from "./_components/grid-form"
+import { GridMonitor } from "./_components/grid-monitor"
+import type { GridChartLevel } from "@/components/portfolio/instrument-chart"
 
 const InstrumentChart = dynamic(
   () => import("@/components/portfolio/instrument-chart").then((m) => ({ default: m.InstrumentChart })),
@@ -64,6 +67,9 @@ export default function TerminalPage() {
   const [apiPrice, setApiPrice] = useState<number | null>(null)
   const [marketOpen, setMarketOpen] = useState(true)
   const [brokerType, setBrokerType] = useState<string>("TINKOFF")
+  const [gridBotOpen, setGridBotOpen] = useState(false)
+  const [activeGridId, setActiveGridId] = useState<string | null>(null)
+  const [gridChartLevels, setGridChartLevels] = useState<GridChartLevel[]>([])
 
   const prices = usePriceStream()
 
@@ -305,6 +311,15 @@ export default function TerminalPage() {
                 <span className="sm:hidden">Анализ с ИИ</span>
               </Button>
             )}
+            <Button
+              size="sm"
+              variant={gridBotOpen ? "default" : "outline"}
+              onClick={() => setGridBotOpen(o => !o)}
+              title="Grid Bot"
+            >
+              <Grid3x3 className="h-3.5 w-3.5 sm:mr-1.5" />
+              <span className="hidden sm:inline">Grid Bot</span>
+            </Button>
           </div>
         )}
       </div>
@@ -358,7 +373,14 @@ export default function TerminalPage() {
               {loading ? (
                 <Skeleton className="h-full rounded-lg" />
               ) : candles.length > 0 ? (
-                <InstrumentChart candles={candles} markers={markers} height={400} livePrice={currentPrice || undefined} brokerType={brokerType} />
+                <InstrumentChart
+                  candles={candles}
+                  markers={markers}
+                  height={400}
+                  livePrice={currentPrice || undefined}
+                  brokerType={brokerType}
+                  gridLevels={gridChartLevels.length > 0 ? gridChartLevels : undefined}
+                />
               ) : (
                 <div className="flex h-full items-center justify-center">
                   <p className="text-muted-foreground text-sm">Нет данных для графика</p>
@@ -370,6 +392,31 @@ export default function TerminalPage() {
               <OrderBook data={orderBook} loading={orderBookLoading && !orderBook} brokerType={brokerType} />
             </div>
           </div>
+
+          {gridBotOpen && instrument && (
+            <div className="rounded-lg border border-border bg-card p-4">
+              <h3 className="text-sm font-semibold mb-4">Grid Bot — {instrument.ticker}</h3>
+              {activeGridId ? (
+                <GridMonitor
+                  gridId={activeGridId}
+                  onStop={() => {
+                    setActiveGridId(null)
+                    setGridChartLevels([])
+                  }}
+                  onLevelsChange={setGridChartLevels}
+                />
+              ) : (
+                <GridForm
+                  instrument={instrument.ticker}
+                  instrumentId={instrument.figi}
+                  instrumentType={instrument.type ?? 'STOCK'}
+                  currentPrice={currentPrice}
+                  onSuccess={(gridId) => setActiveGridId(gridId)}
+                  onLevelsChange={setGridChartLevels}
+                />
+              )}
+            </div>
+          )}
 
           <TopMoversPanel
             gainers={topMovers?.gainers ?? []}
