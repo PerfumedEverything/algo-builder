@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Phase complete — ready for verification
-stopped_at: "Completed 15-grid-trading-04-PLAN.md (checkpoint: awaiting human-verify)"
-last_updated: "2026-03-29T09:15:18.470Z"
+status: Ready to execute
+stopped_at: Completed 15.1-01-PLAN.md
+last_updated: "2026-03-29T10:07:54.608Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -21,12 +21,12 @@ See: .planning/v2.0-SPEC.md (full spec)
 See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 **Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
-**Current focus:** Phase 15 — grid-trading
+**Current focus:** Phase 15.1 — grid-trading-integration
 
 ## Current Position
 
-Phase: 15 (grid-trading) — EXECUTING
-Plan: 5 of 5
+Phase: 15.1 (grid-trading-integration) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -92,6 +92,7 @@ Plan: 5 of 5
 | Phase 15-grid-trading P03 | 3 | 2 tasks | 4 files |
 | Phase 15-grid-trading P05 | 118 | 2 tasks | 2 files |
 | Phase 15-grid-trading P04 | 8 | 3 tasks | 7 files |
+| Phase 15.1-grid-trading-integration P01 | 15 | 2 tasks | 9 files |
 
 ## Accumulated Context
 
@@ -202,6 +203,9 @@ Plan: 5 of 5
 - [Phase 15-grid-trading]: GridAiService: Range = currentPrice ± 2*ATR, clamped to 4% minimum; levels = range/(ATR*0.5) clamped [5,30]; DeepSeek reasoning with 10s timeout fallback
 - [Phase 15-grid-trading]: InstrumentChart extended with gridLevels prop rather than exposing chartRef/seriesRef — cleaner API, no ref drilling
 - [Phase 15-grid-trading]: grid-calculator.ts extracted as client-safe module separate from grid-engine.ts — prevents server dep leakage to form
+- [Phase 15.1-grid-trading-integration]: pnlDelta per fill: engine sets filled.pnlDelta per SELL fill, service reads filled.pnlDelta ?? 0
+- [Phase 15.1-grid-trading-integration]: BUG-03 root cause: service used getPendingOrders filtering FILLED buys out — fixed to getOrdersByGridId
+- [Phase 15.1-grid-trading-integration]: Counter SELL qty = filled BUY qty (level.quantity), not original SELL level quantity
 
 ### Roadmap Evolution
 
@@ -229,7 +233,7 @@ Plan: 5 of 5
 
 ## Session Continuity
 
-Last session: 2026-03-29T09:15:18.465Z
-Stopped at: Completed 15-grid-trading-04-PLAN.md (checkpoint: awaiting human-verify)
+Last session: 2026-03-29T10:07:54.602Z
+Stopped at: Completed 15.1-01-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2

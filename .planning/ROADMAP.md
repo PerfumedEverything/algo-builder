@@ -512,7 +512,7 @@ Plans:
   6. Финальный аудит подтверждает zero bugs
 **Plans**: 3 plans
 Plans:
-- [ ] 15.1-01-PLAN.md — Fix all grid engine/service bugs (BUG-01 through BUG-10) with TDD
+- [x] 15.1-01-PLAN.md — Fix all grid engine/service bugs (BUG-01 through BUG-10) with TDD
 - [ ] 15.1-02-PLAN.md — Grid as strategy type: GridStrategyCard + GridStrategyDialog + strategies page
 - [ ] 15.1-03-PLAN.md — Comprehensive audit: integration tests + code audit + human verification
 **UI hint**: yes
@@ -567,5 +567,5 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 (13 blocked on TV license, 14.1 after
 | 14.2 MOEX Evening Session + Chart Correctness (INSERTED) | v2.0 | 2/2 | Complete    | 2026-03-28 |
 | 14.1 Bybit TradingView Datafeed | v2.0 | 0/TBD | Blocked (Phase 13) | - |
 | 15. Grid Trading | v2.0 | 5/5 | Complete   | 2026-03-29 |
-| 15.1 Grid Trading Integration (INSERTED) | v2.0 | 0/TBD | Not started | - |
+| 15.1 Grid Trading Integration (INSERTED) | v2.0 | 1/3 | In Progress|  |
 | 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |
