@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Ready to execute
-stopped_at: Completed 15-grid-trading-05-PLAN.md
-last_updated: "2026-03-29T09:03:57.130Z"
+status: Phase complete — ready for verification
+stopped_at: "Completed 15-grid-trading-04-PLAN.md (checkpoint: awaiting human-verify)"
+last_updated: "2026-03-29T09:15:18.470Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -91,6 +91,7 @@ Plan: 5 of 5
 | Phase 15-grid-trading P01 | 207 | 2 tasks | 5 files |
 | Phase 15-grid-trading P03 | 3 | 2 tasks | 4 files |
 | Phase 15-grid-trading P05 | 118 | 2 tasks | 2 files |
+| Phase 15-grid-trading P04 | 8 | 3 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -199,6 +200,8 @@ Plan: 5 of 5
 - [Phase 15-grid-trading]: processPriceTick passes pnlDelta per fill from GridTickResult — matches engine contract
 - [Phase 15-grid-trading]: ATR(14) via IndicatorCalculator (trading-signals) for grid range — no custom math
 - [Phase 15-grid-trading]: GridAiService: Range = currentPrice ± 2*ATR, clamped to 4% minimum; levels = range/(ATR*0.5) clamped [5,30]; DeepSeek reasoning with 10s timeout fallback
+- [Phase 15-grid-trading]: InstrumentChart extended with gridLevels prop rather than exposing chartRef/seriesRef — cleaner API, no ref drilling
+- [Phase 15-grid-trading]: grid-calculator.ts extracted as client-safe module separate from grid-engine.ts — prevents server dep leakage to form
 
 ### Roadmap Evolution
 
@@ -225,7 +228,7 @@ Plan: 5 of 5
 
 ## Session Continuity
 
-Last session: 2026-03-29T09:03:57.125Z
-Stopped at: Completed 15-grid-trading-05-PLAN.md
+Last session: 2026-03-29T09:15:18.465Z
+Stopped at: Completed 15-grid-trading-04-PLAN.md (checkpoint: awaiting human-verify)
 Resume file: None
 Next: /gsd:plan-phase 6.2
