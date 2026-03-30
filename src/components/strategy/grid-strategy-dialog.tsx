@@ -1,22 +1,15 @@
 "use client"
 
-import { useState } from "react"
-import { ChevronLeft } from "lucide-react"
+import { useState, useEffect } from "react"
+import { ChevronLeft, AlertCircle, ExternalLink } from "lucide-react"
+import Link from "next/link"
 
 import type { BrokerInstrument } from "@/core/types"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { InstrumentSelect } from "@/components/shared/instrument-select"
 import { GridForm } from "@/app/(dashboard)/terminal/_components/grid-form"
-import { INSTRUMENT_TYPES } from "@/core/config/instruments"
-
-type SelectedInstrument = {
-  ticker: string
-  instrumentId: string
-  instrumentType: string
-  currentPrice: number
-}
+import { getBrokerSettingsAction } from "@/server/actions/settings-actions"
 
 type GridStrategyDialogProps = {
   open: boolean
@@ -26,10 +19,22 @@ type GridStrategyDialogProps = {
 
 export const GridStrategyDialog = ({ open, onOpenChange, onSuccess }: GridStrategyDialogProps) => {
   const [step, setStep] = useState<"select" | "form">("select")
-  const [instrumentType, setInstrumentType] = useState("STOCK")
   const [ticker, setTicker] = useState("")
   const [selectedInstrument, setSelectedInstrument] = useState<BrokerInstrument | null>(null)
   const [currentPrice, setCurrentPrice] = useState<number | null>(null)
+  const [bybitConnected, setBybitConnected] = useState<boolean | null>(null)
+
+  useEffect(() => {
+    if (open) {
+      getBrokerSettingsAction().then((res) => {
+        if (res.success) {
+          setBybitConnected(res.data.brokerType === "BYBIT")
+        } else {
+          setBybitConnected(false)
+        }
+      })
+    }
+  }, [open])
 
   const handleReset = () => {
     setStep("select")
@@ -77,28 +82,34 @@ export const GridStrategyDialog = ({ open, onOpenChange, onSuccess }: GridStrate
         </DialogHeader>
 
         <div className="px-4 pb-4 sm:px-6 sm:pb-6 overflow-y-auto">
-          {step === "select" ? (
+          {bybitConnected === false ? (
             <div className="space-y-4 pt-2">
-              <div className="space-y-1.5">
-                <Label className="text-xs">Тип инструмента</Label>
-                <Select
-                  value={instrumentType}
-                  onValueChange={(v) => { setInstrumentType(v); setTicker(""); setSelectedInstrument(null); setCurrentPrice(null) }}
+              <div className="rounded-lg border border-yellow-500/20 bg-yellow-500/5 p-4 space-y-3">
+                <div className="flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-yellow-500 shrink-0 mt-0.5" />
+                  <div className="space-y-2">
+                    <p className="text-sm font-medium">Подключите Bybit для Grid Trading</p>
+                    <p className="text-xs text-muted-foreground">
+                      Grid Bot работает с реальными ордерами на криптобирже Bybit. Подключите API-ключи в настройках брокера.
+                    </p>
+                  </div>
+                </div>
+                <Link
+                  href="/broker"
+                  className="flex items-center justify-center gap-2 w-full rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground hover:bg-primary/90 transition-colors"
+                  onClick={() => onOpenChange(false)}
                 >
-                  <SelectTrigger className="h-9">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {INSTRUMENT_TYPES.map((t) => (
-                      <SelectItem key={t.type} value={t.type}>{t.labelRu}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  Подключить Bybit
+                  <ExternalLink className="h-3.5 w-3.5" />
+                </Link>
               </div>
+            </div>
+          ) : step === "select" ? (
+            <div className="space-y-4 pt-2">
               <div className="space-y-1.5">
                 <Label className="text-xs">Инструмент</Label>
                 <InstrumentSelect
-                  instrumentType={instrumentType}
+                  instrumentType="CRYPTO"
                   value={ticker}
                   onChange={setTicker}
                   onInstrumentSelect={setSelectedInstrument}
@@ -121,7 +132,7 @@ export const GridStrategyDialog = ({ open, onOpenChange, onSuccess }: GridStrate
               <GridForm
                 instrument={ticker}
                 instrumentId={formInstrumentId}
-                instrumentType={instrumentType}
+                instrumentType="CRYPTO"
                 currentPrice={currentPrice ?? 0}
                 onSuccess={handleGridSuccess}
               />
