@@ -21,6 +21,9 @@ import {
   disconnectBrokerAction,
 } from "@/server/actions/broker-actions"
 import { getBrokersAction } from "@/server/actions/admin-actions"
+import { connectBybitAction } from "@/server/actions/settings-actions"
+import { getBrokerSettingsAction } from "@/server/actions/settings-actions"
+import { Input } from "@/components/ui/input"
 import type { BrokerAccount } from "@/core/types"
 import type { BrokerRow } from "@/server/repositories/broker-catalog-repository"
 
@@ -113,16 +116,23 @@ export default function BrokerPage() {
   const [accounts, setAccounts] = useState<BrokerAccount[]>([])
   const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
+  const [bybitExpanded, setBybitExpanded] = useState(false)
+  const [bybitConnected, setBybitConnected] = useState(false)
+  const [bybitKey, setBybitKey] = useState("")
+  const [bybitSecret, setBybitSecret] = useState("")
+  const [bybitConnecting, setBybitConnecting] = useState(false)
 
   const fetchData = useCallback(async () => {
     setLoading(true)
     try {
-      const [catalogRes, statusRes] = await Promise.all([
+      const [catalogRes, statusRes, settingsRes] = await Promise.all([
         getBrokersAction(),
         getBrokerStatusAction(),
+        getBrokerSettingsAction(),
       ])
 
       if (catalogRes.success) setCatalog(catalogRes.data)
+      if (settingsRes.success && settingsRes.data.hasApiKey) setBybitConnected(true)
 
       if (statusRes.success) {
         setConnected(statusRes.data.connected)
@@ -174,7 +184,29 @@ export default function BrokerPage() {
   }
 
   const tinkoffBroker = catalog.find((b) => b.providerKey === "TINKOFF")
-  const otherBrokers = catalog.filter((b) => b.providerKey !== "TINKOFF")
+  const bybitBroker = catalog.find((b) => b.providerKey === "BYBIT")
+  const otherBrokers = catalog.filter((b) => b.providerKey !== "TINKOFF" && b.providerKey !== "BYBIT")
+
+  const handleConnectBybit = async () => {
+    if (!bybitKey.trim() || !bybitSecret.trim()) {
+      toast.error("Введите API Key и API Secret")
+      return
+    }
+    setBybitConnecting(true)
+    try {
+      const res = await connectBybitAction(bybitKey.trim(), bybitSecret.trim())
+      if (res.success) {
+        setBybitConnected(true)
+        setBybitKey("")
+        setBybitSecret("")
+        toast.success("Bybit подключён")
+      } else {
+        toast.error(res.error)
+      }
+    } finally {
+      setBybitConnecting(false)
+    }
+  }
 
   return (
     <div className="space-y-5">
@@ -213,6 +245,36 @@ export default function BrokerPage() {
                 onSelect={handleSelectAccount}
                 onPayIn={fetchData}
               />
+            )}
+          </BrokerCard>
+        )}
+
+        {bybitBroker && (
+          <BrokerCard
+            name={bybitBroker.name}
+            description={bybitBroker.description ?? ""}
+            logo="🟡"
+            logoUrl={bybitBroker.logoUrl}
+            available={true}
+            connected={bybitConnected}
+            expanded={bybitExpanded}
+            onToggle={() => setBybitExpanded(!bybitExpanded)}
+          >
+            {bybitConnected ? (
+              <div className="flex items-center gap-2 text-sm text-emerald-400">
+                <CheckCircle2 className="h-4 w-4" />
+                <span>API подключён. Переключите брокера в Настройках для работы с криптой.</span>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">Введите API Key и Secret от Bybit</p>
+                <Input placeholder="API Key" value={bybitKey} onChange={(e) => setBybitKey(e.target.value)} autoComplete="off" />
+                <Input placeholder="API Secret" type="password" value={bybitSecret} onChange={(e) => setBybitSecret(e.target.value)} autoComplete="off" />
+                <Button className="w-full" onClick={handleConnectBybit} disabled={bybitConnecting || !bybitKey.trim() || !bybitSecret.trim()}>
+                  {bybitConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                  Подключить Bybit
+                </Button>
+              </div>
             )}
           </BrokerCard>
         )}
