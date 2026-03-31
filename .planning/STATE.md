@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Ready to execute
-stopped_at: Completed 17-03-PLAN.md
-last_updated: "2026-03-31T13:16:43.424Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 17-05-PLAN.md
+last_updated: "2026-03-31T13:17:31.765Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 17 (smoke-monitor-test-coverage) — EXECUTING
-Plan: 4 of 5
+Plan: 5 of 5
 
 ## Performance Metrics
 
@@ -98,6 +98,8 @@ Plan: 4 of 5
 | Phase 17 P02 | 5 | 2 tasks | 8 files |
 | Phase 17-smoke-monitor-test-coverage P01 | 8 | 1 tasks | 7 files |
 | Phase 17-smoke-monitor-test-coverage P03 | 15 | 2 tasks | 2 files |
+| Phase 17 P04 | 5 | 2 tasks | 3 files |
+| Phase 17 P05 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -220,6 +222,10 @@ Plan: 4 of 5
 - [Phase 17-01]: CALC-15 assertion relaxed to accept currentAmount>0 fallback — business intent satisfied with initialAmount present
 - [Phase 17-01]: paper-portfolio-actions cache fallback wrapped in try/catch — prevents unhandled rejection bubbling to outer handler
 - [Phase 17-smoke-monitor-test-coverage]: Double mock for repositories: mock both direct import path and barrel — source files import from different paths
+- [Phase 17]: vi.hoisted() required for GridAiService static method mock in grid-actions tests — hoisting prevents variable access in vi.mock factory
+- [Phase 17]: Server action test pattern: mock supabase/server, supabase/admin, helpers (getCurrentUserId) and services barrel — deterministic auth + service control
+- [Phase 17]: PortfolioAnalyticsService mocks added for CorrelationService, portfolio-benchmark-service, portfolio-dividend-service
+- [Phase 17]: makeCandle helper added to indicator-calculator.test.ts for deterministic flat/single candle edge case testing
 
 ### Roadmap Evolution
 
@@ -248,7 +254,7 @@ Plan: 4 of 5
 
 ## Session Continuity
 
-Last session: 2026-03-31T13:16:43.419Z
-Stopped at: Completed 17-03-PLAN.md
+Last session: 2026-03-31T13:17:31.760Z
+Stopped at: Completed 17-05-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2

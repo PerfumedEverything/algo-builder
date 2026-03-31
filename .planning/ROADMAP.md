@@ -548,8 +548,8 @@ Plans:
 - [x] 17-01-PLAN.md — Fix 25 failing tests (green baseline)
 - [x] 17-02-PLAN.md — Smoke monitor script + Docker infra + health endpoint
 - [x] 17-03-PLAN.md — BrokerService + StrategyService unit tests
-- [ ] 17-04-PLAN.md — Server actions integration tests (broker, strategy, grid)
-- [ ] 17-05-PLAN.md — PortfolioAnalyticsService + IndicatorCalculator edge cases
+- [x] 17-04-PLAN.md — Server actions integration tests (broker, strategy, grid)
+- [x] 17-05-PLAN.md — PortfolioAnalyticsService + IndicatorCalculator edge cases
 
 
 **UI hint**: no
@@ -597,7 +597,7 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 -> 17 (13 blocked on TV license, 14.1
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 11
-**Plans:** 3/5 plans executed
+**Plans:** 5/5 plans complete
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 12 to break down)
