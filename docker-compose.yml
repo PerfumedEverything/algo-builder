@@ -67,6 +67,8 @@ services:
       context: .
       dockerfile: Dockerfile.smoke
     env_file: .env
+    environment:
+      - NEXT_PUBLIC_APP_URL=http://nextjs:3000
     depends_on:
       - redis
       - nextjs

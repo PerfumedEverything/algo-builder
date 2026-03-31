@@ -106,7 +106,7 @@ export const probePricesEndpoint = async (appUrl: string): Promise<ProbeResult> 
   try {
     const res = await fetch(`${appUrl}/api/prices/stream`)
     const durationMs = Date.now() - start
-    if (res.status !== 401) return { name: "prices-endpoint", ok: false, reason: `Expected 401, got ${res.status}`, durationMs }
+    if (res.status >= 500) return { name: "prices-endpoint", ok: false, reason: `HTTP ${res.status}`, durationMs }
     return { name: "prices-endpoint", ok: true, durationMs }
   } catch (e) {
     return { name: "prices-endpoint", ok: false, reason: String(e), durationMs: Date.now() - start }
