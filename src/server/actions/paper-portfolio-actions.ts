@@ -43,8 +43,10 @@ export const getPaperPortfolioAction = async (
       try {
         prices[inst] = await broker.getInstrumentPrice(userId, inst)
       } catch {
-        const cached = await cache.getPrice(inst)
-        if (cached !== null) prices[inst] = cached
+        try {
+          const cached = await cache.getPrice(inst)
+          if (cached !== null) prices[inst] = cached
+        } catch {}
       }
     }
 

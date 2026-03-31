@@ -10,8 +10,13 @@ vi.mock("backtest-kit", () => ({
   },
 }))
 
+const mockTinkoffGetCandles = vi.fn().mockResolvedValue([])
+
 vi.mock("@/server/providers/broker", () => ({
   getBrokerProvider: vi.fn(),
+  TinkoffProvider: vi.fn(function () {
+    return { getCandles: mockTinkoffGetCandles }
+  }),
 }))
 
 import { addExchangeSchema, setConfig, addStrategySchema, Backtest } from "backtest-kit"
@@ -69,6 +74,7 @@ describe("BacktestService", () => {
     mockGetData.mockResolvedValue(makeStats())
     mockBroker.getCandles.mockResolvedValue([])
     mockGetBrokerProvider.mockReturnValue(mockBroker)
+    mockTinkoffGetCandles.mockResolvedValue([])
   })
 
   it("initialize sets config with MOEX slippage and fees", () => {
@@ -239,13 +245,14 @@ describe("CALC-13: getSignal condition evaluation", () => {
     mockGetData.mockResolvedValue(makeStats())
     mockBroker.getCandles.mockResolvedValue([])
     mockGetBrokerProvider.mockReturnValue(mockBroker)
+    mockTinkoffGetCandles.mockResolvedValue([])
   })
 
   it("getSignal returns null when entry conditions are never met (conditions empty)", async () => {
     const start = new Date("2024-01-01T00:00:00Z")
     const candles = makeNeutralCandles(50, start)
 
-    mockBroker.getCandles.mockResolvedValue(candles)
+    mockTinkoffGetCandles.mockResolvedValue(candles)
 
     let capturedGetSignal: ((symbol: string, when: Date) => Promise<unknown>) | null = null
     ;(addStrategySchema as ReturnType<typeof vi.fn>).mockImplementation((schema: { getSignal: (symbol: string, when: Date) => Promise<unknown> }) => {
@@ -276,7 +283,7 @@ describe("CALC-13: getSignal condition evaluation", () => {
     const risingPart = makeRisingCandles(25, new Date(lastDropTime.getTime() + 3600000), 40)
     const candles = [...droppingPart, ...risingPart]
 
-    mockBroker.getCandles.mockResolvedValue(candles)
+    mockTinkoffGetCandles.mockResolvedValue(candles)
 
     let capturedGetSignal: ((symbol: string, when: Date) => Promise<unknown>) | null = null
     ;(addStrategySchema as ReturnType<typeof vi.fn>).mockImplementation((schema: { getSignal: (symbol: string, when: Date) => Promise<unknown> }) => {
@@ -313,7 +320,7 @@ describe("CALC-13: getSignal condition evaluation", () => {
     const start = new Date("2024-01-01T00:00:00Z")
     const candles = makeNeutralCandles(60, start)
 
-    mockBroker.getCandles.mockResolvedValue(candles)
+    mockTinkoffGetCandles.mockResolvedValue(candles)
 
     let capturedGetSignal: ((symbol: string, when: Date) => Promise<unknown>) | null = null
     ;(addStrategySchema as ReturnType<typeof vi.fn>).mockImplementation((schema: { getSignal: (symbol: string, when: Date) => Promise<unknown> }) => {

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest"
 
 const mockGetStrategies = vi.fn()
 const mockGetStats = vi.fn()
+const mockGetOperations = vi.fn().mockResolvedValue([])
 const mockGetPrice = vi.fn()
 
 vi.mock("@/lib/supabase/server", () => ({ createClient: vi.fn() }))
@@ -23,10 +24,10 @@ vi.mock("@/server/services", () => ({
     return { getStrategies: mockGetStrategies }
   }),
   OperationService: vi.fn(function () {
-    return { getStats: mockGetStats }
+    return { getStats: mockGetStats, getOperations: mockGetOperations }
   }),
   BrokerService: vi.fn(function () {
-    return {}
+    return { getInstrumentPrice: vi.fn().mockRejectedValue(new Error("no broker")) }
   }),
 }))
 vi.mock("@/server/services/price-cache", () => ({

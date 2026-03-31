@@ -29,13 +29,13 @@ describe("aggregateSessionStats", () => {
 
   it("empty candles returns zeros", () => {
     const result = aggregateSessionStats([])
-    expect(result).toEqual({ sessionOpen: 0, high: 0, low: 0, volume: 0 })
+    expect(result).toEqual({ sessionOpen: 0, periodOpen: 0, high: 0, low: 0, volume: 0 })
   })
 
   it("single candle returns its own values", () => {
     const single = [{ open: 280, high: 285, low: 275, volume: 50000 }]
     const result = aggregateSessionStats(single)
-    expect(result).toEqual({ sessionOpen: 280, high: 285, low: 275, volume: 50000 })
+    expect(result).toEqual({ sessionOpen: 280, periodOpen: 280, high: 285, low: 275, volume: 50000 })
   })
 
   it("handles many candles (realistic session)", () => {

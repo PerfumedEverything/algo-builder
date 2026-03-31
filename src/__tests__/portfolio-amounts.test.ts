@@ -16,7 +16,7 @@ describe("CALC-14: portfolio size = sum(real BUY operations)", () => {
 })
 
 describe("CALC-15: strategy card Позиция = initialAmount from operations", () => {
-  it("strategy-card.tsx renders stats.initialAmount on Позиция line, not stats.currentAmount", () => {
+  it("strategy-card.tsx renders stats.initialAmount on Позиция line (with currentAmount > 0 fallback)", () => {
     const cardSource = readFileSync(
       join(process.cwd(), "src/components/strategy/strategy-card.tsx"),
       "utf-8"
@@ -26,7 +26,6 @@ describe("CALC-15: strategy card Позиция = initialAmount from operations"
     const poziciyaLine = lines.find(l => l.includes("Позиция:"))
     expect(poziciyaLine).toBeDefined()
     expect(poziciyaLine).toContain("initialAmount")
-    expect(poziciyaLine).not.toContain("currentAmount")
   })
 })
 

@@ -14,7 +14,6 @@ const mockRedisGet = vi.mocked(redis.get)
 const mockRedisSet = vi.mocked(redis.set)
 
 const mockFetch = vi.fn()
-global.fetch = mockFetch
 
 describe("MOEXProvider", () => {
   let provider: MOEXProvider
@@ -22,6 +21,7 @@ describe("MOEXProvider", () => {
   beforeEach(() => {
     provider = new MOEXProvider()
     vi.clearAllMocks()
+    vi.stubGlobal("fetch", mockFetch)
     mockRedisGet.mockResolvedValue(null)
     mockRedisSet.mockResolvedValue("OK")
   })
@@ -29,6 +29,7 @@ describe("MOEXProvider", () => {
   describe("getImoexCandles", () => {
     it("maps response columns to MOEXCandle objects correctly", async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => ({
           candles: {
             columns: ["open", "close", "high", "low", "value", "volume", "begin", "end"],
@@ -59,6 +60,7 @@ describe("MOEXProvider", () => {
 
     it("caches result in Redis with 24h TTL", async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => ({
           candles: {
             columns: ["open", "close", "high", "low", "value", "volume", "begin", "end"],
@@ -91,6 +93,7 @@ describe("MOEXProvider", () => {
   describe("getDividends", () => {
     it("maps response columns to DividendData objects correctly", async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => ({
           dividends: {
             columns: ["secid", "isin", "registryclosedate", "value", "currencyid"],
@@ -115,6 +118,7 @@ describe("MOEXProvider", () => {
 
     it("caches dividends with 7-day TTL", async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => ({
           dividends: {
             columns: ["secid", "isin", "registryclosedate", "value", "currencyid"],
@@ -138,6 +142,7 @@ describe("MOEXProvider", () => {
     it("handles multi-page responses", async () => {
       mockFetch
         .mockResolvedValueOnce({
+          ok: true,
           json: async () => ({
             history: {
               columns: ["date", "close"],
@@ -150,6 +155,7 @@ describe("MOEXProvider", () => {
           }),
         })
         .mockResolvedValueOnce({
+          ok: true,
           json: async () => ({
             history: {
               columns: ["date", "close"],
@@ -162,6 +168,7 @@ describe("MOEXProvider", () => {
           }),
         })
         .mockResolvedValueOnce({
+          ok: true,
           json: async () => ({
             history: {
               columns: ["date", "close"],
@@ -182,6 +189,7 @@ describe("MOEXProvider", () => {
 
     it("handles single-page response", async () => {
       mockFetch.mockResolvedValueOnce({
+        ok: true,
         json: async () => ({
           history: {
             columns: ["date", "close"],
