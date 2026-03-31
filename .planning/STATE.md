@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Ready to execute
-stopped_at: Completed 17-01-PLAN.md
-last_updated: "2026-03-31T13:12:56.186Z"
+stopped_at: Completed 17-03-PLAN.md
+last_updated: "2026-03-31T13:16:43.424Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 17 (smoke-monitor-test-coverage) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 
 ## Performance Metrics
 
@@ -97,6 +97,7 @@ Plan: 3 of 5
 | Phase 15.1-grid-trading-integration P03 | 525485 | 1 tasks | 2 files |
 | Phase 17 P02 | 5 | 2 tasks | 8 files |
 | Phase 17-smoke-monitor-test-coverage P01 | 8 | 1 tasks | 7 files |
+| Phase 17-smoke-monitor-test-coverage P03 | 15 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -218,6 +219,7 @@ Plan: 3 of 5
 - [Phase 17-01]: market-hours tests updated to expect true at 18:50/19:00 MSK — Phase 14.2 added evening session 18:40-23:50
 - [Phase 17-01]: CALC-15 assertion relaxed to accept currentAmount>0 fallback — business intent satisfied with initialAmount present
 - [Phase 17-01]: paper-portfolio-actions cache fallback wrapped in try/catch — prevents unhandled rejection bubbling to outer handler
+- [Phase 17-smoke-monitor-test-coverage]: Double mock for repositories: mock both direct import path and barrel — source files import from different paths
 
 ### Roadmap Evolution
 
@@ -246,7 +248,7 @@ Plan: 3 of 5
 
 ## Session Continuity
 
-Last session: 2026-03-31T13:12:56.180Z
-Stopped at: Completed 17-01-PLAN.md
+Last session: 2026-03-31T13:16:43.419Z
+Stopped at: Completed 17-03-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
