@@ -532,12 +532,34 @@ Plans:
 - [ ] TBD (run /gsd:plan-phase 16 to break down)
 **UI hint**: no
 
+### Phase 17: Smoke Monitor + Unit/Integration Test Coverage
+**Goal**: Автоматический мониторинг прода (smoke) + расширенное покрытие unit/integration тестами всех критических сервисов. Smoke ловит проблемы в реалтайме, unit тесты ловят баги до деплоя.
+**Depends on**: Phase 15.1 (все сервисы реализованы)
+**Requirements**: SMOKE-01, SMOKE-02, SMOKE-03, SMOKE-04, TEST-01, TEST-02, TEST-03, TEST-04, TEST-05
+**Success Criteria** (what must be TRUE):
+  1. Smoke monitor работает на проде через cron, алертит в Telegram при сбоях
+  2. BrokerService покрыт тестами ≥80%
+  3. StrategyService покрыт тестами ≥80%
+  4. PortfolioService покрыт тестами ≥80%
+  5. IndicatorCalculator покрыт тестами ≥80%
+  6. Server actions покрыты integration тестами ≥70%
+**Plans**: 5 plans
+Plans:
+- [ ] 17-01-PLAN.md — Fix 25 failing tests (green baseline)
+- [ ] 17-02-PLAN.md — Smoke monitor script + Docker infra + health endpoint
+- [ ] 17-03-PLAN.md — BrokerService + StrategyService unit tests
+- [ ] 17-04-PLAN.md — Server actions integration tests (broker, strategy, grid)
+- [ ] 17-05-PLAN.md — PortfolioAnalyticsService + IndicatorCalculator edge cases
+
+
+**UI hint**: no
+
 ## Progress
 
 **Execution Order:**
 v1.0: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 (archived)
 v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11 (archived)
-v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 (13 blocked on TV license, 14.1 after 13+14)
+v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 -> 17 (13 blocked on TV license, 14.1 after 13+14)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
@@ -569,3 +591,13 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 (13 blocked on TV license, 14.1 after
 | 15. Grid Trading | v2.0 | 5/5 | Complete   | 2026-03-29 |
 | 15.1 Grid Trading Integration (INSERTED) | v2.0 | 3/3 | Complete   | 2026-03-29 |
 | 16. Валидация через Veles | v2.0 | 0/TBD | Not started | - |
+
+### Phase 12: Smoke Monitor + Unit/Integration Test Coverage
+
+**Goal:** [To be planned]
+**Requirements**: TBD
+**Depends on:** Phase 11
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd:plan-phase 12 to break down)
