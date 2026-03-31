@@ -201,3 +201,89 @@ describe("IndicatorCalculator — null safety", () => {
     })
   })
 })
+
+function makeCandle(close: number, i: number): Candle {
+  return {
+    open: close,
+    high: close,
+    low: close,
+    close,
+    volume: 1000,
+    time: new Date(Date.now() + i * 60000),
+  }
+}
+
+describe("IndicatorCalculator — edge cases", () => {
+  it("handles empty candles array — RSI returns null, no throw", () => {
+    expect(() => IndicatorCalculator.calculateRSI([], 14)).not.toThrow()
+    expect(IndicatorCalculator.calculateRSI([], 14)).toBeNull()
+  })
+
+  it("handles empty candles array — SMA, EMA, MACD, Bollinger all return null", () => {
+    expect(IndicatorCalculator.calculateSMA([], 20)).toBeNull()
+    expect(IndicatorCalculator.calculateEMA([], 20)).toBeNull()
+    expect(IndicatorCalculator.calculateMACD([], 12, 26, 9)).toBeNull()
+    expect(IndicatorCalculator.calculateBollinger([], 20, 2)).toBeNull()
+  })
+
+  it("handles single candle — all indicators return null, no throw", () => {
+    const single = [makeCandle(100, 0)]
+    expect(() => IndicatorCalculator.calculateRSI(single, 14)).not.toThrow()
+    expect(IndicatorCalculator.calculateRSI(single, 14)).toBeNull()
+    expect(IndicatorCalculator.calculateSMA(single, 20)).toBeNull()
+    expect(IndicatorCalculator.calculateBollinger(single, 20, 2)).toBeNull()
+  })
+
+  it("handles flat market (all same price) — SMA equals that price", () => {
+    const flat = Array.from({ length: 30 }, (_, i) => makeCandle(100, i))
+    const smaResult = IndicatorCalculator.calculateSMA(flat, 20)
+    expect(smaResult).not.toBeNull()
+    expect(smaResult!).toBeCloseTo(100, 5)
+  })
+
+  it("handles flat market (all same price) — EMA equals that price", () => {
+    const flat = Array.from({ length: 30 }, (_, i) => makeCandle(100, i))
+    const emaResult = IndicatorCalculator.calculateEMA(flat, 20)
+    expect(emaResult).not.toBeNull()
+    expect(emaResult!).toBeCloseTo(100, 0)
+  })
+
+  it("handles flat market (all same price) — RSI does not throw", () => {
+    const flat = Array.from({ length: 30 }, (_, i) => makeCandle(100, i))
+    expect(() => IndicatorCalculator.calculateRSI(flat, 14)).not.toThrow()
+    const rsiResult = IndicatorCalculator.calculateRSI(flat, 14)
+    if (rsiResult !== null) {
+      expect(rsiResult).toBeGreaterThanOrEqual(0)
+      expect(rsiResult).toBeLessThanOrEqual(100)
+    }
+  })
+
+  it("handles insufficient data for period — returns null gracefully", () => {
+    const fiveCandles = Array.from({ length: 5 }, (_, i) => makeCandle(100 + i, i))
+    expect(IndicatorCalculator.calculateRSI(fiveCandles, 20)).toBeNull()
+    expect(IndicatorCalculator.calculateSMA(fiveCandles, 20)).toBeNull()
+    expect(IndicatorCalculator.calculateEMA(fiveCandles, 20)).toBeNull()
+  })
+
+  it("BollingerBands needs period+1 candles — period candles returns null, period+1 returns result", () => {
+    const period = 20
+    const atPeriod = Array.from({ length: period }, (_, i) => makeCandle(100 + Math.sin(i) * 5, i))
+    const atPeriodPlusOne = Array.from({ length: period + 1 }, (_, i) => makeCandle(100 + Math.sin(i) * 5, i))
+    expect(IndicatorCalculator.calculateBollinger(atPeriod, period)).toBeNull()
+    expect(IndicatorCalculator.calculateBollinger(atPeriodPlusOne, period)).not.toBeNull()
+  })
+
+  it("MACD with flat prices — histogram is close to 0", () => {
+    const flat = Array.from({ length: 60 }, (_, i) => makeCandle(100, i))
+    const macdResult = IndicatorCalculator.calculateMACD(flat, 12, 26, 9)
+    if (macdResult !== null) {
+      expect(Math.abs(macdResult.histogram)).toBeLessThan(0.001)
+    }
+  })
+
+  it("crossing detection at exact boundary — getPriceChange returns 0 when prices identical", () => {
+    const samePrice = Array.from({ length: 10 }, (_, i) => makeCandle(150, i))
+    const change = IndicatorCalculator.getPriceChange(samePrice, 1)
+    expect(change).toBe(0)
+  })
+})
