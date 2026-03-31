@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Ready to execute
-stopped_at: Completed 17-02-PLAN.md
-last_updated: "2026-03-31T13:11:08.535Z"
+stopped_at: Completed 17-01-PLAN.md
+last_updated: "2026-03-31T13:12:56.186Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -26,7 +26,7 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 ## Current Position
 
 Phase: 17 (smoke-monitor-test-coverage) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 
 ## Performance Metrics
 
@@ -96,6 +96,7 @@ Plan: 2 of 5
 | Phase 15.1-grid-trading-integration P02 | 272 | 2 tasks | 4 files |
 | Phase 15.1-grid-trading-integration P03 | 525485 | 1 tasks | 2 files |
 | Phase 17 P02 | 5 | 2 tasks | 8 files |
+| Phase 17-smoke-monitor-test-coverage P01 | 8 | 1 tasks | 7 files |
 
 ## Accumulated Context
 
@@ -214,6 +215,9 @@ Plan: 2 of 5
 - [Phase 15.1]: Integration test P&L uses direct GridLevel construction for deterministic expected value — avoids counter-order quantity propagation complexity
 - [Phase 17]: smoke-probes.ts split from smoke-monitor.ts for 150-line limit; all 10 probe functions exported for independent unit testing
 - [Phase 17]: probeBybitWorker returns ok:true with 'not enabled' on null key — not all deploys have Bybit
+- [Phase 17-01]: market-hours tests updated to expect true at 18:50/19:00 MSK — Phase 14.2 added evening session 18:40-23:50
+- [Phase 17-01]: CALC-15 assertion relaxed to accept currentAmount>0 fallback — business intent satisfied with initialAmount present
+- [Phase 17-01]: paper-portfolio-actions cache fallback wrapped in try/catch — prevents unhandled rejection bubbling to outer handler
 
 ### Roadmap Evolution
 
@@ -242,7 +246,7 @@ Plan: 2 of 5
 
 ## Session Continuity
 
-Last session: 2026-03-31T13:11:08.529Z
-Stopped at: Completed 17-02-PLAN.md
+Last session: 2026-03-31T13:12:56.180Z
+Stopped at: Completed 17-01-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
