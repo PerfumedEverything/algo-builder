@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Phase complete — ready for verification
-stopped_at: "Checkpoint: 15.1-03 Task 2 human-verify"
-last_updated: "2026-03-29T10:20:09.015Z"
+status: Ready to execute
+stopped_at: Completed 17-02-PLAN.md
+last_updated: "2026-03-31T13:11:08.535Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -21,12 +21,12 @@ See: .planning/v2.0-SPEC.md (full spec)
 See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 **Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
-**Current focus:** Phase 15.1 — grid-trading-integration
+**Current focus:** Phase 17 — smoke-monitor-test-coverage
 
 ## Current Position
 
-Phase: 15.1 (grid-trading-integration) — EXECUTING
-Plan: 3 of 3
+Phase: 17 (smoke-monitor-test-coverage) — EXECUTING
+Plan: 2 of 5
 
 ## Performance Metrics
 
@@ -95,6 +95,7 @@ Plan: 3 of 3
 | Phase 15.1-grid-trading-integration P01 | 15 | 2 tasks | 9 files |
 | Phase 15.1-grid-trading-integration P02 | 272 | 2 tasks | 4 files |
 | Phase 15.1-grid-trading-integration P03 | 525485 | 1 tasks | 2 files |
+| Phase 17 P02 | 5 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -211,6 +212,8 @@ Plan: 3 of 3
 - [Phase 15.1-grid-trading-integration]: isGridConfig type guard exported from grid-strategy-card.tsx — single source of truth for Grid type discrimination across UI
 - [Phase 15.1-grid-trading-integration]: getOperationStatsForStrategiesAction only called with indicator strategy IDs — Grid strategies use getGridStatusAction instead
 - [Phase 15.1]: Integration test P&L uses direct GridLevel construction for deterministic expected value — avoids counter-order quantity propagation complexity
+- [Phase 17]: smoke-probes.ts split from smoke-monitor.ts for 150-line limit; all 10 probe functions exported for independent unit testing
+- [Phase 17]: probeBybitWorker returns ok:true with 'not enabled' on null key — not all deploys have Bybit
 
 ### Roadmap Evolution
 
@@ -239,7 +242,7 @@ Plan: 3 of 3
 
 ## Session Continuity
 
-Last session: 2026-03-29T10:20:09.008Z
-Stopped at: Checkpoint: 15.1-03 Task 2 human-verify
+Last session: 2026-03-31T13:11:08.529Z
+Stopped at: Completed 17-02-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
