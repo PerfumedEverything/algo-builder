@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Phase complete — ready for verification
+status: Milestone complete
 stopped_at: Completed 17-05-PLAN.md
-last_updated: "2026-03-31T13:17:31.765Z"
+last_updated: "2026-03-31T13:25:55.691Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -25,8 +25,8 @@ See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 ## Current Position
 
-Phase: 17 (smoke-monitor-test-coverage) — EXECUTING
-Plan: 5 of 5
+Phase: 17
+Plan: Not started
 
 ## Performance Metrics
 
