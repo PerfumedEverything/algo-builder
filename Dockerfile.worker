@@ -8,6 +8,7 @@ RUN npm ci --omit=dev
 
 COPY tsconfig.json ./
 COPY scripts/price-stream-worker.ts ./scripts/
+COPY src/lib/shared-constants.ts ./src/lib/
 
 RUN npx tsx --version
 
