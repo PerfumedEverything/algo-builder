@@ -239,6 +239,7 @@ Plan: Not started
 - Phase 14.2 inserted after Phase 14: MOEX Evening Session + Chart Correctness — терминал не показывает вечернюю сессию (18:40-23:50), root cause всех расхождений с T-Invest (URGENT BLOCKER)
 - Phase 15.1 inserted after Phase 15: Grid Trading Integration — Grid как тип стратегии (не отдельная панель), ready-made решения, фикс critical P&L баг, полный аудит (URGENT)
 - Phase 17 added: Smoke Monitor + Unit/Integration Test Coverage — прод мониторинг через cron + расширенное покрытие unit/integration тестами всех критических сервисов
+- Phase 18 added: Production Polish — TGLD@ баг, auth check, Health Score UI, Docker healthchecks, .env docs, worker hardening, fire-and-forget fix, Bybit testnet config, rate limiting, console cleanup
 
 ### Pending Todos
 

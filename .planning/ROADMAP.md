@@ -554,12 +554,32 @@ Plans:
 
 **UI hint**: no
 
+### Phase 18: Production Polish — баги, недочёты, подготовка к реальной торговле
+**Goal**: Закрыть все HIGH недоработки из аудита, пофиксить баги, подключить недостающие компоненты, hardening worker'ов. Продукт полностью отполирован как paper trading платформа и готов к реальной торговле.
+**Depends on**: Phase 17 (тесты green, smoke работает)
+**Requirements**: POLISH-01, POLISH-02, POLISH-03, POLISH-04, POLISH-05, POLISH-06, POLISH-07, POLISH-08, POLISH-09, POLISH-10
+**Success Criteria** (what must be TRUE):
+  1. TGLD@ и все тикеры с @ отображают корректную цену в price bar
+  2. Все server actions проверяют авторизацию
+  3. Portfolio page показывает Health Score с actionable advice
+  4. Docker healthchecks работают для всех сервисов
+  5. .env.example содержит ВСЕ переменные с описаниями
+  6. Worker'ы переживают Redis disconnect без crash loop
+  7. Ошибки в fire-and-forget логируются
+  8. Bybit testnet/prod контролируется через env
+  9. Rate limiting на тяжёлые операции
+  10. Нет console.log в production коде
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 18 to break down)
+**UI hint**: yes
+
 ## Progress
 
 **Execution Order:**
 v1.0: 1 -> 2 -> 2.1 -> 2.2 -> 2.3 -> 3 -> 3.1 (archived)
 v1.1: 4 -> 4.1 -> 5 -> 5.1 -> 6 -> 6.1 -> 6.2 -> 7 -> 7.1 -> 9 -> 8 -> 10 -> 11 (archived)
-v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 -> 17 (13 blocked on TV license, 14.1 after 13+14)
+v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 -> 17 -> 18 (13 blocked on TV license, 14.1 after 13+14)
 
 | Phase | Milestone | Plans Complete | Status | Completed |
 |-------|-----------|----------------|--------|-----------|
