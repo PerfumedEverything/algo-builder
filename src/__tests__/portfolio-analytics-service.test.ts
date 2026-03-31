@@ -9,6 +9,20 @@ vi.mock("@/server/services/broker-service", () => ({
   },
 }))
 
+vi.mock("@/server/services/correlation-service", () => ({
+  CorrelationService: class {
+    getCorrelationMatrix = vi.fn().mockResolvedValue({ matrix: {}, instruments: [] })
+  },
+}))
+
+vi.mock("@/server/services/portfolio-benchmark-service", () => ({
+  getBenchmarkComparison: vi.fn().mockResolvedValue(null),
+}))
+
+vi.mock("@/server/services/portfolio-dividend-service", () => ({
+  getAggregateDividendYield: vi.fn().mockResolvedValue({ weightedYield: 0, positions: [] }),
+}))
+
 vi.mock("@/server/services/operation-service", () => ({
   OperationService: class {
     getStatsForStrategies = vi.fn().mockResolvedValue({})
@@ -292,6 +306,112 @@ describe("PortfolioAnalyticsService", () => {
       const result = await service.getTradeSuccessBreakdown("user-1")
       expect(result.profitable.count).toBe(0)
       expect(result.byInstrument.length).toBe(0)
+    })
+  })
+
+  describe("getCorrelationMatrix", () => {
+    it("delegates to CorrelationService with userId and days", async () => {
+      const result = await service.getCorrelationMatrix("user-1", 30)
+      expect(result).toBeDefined()
+      expect(result).toHaveProperty("matrix")
+      expect(result).toHaveProperty("instruments")
+    })
+
+    it("uses default 90 days when not specified", async () => {
+      const correlationService = (service as unknown as { correlationService: { getCorrelationMatrix: ReturnType<typeof vi.fn> } }).correlationService
+      await service.getCorrelationMatrix("user-1")
+      expect(correlationService.getCorrelationMatrix).toHaveBeenCalledWith("user-1", 90)
+    })
+
+    it("returns empty matrix when no instruments (< 2)", async () => {
+      const correlationService = (service as unknown as { correlationService: { getCorrelationMatrix: ReturnType<typeof vi.fn> } }).correlationService
+      correlationService.getCorrelationMatrix.mockResolvedValue({ matrix: {}, instruments: [] })
+      const result = await service.getCorrelationMatrix("user-1")
+      expect(result.instruments).toEqual([])
+    })
+  })
+
+  describe("getBenchmarkComparison", () => {
+    it("returns null when fetchBenchmarkComparison returns null (error/no-data case)", async () => {
+      const result = await service.getBenchmarkComparison("user-1")
+      expect(result).toBeNull()
+    })
+
+    it("returns comparison data when available", async () => {
+      const { getBenchmarkComparison: fetchMock } = await import("@/server/services/portfolio-benchmark-service")
+      const mockFetch = fetchMock as ReturnType<typeof vi.fn>
+      mockFetch.mockResolvedValueOnce({ portfolioReturn: 5.2, benchmarkReturn: 3.1, alpha: 2.1 })
+      const result = await service.getBenchmarkComparison("user-1", 30)
+      expect(result).not.toBeNull()
+      expect(result!.portfolioReturn).toBe(5.2)
+    })
+
+    it("uses default 90 days when not specified", async () => {
+      const { getBenchmarkComparison: fetchMock } = await import("@/server/services/portfolio-benchmark-service")
+      const mockFetch = fetchMock as ReturnType<typeof vi.fn>
+      await service.getBenchmarkComparison("user-1")
+      expect(mockFetch).toHaveBeenCalledWith("user-1", 90)
+    })
+  })
+
+  describe("getAggregateDividendYield", () => {
+    it("returns zero yield for empty portfolio", async () => {
+      const result = await service.getAggregateDividendYield([])
+      expect(result.weightedYield).toBe(0)
+    })
+
+    it("delegates to getAggregateDividendYield with positions", async () => {
+      const { getAggregateDividendYield: fetchMock } = await import("@/server/services/portfolio-dividend-service")
+      const mockFetch = fetchMock as ReturnType<typeof vi.fn>
+      mockFetch.mockResolvedValueOnce({ weightedYield: 4.5, positions: [{ ticker: "SBER", yield: 4.5 }] })
+      const positions = [makePosition("SBER", "STOCK", 10, 300)]
+      const result = await service.getAggregateDividendYield(positions)
+      expect(result.weightedYield).toBe(4.5)
+      expect(mockFetch).toHaveBeenCalledWith(positions)
+    })
+  })
+
+  describe("edge cases — empty portfolio", () => {
+    it("getConcentrationIndex returns diversified with hhi=0 for empty positions", () => {
+      const result = service.getConcentrationIndex([])
+      expect(result.hhi).toBe(0)
+      expect(result.level).toBe("diversified")
+      expect(result.dominantPositions).toEqual([])
+    })
+
+    it("getSectorAllocation returns empty array for empty positions", () => {
+      const result = service.getSectorAllocation([])
+      expect(result).toEqual([])
+    })
+
+    it("getAssetTypeBreakdown returns empty array for empty positions", () => {
+      const result = service.getAssetTypeBreakdown([])
+      expect(result).toEqual([])
+    })
+
+    it("getTradeSuccessBreakdown returns zero counts for user with no strategies", async () => {
+      const result = await service.getTradeSuccessBreakdown("user-no-strategies")
+      expect(result.profitable.count).toBe(0)
+      expect(result.unprofitable.count).toBe(0)
+      expect(result.breakEven.count).toBe(0)
+      expect(result.byInstrument).toEqual([])
+    })
+  })
+
+  describe("error isolation — single method fails", () => {
+    it("getTradeSuccessBreakdown handles missing stats entry gracefully", async () => {
+      const strategies = [
+        { id: "s1", instrument: "SBER", name: "SBER" },
+        { id: "s2", instrument: "GAZP", name: "GAZP" },
+      ]
+      const strategyRepo = (service as unknown as { strategyRepo: { findByUserId: ReturnType<typeof vi.fn> } }).strategyRepo
+      strategyRepo.findByUserId.mockResolvedValue(strategies)
+      const opService = (service as unknown as { operationService: { getStatsForStrategies: ReturnType<typeof vi.fn> } }).operationService
+      opService.getStatsForStrategies.mockResolvedValue({ s1: { pnl: 100, totalOperations: 2 } })
+
+      const result = await service.getTradeSuccessBreakdown("user-1")
+      expect(result.profitable.count).toBe(1)
+      expect(result.byInstrument.length).toBe(1)
     })
   })
 })
