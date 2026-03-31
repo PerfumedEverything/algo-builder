@@ -71,6 +71,10 @@ wsClient.on("update", (data) => {
   }
 })
 
+async function writeHeartbeat() {
+  await redis.set("bybit-worker:heartbeat", Date.now().toString(), "EX", 300)
+}
+
 async function main() {
   await redis.connect()
   console.log("[BybitWorker] Redis connected")
@@ -81,6 +85,9 @@ async function main() {
     wsClient.subscribeV5(`orderbook.1.${symbol}`, "linear")
     wsClient.subscribeV5(`kline.1.${symbol}`, "linear")
   }
+
+  await writeHeartbeat()
+  setInterval(() => writeHeartbeat(), 30_000)
 
   console.log("[BybitWorker] Ready. Listening for price updates...")
 }

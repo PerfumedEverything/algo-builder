@@ -168,6 +168,8 @@ async function subscribeToStream(instruments: string[]) {
 }
 
 async function healthCheck() {
+  await redis.set("worker:heartbeat", Date.now().toString(), "EX", 300)
+
   if (subscribedInstruments.size === 0) return
 
   const staleDuration = Date.now() - lastPriceUpdate
