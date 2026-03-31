@@ -1,0 +1,13 @@
+FROM node:20-alpine
+WORKDIR /app
+
+RUN apk add --no-cache libc6-compat
+
+COPY package.json package-lock.json ./
+RUN npm ci --omit=dev
+
+COPY tsconfig.json ./
+COPY scripts/ ./scripts/
+COPY src/lib/redis.ts ./src/lib/redis.ts
+
+CMD ["sh", "-c", "while true; do npx tsx scripts/smoke-monitor.ts; sleep 300; done"]
