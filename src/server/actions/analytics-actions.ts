@@ -14,6 +14,7 @@ import { BrokerService } from "@/server/services/broker-service"
 import { PortfolioAnalyticsService } from "@/server/services/portfolio-analytics-service"
 import { PortfolioHealthService } from "@/server/services/portfolio-health-service"
 import { getCurrentUserId } from "./helpers"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 const provider = new MOEXProvider()
 const analyticsService = new PortfolioAnalyticsService()
@@ -58,6 +59,8 @@ export const getCorrelationMatrixAction = async (days = 90): Promise<ApiResponse
 export const getPortfolioAnalyticsAction = async (): Promise<ApiResponse<PortfolioAnalytics>> => {
   try {
     const userId = await getCurrentUserId()
+    const { allowed } = await checkRateLimit(userId, "analytics", 10, 60)
+    if (!allowed) return errorResponse("Слишком много запросов. Подождите минуту.")
     const portfolio = await brokerService.getPortfolio(userId)
     const positions = portfolio?.positions ?? []
 
@@ -97,6 +100,8 @@ export const getPortfolioAnalyticsAction = async (): Promise<ApiResponse<Portfol
 export const getHealthScoreAction = async (): Promise<ApiResponse<HealthScore>> => {
   try {
     const userId = await getCurrentUserId()
+    const { allowed } = await checkRateLimit(userId, "health-score", 10, 60)
+    if (!allowed) return errorResponse("Слишком много запросов. Подождите минуту.")
     const portfolio = await brokerService.getPortfolio(userId)
     const positions = portfolio?.positions ?? []
 

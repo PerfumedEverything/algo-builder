@@ -7,13 +7,16 @@ import type { AiAnalysisBlock } from "@/core/config/ai-prompts"
 import { AI_PROMPTS } from "@/core/config/ai-prompts"
 import { getEnv } from "@/core/config/env"
 import { getCurrentUserId } from "./helpers"
+import { checkRateLimit } from "@/lib/rate-limit"
 
 export const analyzeWithAiAction = async (
   block: AiAnalysisBlock,
   userMessage: string,
 ): Promise<ApiResponse<string>> => {
   try {
-    await getCurrentUserId()
+    const userId = await getCurrentUserId()
+    const { allowed } = await checkRateLimit(userId, "ai-analysis", 5, 60)
+    if (!allowed) return { success: false, error: "Слишком много запросов. Подождите минуту." }
 
     if (userMessage.length > 50_000) {
       return { success: false, error: "Сообщение слишком длинное (макс. 50 000 символов)" }

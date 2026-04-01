@@ -1,6 +1,7 @@
 "use server"
 
 import { getCurrentUserId } from "./helpers"
+import { checkRateLimit } from "@/lib/rate-limit"
 import { BacktestService } from "@/server/services"
 import type { BacktestResult } from "@/server/services"
 import { StrategyRepository } from "@/server/repositories/strategy-repository"
@@ -21,6 +22,8 @@ export const runBacktestAction = async (
 ): Promise<ApiResponse<BacktestResult>> => {
   try {
     const userId = await getCurrentUserId()
+    const { allowed } = await checkRateLimit(userId, "backtest", 5, 60)
+    if (!allowed) return errorResponse("Слишком много запросов. Подождите минуту.")
     const repo = new StrategyRepository()
     const strategy = await repo.findById(strategyId, userId)
 
