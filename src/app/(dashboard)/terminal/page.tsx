@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useCallback } from "react"
+import { useState, useEffect, useCallback, useRef } from "react"
 
 import dynamic from "next/dynamic"
 import { Plus, Bell, Bot, Grid3x3 } from "lucide-react"
@@ -71,6 +71,8 @@ export default function TerminalPage() {
   const [activeGridId, setActiveGridId] = useState<string | null>(null)
   const [gridChartLevels, setGridChartLevels] = useState<GridChartLevel[]>([])
 
+  const topMoversLoadedRef = useRef(false)
+
   const prices = usePriceStream()
 
   const fetchCandles = useCallback(async (figi: string, p: ChartPeriod) => {
@@ -134,15 +136,18 @@ export default function TerminalPage() {
   }, [])
 
   const fetchTopMovers = useCallback(async () => {
-    if (!topMovers) setTopMoversLoading(true)
+    if (!topMoversLoadedRef.current) setTopMoversLoading(true)
     try {
       const res = await getTopMoversAction()
-      if (res.success) setTopMovers(res.data)
+      if (res.success) {
+        setTopMovers(res.data)
+        topMoversLoadedRef.current = true
+      }
       setMarketOpen(isMarketOpen())
     } finally {
       setTopMoversLoading(false)
     }
-  }, [topMovers])
+  }, [])
 
   useEffect(() => {
     if (instrument?.figi) fetchCandles(instrument.figi, period)
@@ -157,6 +162,10 @@ export default function TerminalPage() {
 
   useEffect(() => {
     fetchPositions()
+    const id = setInterval(() => {
+      if (!document.hidden) fetchPositions()
+    }, 10_000)
+    return () => clearInterval(id)
   }, [fetchPositions])
 
   useEffect(() => {
@@ -190,16 +199,16 @@ export default function TerminalPage() {
     return () => clearInterval(interval)
   }, [ticker, fetchApiPrice])
 
-  const fetchDailyStats = useCallback(async (figi: string) => {
+  const fetchDailyStats = useCallback(async (figi: string, p: string) => {
     try {
-      const res = await getDailySessionStatsAction(figi, period)
+      const res = await getDailySessionStatsAction(figi, p)
       if (res.success) {
         setDailyStats(res.data)
       }
     } catch {
       setDailyStats(null)
     }
-  }, [period])
+  }, [])
 
   const handleInstrumentSelect = useCallback((inst: BrokerInstrument) => {
     setInstrument(inst)
@@ -210,18 +219,19 @@ export default function TerminalPage() {
     setOperations([])
     setDailyStats(null)
     setApiPrice(null)
-    fetchDailyStats(inst.figi)
+    setGridChartLevels([])
+    fetchDailyStats(inst.figi, period)
     subscribeInstrumentAction(inst.ticker)
   }, [fetchDailyStats, period])
 
   useEffect(() => {
     if (!instrument?.figi) return
-    fetchDailyStats(instrument.figi)
+    fetchDailyStats(instrument.figi, period)
     const id = setInterval(() => {
-      if (isMarketOpen()) fetchDailyStats(instrument.figi)
+      if (isMarketOpen()) fetchDailyStats(instrument.figi, period)
     }, 60_000)
     return () => clearInterval(id)
-  }, [instrument, fetchDailyStats])
+  }, [instrument, fetchDailyStats, period])
 
   const handleQuickSelect = useCallback(async (t: string) => {
     const res = await findInstrumentByTickerAction(t)
@@ -248,7 +258,7 @@ export default function TerminalPage() {
   const handlePeriodChange = useCallback((p: ChartPeriod) => {
     setPeriod(p)
     if (instrument?.figi) {
-      fetchDailyStats(instrument.figi)
+      fetchDailyStats(instrument.figi, p)
     }
   }, [instrument, fetchDailyStats])
 
