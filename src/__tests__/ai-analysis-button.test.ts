@@ -49,6 +49,10 @@ vi.mock("@/server/actions/helpers", () => ({
   getCurrentUserId: vi.fn().mockResolvedValue("test-user-id"),
 }))
 
+vi.mock("@/lib/rate-limit", () => ({
+  checkRateLimit: vi.fn().mockResolvedValue({ allowed: true }),
+}))
+
 const mockCreate = vi.fn()
 vi.mock("openai", () => {
   return {
