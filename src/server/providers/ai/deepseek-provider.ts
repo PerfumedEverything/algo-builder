@@ -2,7 +2,7 @@ import OpenAI from "openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions"
 import type { AiGeneratedStrategy } from "@/core/types"
 import type { AiProvider, AiChatMessage, AiChatResponse, AiStreamChunk } from "./types"
-import { CHAT_SYSTEM_PROMPT, getSystemPrompt, getIndicatorHints, getRiskProfiles, randomItem } from "./ai-prompts"
+import { CHAT_SYSTEM_PROMPT, getChatSystemPrompt, getSystemPrompt, getIndicatorHints, getRiskProfiles, randomItem } from "./ai-prompts"
 import { generateStrategyTool } from "./ai-tools"
 import { validateStrategyConfig } from "./ai-strategy-validator"
 
@@ -64,10 +64,10 @@ export class DeepSeekProvider implements AiProvider {
     return { message: choice.content || "Не удалось получить ответ" }
   }
 
-  async *chatWithThinking(messages: AiChatMessage[], forceCreate?: boolean): AsyncGenerator<AiStreamChunk> {
+  async *chatWithThinking(messages: AiChatMessage[], forceCreate?: boolean, brokerType = "TINKOFF"): AsyncGenerator<AiStreamChunk> {
     const safeMessages = messages.filter((m) => m.role === "user" || m.role === "assistant")
     const apiMessages: ChatCompletionMessageParam[] = [
-      { role: "system", content: CHAT_SYSTEM_PROMPT },
+      { role: "system", content: getChatSystemPrompt(brokerType) },
       ...safeMessages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
     ]
 

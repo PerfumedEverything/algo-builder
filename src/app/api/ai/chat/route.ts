@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server"
 import { getAiProvider } from "@/server/providers/ai"
 import { AiContextService } from "@/server/services/ai-context-service"
 import { checkRateLimit } from "@/lib/rate-limit"
+import { BrokerRepository } from "@/server/repositories/broker-repository"
 import type { AiChatMessage } from "@/server/providers/ai/types"
 
 export const dynamic = "force-dynamic"
@@ -36,6 +37,9 @@ export async function POST(request: Request): Promise<Response> {
     if (!allowed) {
       return new Response(JSON.stringify({ error: "Rate limit exceeded" }), { status: 429 })
     }
+
+    const brokerRepo = new BrokerRepository()
+    const brokerType = await brokerRepo.getBrokerType(userId)
 
     const body = (await request.json()) as ChatRequestBody
     const { messages, context, forceCreate } = body
@@ -79,7 +83,7 @@ export async function POST(request: Request): Promise<Response> {
       return new Response(JSON.stringify({ error: "Streaming not supported" }), { status: 501 })
     }
 
-    const generator = provider.chatWithThinking(enrichedMessages, forceCreate)
+    const generator = provider.chatWithThinking(enrichedMessages, forceCreate, brokerType)
 
     const readable = new ReadableStream({
       async start(controller) {

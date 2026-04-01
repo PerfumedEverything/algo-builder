@@ -1,6 +1,52 @@
 import type { ChatCompletionTool } from "openai/resources/chat/completions"
 import type { IndicatorType, ConditionType } from "@/core/types"
 
+export const generateGridStrategyTool: ChatCompletionTool = {
+  type: "function",
+  function: {
+    name: "create_grid_strategy",
+    description: "Create a Grid Trading strategy with price range, grid levels and risk management",
+    parameters: {
+      type: "object",
+      required: ["name", "instrument", "instrumentType", "description", "config"],
+      properties: {
+        name: {
+          type: "string",
+          description: "Short strategy name in Russian (e.g. 'Grid на Сбер ±3%')",
+        },
+        instrument: {
+          type: "string",
+          description: "Ticker symbol (e.g. 'sber', 'BTCUSDT')",
+        },
+        instrumentType: {
+          type: "string",
+          enum: ["STOCK", "BOND", "CURRENCY", "FUTURES", "CRYPTO"],
+          description: "Type of instrument",
+        },
+        description: {
+          type: "string",
+          description: "Brief strategy description in Russian",
+        },
+        config: {
+          type: "object",
+          required: ["type", "lowerPrice", "upperPrice", "gridLevels", "amountPerOrder", "gridDistribution", "feeRate"],
+          properties: {
+            type: { type: "string", enum: ["GRID"], description: "Always GRID" },
+            lowerPrice: { type: "number", description: "Lower price boundary" },
+            upperPrice: { type: "number", description: "Upper price boundary" },
+            gridLevels: { type: "integer", description: "Number of grid levels (5-30)", minimum: 5, maximum: 30 },
+            amountPerOrder: { type: "number", description: "Amount per order in currency" },
+            gridDistribution: { type: "string", enum: ["ARITHMETIC", "GEOMETRIC"] },
+            stopLoss: { type: "number", description: "Stop loss % below lower price (optional)" },
+            takeProfit: { type: "number", description: "Take profit % above upper price (optional)" },
+            feeRate: { type: "number", description: "Broker fee rate (e.g. 0.001 = 0.1%)" },
+          },
+        },
+      },
+    },
+  },
+}
+
 export const VALID_INDICATORS: IndicatorType[] = [
   "SMA", "EMA", "RSI", "MACD", "BOLLINGER", "PRICE", "VOLUME", "PRICE_CHANGE", "SUPPORT", "RESISTANCE",
   "ATR", "STOCHASTIC", "VWAP", "WILLIAMS_R",
