@@ -79,6 +79,14 @@ export default function StrategiesPage() {
     return { totalPortfolio, totalPnl, totalPnlPercent }
   }, [strategies, opsStatsMap])
 
+  const filteredStrategies = useMemo(() => {
+    return strategies.filter((s) => {
+      if (filters.instrumentType && s.instrumentType !== filters.instrumentType) return false
+      if (filters.timeframe && s.timeframe !== filters.timeframe) return false
+      return true
+    })
+  }, [strategies, filters.instrumentType, filters.timeframe])
+
   const fetchData = useCallback(async () => {
     const params: Record<string, string> = {}
     if (search) params.search = search
@@ -141,7 +149,10 @@ export default function StrategiesPage() {
   }, [searchParams])
 
   useEffect(() => {
-    const interval = setInterval(fetchData, 10_000)
+    const interval = setInterval(() => {
+      if (document.hidden) return
+      fetchData()
+    }, 10_000)
     return () => clearInterval(interval)
   }, [fetchData])
 
@@ -403,25 +414,31 @@ export default function StrategiesPage() {
       )}
 
       {strategies.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2 items-start">
-          {strategies.map((strategy) => (
-            isGridConfig(strategy.config) ? (
-              <GridStrategyCard
-                key={strategy.id}
-                strategy={strategy}
-                gridStats={gridStatsMap[strategy.id]}
-                onStop={async (id) => {
-                  const res = await stopGridAction(id)
-                  if (res.success) { toast.success("Grid остановлен"); fetchData() }
-                  else toast.error(res.error)
-                }}
-                onDelete={handleDelete}
-              />
-            ) : (
-              <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} expanded={expandedIds.has(strategy.id)} onToggleExpand={() => setExpandedIds((prev) => { const next = new Set(prev); if (next.has(strategy.id)) next.delete(strategy.id); else next.add(strategy.id); return next })} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} brokerType={brokerType} />
-            )
-          ))}
-        </div>
+        filteredStrategies.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2 items-start">
+            {filteredStrategies.map((strategy) => (
+              isGridConfig(strategy.config) ? (
+                <GridStrategyCard
+                  key={strategy.id}
+                  strategy={strategy}
+                  gridStats={gridStatsMap[strategy.id]}
+                  onStop={async (id) => {
+                    const res = await stopGridAction(id)
+                    if (res.success) { toast.success("Grid остановлен"); fetchData() }
+                    else toast.error(res.error)
+                  }}
+                  onDelete={handleDelete}
+                />
+              ) : (
+                <StrategyCard key={strategy.id} strategy={strategy} operationStats={opsStatsMap[strategy.id]} lastBuyPrice={opsStatsMap[strategy.id]?.lastBuyPrice} currentPrice={pricesMap[strategy.id]} expanded={expandedIds.has(strategy.id)} onToggleExpand={() => setExpandedIds((prev) => { const next = new Set(prev); if (next.has(strategy.id)) next.delete(strategy.id); else next.add(strategy.id); return next })} onEdit={handleEdit} onDelete={handleDelete} onStatusChange={handleStatusChange} brokerType={brokerType} />
+              )
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 text-center">
+            <p className="text-sm text-muted-foreground">Нет стратегий, соответствующих фильтрам</p>
+          </div>
+        )
       ) : (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
           <TrendingUp className="mb-4 h-12 w-12 text-muted-foreground/30" />
