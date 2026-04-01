@@ -93,6 +93,23 @@ async function getAiReasoning(
 }
 
 export class GridAiService {
+  static formatForChat(suggestion: GridSuggestion, instrument: string): string {
+    const step = (suggestion.upperPrice - suggestion.lowerPrice) / suggestion.gridLevels
+    return [
+      `Предложение Grid Trading для ${instrument}:`,
+      `Диапазон: ${suggestion.lowerPrice} — ${suggestion.upperPrice}`,
+      `Уровней сетки: ${suggestion.gridLevels}`,
+      `Шаг сетки: ${step.toFixed(4)}`,
+      `Распределение: ${suggestion.gridDistribution}`,
+      `Сумма на ордер: ${suggestion.amountPerOrder}`,
+      `Комиссия: ${(suggestion.feeRate * 100).toFixed(2)}%`,
+      `Ожидаемая прибыль на сетку: ${suggestion.expectedProfitPerGrid.toFixed(2)}%`,
+      `Примерное кол-во сделок/месяц: ${suggestion.estimatedMonthlyTrades}`,
+      ``,
+      `Обоснование: ${suggestion.reasoning}`,
+    ].join("\n")
+  }
+
   static async suggestParams(params: {
     instrumentId: string
     instrument: string

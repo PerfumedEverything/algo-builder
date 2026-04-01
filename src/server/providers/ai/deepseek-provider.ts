@@ -2,8 +2,8 @@ import OpenAI from "openai"
 import type { ChatCompletionMessageParam } from "openai/resources/chat/completions"
 import type { AiGeneratedStrategy } from "@/core/types"
 import type { AiProvider, AiChatMessage, AiChatResponse, AiStreamChunk } from "./types"
-import { CHAT_SYSTEM_PROMPT, getChatSystemPrompt, getSystemPrompt, getIndicatorHints, getRiskProfiles, randomItem } from "./ai-prompts"
-import { generateStrategyTool } from "./ai-tools"
+import { getChatSystemPrompt, getSystemPrompt, getIndicatorHints, getRiskProfiles, randomItem } from "./ai-prompts"
+import { generateStrategyTool, generateGridStrategyTool } from "./ai-tools"
 import { validateStrategyConfig } from "./ai-strategy-validator"
 
 export class DeepSeekProvider implements AiProvider {
@@ -40,7 +40,7 @@ export class DeepSeekProvider implements AiProvider {
 
   async chatAboutStrategy(messages: AiChatMessage[]): Promise<AiChatResponse> {
     const apiMessages: ChatCompletionMessageParam[] = [
-      { role: "system", content: CHAT_SYSTEM_PROMPT },
+      { role: "system", content: getChatSystemPrompt("TINKOFF") },
       ...messages.map((m) => ({ role: m.role as "user" | "assistant", content: m.content })),
     ]
 
@@ -75,17 +75,28 @@ export class DeepSeekProvider implements AiProvider {
       const response = await this.client.chat.completions.create({
         model: "deepseek-chat",
         messages: apiMessages,
-        tools: [generateStrategyTool],
+        tools: [generateStrategyTool, generateGridStrategyTool],
         temperature: 0.7,
       })
 
       const choice = response.choices[0]?.message
       const toolCall = choice?.tool_calls?.[0]
 
-      if (toolCall && toolCall.type === "function" && toolCall.function.name === "create_strategy") {
-        const parsed = JSON.parse(toolCall.function.arguments) as AiGeneratedStrategy
-        validateStrategyConfig(parsed)
-        yield { type: "strategy", content: JSON.stringify(parsed) }
+      if (toolCall && toolCall.type === "function") {
+        if (toolCall.function.name === "create_grid_strategy") {
+          const parsed = JSON.parse(toolCall.function.arguments) as Record<string, unknown>
+          const config = parsed.config as Record<string, unknown>
+          if (!config?.type || config.type !== "GRID") {
+            parsed.config = { ...config, type: "GRID" }
+          }
+          yield { type: "grid_strategy", content: JSON.stringify(parsed) }
+        } else if (toolCall.function.name === "create_strategy") {
+          const parsed = JSON.parse(toolCall.function.arguments) as AiGeneratedStrategy
+          validateStrategyConfig(parsed)
+          yield { type: "strategy", content: JSON.stringify(parsed) }
+        } else {
+          yield { type: "content", content: choice?.content ?? "Не удалось получить ответ" }
+        }
       } else {
         yield { type: "content", content: choice?.content ?? "Не удалось получить ответ" }
       }
@@ -119,7 +130,11 @@ export class DeepSeekProvider implements AiProvider {
     const last = messages.filter((m) => m.role === "user").pop()
     if (!last) return false
     const text = last.content.toLowerCase()
-    const keywords = ["создай", "применить", "давай", "да, создай", "окей, создавай", "создавай"]
+    const keywords = [
+      "создай", "применить", "давай", "да, создай", "окей, создавай", "создавай",
+      "запусти сетку", "создай grid", "создай грид", "запусти grid", "создай сетку",
+      "да, этот вариант", "вариант 1", "вариант 2", "вариант 3",
+    ]
     return keywords.some((kw) => text.includes(kw))
   }
 }
