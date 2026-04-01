@@ -55,7 +55,7 @@ export const createSignalAction = async (
     }
     const userId = await getCurrentUserId()
     const signal = await getService().createSignal(userId, { ...data, instrument: cleanTicker(data.instrument).toUpperCase() })
-    new SignalChecker().checkAll().catch(() => {})
+    new SignalChecker().checkAll().catch((e) => console.error("[SignalAction] background check failed:", e))
     return successResponse({ id: signal.id })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")
@@ -99,7 +99,7 @@ export const toggleSignalAction = async (
     const userId = await getCurrentUserId()
     const signal = await getService().toggleSignal(id, userId)
     if (signal.isActive) {
-      new SignalChecker().checkAll().catch(() => {})
+      new SignalChecker().checkAll().catch((e) => console.error("[SignalAction] background check failed:", e))
     }
     return successResponse({ id: signal.id, isActive: signal.isActive })
   } catch (e) {

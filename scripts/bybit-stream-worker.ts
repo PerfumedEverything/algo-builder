@@ -11,7 +11,12 @@ const PRICE_TTL = 120
 const redis = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
   maxRetriesPerRequest: 3,
   lazyConnect: true,
+  retryStrategy: (times: number) => Math.min(times * 500, 30000),
+  reconnectOnError: (err: Error) => err.message.includes("READONLY") ? 2 : false,
 })
+
+redis.on("error", (err) => console.error("[BybitWorker] Redis error:", err.message))
+redis.on("reconnecting", (delay: number) => console.log("[BybitWorker] Redis reconnecting in", delay, "ms"))
 
 if (!process.env.BYBIT_API_KEY || !process.env.BYBIT_API_SECRET) {
   console.error("[BybitWorker] BYBIT_API_KEY and BYBIT_API_SECRET are required")

@@ -103,7 +103,7 @@ export const activateStrategyAction = async (
   try {
     const userId = await getCurrentUserId()
     const strategy = await getService().activateStrategy(id, userId)
-    new StrategyChecker().checkAll().catch(() => {})
+    new StrategyChecker().checkAll().catch((e) => console.error("[StrategyAction] background check failed:", e))
     return successResponse({ id: strategy.id })
   } catch (e) {
     return errorResponse(e instanceof Error ? e.message : "Unknown error")

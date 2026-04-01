@@ -15,12 +15,21 @@ const HEALTH_CHECK_MAX_STALE_MS = 120_000
 const redis = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
   maxRetriesPerRequest: 3,
   lazyConnect: true,
+  retryStrategy: (times: number) => Math.min(times * 500, 30000),
+  reconnectOnError: (err: Error) => err.message.includes("READONLY") ? 2 : false,
 })
 
 const subscriberRedis = new Redis(process.env.REDIS_URL ?? "redis://localhost:6379", {
   maxRetriesPerRequest: 3,
   lazyConnect: true,
+  retryStrategy: (times: number) => Math.min(times * 500, 30000),
+  reconnectOnError: (err: Error) => err.message.includes("READONLY") ? 2 : false,
 })
+
+redis.on("error", (err) => console.error("[Worker] Redis error:", err.message))
+redis.on("reconnecting", (delay: number) => console.log("[Worker] Redis reconnecting in", delay, "ms"))
+subscriberRedis.on("error", (err) => console.error("[Worker] Subscriber Redis error:", err.message))
+subscriberRedis.on("reconnecting", (delay: number) => console.log("[Worker] Subscriber Redis reconnecting in", delay, "ms"))
 
 const db = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL!,
