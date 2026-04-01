@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useCallback } from "react"
+import { useState, useCallback, useEffect } from "react"
 import { useForm } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
@@ -95,9 +95,9 @@ export const GridForm = ({
     index: i,
   }))
 
-  if (onLevelsChange) {
-    onLevelsChange(previewLevels)
-  }
+  useEffect(() => {
+    onLevelsChange?.(previewLevels)
+  }, [JSON.stringify(previewLevels), onLevelsChange])
 
   const priceStep = levelPrices.length > 1 ? levelPrices[1] - levelPrices[0] : 0
   const profitPerGrid = values.lowerPrice > 0 && priceStep > 0
