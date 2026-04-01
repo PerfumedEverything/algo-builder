@@ -421,7 +421,7 @@ Plans:
   5. Drawing tools работают (трендлайны, фибоначчи, уровни)
   6. Все существующие функции терминала сохранены (price bar, стакан, позиции, история)
   7. Мобильная версия работает
-**Plans**: 0 plans
+**Plans**: 3 plans
 Plans:
 - [ ] TBD (run /gsd:plan-phase 13 after license obtained)
 **UI hint**: yes
@@ -474,7 +474,7 @@ Plans:
 **Success Criteria** (what must be TRUE):
   1. Datafeed поддерживает Bybit данные через тот же UDFCompatibleDatafeed интерфейс
   2. Переключение T-Invest / Bybit меняет источник данных на графике
-**Plans**: 0 plans
+**Plans**: 3 plans
 Plans:
 - [ ] TBD (after Phase 13 + 14 complete)
 **UI hint**: yes
@@ -527,7 +527,7 @@ Plans:
   3. Расхождения по P&L ≤ ±1%
   4. Каждое расхождение имеет root cause и fix
   5. VALIDATION-REPORT.md документирует результаты
-**Plans**: 0 plans
+**Plans**: 3 plans
 Plans:
 - [ ] TBD (run /gsd:plan-phase 16 to break down)
 **UI hint**: no
@@ -592,9 +592,11 @@ Plans:
   9. AI предлагает 2-3 варианта Grid перед созданием
   10. Grid AI suggestion интегрирован в чат
   11. Strategy trigger log в БД
-**Plans**: 0 plans
+**Plans**: 3 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 19 to break down)
+- [ ] 19-01-PLAN.md — Notification fixes: dedup, signal name, P&L fix, position duration, trigger log
+- [ ] 19-02-PLAN.md — AI Grid Trading knowledge in prompts + broker-aware chat + tool definition
+- [ ] 19-03-PLAN.md — AI Grid tool handling in DeepSeekProvider + GridAiService chat integration
 **UI hint**: yes
 
 
