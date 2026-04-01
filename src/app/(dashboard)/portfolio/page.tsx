@@ -153,6 +153,13 @@ export default function PortfolioPage() {
     return () => clearInterval(interval)
   }, [connected])
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => {
+    if (!portfolio?.positions?.length) return
+    if (!correlationMatrix && !portfolioAnalytics) return
+    fetchAnalytics()
+  }, [portfolio?.positions])
+
   if (loading) {
     return (
       <div className="flex h-64 items-center justify-center">

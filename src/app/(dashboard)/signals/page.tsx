@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { useSearchParams } from "next/navigation"
 import { Plus, Signal, SlidersHorizontal, X } from "lucide-react"
 import { toast } from "sonner"
@@ -81,6 +81,13 @@ export default function SignalsPage() {
       window.history.replaceState({}, "", "/signals")
     }
   }, [searchParams])
+
+  const filteredSignals = useMemo(() => {
+    return signals.filter((s) => {
+      if (filters.timeframe && s.timeframe !== filters.timeframe) return false
+      return true
+    })
+  }, [signals, filters.timeframe])
 
   const fetchProgress = useCallback(async () => {
     const res = await getSignalProgressAction()
@@ -272,18 +279,24 @@ export default function SignalsPage() {
       )}
 
       {signals.length > 0 ? (
-        <div className="grid gap-3 sm:grid-cols-2">
-          {signals.map((signal) => (
-            <SignalCard
-              key={signal.id}
-              signal={signal}
-              progress={progressMap[signal.id]}
-              onEdit={handleEdit}
-              onToggle={handleToggle}
-              onDelete={handleDelete}
-            />
-          ))}
-        </div>
+        filteredSignals.length > 0 ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {filteredSignals.map((signal) => (
+              <SignalCard
+                key={signal.id}
+                signal={signal}
+                progress={progressMap[signal.id]}
+                onEdit={handleEdit}
+                onToggle={handleToggle}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-12 text-center">
+            <p className="text-sm text-muted-foreground">Нет сигналов, соответствующих фильтрам</p>
+          </div>
+        )
       ) : (
         <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-border py-16 text-center">
           <Signal className="mb-4 h-12 w-12 text-muted-foreground/30" />
