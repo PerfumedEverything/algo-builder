@@ -595,7 +595,7 @@ Plans:
 **Plans**: 3 plans
 Plans:
 - [ ] 19-01-PLAN.md — Notification fixes: dedup, signal name, P&L fix, position duration, trigger log
-- [ ] 19-02-PLAN.md — AI Grid Trading knowledge in prompts + broker-aware chat + tool definition
+- [x] 19-02-PLAN.md — AI Grid Trading knowledge in prompts + broker-aware chat + tool definition
 - [ ] 19-03-PLAN.md — AI Grid tool handling in DeepSeekProvider + GridAiService chat integration
 **UI hint**: yes
 
@@ -643,7 +643,7 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 -> 17 -> 18 (13 blocked on TV license
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 11
-**Plans:** 3/3 plans complete
+**Plans:** 1/3 plans executed
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 12 to break down)

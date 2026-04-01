@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Phase complete — ready for verification
-stopped_at: Completed 18-03-PLAN.md
-last_updated: "2026-04-01T07:41:15.537Z"
+status: Ready to execute
+stopped_at: Completed 19-02-PLAN.md
+last_updated: "2026-04-01T09:03:37.496Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -21,12 +21,12 @@ See: .planning/v2.0-SPEC.md (full spec)
 See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 **Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
-**Current focus:** Phase 18 — production-polish
+**Current focus:** Phase 19 — notifications-ai-upgrade
 
 ## Current Position
 
-Phase: 18 (production-polish) — EXECUTING
-Plan: 3 of 3
+Phase: 19 (notifications-ai-upgrade) — EXECUTING
+Plan: 2 of 3
 
 ## Performance Metrics
 
@@ -103,6 +103,7 @@ Plan: 3 of 3
 | Phase 18-production-polish P01 | 5 | 2 tasks | 6 files |
 | Phase 18 P02 | 126 | 2 tasks | 8 files |
 | Phase 18-production-polish P03 | 5 | 2 tasks | 4 files |
+| Phase 19-notifications-ai-upgrade P02 | 8 | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -233,6 +234,9 @@ Plan: 3 of 3
 - [Phase 18]: Worker healthchecks use ioredis heartbeat key pattern — no HTTP endpoint in worker processes
 - [Phase 18]: Redis healthcheck with service_healthy condition — ensures Redis ready before all dependent services connect
 - [Phase 18]: analyzeWithAiAction (not analyzeLotAction) is the actual AI analysis function — rate limit applied to the actual function
+- [Phase 19]: getChatSystemPrompt(brokerType) appends broker context suffix to base CHAT_SYSTEM_PROMPT — avoids prompt duplication
+- [Phase 19]: brokerType fetched at route level (not provider level) — route owns auth/DB context
+- [Phase 19]: AiStreamChunk.type extended with grid_strategy and error — allows client to differentiate grid strategy responses
 
 ### Roadmap Evolution
 
@@ -262,7 +266,7 @@ Plan: 3 of 3
 
 ## Session Continuity
 
-Last session: 2026-04-01T07:41:15.533Z
-Stopped at: Completed 18-03-PLAN.md
+Last session: 2026-04-01T09:03:37.492Z
+Stopped at: Completed 19-02-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
