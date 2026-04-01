@@ -3,6 +3,7 @@
 import { ArrowUp, ArrowDown } from "lucide-react"
 import type { BrokerInstrument } from "@/core/types/broker"
 import { formatPrice, formatVolume, formatChange, getChangeColor } from "@/lib/terminal-utils"
+import { cleanTicker } from "@/lib/ticker-utils"
 
 type PriceBarProps = {
   instrument: BrokerInstrument
@@ -38,7 +39,7 @@ export const PriceBar = ({
     <div className="rounded-lg border border-border bg-card px-4 py-3">
       <div className="flex flex-wrap items-center gap-y-2">
         <div className="flex items-center gap-2">
-          <span className="font-bold text-lg">{instrument.ticker}</span>
+          <span className="font-bold text-lg">{cleanTicker(instrument.ticker)}</span>
           <span className="font-mono text-lg">{formatPrice(price, brokerType)}</span>
           <span className={`flex items-center gap-0.5 font-mono text-sm ${changeColor}`}>
             {ChangeIcon && <ChangeIcon className="h-3.5 w-3.5" />}
