@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
 status: Phase complete — ready for verification
-stopped_at: Completed 18-01-PLAN.md
-last_updated: "2026-04-01T07:41:08.717Z"
+stopped_at: Completed 18-03-PLAN.md
+last_updated: "2026-04-01T07:41:15.537Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -102,6 +102,7 @@ Plan: 3 of 3
 | Phase 17 P05 | 2 | 2 tasks | 2 files |
 | Phase 18-production-polish P01 | 5 | 2 tasks | 6 files |
 | Phase 18 P02 | 126 | 2 tasks | 8 files |
+| Phase 18-production-polish P03 | 5 | 2 tasks | 4 files |
 
 ## Accumulated Context
 
@@ -231,6 +232,7 @@ Plan: 3 of 3
 - [Phase 18-production-polish]: BYBIT_TESTNET defaults to true (safe default) — set BYBIT_TESTNET=false for production
 - [Phase 18]: Worker healthchecks use ioredis heartbeat key pattern — no HTTP endpoint in worker processes
 - [Phase 18]: Redis healthcheck with service_healthy condition — ensures Redis ready before all dependent services connect
+- [Phase 18]: analyzeWithAiAction (not analyzeLotAction) is the actual AI analysis function — rate limit applied to the actual function
 
 ### Roadmap Evolution
 
@@ -260,7 +262,7 @@ Plan: 3 of 3
 
 ## Session Continuity
 
-Last session: 2026-04-01T07:40:51.008Z
-Stopped at: Completed 18-01-PLAN.md
+Last session: 2026-04-01T07:41:15.533Z
+Stopped at: Completed 18-03-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
