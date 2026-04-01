@@ -49,9 +49,9 @@ export const INDICATORS: IndicatorConfig[] = [
     label: "MACD",
     description: "Индикатор тренда и импульса. Пересечение сигнальной линии = сигнал к действию",
     params: [
-      { name: "fastPeriod", label: "Быстрый период", defaultValue: 12, min: 2, max: 100 },
-      { name: "slowPeriod", label: "Медленный период", defaultValue: 26, min: 2, max: 200 },
-      { name: "signalPeriod", label: "Сигнальный период", defaultValue: 9, min: 2, max: 50 },
+      { name: "fast", label: "Быстрый период", defaultValue: 12, min: 2, max: 100 },
+      { name: "slow", label: "Медленный период", defaultValue: 26, min: 2, max: 200 },
+      { name: "signal", label: "Сигнальный период", defaultValue: 9, min: 2, max: 50 },
     ],
     allowedConditions: ["GREATER_THAN", "LESS_THAN", "CROSSES_ABOVE", "CROSSES_BELOW"],
   },
@@ -122,8 +122,8 @@ export const INDICATORS: IndicatorConfig[] = [
     label: "Stochastic",
     description: "Стохастический осциллятор 0-100. Выше 80 = перекупленность, ниже 20 = перепроданность",
     params: [
-      { name: "kPeriod", label: "K период", defaultValue: 14, min: 2, max: 100 },
-      { name: "dPeriod", label: "D период", defaultValue: 3, min: 1, max: 50 },
+      { name: "period", label: "K период", defaultValue: 14, min: 2, max: 100 },
+      { name: "signalPeriod", label: "D период", defaultValue: 3, min: 1, max: 50 },
     ],
     allowedConditions: ["GREATER_THAN", "LESS_THAN", "CROSSES_ABOVE", "CROSSES_BELOW", "BETWEEN"],
   },

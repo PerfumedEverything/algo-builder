@@ -55,7 +55,7 @@ const getIndicatorSeries = (condition: SignalCondition, candles: EvalContext["ca
     case "RSI": return calculateRSISeries(candles, params.period ?? 14)
     case "SMA": return calculateSMASeries(candles, params.period ?? 20)
     case "EMA": return calculateEMASeries(candles, params.period ?? 20)
-    case "STOCHASTIC": return calculateStochasticSeries(candles, params.period ?? 14, params.signalPeriod ?? 3)
+    case "STOCHASTIC": return calculateStochasticSeries(candles, params.period ?? params.kPeriod ?? 14, params.signalPeriod ?? params.dPeriod ?? 3)
     case "WILLIAMS_R": return calculateWilliamsRSeries(candles, params.period ?? 14)
     default: return []
   }
@@ -75,7 +75,10 @@ export const getIndicatorValue = (condition: SignalCondition, ctx: EvalContext):
     case "EMA":
       return IndicatorCalculator.calculateEMA(candles, params.period ?? 20)
     case "MACD": {
-      const macd = IndicatorCalculator.calculateMACD(candles, params.fast ?? 12, params.slow ?? 26, params.signal ?? 9)
+      const fast = params.fast ?? params.fastPeriod ?? 12
+      const slow = params.slow ?? params.slowPeriod ?? 26
+      const signal = params.signal ?? params.signalPeriod ?? 9
+      const macd = IndicatorCalculator.calculateMACD(candles, fast, slow, signal)
       return macd?.macd ?? null
     }
     case "BOLLINGER": {
@@ -99,8 +102,11 @@ export const getIndicatorValue = (condition: SignalCondition, ctx: EvalContext):
     }
     case "ATR":
       return IndicatorCalculator.calculateATR(candles, params.period ?? 14)
-    case "STOCHASTIC":
-      return IndicatorCalculator.calculateStochastic(candles, params.period ?? 14, params.signalPeriod ?? 3)
+    case "STOCHASTIC": {
+      const period = params.period ?? params.kPeriod ?? 14
+      const signalPeriod = params.signalPeriod ?? params.dPeriod ?? 3
+      return IndicatorCalculator.calculateStochastic(candles, period, signalPeriod)
+    }
     case "VWAP":
       return IndicatorCalculator.calculateVWAP(candles)
     case "WILLIAMS_R":

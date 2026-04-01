@@ -198,7 +198,7 @@ export const ConditionBuilder = ({
                     value={condition.indicator}
                     onValueChange={(v) => handleIndicatorChange(i, v)}
                   >
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="truncate"><SelectValue /></SelectTrigger>
                     <SelectContent>
                       {INDICATORS.map((ind) => (
                         <SelectItem key={ind.type} value={ind.type}>

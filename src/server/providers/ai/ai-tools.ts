@@ -70,7 +70,7 @@ export const generateStrategyTool: ChatCompletionTool = {
                 params: {
                   type: "object",
                   description:
-                    "Indicator parameters. RSI: {period}. SMA/EMA: {period}. MACD: {fastPeriod, slowPeriod, signalPeriod}. BOLLINGER: {period, stdDev}. PRICE: {}",
+                    "Indicator parameters. RSI: {period}. SMA/EMA: {period}. MACD: {fast, slow, signal}. BOLLINGER: {period, stdDev}. STOCHASTIC: {period, signalPeriod}. ATR: {period}. WILLIAMS_R: {period}. PRICE: {}",
                   additionalProperties: { type: "number" },
                 },
                 condition: {
