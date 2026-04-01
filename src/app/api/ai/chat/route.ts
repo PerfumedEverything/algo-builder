@@ -77,6 +77,28 @@ export async function POST(request: Request): Promise<Response> {
       }
     }
 
+    const lastUserMsg = safeMessages.filter((m) => m.role === "user").pop()?.content?.toLowerCase() ?? ""
+    const gridKeywords = ["grid", "грид", "сетка", "сеточн"]
+    const wantsGrid = gridKeywords.some((kw) => lastUserMsg.includes(kw))
+
+    if (wantsGrid && context?.ticker && context?.figi) {
+      try {
+        const { GridAiService } = await import("@/server/services/grid-ai-service")
+        const suggestion = await GridAiService.suggestParams({
+          instrumentId: context.figi,
+          instrument: context.ticker,
+          userId,
+        })
+        const gridContext = GridAiService.formatForChat(suggestion, context.ticker)
+        enrichedMessages = [
+          { role: "user", content: `[Grid Trading анализ]\n${gridContext}` },
+          ...enrichedMessages,
+        ]
+      } catch (e) {
+        console.error("[AI Chat] Grid suggestion failed:", e)
+      }
+    }
+
     const provider = getAiProvider()
 
     if (!provider.chatWithThinking) {
