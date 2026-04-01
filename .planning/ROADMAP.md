@@ -594,11 +594,29 @@ Plans:
   11. Strategy trigger log в БД
 **Plans**: 3 plans
 Plans:
-- [ ] 19-01-PLAN.md — Notification fixes: dedup, signal name, P&L fix, position duration, trigger log
+- [x] 19-01-PLAN.md — Notification fixes: dedup, signal name, P&L fix, position duration, trigger log
 - [x] 19-02-PLAN.md — AI Grid Trading knowledge in prompts + broker-aware chat + tool definition
-- [ ] 19-03-PLAN.md — AI Grid tool handling in DeepSeekProvider + GridAiService chat integration
+- [x] 19-03-PLAN.md — AI Grid tool handling in DeepSeekProvider + GridAiService chat integration
 **UI hint**: yes
 
+### Phase 20: UI Data Flow Fixes — stale state, broken filters, missing refreshes
+**Goal**: Все данные на всех страницах корректны и обновляются. Фильтры работают. Нет stale data. Price bar % меняется с таймфреймом.
+**Depends on**: Phase 19
+**Success Criteria** (what must be TRUE):
+  1. Price bar % меняется при переключении таймфрейма (1d=daily, 1w=weekly)
+  2. Фильтры instrumentType и timeframe на стратегиях реально фильтруют
+  3. Фильтр timeframe на сигналах реально фильтрует
+  4. Позиции в терминале обновляются каждые 10с
+  5. Grid уровни сбрасываются при смене инструмента
+  6. Аналитика портфолио рефрешится при обновлении позиций
+  7. onLevelsChange через useEffect
+  8. fetchTopMovers не пересоздаёт interval
+  9. Стратегии: interval проверяет document.hidden
+  10. Полный аудит + тесты zero regressions
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 20 to break down)
+**UI hint**: yes
 
 ## Progress
 
@@ -643,7 +661,7 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 -> 17 -> 18 (13 blocked on TV license
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 11
-**Plans:** 1/3 plans executed
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 12 to break down)
