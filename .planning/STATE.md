@@ -279,7 +279,51 @@ Plan: 2 of 2
 
 ## Session Continuity
 
-Last session: 2026-04-01T10:18:41.768Z
-Stopped at: Completed 20-01-PLAN.md
+Last session: 2026-04-01
+Stopped at: Phase 20 complete (all plans executed, 791/791 tests green, deployed)
 Resume file: None
-Next: /gsd:plan-phase 6.2
+Next: Phase 16 (Veles Validation) or Phase 21+ (new features)
+
+### Session 2026-04-01 Summary
+Completed 3 full phases + critical fixes in one session:
+
+**Phase 18 — Production Polish (3/3 plans):**
+- Worker Redis resilience, fire-and-forget logging, Bybit testnet env
+- Docker healthchecks (all 5 Dockerfiles + IPv6 fix + HOSTNAME=0.0.0.0)
+- .env.example (31→79 lines), console.log cleanup, ticker @ fix, rate limiting
+
+**Smoke Monitor Fix (pre-phase):**
+- probe naming bug (probe-6 → signals-check)
+- signals-check timeout 10s→30s
+- Supabase probes retry (2x with 1s delay)
+
+**Indicator Audit + Fix:**
+- MACD params: fastPeriod/slowPeriod/signalPeriod → fast/slow/signal (UI→backend mismatch)
+- Stochastic params: kPeriod/dPeriod → period/signalPeriod (same issue)
+- Backend backward-compat fallback for existing strategies
+- 68 new tests covering all 14 indicators
+
+**Phase 19 — Notifications Fix + AI Assistant Upgrade (3/3 plans):**
+- Notification dedup via Redis NX lock
+- Signal name in all 4 notification templates
+- Exit notifications: P&L, entry→exit prices, position duration
+- P&L no fallback quantity=1, StrategyTriggerLog table
+- AI Grid Trading knowledge in CHAT + CRYPTO prompts
+- Broker-aware chat (getChatSystemPrompt(brokerType))
+- create_grid_strategy tool + DeepSeekProvider handler
+- Grid AI suggestion injected in chat flow
+
+**Phase 20 — UI Data Flow Fixes (2/2 plans):**
+- Price bar % now updates on timeframe switch (stale closure fix)
+- Strategies/signals filters actually work (client-side useMemo)
+- Terminal positions refresh every 10s
+- Grid levels reset on instrument change
+- Portfolio analytics auto-refresh on positions change
+- onLevelsChange moved to useEffect
+- fetchTopMovers interval no longer restarts
+- Strategies interval checks document.hidden
+
+**Tests: 709 → 791 (all green, zero regressions)**
+**All deployed to VPS (5.42.121.212), all services healthy**
+**StrategyTriggerLog table created in Supabase**
+**Auto mode enabled in settings.local.json**
