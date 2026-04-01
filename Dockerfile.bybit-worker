@@ -12,4 +12,7 @@ COPY src/server/providers/broker/bybit-constants.ts ./src/server/providers/broke
 
 RUN npx tsx --version
 
+HEALTHCHECK --interval=30s --timeout=5s --start-period=15s --retries=3 \
+  CMD node -e "const r=require('ioredis');const c=new r(process.env.REDIS_URL);c.get('bybit-worker:heartbeat').then(v=>{c.disconnect();if(!v)process.exit(1);const age=Date.now()-parseInt(v);process.exit(age>120000?1:0)}).catch(()=>process.exit(1))" || exit 1
+
 CMD ["npx", "tsx", "scripts/bybit-stream-worker.ts"]

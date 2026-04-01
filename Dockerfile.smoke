@@ -10,4 +10,7 @@ COPY tsconfig.json ./
 COPY scripts/ ./scripts/
 COPY src/lib/redis.ts ./src/lib/redis.ts
 
+HEALTHCHECK --interval=300s --timeout=10s --start-period=30s --retries=2 \
+  CMD node -e "process.exit(0)" || exit 1
+
 CMD ["sh", "-c", "while true; do npx tsx scripts/smoke-monitor.ts; sleep 300; done"]

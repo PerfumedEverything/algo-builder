@@ -11,7 +11,8 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - algo-net
@@ -23,6 +24,11 @@ services:
     volumes:
       - redis-data:/data
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
       - algo-net
 
@@ -41,8 +47,10 @@ services:
       dockerfile: Dockerfile.worker
     env_file: .env
     depends_on:
-      - redis
-      - nextjs
+      redis:
+        condition: service_healthy
+      nextjs:
+        condition: service_started
     restart: unless-stopped
     networks:
       - algo-net
@@ -57,7 +65,8 @@ services:
       - BYBIT_API_KEY=${BYBIT_API_KEY}
       - BYBIT_API_SECRET=${BYBIT_API_SECRET}
     depends_on:
-      - redis
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - algo-net
@@ -70,8 +79,10 @@ services:
     environment:
       - NEXT_PUBLIC_APP_URL=http://nextjs:3000
     depends_on:
-      - redis
-      - nextjs
+      redis:
+        condition: service_healthy
+      nextjs:
+        condition: service_started
     restart: unless-stopped
     networks:
       - algo-net
