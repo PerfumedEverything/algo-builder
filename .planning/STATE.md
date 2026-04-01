@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Milestone complete
-stopped_at: Completed 17-05-PLAN.md
-last_updated: "2026-03-31T13:25:55.691Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 18-01-PLAN.md
+last_updated: "2026-04-01T07:41:08.717Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -21,12 +21,12 @@ See: .planning/v2.0-SPEC.md (full spec)
 See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 **Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
-**Current focus:** Phase 17 — smoke-monitor-test-coverage
+**Current focus:** Phase 18 — production-polish
 
 ## Current Position
 
-Phase: 17
-Plan: Not started
+Phase: 18 (production-polish) — EXECUTING
+Plan: 3 of 3
 
 ## Performance Metrics
 
@@ -100,6 +100,8 @@ Plan: Not started
 | Phase 17-smoke-monitor-test-coverage P03 | 15 | 2 tasks | 2 files |
 | Phase 17 P04 | 5 | 2 tasks | 3 files |
 | Phase 17 P05 | 2 | 2 tasks | 2 files |
+| Phase 18-production-polish P01 | 5 | 2 tasks | 6 files |
+| Phase 18 P02 | 126 | 2 tasks | 8 files |
 
 ## Accumulated Context
 
@@ -226,6 +228,9 @@ Plan: Not started
 - [Phase 17]: Server action test pattern: mock supabase/server, supabase/admin, helpers (getCurrentUserId) and services barrel — deterministic auth + service control
 - [Phase 17]: PortfolioAnalyticsService mocks added for CorrelationService, portfolio-benchmark-service, portfolio-dividend-service
 - [Phase 17]: makeCandle helper added to indicator-calculator.test.ts for deterministic flat/single candle edge case testing
+- [Phase 18-production-polish]: BYBIT_TESTNET defaults to true (safe default) — set BYBIT_TESTNET=false for production
+- [Phase 18]: Worker healthchecks use ioredis heartbeat key pattern — no HTTP endpoint in worker processes
+- [Phase 18]: Redis healthcheck with service_healthy condition — ensures Redis ready before all dependent services connect
 
 ### Roadmap Evolution
 
@@ -255,7 +260,7 @@ Plan: Not started
 
 ## Session Continuity
 
-Last session: 2026-03-31T13:17:31.760Z
-Stopped at: Completed 17-05-PLAN.md
+Last session: 2026-04-01T07:40:51.008Z
+Stopped at: Completed 18-01-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2

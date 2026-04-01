@@ -571,9 +571,9 @@ Plans:
   10. Нет console.log в production коде
 **Plans**: 3 plans
 Plans:
-- [ ] 18-01-PLAN.md — Worker Redis resilience + fire-and-forget logging + Bybit testnet env
-- [ ] 18-02-PLAN.md — Docker healthchecks + .env.example docs + console.log cleanup
-- [ ] 18-03-PLAN.md — Ticker @ display fix + rate limiting on heavy operations
+- [x] 18-01-PLAN.md — Worker Redis resilience + fire-and-forget logging + Bybit testnet env
+- [x] 18-02-PLAN.md — Docker healthchecks + .env.example docs + console.log cleanup
+- [x] 18-03-PLAN.md — Ticker @ display fix + rate limiting on heavy operations
 **UI hint**: yes
 
 
@@ -623,7 +623,7 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 -> 17 -> 18 (13 blocked on TV license
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 11
-**Plans:** 5/5 plans complete
+**Plans:** 3/3 plans complete
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 12 to break down)
