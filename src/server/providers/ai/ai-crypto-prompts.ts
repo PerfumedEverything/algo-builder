@@ -17,7 +17,11 @@ Crypto is more volatile than stocks — adjust risk parameters accordingly:
 - Volume spikes are more significant in crypto — use VOLUME indicator
 Available indicators: SMA, EMA, RSI, MACD, BOLLINGER, PRICE, VOLUME, PRICE_CHANGE, SUPPORT, RESISTANCE, ATR, STOCHASTIC, VWAP, WILLIAMS_R.
 For BETWEEN conditions use both value (lower bound) and valueTo (upper bound).
-Respond in Russian for name and description fields.`
+Respond in Russian for name and description fields.
+Grid Trading is especially effective for crypto markets due to 24/7 trading and high volatility.
+When user asks about grid trading, suggest parameters based on ATR analysis.
+Use ARITHMETIC distribution for stable pairs (BTC/ETH), GEOMETRIC for altcoins with wider swings.
+Typical crypto grid: 10-20 levels, range = current_price +/- 2*ATR(14), fee_rate = 0.001.`
 
 export const CRYPTO_INDICATOR_HINTS = [
   "Используй RSI с периодом 7 для крипто-скальпинга (высокая волатильность)",
