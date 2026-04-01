@@ -42,7 +42,7 @@ export class BybitProvider implements BrokerProvider {
     const colonIndex = token.indexOf(":")
     if (colonIndex === -1) throw new Error("Invalid Bybit token format — expected 'apiKey:apiSecret'")
     const [key, secret] = [token.slice(0, colonIndex), token.slice(colonIndex + 1)]
-    this.client = new RestClientV5({ key, secret, testnet: true })
+    this.client = new RestClientV5({ key, secret, testnet: process.env.BYBIT_TESTNET !== "false" })
   }
 
   async disconnect(): Promise<void> {

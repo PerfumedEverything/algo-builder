@@ -24,7 +24,7 @@ const getOrderBookTinkoff = async (figi: string, depth: number): Promise<OrderBo
 }
 
 const getOrderBookBybit = async (symbol: string, depth: number, apiKey: string, apiSecret: string): Promise<OrderBookData> => {
-  const client = new RestClientV5({ key: apiKey, secret: apiSecret, testnet: true })
+  const client = new RestClientV5({ key: apiKey, secret: apiSecret, testnet: process.env.BYBIT_TESTNET !== "false" })
   const res = await client.getOrderbook({ category: "linear", symbol, limit: depth })
   const bids = res.result.b.map(([price, qty]) => ({ price: parseFloat(price), quantity: parseFloat(qty) }))
   const asks = res.result.a.map(([price, qty]) => ({ price: parseFloat(price), quantity: parseFloat(qty) }))

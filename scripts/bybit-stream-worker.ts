@@ -27,7 +27,7 @@ const SYMBOLS = BYBIT_CRYPTO_PAIRS.map((p) => p.symbol)
 
 const wsClient = new WebsocketClient({
   market: "v5",
-  testnet: true,
+  testnet: process.env.BYBIT_TESTNET !== "false",
   key: process.env.BYBIT_API_KEY,
   secret: process.env.BYBIT_API_SECRET,
 })
@@ -83,7 +83,7 @@ async function writeHeartbeat() {
 async function main() {
   await redis.connect()
   console.log("[BybitWorker] Redis connected")
-  console.log(`[BybitWorker] Subscribing to ${SYMBOLS.length} symbols on testnet`)
+  console.log(`[BybitWorker] Subscribing to ${SYMBOLS.length} symbols on ${process.env.BYBIT_TESTNET !== "false" ? "testnet" : "mainnet"}`)
 
   for (const symbol of SYMBOLS) {
     wsClient.subscribeV5(`tickers.${symbol}`, "linear")
