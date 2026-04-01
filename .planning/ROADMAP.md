@@ -615,8 +615,8 @@ Plans:
   10. Полный аудит + тесты zero regressions
 **Plans**: 2 plans
 Plans:
-- [ ] 20-01-PLAN.md — Terminal data flow fixes (price bar %, positions refresh, grid reset, topMovers, onLevelsChange)
-- [ ] 20-02-PLAN.md — Strategies/signals filters + portfolio analytics refresh + visibility check
+- [x] 20-01-PLAN.md — Terminal data flow fixes (price bar %, positions refresh, grid reset, topMovers, onLevelsChange)
+- [x] 20-02-PLAN.md — Strategies/signals filters + portfolio analytics refresh + visibility check
 **UI hint**: yes
 
 ## Progress
@@ -662,7 +662,7 @@ v2.0: 12 -> 14 -> 14.2 -> 15 -> 15.1 -> 16 -> 17 -> 18 (13 blocked on TV license
 **Goal:** [To be planned]
 **Requirements**: TBD
 **Depends on:** Phase 11
-**Plans:** 3/3 plans complete
+**Plans:** 2/2 plans complete
 
 Plans:
 - [ ] TBD (run /gsd:plan-phase 12 to break down)

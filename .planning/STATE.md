@@ -2,9 +2,9 @@
 gsd_state_version: 1.0
 milestone: v2.0
 milestone_name: Корректный движок + Bybit + Pro Terminal
-status: Ready to execute
-stopped_at: Completed 19-02-PLAN.md
-last_updated: "2026-04-01T09:03:37.496Z"
+status: Phase complete — ready for verification
+stopped_at: Completed 20-01-PLAN.md
+last_updated: "2026-04-01T10:18:41.772Z"
 progress:
   total_phases: 13
   completed_phases: 13
@@ -21,12 +21,12 @@ See: .planning/v2.0-SPEC.md (full spec)
 See: .planning/REQUIREMENTS-v2.0.md (requirements)
 
 **Core value:** Корректный торговый движок с точностью реальных денег. Профессиональный терминал. Мульти-брокер (T-Invest + Bybit). AI-помощник для трейдинга.
-**Current focus:** Phase 19 — notifications-ai-upgrade
+**Current focus:** Phase 20 — ui-data-flow-fixes
 
 ## Current Position
 
-Phase: 19 (notifications-ai-upgrade) — EXECUTING
-Plan: 2 of 3
+Phase: 20 (ui-data-flow-fixes) — EXECUTING
+Plan: 2 of 2
 
 ## Performance Metrics
 
@@ -104,6 +104,10 @@ Plan: 2 of 3
 | Phase 18 P02 | 126 | 2 tasks | 8 files |
 | Phase 18-production-polish P03 | 5 | 2 tasks | 4 files |
 | Phase 19-notifications-ai-upgrade P02 | 8 | 2 tasks | 6 files |
+| Phase 19-notifications-ai-upgrade P01 | 336 | 1 tasks | 5 files |
+| Phase 19 P03 | 6 | 2 tasks | 4 files |
+| Phase 20 P02 | 3 | 2 tasks | 3 files |
+| Phase 20-ui-data-flow-fixes P01 | 2 | 2 tasks | 2 files |
 
 ## Accumulated Context
 
@@ -237,6 +241,15 @@ Plan: 2 of 3
 - [Phase 19]: getChatSystemPrompt(brokerType) appends broker context suffix to base CHAT_SYSTEM_PROMPT — avoids prompt duplication
 - [Phase 19]: brokerType fetched at route level (not provider level) — route owns auth/DB context
 - [Phase 19]: AiStreamChunk.type extended with grid_strategy and error — allows client to differentiate grid strategy responses
+- [Phase 19]: Redis SET NX with TTL used for notification dedup — prevents concurrent cron+realtime duplicates without DB coordination
+- [Phase 19]: P&L block skipped entirely when recordedQuantity=0 — no fallback to 1, preserves data integrity in exit notifications
+- [Phase 19]: getLastBuyOperation returns full StrategyOperation (vs scalar price) to enable position duration calculation on exit
+- [Phase 19]: generateGridStrategyTool passed alongside generateStrategyTool in tool call path — AI selects tool based on user intent
+- [Phase 19]: Grid context injection in chat route only when ticker + figi + grid keywords present — avoids unnecessary GridAiService.suggestParams calls
+- [Phase 20]: filteredStrategies/filteredSignals useMemo derive from server-fetched list — no extra requests needed
+- [Phase 20]: portfolio analytics useEffect intentionally omits fetchAnalytics from deps to avoid infinite loop
+- [Phase 20]: fetchDailyStats now requires explicit period param — no stale closure, caller always owns period value
+- [Phase 20]: topMoversLoadedRef replaces topMovers state in fetchTopMovers deps — fixes interval restart on every fetch
 
 ### Roadmap Evolution
 
@@ -266,7 +279,7 @@ Plan: 2 of 3
 
 ## Session Continuity
 
-Last session: 2026-04-01T09:03:37.492Z
-Stopped at: Completed 19-02-PLAN.md
+Last session: 2026-04-01T10:18:41.768Z
+Stopped at: Completed 20-01-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6.2
