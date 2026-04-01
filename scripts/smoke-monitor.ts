@@ -20,11 +20,23 @@ const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "http://localhost:3000"
 const CRON_SECRET = process.env.CRON_SECRET ?? ""
 const SMOKE_CHAT_ID = process.env.SMOKE_CHAT_ID ?? process.env.TELEGRAM_ADMIN_CHAT_ID ?? ""
 
-const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> => {
-  const timeout = new Promise<never>((_, reject) =>
-    setTimeout(() => reject(new Error(`Probe timed out after ${ms}ms`)), ms),
+const TIMEOUT_MS = 10_000
+const HEAVY_TIMEOUT_MS = 30_000
+
+const withTimeout = (promise: Promise<ProbeResult>, ms: number, name: string): Promise<ProbeResult> => {
+  const timeout = new Promise<ProbeResult>((resolve) =>
+    setTimeout(() => resolve({ name, ok: false, reason: `Probe timed out after ${ms}ms`, durationMs: ms }), ms),
   )
   return Promise.race([promise, timeout])
+}
+
+const withRetry = async (fn: () => Promise<ProbeResult>, retries = 2, delayMs = 1000): Promise<ProbeResult> => {
+  let result = await fn()
+  for (let i = 0; i < retries && !result.ok; i++) {
+    await new Promise((r) => setTimeout(r, delayMs))
+    result = await fn()
+  }
+  return result
 }
 
 export const runSmoke = async (): Promise<void> => {
@@ -36,25 +48,18 @@ export const runSmoke = async (): Promise<void> => {
   )
   const bot = new Bot(process.env.TELEGRAM_BOT_TOKEN!)
 
-  const TIMEOUT_MS = 10_000
-
-  const settled = await Promise.allSettled([
-    withTimeout(probeHealth(APP_URL), TIMEOUT_MS),
-    withTimeout(probeRedis(redis), TIMEOUT_MS),
-    withTimeout(probeDatabase(supabase), TIMEOUT_MS),
-    withTimeout(probePriceWorker(redis), TIMEOUT_MS),
-    withTimeout(probeBybitWorker(redis), TIMEOUT_MS),
-    withTimeout(probeTelegramBot(redis), TIMEOUT_MS),
-    withTimeout(probeSignalsCheck(APP_URL, CRON_SECRET), TIMEOUT_MS),
-    withTimeout(probePricesEndpoint(APP_URL), TIMEOUT_MS),
-    withTimeout(probeCandleCache(redis), TIMEOUT_MS),
-    withTimeout(probeActiveStrategies(supabase), TIMEOUT_MS),
+  const results: ProbeResult[] = await Promise.all([
+    withTimeout(probeHealth(APP_URL), TIMEOUT_MS, "health"),
+    withTimeout(probeRedis(redis), TIMEOUT_MS, "redis"),
+    withTimeout(withRetry(() => probeDatabase(supabase)), TIMEOUT_MS, "database"),
+    withTimeout(probePriceWorker(redis), TIMEOUT_MS, "price-worker"),
+    withTimeout(probeBybitWorker(redis), TIMEOUT_MS, "bybit-worker"),
+    withTimeout(probeTelegramBot(redis), TIMEOUT_MS, "telegram-bot"),
+    withTimeout(probeSignalsCheck(APP_URL, CRON_SECRET), HEAVY_TIMEOUT_MS, "signals-check"),
+    withTimeout(probePricesEndpoint(APP_URL), TIMEOUT_MS, "prices-endpoint"),
+    withTimeout(probeCandleCache(redis), TIMEOUT_MS, "candle-cache"),
+    withTimeout(withRetry(() => probeActiveStrategies(supabase)), TIMEOUT_MS, "active-strategies"),
   ])
-
-  const results: ProbeResult[] = settled.map((s, i) => {
-    if (s.status === "fulfilled") return s.value
-    return { name: `probe-${i}`, ok: false, reason: String(s.reason), durationMs: 0 }
-  })
 
   const failed = results.filter((r) => !r.ok)
   const passed = results.filter((r) => r.ok)
