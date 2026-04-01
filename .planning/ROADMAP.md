@@ -576,8 +576,26 @@ Plans:
 - [x] 18-03-PLAN.md — Ticker @ display fix + rate limiting on heavy operations
 **UI hint**: yes
 
-
-
+### Phase 19: Notifications Fix + AI Assistant Upgrade
+**Goal**: Уведомления надёжные и информативные (дедупликация, P&L, длительность позиции, signal name). AI ассистент — продвинутый помощник: знает про Grid Trading, Bybit/крипто, помогает создавать Grid стратегии через чат, предлагает варианты и рассуждает на уровне трейдера.
+**Depends on**: Phase 18 (production polish complete)
+**Requirements**: NOTIF-01, NOTIF-02, NOTIF-03, NOTIF-04, NOTIF-05, AI-01, AI-02, AI-03, AI-04, AI-05, AI-06
+**Success Criteria** (what must be TRUE):
+  1. Дедупликация уведомлений — Redis lock предотвращает дубли при concurrent cron+realtime
+  2. Signal name отображается во ВСЕХ типах уведомлений (price level, volume, etc.)
+  3. Exit уведомления: P&L (₽ и %), вход→выход цены, длительность позиции
+  4. P&L корректен при quantity=0 (нет fallback на 1)
+  5. AI обсуждает Grid Trading — предлагает параметры, объясняет стратегию
+  6. AI знает брокер пользователя (T-Invest/Bybit) и адаптирует советы
+  7. AI создаёт Grid стратегию через tool call create_grid_strategy
+  8. AI system prompt включает Grid Trading знания
+  9. AI предлагает 2-3 варианта Grid перед созданием
+  10. Grid AI suggestion интегрирован в чат
+  11. Strategy trigger log в БД
+**Plans**: 0 plans
+Plans:
+- [ ] TBD (run /gsd:plan-phase 19 to break down)
+**UI hint**: yes
 
 
 ## Progress
