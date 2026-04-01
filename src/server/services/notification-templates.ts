@@ -39,7 +39,7 @@ export const formatSignalNotification = (signal: SignalRow, ctx: EvalContext): s
   }
 }
 
-const formatPriceLevel = (
+export const formatPriceLevel = (
   ticker: string,
   signal: SignalRow,
   ctx: EvalContext,
@@ -50,6 +50,7 @@ const formatPriceLevel = (
 
   return [
     `🔔 *ЦЕЛЕВОЙ УРОВЕНЬ | ${ticker}*`,
+    `📛 ${signal.name}`,
     `🎯 Цена: ${target}₽`,
     `📊 Текущая цена: ${ctx.price.toFixed(2)}₽ (${sign}${diff}%)`,
     `⏱️ Сработало: ${new Date().toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow" })}`,
@@ -58,7 +59,7 @@ const formatPriceLevel = (
   ].join("\n")
 }
 
-const formatPriceChange = (
+export const formatPriceChange = (
   ticker: string,
   signal: SignalRow,
   ctx: EvalContext,
@@ -79,6 +80,7 @@ const formatPriceChange = (
 
   return [
     `${emoji} *РЕЗКИЙ ${direction} | ${ticker}*`,
+    `📛 ${signal.name}`,
     `${arrow} ${change >= 0 ? "+" : ""}${change.toFixed(1)}% за ${period} бар`,
     `💰 ${prevPrice.toFixed(2)}₽ → ${ctx.price.toFixed(2)}₽`,
     `📊 Объем: ${volRatio}% от среднего`,
@@ -87,7 +89,7 @@ const formatPriceChange = (
   ].join("\n")
 }
 
-const formatVolumeAnomaly = (
+export const formatVolumeAnomaly = (
   ticker: string,
   signal: SignalRow,
   ctx: EvalContext,
@@ -100,6 +102,7 @@ const formatVolumeAnomaly = (
 
   return [
     `📊 *АНОМАЛИЯ ОБЪЕМА | ${ticker}*`,
+    `📛 ${signal.name}`,
     `🔥 Объем: ${formatNumber(curVol)} (в ${multiplier}x выше среднего)`,
     `📈 Цена: ${priceChange >= 0 ? "+" : ""}${priceChange.toFixed(1)}%`,
     `🕐 ${new Date().toLocaleTimeString("ru-RU", { timeZone: "Europe/Moscow" })}`,
@@ -108,7 +111,7 @@ const formatVolumeAnomaly = (
   ].join("\n")
 }
 
-const formatLevelBreakout = (
+export const formatLevelBreakout = (
   ticker: string,
   signal: SignalRow,
   ctx: EvalContext,
@@ -131,6 +134,7 @@ const formatLevelBreakout = (
 
   return [
     `⛓️ *ПРОБОЙ УРОВНЯ | ${ticker}*`,
+    `📛 ${signal.name}`,
     `📊 Тип: ${levelType}`,
     `🎯 Уровень: ${level.toFixed(2)}₽`,
     `📈 Цена сейчас: ${ctx.price.toFixed(2)}₽ (${ctx.price >= level ? "+" : ""}${diff}%)`,

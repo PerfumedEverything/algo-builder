@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin"
+import { redis } from "@/lib/redis"
 import type { SignalRow } from "@/server/repositories/signal-repository"
 import { TelegramProvider } from "@/server/providers/notification"
 
@@ -22,6 +23,10 @@ export class SignalTriggerHandler {
   }
 
   async handle(signal: SignalRow, result: CheckResult) {
+    const lockKey = `notif:signal:${signal.id}:${signal.triggerCount + 1}`
+    const acquired = await redis.set(lockKey, "1", "EX", 300, "NX")
+    if (!acquired) return
+
     const { data: updated } = await this.db.from("Signal")
       .update({ triggerCount: signal.triggerCount + 1, lastTriggered: new Date().toISOString(), isActive: !!signal.repeatMode, updatedAt: new Date().toISOString() })
       .eq("id", signal.id).eq("triggerCount", signal.triggerCount).select("id")
