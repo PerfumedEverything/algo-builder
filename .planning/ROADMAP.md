@@ -613,9 +613,10 @@ Plans:
   8. fetchTopMovers не пересоздаёт interval
   9. Стратегии: interval проверяет document.hidden
   10. Полный аудит + тесты zero regressions
-**Plans**: 0 plans
+**Plans**: 2 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 20 to break down)
+- [ ] 20-01-PLAN.md — Terminal data flow fixes (price bar %, positions refresh, grid reset, topMovers, onLevelsChange)
+- [ ] 20-02-PLAN.md — Strategies/signals filters + portfolio analytics refresh + visibility check
 **UI hint**: yes
 
 ## Progress
