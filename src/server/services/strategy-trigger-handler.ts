@@ -1,4 +1,5 @@
 import { createAdminClient } from "@/lib/supabase/admin"
+import { redis } from "@/lib/redis"
 import type { StrategyConfig } from "@/core/types"
 import type { StrategyRow } from "@/server/repositories/strategy-repository"
 import { TelegramProvider } from "@/server/providers/notification"
@@ -9,6 +10,16 @@ type TriggerResult = {
   triggered: boolean
   price?: number
   message: string
+}
+
+const formatDuration = (ms: number): string => {
+  const totalMinutes = Math.floor(ms / 60000)
+  const days = Math.floor(totalMinutes / 1440)
+  const hours = Math.floor((totalMinutes % 1440) / 60)
+  const minutes = totalMinutes % 60
+  if (days > 0) return `${days}д ${hours}ч`
+  if (hours > 0) return `${hours}ч ${minutes}мин`
+  return `${minutes}мин`
 }
 
 export class StrategyTriggerHandler {
@@ -34,6 +45,10 @@ export class StrategyTriggerHandler {
     const isEntry = result.side === "entry"
     const expectedState = isEntry ? "NONE" : "OPEN"
     const newPositionState = isEntry ? "OPEN" : "NONE"
+    const minuteBucket = (Date.now() / 60000) | 0
+    const lockKey = `notif:strategy:${strategy.id}:${result.side}:${minuteBucket}`
+    const acquired = await redis.set(lockKey, "1", "EX", 120, "NX")
+    if (!acquired) return
 
     let query = this.db.from("Strategy")
       .update({ positionState: newPositionState, updatedAt: new Date().toISOString() })
@@ -79,25 +94,37 @@ export class StrategyTriggerHandler {
       if (recordedQuantity > 0) {
         message += `\n\n📦 Продано: ${recordedQuantity} лот(ов) на ${recordedAmount.toFixed(2)}₽`
       }
-      let buyPrice = 0
       try {
-        buyPrice = await this.operationService.getLastBuyPrice(strategy.id)
-      } catch {
-        try {
-          buyPrice = await this.operationService.getLastBuyPrice(strategy.id)
-        } catch (e) {
-          console.error(`[StrategyChecker] getLastBuyPrice failed after retry for strategy ${strategy.id}:`, e)
+        const lastBuyOp = await this.operationService.getLastBuyOperation(strategy.id)
+        if (lastBuyOp && lastBuyOp.price > 0 && recordedQuantity > 0) {
+          const buyPrice = lastBuyOp.price
+          const pnlPerShare = result.price - buyPrice
+          const totalPnl = pnlPerShare * recordedQuantity
+          const pnlPercent = ((pnlPerShare / buyPrice) * 100).toFixed(2)
+          const pnlSign = totalPnl >= 0 ? "+" : ""
+          message += `\n\n💰 *P&L:* ${pnlSign}${totalPnl.toFixed(2)}₽ (${pnlSign}${pnlPercent}%)`
+          message += `\n📊 Вход: ${buyPrice.toFixed(2)}₽ → Выход: ${result.price.toFixed(2)}₽`
+          const durationMs = Date.now() - new Date(lastBuyOp.createdAt).getTime()
+          message += `\n⏱️ Позиция: ${formatDuration(durationMs)}`
         }
+      } catch (e) {
+        console.error(`[StrategyChecker] getLastBuyOperation failed for strategy ${strategy.id}:`, e)
       }
-      if (buyPrice > 0) {
-        const pnlPerShare = result.price - buyPrice
-        const quantity = recordedQuantity > 0 ? recordedQuantity : 1
-        const totalPnl = pnlPerShare * quantity
-        const pnlPercent = ((pnlPerShare / buyPrice) * 100).toFixed(2)
-        const pnlSign = totalPnl >= 0 ? "+" : ""
-        message += `\n\n💰 *P&L:* ${pnlSign}${totalPnl.toFixed(2)}₽ (${pnlSign}${pnlPercent}%)`
-        message += `\n📊 Вход: ${buyPrice.toFixed(2)}₽ → Выход: ${result.price.toFixed(2)}₽`
-      }
+    }
+
+    try {
+      await this.db.from("StrategyTriggerLog").insert({
+        strategyId: strategy.id,
+        instrument: strategy.instrument,
+        side: result.side,
+        price: result.price ?? 0,
+        message,
+        quantity: recordedQuantity,
+        amount: recordedAmount,
+        triggeredAt: new Date().toISOString(),
+      })
+    } catch (e) {
+      console.error(`[StrategyChecker] StrategyTriggerLog insert failed for strategy ${strategy.id}:`, e)
     }
 
     const { data: user } = await this.db.from("User").select("telegramChatId").eq("id", strategy.userId).single()
