@@ -569,10 +569,16 @@ Plans:
   8. Bybit testnet/prod контролируется через env
   9. Rate limiting на тяжёлые операции
   10. Нет console.log в production коде
-**Plans**: 0 plans
+**Plans**: 3 plans
 Plans:
-- [ ] TBD (run /gsd:plan-phase 18 to break down)
+- [ ] 18-01-PLAN.md — Worker Redis resilience + fire-and-forget logging + Bybit testnet env
+- [ ] 18-02-PLAN.md — Docker healthchecks + .env.example docs + console.log cleanup
+- [ ] 18-03-PLAN.md — Ticker @ display fix + rate limiting on heavy operations
 **UI hint**: yes
+
+
+
+
 
 ## Progress
 
